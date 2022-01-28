@@ -1,42 +1,26 @@
 from datetime import datetime
 from enum import Enum
-from typing import List
+from typing import Any, Dict, Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
-from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.entities.entity import Entity
 
 
 class ExperimentState(str, Enum):
     OPEN = 'open'
+    CLOSED = 'closed'
 
 
-class Experiment(BaseModel):
-    eid: str
+class Experiment(Entity):
     name: str
     description: str
     created_at: datetime = Field(alias='createdAt')
     edited_at: datetime = Field(alias='editedAt')
-    state: ExperimentState
+    state: Optional[ExperimentState] = None
 
     @classmethod
-    def get(cls, eid: str) -> 'Experiment':
-        api = SignalsNotebookApi.get_default_api()
-
-    @classmethod
-    def get_list(cls) -> List['Experiment']:
-        pass
-
-    @classmethod
-    def delete_by_id(cls, eid: str) -> None:
-        pass
-
-    def delete(self) -> None:
-        self.delete_by_id(self.eid)
-
-    @classmethod
-    def create(cls, **kwargs) -> 'Experiment':
-        pass
-
-    def update(self, **kwargs) -> None:
-        pass
+    def get_list_params(cls) -> Dict[str, Any]:
+        return {
+            'includeTypes': 'experiment',
+        }
