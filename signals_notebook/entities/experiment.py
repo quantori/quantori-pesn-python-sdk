@@ -5,6 +5,7 @@ from typing import Any, Dict, Optional
 from pydantic import Field
 
 from signals_notebook.entities.entity import Entity
+from signals_notebook.types import EntitySubtype
 
 
 class ExperimentState(str, Enum):
@@ -20,7 +21,5 @@ class Experiment(Entity):
     state: Optional[ExperimentState] = None
 
     @classmethod
-    def get_list_params(cls) -> Dict[str, Any]:
-        return {
-            'includeTypes': 'experiment',
-        }
+    def get_subtype(cls) -> EntitySubtype:
+        return EntitySubtype.EXPERIMENT

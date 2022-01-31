@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Generic, NewType, Optional, TypeVar, Union
+from typing import Any, Dict, Generic, NewType, Optional, TypeVar, Union
 
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.generics import GenericModel
@@ -10,6 +10,11 @@ EntityClass = TypeVar('EntityClass')
 
 class EntityType(str, Enum):
     ENTITY = 'entity'
+
+
+class EntitySubtype(str, Enum):
+    NOTEBOOK = 'journal'
+    EXPERIMENT = 'experiment'
 
 
 class Links(BaseModel):
@@ -28,3 +33,12 @@ class ResponseData(GenericModel, Generic[EntityClass]):
 class Response(GenericModel, Generic[EntityClass]):
     links: Links
     data: Union[ResponseData[EntityClass], list[ResponseData[EntityClass]]]
+
+
+class RequestData(GenericModel, Generic[EntityClass]):
+    type: EntitySubtype
+    attributes: Dict[str, Any]
+
+
+class Request(GenericModel, Generic[EntityClass]):
+    data: RequestData[EntityClass]

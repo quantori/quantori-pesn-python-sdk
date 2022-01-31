@@ -1,9 +1,10 @@
-from typing import Any, cast, Dict, List, Type
+import json
+from typing import Any, cast, Dict, List
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.types import EID, EntityClass, ResponseData
+from signals_notebook.types import EID, EntityClass, EntitySubtype, Request, RequestData, ResponseData
 
 
 class Entity(BaseModel):
@@ -11,6 +12,10 @@ class Entity(BaseModel):
 
     class Config:
         validate_assignment = True
+
+    @classmethod
+    def get_subtype(cls) -> EntitySubtype:
+        raise NotImplementedError
 
     @classmethod
     def get_endpoint(cls) -> str:
@@ -21,7 +26,9 @@ class Entity(BaseModel):
 
     @classmethod
     def get_list_params(cls) -> Dict[str, Any]:
-        return {}
+        return {
+            'includeTypes': cls.get_subtype(),
+        }
 
     @classmethod
     def get(cls, eid: EID) -> EntityClass:
@@ -35,7 +42,7 @@ class Entity(BaseModel):
     def get_list(cls) -> List[EntityClass]:
         api = SignalsNotebookApi.get_default_api()
 
-        response = api.call(cls, 'GET', (cls.get_endpoint(),), cls.get_list_params())
+        response = api.call(cls, 'GET', (cls.get_endpoint(),), params=cls.get_list_params())
 
         return [cast(ResponseData, item).body for item in response.data]
 
@@ -44,8 +51,30 @@ class Entity(BaseModel):
         pass
 
     @classmethod
-    def create(cls, **kwargs) -> EntityClass:
+    def create(
+        cls, *, digest: str = None, force: bool = True, attributes: Dict[str, Any] = None, **kwargs
+    ) -> EntityClass:
+        api = SignalsNotebookApi.get_default_api()
+
+        if not attributes:
+            attributes = {}
+
+        request = Request(data=RequestData(type=cls.get_subtype(), attributes=attributes))
+        response = api.call(
+            cls,
+            'POST',
+            (cls.get_endpoint(),),
+            params={
+                'digest': digest,
+                'force': json.dumps(force),
+            },
+            data=request.dict(),
+        )
+
+        return cast(ResponseData, response.data).body
+
+    def refresh(self) -> None:
         pass
 
-    def update(self, **kwargs) -> None:
+    def save(self) -> None:
         pass

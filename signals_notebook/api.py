@@ -3,6 +3,7 @@ from typing import Any, Dict, IO, Union
 
 import requests
 
+from signals_notebook.exceptions import SignalsNotebookError
 from signals_notebook.types import EntityClass, Response
 
 
@@ -12,7 +13,10 @@ class SignalsNotebookApi:
     _api_host = ''
 
     API_VERSION = 'v1.0'
-    BASE_PATH = '/api/rest/'
+    BASE_PATH = 'api/rest'
+    HTTP_DEFAULT_HEADERS = {
+        'Content-Type': 'application/vnd.api+json',
+    }
 
     def __init__(self, session: requests.Session):
         self._session = session
@@ -44,6 +48,7 @@ class SignalsNotebookApi:
         method: str,
         path: Union[str, Sequence[str]],
         params: Dict[str, Any] = None,
+        data: Dict[str, Any] = None,
         headers: Dict[str, str] = None,
         files: Dict[str, IO] = None,
     ) -> Response:
@@ -55,6 +60,7 @@ class SignalsNotebookApi:
         :param params: (optional) A mapping of request parameters where a key
                 is the parameter name and its value is a string or an object
                 which can be JSON-encoded.
+        :param data: (optional) A request body
         :param headers: (optional) A mapping of request headers where a key is the
                 header name and its value is the header value.
         :param files: (optional) An optional mapping of file names to binary open
@@ -69,24 +75,19 @@ class SignalsNotebookApi:
         if not files:
             files = {}
 
-        if method in ('GET', 'DELETE'):
-            response = self._session.request(
-                method=method,
-                url=self._prepare_path(path),
-                params=params,
-                headers=headers,
-                files=files,
-            )
-        else:
-            response = self._session.request(
-                method=method,
-                url=self._prepare_path(path),
-                data=params,
-                headers=headers,
-                files=files,
-            )
+        headers.update(self.HTTP_DEFAULT_HEADERS)
 
-        response.raise_for_status()
+        response = self._session.request(
+            method=method,
+            url=self._prepare_path(path),
+            params=params,
+            data=data,
+            headers=headers,
+            files=files,
+        )
+
+        if not response.ok:
+            raise SignalsNotebookError(response)
 
         result = Response[target_class](**response.json())  # type: ignore
 
