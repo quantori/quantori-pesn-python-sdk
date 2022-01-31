@@ -34,7 +34,11 @@ class Entity(BaseModel):
     def get(cls, eid: EID) -> EntityClass:
         api = SignalsNotebookApi.get_default_api()
 
-        response = api.call(cls, 'GET', (cls.get_endpoint(), eid))
+        response = api.call(
+            method='GET',
+            path=(cls.get_endpoint(), eid),
+            target_class=cls,
+        )
 
         return cast(ResponseData, response.data).body
 
@@ -42,13 +46,27 @@ class Entity(BaseModel):
     def get_list(cls) -> List[EntityClass]:
         api = SignalsNotebookApi.get_default_api()
 
-        response = api.call(cls, 'GET', (cls.get_endpoint(),), params=cls.get_list_params())
+        response = api.call(
+            method='GET',
+            path=(cls.get_endpoint(),),
+            params=cls.get_list_params(),
+            target_class=cls,
+        )
 
         return [cast(ResponseData, item).body for item in response.data]
 
     @classmethod
-    def delete_by_id(cls, eid: EID) -> None:
-        pass
+    def delete_by_id(cls, eid: EID, digest: str = None, force: bool = True) -> None:
+        api = SignalsNotebookApi.get_default_api()
+
+        api.call(
+            method='DELETE',
+            path=(cls.get_endpoint(), eid),
+            params={
+                'digest': digest,
+                'force': json.dumps(force),
+            },
+        )
 
     @classmethod
     def create(
@@ -61,14 +79,14 @@ class Entity(BaseModel):
 
         request = Request(data=RequestData(type=cls.get_subtype(), attributes=attributes))
         response = api.call(
-            cls,
-            'POST',
-            (cls.get_endpoint(),),
+            method='POST',
+            path=(cls.get_endpoint(),),
             params={
                 'digest': digest,
                 'force': json.dumps(force),
             },
             data=request.dict(),
+            target_class=cls,
         )
 
         return cast(ResponseData, response.data).body

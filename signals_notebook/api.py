@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Any, Dict, IO, Union
+from typing import Any, Dict, IO, Type, Union
 
 import requests
 
@@ -44,17 +44,16 @@ class SignalsNotebookApi:
 
     def call(
         self,
-        target_class: EntityClass,
         method: str,
         path: Union[str, Sequence[str]],
         params: Dict[str, Any] = None,
         data: Dict[str, Any] = None,
         headers: Dict[str, str] = None,
         files: Dict[str, IO] = None,
+        target_class: Type[EntityClass] = None,
     ) -> Response:
         """
         Makes an API call
-        :param target_class: a class-container for response data
         :param method: The HTTP method name (e.g. 'GET').
         :param path: an absolute API path
         :param params: (optional) A mapping of request parameters where a key
@@ -65,6 +64,7 @@ class SignalsNotebookApi:
                 header name and its value is the header value.
         :param files: (optional) An optional mapping of file names to binary open
                 file objects. These files will be attached to the request.
+        :param target_class: a class-container for response data
         :return: a response object
         """
 
@@ -89,9 +89,11 @@ class SignalsNotebookApi:
         if not response.ok:
             raise SignalsNotebookError(response)
 
-        result = Response[target_class](**response.json())  # type: ignore
+        if target_class:
+            result = Response[target_class](**response.json())  # type: ignore
+            return result
 
-        return result
+        return None
 
     @classmethod
     def _prepare_path(cls, path: Union[str, Sequence[str]]) -> str:
