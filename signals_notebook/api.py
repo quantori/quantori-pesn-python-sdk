@@ -81,7 +81,7 @@ class SignalsNotebookApi:
             method=method,
             url=self._prepare_path(path),
             params=params,
-            data=data,
+            json=data,
             headers=headers,
             files=files,
         )

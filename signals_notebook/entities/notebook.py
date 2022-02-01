@@ -7,8 +7,8 @@ from signals_notebook.types import EntitySubtype
 
 
 class Notebook(Entity):
-    name: str
-    description: str
+    name: str = Field(title='Name')
+    description: str = Field(title='Description')
     created_at: datetime = Field(alias='createdAt', allow_mutation=False)
     edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
     digest: str = Field(allow_mutation=False)
@@ -18,5 +18,9 @@ class Notebook(Entity):
         return EntitySubtype.NOTEBOOK
 
     @classmethod
-    def create(cls, *, name: str, description: str, **kwargs) -> 'Notebook':
-        return super().create(attributes={'name': name, 'description': description}, **kwargs)
+    def create(cls, *, name: str, description: str, digest: str = None, force: bool = True) -> 'Notebook':
+        return super()._create(
+            digest=digest,
+            force=force,
+            attributes={'name': name, 'description': description},
+        )

@@ -35,10 +35,10 @@ class Response(GenericModel, Generic[EntityClass]):
     data: Union[ResponseData[EntityClass], list[ResponseData[EntityClass]]]
 
 
-class RequestData(GenericModel, Generic[EntityClass]):
+class RequestData(BaseModel):
     type: EntitySubtype
     attributes: Dict[str, Any]
 
 
-class Request(GenericModel, Generic[EntityClass]):
-    data: RequestData[EntityClass]
+class Request(BaseModel):
+    data: RequestData

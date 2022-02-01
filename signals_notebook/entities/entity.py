@@ -69,7 +69,7 @@ class Entity(BaseModel):
         )
 
     @classmethod
-    def create(
+    def _create(
         cls, *, digest: str = None, force: bool = True, attributes: Dict[str, Any] = None, **kwargs
     ) -> EntityClass:
         api = SignalsNotebookApi.get_default_api()
@@ -94,5 +94,27 @@ class Entity(BaseModel):
     def refresh(self) -> None:
         pass
 
-    def save(self) -> None:
-        pass
+    def save(self, force: bool = True) -> None:
+        api = SignalsNotebookApi.get_default_api()
+
+        request_body = []
+        for field in self.__fields__.values():
+            if field.field_info.allow_mutation:
+                request_body.append({
+                    'attributes': {
+                        'name': field.field_info.title,
+                        'value': getattr(self, field.name)
+                    }
+                })
+
+        api.call(
+            method='PATCH',
+            path=(self.get_endpoint(), self.eid, 'properties'),
+            params={
+                'digest': None if force else self.digest,
+                'force': json.dumps(force),
+            },
+            data={
+                'data': request_body,
+            }
+        )
