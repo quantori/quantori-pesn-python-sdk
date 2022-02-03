@@ -28,7 +28,7 @@ class Notebook(Entity):
     edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
 
     @classmethod
-    def get_subtype(cls) -> EntitySubtype:
+    def _get_subtype(cls) -> EntitySubtype:
         return EntitySubtype.NOTEBOOK
 
     @classmethod
@@ -38,7 +38,7 @@ class Notebook(Entity):
 
         request = _RequestPayload(
             data=_RequestBody(
-                type=cls.get_subtype(),
+                type=cls._get_subtype(),
                 attributes=_Attributes(
                     name=name,
                     description=description,

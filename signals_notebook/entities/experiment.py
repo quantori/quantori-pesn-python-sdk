@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -42,7 +42,7 @@ class Experiment(Entity):
     state: Optional[ExperimentState] = None
 
     @classmethod
-    def get_subtype(cls) -> EntitySubtype:
+    def _get_subtype(cls) -> EntitySubtype:
         return EntitySubtype.EXPERIMENT
 
     @classmethod
@@ -70,7 +70,7 @@ class Experiment(Entity):
 
         request = _RequestPayload(
             data=_RequestBody(
-                type=cls.get_subtype(),
+                type=cls._get_subtype(),
                 attributes=_Attributes(
                     name=name,
                     description=description,

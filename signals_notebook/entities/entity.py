@@ -5,7 +5,12 @@ from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.types import (
-    EntityCreationRequestPayload, EID, EntityClass, EntityShortDescription, EntitySubtype, Response,
+    EntityCreationRequestPayload,
+    EID,
+    EntityClass,
+    EntityShortDescription,
+    EntitySubtype,
+    Response,
     ResponseData,
 )
 
@@ -18,20 +23,17 @@ class Entity(BaseModel):
         validate_assignment = True
 
     @classmethod
-    def get_subtype(cls) -> EntitySubtype:
+    def _get_subtype(cls) -> EntitySubtype:
         raise NotImplementedError
 
     @classmethod
-    def get_endpoint(cls) -> str:
+    def _get_endpoint(cls) -> str:
         return 'entities'
 
-    def delete(self) -> None:
-        self.delete_by_id(self.eid)
-
     @classmethod
-    def get_list_params(cls) -> Dict[str, Any]:
+    def _get_list_params(cls) -> Dict[str, Any]:
         return {
-            'includeTypes': cls.get_subtype(),
+            'includeTypes': cls._get_subtype(),
         }
 
     @classmethod
@@ -40,7 +42,7 @@ class Entity(BaseModel):
 
         response = api.call(
             method='GET',
-            path=(cls.get_endpoint(), eid),
+            path=(cls._get_endpoint(), eid),
         )
 
         result = Response[cls](**response.json())  # type: ignore
@@ -53,8 +55,8 @@ class Entity(BaseModel):
 
         response = api.call(
             method='GET',
-            path=(cls.get_endpoint(),),
-            params=cls.get_list_params(),
+            path=(cls._get_endpoint(),),
+            params=cls._get_list_params(),
         )
 
         result = Response[cls](**response.json())  # type: ignore
@@ -67,12 +69,15 @@ class Entity(BaseModel):
 
         api.call(
             method='DELETE',
-            path=(cls.get_endpoint(), eid),
+            path=(cls._get_endpoint(), eid),
             params={
                 'digest': digest,
                 'force': json.dumps(force),
             },
         )
+
+    def delete(self) -> None:
+        self.delete_by_id(self.eid)
 
     @classmethod
     def _create(cls, *, digest: str = None, force: bool = True, request: EntityCreationRequestPayload) -> EntityClass:
@@ -80,7 +85,7 @@ class Entity(BaseModel):
 
         response = api.call(
             method='POST',
-            path=(cls.get_endpoint(),),
+            path=(cls._get_endpoint(),),
             params={
                 'digest': digest,
                 'force': json.dumps(force),
@@ -107,7 +112,7 @@ class Entity(BaseModel):
 
         api.call(
             method='PATCH',
-            path=(self.get_endpoint(), self.eid, 'properties'),
+            path=(self._get_endpoint(), self.eid, 'properties'),
             params={
                 'digest': None if force else self.digest,
                 'force': json.dumps(force),
@@ -119,4 +124,4 @@ class Entity(BaseModel):
 
     @property
     def short_description(self) -> EntityShortDescription:
-        return EntityShortDescription(type=self.get_subtype(), id=self.eid)
+        return EntityShortDescription(type=self._get_subtype(), id=self.eid)
