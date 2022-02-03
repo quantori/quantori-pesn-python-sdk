@@ -50,8 +50,7 @@ class SignalsNotebookApi:
         data: Dict[str, Any] = None,
         headers: Dict[str, str] = None,
         files: Dict[str, IO] = None,
-        target_class: Type[EntityClass] = None,
-    ) -> Response:
+    ) -> requests.Response:
         """
         Makes an API call
         :param method: The HTTP method name (e.g. 'GET').
@@ -64,7 +63,6 @@ class SignalsNotebookApi:
                 header name and its value is the header value.
         :param files: (optional) An optional mapping of file names to binary open
                 file objects. These files will be attached to the request.
-        :param target_class: a class-container for response data
         :return: a response object
         """
 
@@ -89,11 +87,7 @@ class SignalsNotebookApi:
         if not response.ok:
             raise SignalsNotebookError(response)
 
-        if target_class:
-            result = Response[target_class](**response.json())  # type: ignore
-            return result
-
-        return None
+        return response
 
     @classmethod
     def _prepare_path(cls, path: Union[str, Sequence[str]]) -> str:

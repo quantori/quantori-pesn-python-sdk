@@ -1,11 +1,12 @@
 from enum import Enum
-from typing import Any, Dict, Generic, NewType, Optional, TypeVar, Union
+from typing import Generic, List, NewType, Optional, TypeVar, Union
 
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.generics import GenericModel
 
 EID = NewType('EID', str)
 EntityClass = TypeVar('EntityClass')
+AnyModel = TypeVar('AnyModel')
 
 
 class EntityType(str, Enum):
@@ -32,13 +33,29 @@ class ResponseData(GenericModel, Generic[EntityClass]):
 
 class Response(GenericModel, Generic[EntityClass]):
     links: Links
-    data: Union[ResponseData[EntityClass], list[ResponseData[EntityClass]]]
+    data: Union[ResponseData[EntityClass], List[ResponseData[EntityClass]]]
 
 
-class RequestData(BaseModel):
+class DataObject(GenericModel, Generic[AnyModel]):
+    data: AnyModel
+
+
+class DataList(GenericModel, Generic[AnyModel]):
+    data: List[AnyModel]
+
+
+class EntityCreationRequestPayload(DataObject[AnyModel], Generic[AnyModel]):
+    pass
+
+
+class EntityShortDescription(BaseModel):
     type: EntitySubtype
-    attributes: Dict[str, Any]
+    id: EID
 
 
-class Request(BaseModel):
-    data: RequestData
+class Template(DataObject[EntityShortDescription]):
+    pass
+
+
+class Ancestors(DataList[EntityShortDescription]):
+    pass

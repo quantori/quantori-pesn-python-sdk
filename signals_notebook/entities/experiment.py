@@ -1,11 +1,32 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import List, Optional
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
 from signals_notebook.entities.entity import Entity
-from signals_notebook.types import EntitySubtype
+from signals_notebook.entities.notebook import Notebook
+from signals_notebook.types import Ancestors, EntityCreationRequestPayload, EntitySubtype, Template
+
+
+class _Attributes(BaseModel):
+    name: str
+    description: Optional[str] = None
+
+
+class _Relationships(BaseModel):
+    template: Optional[Template] = None
+    ancestors: Optional[Ancestors] = None
+
+
+class _RequestBody(BaseModel):
+    type: EntitySubtype
+    attributes: _Attributes
+    relationships: _Relationships
+
+
+class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
+    pass
 
 
 class ExperimentState(str, Enum):
@@ -14,12 +35,52 @@ class ExperimentState(str, Enum):
 
 
 class Experiment(Entity):
-    name: str
-    description: str
-    created_at: datetime = Field(alias='createdAt')
-    edited_at: datetime = Field(alias='editedAt')
+    name: str = Field(title='Name')
+    description: Optional[str] = Field(title='Description', default=None)
+    created_at: datetime = Field(alias='createdAt', allow_mutation=False)
+    edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
     state: Optional[ExperimentState] = None
 
     @classmethod
     def get_subtype(cls) -> EntitySubtype:
         return EntitySubtype.EXPERIMENT
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        name: str,
+        description: Optional[str] = None,
+        template: Optional['Experiment'] = None,
+        notebook: Optional[Notebook] = None,
+        digest: str = None,
+        force: bool = True
+    ) -> 'Notebook':
+
+        relationships = None
+        if template or notebook:
+            relationships = _Relationships(
+                ancestors=Ancestors(
+                    data=[notebook.short_description]
+                ) if notebook else None,
+                template=Template(
+                    data=template.short_description
+                ) if template else None,
+            )
+
+        request = _RequestPayload(
+            data=_RequestBody(
+                type=cls.get_subtype(),
+                attributes=_Attributes(
+                    name=name,
+                    description=description,
+                ),
+                relationships=relationships,
+            )
+        )
+
+        return super()._create(
+            digest=digest,
+            force=force,
+            request=request,
+        )

@@ -1,14 +1,18 @@
 import json
-from typing import Any, cast, Dict, List
+from typing import Any, cast, Dict, List, Optional
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.types import EID, EntityClass, EntitySubtype, Request, RequestData, ResponseData
+from signals_notebook.types import (
+    EntityCreationRequestPayload, EID, EntityClass, EntityShortDescription, EntitySubtype, Response,
+    ResponseData,
+)
 
 
 class Entity(BaseModel):
     eid: EID = Field(allow_mutation=False)
+    digest: Optional[str] = Field(allow_mutation=False, default=None)
 
     class Config:
         validate_assignment = True
@@ -37,10 +41,11 @@ class Entity(BaseModel):
         response = api.call(
             method='GET',
             path=(cls.get_endpoint(), eid),
-            target_class=cls,
         )
 
-        return cast(ResponseData, response.data).body
+        result = Response[cls](**response.json())  # type: ignore
+
+        return cast(ResponseData, result.data).body
 
     @classmethod
     def get_list(cls) -> List[EntityClass]:
@@ -50,10 +55,11 @@ class Entity(BaseModel):
             method='GET',
             path=(cls.get_endpoint(),),
             params=cls.get_list_params(),
-            target_class=cls,
         )
 
-        return [cast(ResponseData, item).body for item in response.data]
+        result = Response[cls](**response.json())  # type: ignore
+
+        return [cast(ResponseData, item).body for item in result.data]
 
     @classmethod
     def delete_by_id(cls, eid: EID, digest: str = None, force: bool = True) -> None:
@@ -69,15 +75,9 @@ class Entity(BaseModel):
         )
 
     @classmethod
-    def _create(
-        cls, *, digest: str = None, force: bool = True, attributes: Dict[str, Any] = None, **kwargs
-    ) -> EntityClass:
+    def _create(cls, *, digest: str = None, force: bool = True, request: EntityCreationRequestPayload) -> EntityClass:
         api = SignalsNotebookApi.get_default_api()
 
-        if not attributes:
-            attributes = {}
-
-        request = Request(data=RequestData(type=cls.get_subtype(), attributes=attributes))
         response = api.call(
             method='POST',
             path=(cls.get_endpoint(),),
@@ -85,11 +85,12 @@ class Entity(BaseModel):
                 'digest': digest,
                 'force': json.dumps(force),
             },
-            data=request.dict(),
-            target_class=cls,
+            data=request.dict(exclude_none=True),
         )
 
-        return cast(ResponseData, response.data).body
+        result = Response[cls](**response.json())  # type: ignore
+
+        return cast(ResponseData, result.data).body
 
     def refresh(self) -> None:
         pass
@@ -100,12 +101,9 @@ class Entity(BaseModel):
         request_body = []
         for field in self.__fields__.values():
             if field.field_info.allow_mutation:
-                request_body.append({
-                    'attributes': {
-                        'name': field.field_info.title,
-                        'value': getattr(self, field.name)
-                    }
-                })
+                request_body.append(
+                    {'attributes': {'name': field.field_info.title, 'value': getattr(self, field.name)}}
+                )
 
         api.call(
             method='PATCH',
@@ -116,5 +114,9 @@ class Entity(BaseModel):
             },
             data={
                 'data': request_body,
-            }
+            },
         )
+
+    @property
+    def short_description(self) -> EntityShortDescription:
+        return EntityShortDescription(type=self.get_subtype(), id=self.eid)
