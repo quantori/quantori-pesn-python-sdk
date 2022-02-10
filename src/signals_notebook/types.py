@@ -1,3 +1,4 @@
+import dataclasses
 from enum import Enum
 from typing import Generic, List, NewType, Optional, TypeVar, Union
 
@@ -59,3 +60,9 @@ class Template(DataObject[EntityShortDescription]):
 
 class Ancestors(DataList[EntityShortDescription]):
     pass
+
+
+class File(BaseModel):
+    name: str
+    content: bytes
+    content_type: str

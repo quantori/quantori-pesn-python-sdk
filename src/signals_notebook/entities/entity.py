@@ -1,4 +1,6 @@
+import cgi
 import json
+from datetime import datetime
 from typing import Any, cast, Dict, List, Optional
 
 from pydantic import BaseModel, Field
@@ -10,7 +12,7 @@ from signals_notebook.types import (
     EntityClass,
     EntityShortDescription,
     EntitySubtype,
-    Response,
+    File, Response,
     ResponseData,
 )
 
@@ -18,6 +20,10 @@ from signals_notebook.types import (
 class Entity(BaseModel):
     eid: EID = Field(allow_mutation=False)
     digest: Optional[str] = Field(allow_mutation=False, default=None)
+    name: str = Field(title='Name')
+    description: Optional[str] = Field(title='Description', default=None)
+    created_at: datetime = Field(alias='createdAt', allow_mutation=False)
+    edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
 
     class Config:
         validate_assignment = True
@@ -125,3 +131,23 @@ class Entity(BaseModel):
     @property
     def short_description(self) -> EntityShortDescription:
         return EntityShortDescription(type=self._get_subtype(), id=self.eid)
+
+    def get_content(self, format: Optional[str] = None) -> File:
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'export'),
+            params={
+                'format': format,
+            }
+        )
+
+        content_disposition = response.headers.get('content-disposition')
+        _, params = cgi.parse_header(content_disposition)
+
+        return File(
+            name=params['filename'],
+            content=response.content,
+            content_type=response.headers.get('content-type')
+        )

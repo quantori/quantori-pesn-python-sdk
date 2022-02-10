@@ -1,8 +1,7 @@
-from datetime import datetime
 from enum import Enum
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from signals_notebook.entities.entity import Entity
 from signals_notebook.entities.notebook import Notebook
@@ -35,15 +34,14 @@ class ExperimentState(str, Enum):
 
 
 class Experiment(Entity):
-    name: str = Field(title='Name')
-    description: Optional[str] = Field(title='Description', default=None)
-    created_at: datetime = Field(alias='createdAt', allow_mutation=False)
-    edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
     state: Optional[ExperimentState] = None
 
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:
         return EntitySubtype.EXPERIMENT
+
+    def get_content(self, format: Optional[str] = None):
+        raise NotImplementedError
 
     @classmethod
     def create(
