@@ -1,10 +1,9 @@
 from collections.abc import Sequence
-from typing import Any, Dict, IO, Type, Union
+from typing import Any, Dict, IO, Union
 
 import requests
 
 from signals_notebook.exceptions import SignalsNotebookError
-from signals_notebook.types import EntityClass, Response
 
 
 class SignalsNotebookApi:
@@ -47,7 +46,8 @@ class SignalsNotebookApi:
         method: str,
         path: Union[str, Sequence[str]],
         params: Dict[str, Any] = None,
-        data: Dict[str, Any] = None,
+        data: Sequence[bytes] = None,
+        json: Dict[str, Any] = None,
         headers: Dict[str, str] = None,
         files: Dict[str, IO] = None,
     ) -> requests.Response:
@@ -58,7 +58,7 @@ class SignalsNotebookApi:
         :param params: (optional) A mapping of request parameters where a key
                 is the parameter name and its value is a string or an object
                 which can be JSON-encoded.
-        :param data: (optional) A request body
+        :param json: (optional) A request body
         :param headers: (optional) A mapping of request headers where a key is the
                 header name and its value is the header value.
         :param files: (optional) An optional mapping of file names to binary open
@@ -73,16 +73,31 @@ class SignalsNotebookApi:
         if not files:
             files = {}
 
-        headers.update(self.HTTP_DEFAULT_HEADERS)
+        headers = {**self.HTTP_DEFAULT_HEADERS, **headers}
 
-        response = self._session.request(
-            method=method,
-            url=self._prepare_path(path),
-            params=params,
-            json=data,
-            headers=headers,
-            files=files,
-        )
+        if json:
+            response = self._session.request(
+                method=method,
+                url=self._prepare_path(path),
+                params=params,
+                json=json,
+                headers=headers,
+            )
+        elif data:
+            response = self._session.request(
+                method=method,
+                url=self._prepare_path(path),
+                params=params,
+                data=data,
+                headers=headers,
+            )
+        else:
+            response = self._session.request(
+                method=method,
+                url=self._prepare_path(path),
+                params=params,
+                headers=headers,
+            )
 
         if not response.ok:
             raise SignalsNotebookError(response)

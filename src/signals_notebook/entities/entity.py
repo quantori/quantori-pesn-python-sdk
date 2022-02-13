@@ -1,7 +1,8 @@
 import cgi
 import json
+import mimetypes
 from datetime import datetime
-from typing import Any, cast, Dict, List, Optional
+from typing import Any, cast, Dict, List, Optional, Type
 
 from pydantic import BaseModel, Field
 
@@ -12,7 +13,8 @@ from signals_notebook.types import (
     EntityClass,
     EntityShortDescription,
     EntitySubtype,
-    File, Response,
+    File,
+    Response,
     ResponseData,
 )
 
@@ -96,7 +98,7 @@ class Entity(BaseModel):
                 'digest': digest,
                 'force': json.dumps(force),
             },
-            data=request.dict(exclude_none=True),
+            json=request.dict(exclude_none=True),
         )
 
         result = Response[cls](**response.json())  # type: ignore
@@ -123,7 +125,7 @@ class Entity(BaseModel):
                 'digest': None if force else self.digest,
                 'force': json.dumps(force),
             },
-            data={
+            json={
                 'data': request_body,
             },
         )
@@ -140,14 +142,42 @@ class Entity(BaseModel):
             path=(self._get_endpoint(), self.eid, 'export'),
             params={
                 'format': format,
-            }
+            },
         )
 
         content_disposition = response.headers.get('content-disposition')
         _, params = cgi.parse_header(content_disposition)
 
         return File(
-            name=params['filename'],
-            content=response.content,
-            content_type=response.headers.get('content-type')
+            name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
         )
+
+    def add_child(
+        self,
+        name: str,
+        content: bytes,
+        child_class: Type['Entity'],
+        content_type: str,
+        force: bool = True,
+    ) -> 'Entity':
+        api = SignalsNotebookApi.get_default_api()
+
+        extension = mimetypes.guess_extension(content_type)
+        file_name = f'{name}{extension}'
+
+        response = api.call(
+            method='POST',
+            path=(self._get_endpoint(), self.eid, 'children', file_name),
+            params={
+                'digest': None if force else self.digest,
+                'force': json.dumps(force),
+            },
+            headers={
+                'Content-Type': content_type,
+            },
+            data=content,
+        )
+
+        result = Response[child_class](**response.json())  # type: ignore
+
+        return cast(ResponseData, result.data).body
