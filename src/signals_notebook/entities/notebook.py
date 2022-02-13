@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel
 
@@ -21,6 +21,7 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
 
 
 class Notebook(Entity):
+    type: Literal[EntitySubtype.NOTEBOOK]
 
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:

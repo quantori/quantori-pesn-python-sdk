@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel
 
@@ -34,6 +34,7 @@ class ExperimentState(str, Enum):
 
 
 class Experiment(Entity):
+    type: Literal[EntitySubtype.EXPERIMENT]
     state: Optional[ExperimentState] = None
 
     @classmethod

@@ -2,7 +2,7 @@ import cgi
 import json
 import mimetypes
 from datetime import datetime
-from typing import Any, cast, Dict, List, Optional, Type, TypeVar
+from typing import Any, cast, Dict, List, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel, Field
 
@@ -22,6 +22,7 @@ ChildClass = TypeVar('ChildClass', bound='Entity')
 
 
 class Entity(BaseModel):
+    type: EntitySubtype
     eid: EID = Field(allow_mutation=False)
     digest: Optional[str] = Field(allow_mutation=False, default=None)
     name: str = Field(title='Name')
@@ -134,7 +135,7 @@ class Entity(BaseModel):
 
     @property
     def short_description(self) -> EntityShortDescription:
-        return EntityShortDescription(type=self._get_subtype(), id=self.eid)
+        return EntityShortDescription(type=self.type, id=self.eid)
 
     def get_content(self, format: Optional[str] = None) -> File:
         api = SignalsNotebookApi.get_default_api()
@@ -183,3 +184,17 @@ class Entity(BaseModel):
         result = Response[child_class](**response.json())  # type: ignore
 
         return cast(ResponseData, result.data).body
+
+    def get_children(self) -> List[ChildClass]:
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'children'),
+        )
+
+        entity_classes = (*Entity.__subclasses__(), Entity)
+
+        result = Response[Union[entity_classes]](**response.json())  # type: ignore
+
+        return [cast(ResponseData, item).body for item in result.data]

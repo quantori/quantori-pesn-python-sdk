@@ -1,8 +1,12 @@
+from typing import Literal
+
 from signals_notebook.entities.entity import Entity
 from signals_notebook.types import EntitySubtype
 
 
 class Text(Entity):
+    type: Literal[EntitySubtype.TEXT]
+
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:
         return EntitySubtype.TEXT

@@ -17,6 +17,7 @@ class EntitySubtype(str, Enum):
     NOTEBOOK = 'journal'
     EXPERIMENT = 'experiment'
     TEXT = 'text'
+    CHEMICAL_DRAWING = 'chemicalDrawing'
 
 
 class Links(BaseModel):
