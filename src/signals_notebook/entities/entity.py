@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, cast, Dict, List, Optional, TypeVar
+from typing import Any, cast, Dict, Generator, List, Optional, Type, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -33,6 +33,12 @@ class Entity(BaseModel):
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:
         raise NotImplementedError
+
+    @classmethod
+    def get_subclasses(cls) -> Generator[Type[ChildClass], None, None]:
+        for subclass in cls.__subclasses__():
+            yield from subclass.get_subclasses()
+            yield subclass
 
     @classmethod
     def _get_endpoint(cls) -> str:

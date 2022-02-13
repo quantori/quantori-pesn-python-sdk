@@ -1,14 +1,20 @@
+import abc
 import json
 import mimetypes
-from typing import cast, List, Type
+from typing import cast, List, Type, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity import ChildClass
-from signals_notebook.types import ResponseData
+from signals_notebook.types import EntitySubtype, Response, ResponseData
 
 
-class Container(Entity):
+class Container(Entity, abc.ABC):
+
+    @classmethod
+    @abc.abstractmethod
+    def _get_subtype(cls) -> EntitySubtype:
+        pass
 
     def add_child(
         self,
@@ -48,7 +54,7 @@ class Container(Entity):
             path=(self._get_endpoint(), self.eid, 'children'),
         )
 
-        entity_classes = (*Entity.__subclasses__(), Entity)
+        entity_classes = (*Entity.get_subclasses(), Entity)
 
         result = Response[Union[entity_classes]](**response.json())  # type: ignore
 

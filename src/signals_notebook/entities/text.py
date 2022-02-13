@@ -2,7 +2,7 @@ from typing import Literal
 
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.types import EntitySubtype
+from signals_notebook.types import EntitySubtype, File
 
 
 class Text(ContentfulEntity):
@@ -21,3 +21,6 @@ class Text(ContentfulEntity):
             content_type='text/plain',
             force=force,
         )
+
+    def get_content(self) -> File:
+        return super()._get_content()
