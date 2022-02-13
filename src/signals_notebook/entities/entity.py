@@ -35,7 +35,7 @@ class Entity(BaseModel):
         raise NotImplementedError
 
     @classmethod
-    def get_subclasses(cls) -> Generator[Type[ChildClass], None, None]:
+    def get_subclasses(cls) -> Generator[Type['Entity'], None, None]:
         for subclass in cls.__subclasses__():
             yield from subclass.get_subclasses()
             yield subclass
