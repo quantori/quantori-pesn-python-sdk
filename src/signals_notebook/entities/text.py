@@ -9,4 +9,10 @@ class Text(Entity):
 
     @classmethod
     def create(cls, *, container: Entity, name: str, content: str = '', force: bool = True) -> 'Text':
-        return container.add_child(name=name, content=content, child_class=cls, content_type='text/plain', force=force)
+        return container.add_child(
+            name=name,
+            content=content.encode('utf-8'),
+            child_class=cls,
+            content_type='text/plain',
+            force=force,
+        )

@@ -2,7 +2,7 @@ import cgi
 import json
 import mimetypes
 from datetime import datetime
-from typing import Any, cast, Dict, List, Optional, Type
+from typing import Any, cast, Dict, List, Optional, Type, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -17,6 +17,8 @@ from signals_notebook.types import (
     Response,
     ResponseData,
 )
+
+ChildClass = TypeVar('ChildClass', bound='Entity')
 
 
 class Entity(BaseModel):
@@ -145,7 +147,7 @@ class Entity(BaseModel):
             },
         )
 
-        content_disposition = response.headers.get('content-disposition')
+        content_disposition = response.headers.get('content-disposition', '')
         _, params = cgi.parse_header(content_disposition)
 
         return File(
@@ -156,10 +158,10 @@ class Entity(BaseModel):
         self,
         name: str,
         content: bytes,
-        child_class: Type['Entity'],
+        child_class: Type[ChildClass],
         content_type: str,
         force: bool = True,
-    ) -> 'Entity':
+    ) -> ChildClass:
         api = SignalsNotebookApi.get_default_api()
 
         extension = mimetypes.guess_extension(content_type)

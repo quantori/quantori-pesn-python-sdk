@@ -1,9 +1,11 @@
 from collections.abc import Sequence
-from typing import Any, Dict, IO, Union
+from typing import Any, Dict, IO, Iterable, Mapping, Optional, Union
 
 import requests
 
 from signals_notebook.exceptions import SignalsNotebookError
+
+_Data = Union[None, str, bytes, Mapping[str, Any], Mapping[str, Any], Iterable[tuple[str, Optional[str]]], IO[Any]]
 
 
 class SignalsNotebookApi:
@@ -46,10 +48,9 @@ class SignalsNotebookApi:
         method: str,
         path: Union[str, Sequence[str]],
         params: Dict[str, Any] = None,
-        data: Sequence[bytes] = None,
+        data: _Data = None,
         json: Dict[str, Any] = None,
         headers: Dict[str, str] = None,
-        files: Dict[str, IO] = None,
     ) -> requests.Response:
         """
         Makes an API call
@@ -59,10 +60,10 @@ class SignalsNotebookApi:
                 is the parameter name and its value is a string or an object
                 which can be JSON-encoded.
         :param json: (optional) A request body
+        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
+            object to send in the body of the :class:`Request`.
         :param headers: (optional) A mapping of request headers where a key is the
                 header name and its value is the header value.
-        :param files: (optional) An optional mapping of file names to binary open
-                file objects. These files will be attached to the request.
         :return: a response object
         """
 
@@ -70,8 +71,6 @@ class SignalsNotebookApi:
             params = {}
         if not headers:
             headers = {}
-        if not files:
-            files = {}
 
         headers = {**self.HTTP_DEFAULT_HEADERS, **headers}
 

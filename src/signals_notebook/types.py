@@ -1,4 +1,3 @@
-import dataclasses
 from enum import Enum
 from typing import Generic, List, NewType, Optional, TypeVar, Union
 
