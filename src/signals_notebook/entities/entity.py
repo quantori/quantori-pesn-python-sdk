@@ -1,21 +1,13 @@
 import cgi
 import json
-import mimetypes
 from datetime import datetime
-from typing import Any, cast, Dict, List, Optional, Type, TypeVar, Union
+from typing import Any, cast, Dict, List, Optional, TypeVar
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.types import (
-    EntityCreationRequestPayload,
-    EID,
-    EntityClass,
-    EntityShortDescription,
-    EntitySubtype,
-    File,
-    Response,
-    ResponseData,
+    EID, EntityClass, EntityCreationRequestPayload, EntityShortDescription, EntitySubtype, File, Response, ResponseData,
 )
 
 ChildClass = TypeVar('ChildClass', bound='Entity')
@@ -154,47 +146,3 @@ class Entity(BaseModel):
         return File(
             name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
         )
-
-    def add_child(
-        self,
-        name: str,
-        content: bytes,
-        child_class: Type[ChildClass],
-        content_type: str,
-        force: bool = True,
-    ) -> ChildClass:
-        api = SignalsNotebookApi.get_default_api()
-
-        extension = mimetypes.guess_extension(content_type)
-        file_name = f'{name}{extension}'
-
-        response = api.call(
-            method='POST',
-            path=(self._get_endpoint(), self.eid, 'children', file_name),
-            params={
-                'digest': None if force else self.digest,
-                'force': json.dumps(force),
-            },
-            headers={
-                'Content-Type': content_type,
-            },
-            data=content,
-        )
-
-        result = Response[child_class](**response.json())  # type: ignore
-
-        return cast(ResponseData, result.data).body
-
-    def get_children(self) -> List[ChildClass]:
-        api = SignalsNotebookApi.get_default_api()
-
-        response = api.call(
-            method='GET',
-            path=(self._get_endpoint(), self.eid, 'children'),
-        )
-
-        entity_classes = (*Entity.__subclasses__(), Entity)
-
-        result = Response[Union[entity_classes]](**response.json())  # type: ignore
-
-        return [cast(ResponseData, item).body for item in result.data]

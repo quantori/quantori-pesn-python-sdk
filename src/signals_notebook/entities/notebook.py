@@ -2,7 +2,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel
 
-from signals_notebook.entities.entity import Entity
+from signals_notebook.entities.container import Container
 from signals_notebook.types import EntityCreationRequestPayload, EntitySubtype
 
 
@@ -20,7 +20,7 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
     pass
 
 
-class Notebook(Entity):
+class Notebook(Container):
     type: Literal[EntitySubtype.NOTEBOOK]
 
     @classmethod

@@ -3,7 +3,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel
 
-from signals_notebook.entities.entity import Entity
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.types import Ancestors, EntityCreationRequestPayload, EntitySubtype, Template
 
@@ -33,7 +33,7 @@ class ExperimentState(str, Enum):
     CLOSED = 'closed'
 
 
-class Experiment(Entity):
+class Experiment(Container):
     type: Literal[EntitySubtype.EXPERIMENT]
     state: Optional[ExperimentState] = None
 
