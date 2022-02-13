@@ -1,10 +1,11 @@
 from typing import Literal
 
-from signals_notebook.entities.entity import Entity
+from signals_notebook.entities.container import Container
+from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.types import EntitySubtype
 
 
-class Text(Entity):
+class Text(ContentfulEntity):
     type: Literal[EntitySubtype.TEXT]
 
     @classmethod
@@ -12,7 +13,7 @@ class Text(Entity):
         return EntitySubtype.TEXT
 
     @classmethod
-    def create(cls, *, container: Entity, name: str, content: str = '', force: bool = True) -> 'Text':
+    def create(cls, *, container: Container, name: str, content: str = '', force: bool = True) -> 'Text':
         return container.add_child(
             name=name,
             content=content.encode('utf-8'),
