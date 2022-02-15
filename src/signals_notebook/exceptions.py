@@ -8,7 +8,7 @@ class ErrorBody(BaseModel):
     status: str
     code: str
     title: str
-    detail: str
+    detail: str = ''
 
 
 class ErrorResponse(BaseModel):

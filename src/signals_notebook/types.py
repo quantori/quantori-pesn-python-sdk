@@ -16,6 +16,8 @@ class EntityType(str, Enum):
 class EntitySubtype(str, Enum):
     NOTEBOOK = 'journal'
     EXPERIMENT = 'experiment'
+    TEXT = 'text'
+    CHEMICAL_DRAWING = 'chemicalDrawing'
 
 
 class Links(BaseModel):
@@ -49,7 +51,7 @@ class EntityCreationRequestPayload(DataObject[AnyModel], Generic[AnyModel]):
 
 
 class EntityShortDescription(BaseModel):
-    type: EntitySubtype
+    type: Union[EntitySubtype, str]
     id: EID
 
 
@@ -59,3 +61,9 @@ class Template(DataObject[EntityShortDescription]):
 
 class Ancestors(DataList[EntityShortDescription]):
     pass
+
+
+class File(BaseModel):
+    name: str
+    content: bytes
+    content_type: str

@@ -1,10 +1,9 @@
-from datetime import datetime
 from enum import Enum
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.entities.entity import Entity
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.types import Ancestors, EntityCreationRequestPayload, EntitySubtype, Template
 
@@ -22,7 +21,7 @@ class _Relationships(BaseModel):
 class _RequestBody(BaseModel):
     type: EntitySubtype
     attributes: _Attributes
-    relationships: _Relationships
+    relationships: Optional[_Relationships] = None
 
 
 class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
@@ -34,12 +33,9 @@ class ExperimentState(str, Enum):
     CLOSED = 'closed'
 
 
-class Experiment(Entity):
-    name: str = Field(title='Name')
-    description: Optional[str] = Field(title='Description', default=None)
-    created_at: datetime = Field(alias='createdAt', allow_mutation=False)
-    edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
-    state: Optional[ExperimentState] = None
+class Experiment(Container):
+    type: Literal[EntitySubtype.EXPERIMENT] = Field(allow_mutation=False)
+    state: Optional[ExperimentState] = Field(allow_mutation=False, default=None)
 
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:

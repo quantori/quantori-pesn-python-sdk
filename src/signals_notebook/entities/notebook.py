@@ -1,9 +1,8 @@
-from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.entities.entity import Entity
+from signals_notebook.entities.container import Container
 from signals_notebook.types import EntityCreationRequestPayload, EntitySubtype
 
 
@@ -21,11 +20,8 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
     pass
 
 
-class Notebook(Entity):
-    name: str = Field(title='Name')
-    description: Optional[str] = Field(title='Description', default=None)
-    created_at: datetime = Field(alias='createdAt', allow_mutation=False)
-    edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
+class Notebook(Container):
+    type: Literal[EntitySubtype.NOTEBOOK] = Field(allow_mutation=False)
 
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:

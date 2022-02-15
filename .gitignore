@@ -52,3 +52,4 @@ Thumbs.db
 /sample.ipynb
 /.coverage
 *.egg-info/
+/notebooks/
