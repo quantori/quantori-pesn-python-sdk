@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
@@ -34,7 +34,7 @@ class ExperimentState(str, Enum):
 
 
 class Experiment(Container):
-    type: Literal[EntitySubtype.EXPERIMENT]
+    type: Literal[EntitySubtype.EXPERIMENT] = Field(allow_mutation=False)
     state: Optional[ExperimentState] = None
 
     @classmethod

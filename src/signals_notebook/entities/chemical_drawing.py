@@ -1,6 +1,8 @@
 from enum import Enum
 from typing import Literal, Optional
 
+from pydantic import Field
+
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.types import EntitySubtype, File
 
@@ -14,7 +16,7 @@ class ChemicalDrawingFormat(str, Enum):
 
 
 class ChemicalDrawing(ContentfulEntity):
-    type: Literal[EntitySubtype.CHEMICAL_DRAWING]
+    type: Literal[EntitySubtype.CHEMICAL_DRAWING] = Field(allow_mutation=False)
 
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:

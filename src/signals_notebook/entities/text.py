@@ -1,12 +1,14 @@
 from typing import Literal
 
+from pydantic import Field
+
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.types import EntitySubtype, File
 
 
 class Text(ContentfulEntity):
-    type: Literal[EntitySubtype.TEXT]
+    type: Literal[EntitySubtype.TEXT] = Field(allow_mutation=False)
 
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:
