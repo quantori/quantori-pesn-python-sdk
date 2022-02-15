@@ -6,9 +6,9 @@ from signals_notebook.entities.notebook import Notebook
 from signals_notebook.types import EntitySubtype
 
 
-class NotebookFactory(factory.Factory):
+class EntityFactory(factory.Factory):
     class Meta:
-        model = Notebook
+        abstract = True
         exclude = ('uuid', )
 
     uuid = factory.Faker('uuid4')
@@ -18,5 +18,12 @@ class NotebookFactory(factory.Factory):
     digest = factory.Sequence(lambda n: f'{n}')
     createdAt = factory.Faker('date_time')
     editedAt = factory.Faker('date_time')
+
+
+class NotebookFactory(EntityFactory):
+    class Meta:
+        model = Notebook
+
+    type = EntitySubtype.NOTEBOOK
 
 

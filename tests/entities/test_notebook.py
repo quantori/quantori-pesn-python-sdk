@@ -137,7 +137,7 @@ def test_create(api_mock, description, digest, force):
             'digest': digest,
             'force': 'true' if force else 'false',
         },
-        data=request_body,
+        json=request_body,
     )
 
     assert isinstance(result, Notebook)
@@ -195,7 +195,7 @@ def test_update(api_mock, notebook_factory, force):
             'digest': None if force else notebook.digest,
             'force': 'true' if force else 'false',
         },
-        data={
+        json={
             'data': [
                 {'attributes': {'name': 'Name', 'value': 'My notebook'}},
                 {'attributes': {'name': 'Description', 'value': 'New description'}},

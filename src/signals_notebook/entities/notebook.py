@@ -1,6 +1,6 @@
 from typing import Literal, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from signals_notebook.entities.container import Container
 from signals_notebook.types import EntityCreationRequestPayload, EntitySubtype
@@ -21,7 +21,7 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
 
 
 class Notebook(Container):
-    type: Literal[EntitySubtype.NOTEBOOK]
+    type: Literal[EntitySubtype.NOTEBOOK] = Field(allow_mutation=False)
 
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:
