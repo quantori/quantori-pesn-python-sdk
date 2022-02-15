@@ -3,6 +3,7 @@ from typing import Literal, Optional
 
 from pydantic import Field
 
+from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.types import EntitySubtype, File
@@ -32,7 +33,7 @@ class ChemicalDrawing(ContentfulEntity):
         content_type: str,
         content: bytes = b'',
         force: bool = True,
-    ) -> 'ChemicalDrawing':
+    ) -> Entity:
         return container.add_child(
             name=name,
             content=content,

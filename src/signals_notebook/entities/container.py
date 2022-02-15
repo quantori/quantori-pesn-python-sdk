@@ -1,11 +1,10 @@
 import abc
 import json
 import mimetypes
-from typing import cast, List, Type, Union
+from typing import cast, List, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities import Entity
-from signals_notebook.entities.entity import ChildClass
 from signals_notebook.types import EntitySubtype, Response, ResponseData
 
 
@@ -22,7 +21,7 @@ class Container(Entity, abc.ABC):
         content: bytes,
         content_type: str,
         force: bool = True,
-    ) -> ChildClass:
+    ) -> Entity:
         api = SignalsNotebookApi.get_default_api()
 
         extension = mimetypes.guess_extension(content_type)
@@ -46,7 +45,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self) -> List[ChildClass]:
+    def get_children(self) -> List[Entity]:
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
