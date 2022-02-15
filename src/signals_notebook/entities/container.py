@@ -20,7 +20,6 @@ class Container(Entity, abc.ABC):
         self,
         name: str,
         content: bytes,
-        child_class: Type[ChildClass],
         content_type: str,
         force: bool = True,
     ) -> ChildClass:
@@ -42,7 +41,8 @@ class Container(Entity, abc.ABC):
             data=content,
         )
 
-        result = Response[child_class](**response.json())  # type: ignore
+        entity_classes = (*Entity.get_subclasses(), Entity)
+        result = Response[Union[entity_classes]](**response.json())  # type: ignore
 
         return cast(ResponseData, result.data).body
 

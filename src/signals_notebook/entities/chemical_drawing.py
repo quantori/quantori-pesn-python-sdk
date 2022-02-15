@@ -3,6 +3,7 @@ from typing import Literal, Optional
 
 from pydantic import Field
 
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.types import EntitySubtype, File
 
@@ -21,6 +22,23 @@ class ChemicalDrawing(ContentfulEntity):
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:
         return EntitySubtype.CHEMICAL_DRAWING
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content_type: str,
+        content: bytes = b'',
+        force: bool = True,
+    ) -> 'ChemicalDrawing':
+        return container.add_child(
+            name=name,
+            content=content,
+            content_type=content_type,
+            force=force,
+        )
 
     def get_content(self, format: Optional[ChemicalDrawingFormat] = None) -> File:
         return super()._get_content(format=format)

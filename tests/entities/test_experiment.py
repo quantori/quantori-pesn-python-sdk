@@ -354,7 +354,6 @@ def test_add_children(api_mock, experiment_factory, force):
     result = experiment.add_child(
         name='My text',
         content=b'Some text',
-        child_class=Text,
         content_type='text/plain',
         force=force,
     )

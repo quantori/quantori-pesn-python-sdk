@@ -19,7 +19,6 @@ class Text(ContentfulEntity):
         return container.add_child(
             name=name,
             content=content.encode('utf-8'),
-            child_class=cls,
             content_type='text/plain',
             force=force,
         )
