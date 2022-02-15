@@ -1,8 +1,6 @@
-from datetime import datetime, timedelta
-
 import factory
 
-from signals_notebook.entities.notebook import Notebook
+from signals_notebook.entities import Experiment, Notebook
 from signals_notebook.types import EntitySubtype
 
 
@@ -26,4 +24,10 @@ class NotebookFactory(EntityFactory):
 
     type = EntitySubtype.NOTEBOOK
 
+
+class ExperimentFactory(EntityFactory):
+    class Meta:
+        model = Experiment
+
+    type = EntitySubtype.EXPERIMENT
 

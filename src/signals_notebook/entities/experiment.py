@@ -21,7 +21,7 @@ class _Relationships(BaseModel):
 class _RequestBody(BaseModel):
     type: EntitySubtype
     attributes: _Attributes
-    relationships: _Relationships
+    relationships: Optional[_Relationships] = None
 
 
 class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
@@ -35,14 +35,11 @@ class ExperimentState(str, Enum):
 
 class Experiment(Container):
     type: Literal[EntitySubtype.EXPERIMENT] = Field(allow_mutation=False)
-    state: Optional[ExperimentState] = None
+    state: Optional[ExperimentState] = Field(allow_mutation=False, default=None)
 
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:
         return EntitySubtype.EXPERIMENT
-
-    def get_content(self, format: Optional[str] = None):
-        raise NotImplementedError
 
     @classmethod
     def create(

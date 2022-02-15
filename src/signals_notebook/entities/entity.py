@@ -19,7 +19,7 @@ ChildClass = TypeVar('ChildClass', bound='Entity')
 
 
 class Entity(BaseModel):
-    type: EntitySubtype = Field(allow_mutation=False)
+    type: str = Field(allow_mutation=False)
     eid: EID = Field(allow_mutation=False)
     digest: Optional[str] = Field(allow_mutation=False, default=None)
     name: str = Field(title='Name')
