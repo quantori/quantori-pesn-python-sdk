@@ -51,7 +51,7 @@ class EntityCreationRequestPayload(DataObject[AnyModel], Generic[AnyModel]):
 
 
 class EntityShortDescription(BaseModel):
-    type: EntitySubtype
+    type: Union[EntitySubtype, str]
     id: EID
 
 

@@ -27,9 +27,6 @@ class Notebook(Container):
     def _get_subtype(cls) -> EntitySubtype:
         return EntitySubtype.NOTEBOOK
 
-    def get_content(self, format: Optional[str] = None):
-        raise NotImplementedError
-
     @classmethod
     def create(
         cls, *, name: str, description: Optional[str] = None, digest: str = None, force: bool = True
