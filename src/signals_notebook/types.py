@@ -11,6 +11,7 @@ AnyModel = TypeVar('AnyModel')
 
 class EntityType(str, Enum):
     ENTITY = 'entity'
+    ADT_ROW = 'adtRow'
 
 
 class EntitySubtype(str, Enum):
@@ -18,6 +19,7 @@ class EntitySubtype(str, Enum):
     EXPERIMENT = 'experiment'
     TEXT = 'text'
     CHEMICAL_DRAWING = 'chemicalDrawing'
+    GRID = 'grid'
 
 
 class Links(BaseModel):

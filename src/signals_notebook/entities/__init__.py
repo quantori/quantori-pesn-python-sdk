@@ -3,3 +3,4 @@ from signals_notebook.entities.notebook import Notebook  # noqa
 from signals_notebook.entities.experiment import Experiment  # noqa
 from signals_notebook.entities.text import Text  # noqa
 from signals_notebook.entities.chemical_drawing import ChemicalDrawing, ChemicalDrawingFormat  # noqa
+from signals_notebook.entities.table import Table  # noqa
