@@ -12,6 +12,7 @@ AnyModel = TypeVar('AnyModel')
 class EntityType(str, Enum):
     ENTITY = 'entity'
     ADT_ROW = 'adtRow'
+    COLUMN_DEFINITIONS = 'columnDefinitions'
 
 
 class EntitySubtype(str, Enum):
@@ -31,7 +32,7 @@ class Links(BaseModel):
 class ResponseData(GenericModel, Generic[EntityClass]):
     type: EntityType
     eid: EID = Field(alias='id')
-    links: Links
+    links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
 
 
