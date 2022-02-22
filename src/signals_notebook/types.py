@@ -21,6 +21,8 @@ class EntitySubtype(str, Enum):
     TEXT = 'text'
     CHEMICAL_DRAWING = 'chemicalDrawing'
     GRID = 'grid'
+    ASSET = 'asset'
+    BIO_SEQUENCE = 'bioSequence'
 
 
 class Links(BaseModel):

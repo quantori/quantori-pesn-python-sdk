@@ -1,6 +1,6 @@
 from enum import Enum
 from operator import attrgetter
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, cast, Dict, Generator, List, Literal, Optional, Tuple, Type, Union
 from uuid import UUID
 
 import pandas as pd
@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.types import EID, EntitySubtype, EntityType, Response
+from signals_notebook.types import EID, EntitySubtype, EntityType, Response, ResponseData
 
 
 class ColumnDataType(str, Enum):
@@ -31,15 +31,26 @@ class ColumnDefinition(BaseModel):
     is_external_key: Optional[bool] = Field(alias='isExternalKey', default=None)
     is_user_defined: Optional[bool] = Field(alias='isUserDefined', default=None)
     saved: Optional[bool] = Field(default=None)
+    read_only: bool = Field(default=True, alias='readOnly')
 
     class Config:
         frozen = True
 
 
+class AttributeListColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.ATTRIBUTELIST]
+    options: List[str]
+    attribute_list_eid: EID = Field(alias='attributeListEid')
+    multi_select: bool = Field(alias='multiSelect')
+
+
+ColumnDefinitionClasses = Union[AttributeListColumnDefinition, ColumnDefinition]
+
+
 class ColumnDefinitions(BaseModel):
     id: EID
     type: Literal[EntityType.COLUMN_DEFINITIONS]
-    columns: List[ColumnDefinition]
+    columns: List[ColumnDefinitionClasses]
 
     class Config:
         frozen = True
@@ -47,6 +58,8 @@ class ColumnDefinitions(BaseModel):
 
 class _Content(BaseModel):
     value: Any
+    type: Optional[EntitySubtype] = None
+    display: Optional[str] = None
 
 
 class Cell(BaseModel):
@@ -108,8 +121,8 @@ class ColumnDefinitionsResponse(Response[ColumnDefinitions]):
 
 class Table(ContentfulEntity):
     type: Literal[EntitySubtype.GRID] = Field(allow_mutation=False)
-    _rows: Optional[List[Row]] = PrivateAttr(default=None)
-    _rows_by_id: Optional[Dict[UUID, Row]] = PrivateAttr(default=None)
+    _rows: List[Row] = PrivateAttr(default=[])
+    _rows_by_id: Dict[UUID, Row] = PrivateAttr(default={})
 
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:
@@ -132,7 +145,7 @@ class Table(ContentfulEntity):
         self._rows = []
         self._rows_by_id = {}
         for item in result.data:
-            row = item.body
+            row = cast(ResponseData, item).body
             self._rows.append(row)
             self._rows_by_id[row.id] = row
 
@@ -146,10 +159,10 @@ class Table(ContentfulEntity):
 
         result = ColumnDefinitionsResponse(**response.json())
 
-        return result.data.body.columns
+        return cast(ResponseData, result.data).body.columns
 
     def as_dataframe(self, use_labels: bool = True) -> pd.DataFrame:
-        if self._rows is None:
+        if not self._rows:
             self._reload_data()
 
         data = []
@@ -161,7 +174,7 @@ class Table(ContentfulEntity):
         return pd.DataFrame(data=data, index=index)
 
     def as_raw_data(self, use_labels: bool = True) -> List[Dict[str, Any]]:
-        if self._rows is None:
+        if not self._rows:
             self._reload_data()
 
         data = []
@@ -171,7 +184,7 @@ class Table(ContentfulEntity):
         return data
 
     def __getitem__(self, index: Union[int, str, UUID]) -> Row:
-        if self._rows is None:
+        if not self._rows:
             self._reload_data()
 
         if isinstance(index, int):
