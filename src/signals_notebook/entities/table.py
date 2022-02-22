@@ -50,7 +50,7 @@ class _Content(BaseModel):
 
 
 class Cell(BaseModel):
-    key: UUID = Field(allow_mutation=False)
+    id: UUID = Field(allow_mutation=False, alias='key')
     type: ColumnDataType = Field(allow_mutation=False)
     name: str = Field(allow_mutation=False)
     content: _Content
@@ -67,7 +67,7 @@ class Row(BaseModel):
     id: UUID = Field(allow_mutation=False)
     type: Literal[EntityType.ADT_ROW] = Field(allow_mutation=False)
     cells: List[Cell]
-    _cells_by_key: Dict[UUID, Cell] = PrivateAttr(default={})
+    _cells_dict: Dict[Union[UUID, str], Cell] = PrivateAttr(default={})
 
     class Config:
         validate_assignment = True
@@ -76,7 +76,8 @@ class Row(BaseModel):
         super().__init__(**data)
 
         for cell in self.cells:
-            self._cells_by_key[cell.key] = cell
+            self._cells_dict[cell.id] = cell
+            self._cells_dict[cell.name] = cell
 
     def get_values(self, use_labels: bool = True) -> Dict[str, Any]:
         key_getter = attrgetter('name') if use_labels else attrgetter('key')
@@ -87,10 +88,12 @@ class Row(BaseModel):
             return self.cells[index]
 
         if isinstance(index, str):
-            return self._cells_by_key[UUID(index)]
+            if index in self._cells_dict:
+                return self._cells_dict[index]
+            return self._cells_dict[UUID(index)]
 
         if isinstance(index, UUID):
-            return self._cells_by_key[index]
+            return self._cells_dict[index]
 
         raise IndexError('Invalid index type')
 
