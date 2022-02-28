@@ -17,12 +17,12 @@ class ColumnDataType(str, Enum):
     DATE = 'date'
     TEXT = 'text'
     LIST = 'list'
-    MULTISELECT = 'multiSelect'
+    MULTI_SELECT = 'multiSelect'
     ATTRIBUTE_LIST = 'attributeList'
     BOOLEAN = 'boolean'
     UNIT = 'unit'
     LINK = 'link'
-    EXTERNALLINK = 'externalLink'
+    EXTERNAL_LINK = 'externalLink'
 
 
 class ColumnDefinition(BaseModel):
