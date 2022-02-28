@@ -1,3 +1,4 @@
+import json
 from enum import Enum
 from operator import attrgetter
 from typing import Any, cast, Dict, Generator, List, Literal, Optional, Tuple, Type, Union
@@ -81,6 +82,7 @@ class Row(BaseModel):
     type: Literal[EntityType.ADT_ROW] = Field(allow_mutation=False)
     cells: List[Cell]
     _cells_dict: Dict[Union[UUID, str], Cell] = PrivateAttr(default={})
+    _table: Optional['Table'] = None
 
     class Config:
         validate_assignment = True
@@ -91,6 +93,14 @@ class Row(BaseModel):
         for cell in self.cells:
             self._cells_dict[cell.id] = cell
             self._cells_dict[cell.name] = cell
+
+    @property
+    def table(self) -> Optional['Table']:
+        return self._table
+
+    @table.setter
+    def table(self, table: 'Table') -> None:
+        self._table = table
 
     def get_values(self, use_labels: bool = True) -> Dict[str, Any]:
         key_getter = attrgetter('name') if use_labels else attrgetter('key')
@@ -109,6 +119,10 @@ class Row(BaseModel):
             return self._cells_dict[index]
 
         raise IndexError('Invalid index type')
+
+    def delete(self) -> None:
+        assert self.table
+        self.table.delete_row_by_id(self.id)
 
 
 class TableDataResponse(Response[Row]):
@@ -145,7 +159,8 @@ class Table(ContentfulEntity):
         self._rows = []
         self._rows_by_id = {}
         for item in result.data:
-            row = cast(ResponseData, item).body
+            row = cast(Row, cast(ResponseData, item).body)
+            row.table = self
             self._rows.append(row)
             self._rows_by_id[row.id] = row
 
@@ -200,3 +215,21 @@ class Table(ContentfulEntity):
 
     def __iter__(self):
         return self._rows.__iter__()
+
+    def delete_row_by_id(self, row_id: Union[str, UUID], digest: str = None, force: bool = True) -> None:
+        if isinstance(row_id, UUID):
+            _row_id = row_id.hex
+        else:
+            _row_id = row_id
+
+        api = SignalsNotebookApi.get_default_api()
+
+        api.call(
+            method='DELETE',
+            path=(self._get_adt_endpoint(), self.eid, _row_id),
+            params={
+                'digest': digest,
+                'force': json.dumps(force),
+            },
+        )
+
