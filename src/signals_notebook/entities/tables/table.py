@@ -1,7 +1,6 @@
 import json
-from enum import Enum
 from operator import attrgetter
-from typing import Any, cast, Dict, Generator, List, Literal, Optional, Tuple, Type, Union
+from typing import Any, cast, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 import pandas as pd
@@ -9,79 +8,15 @@ from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.types import EID, EntitySubtype, EntityType, Response, ResponseData
-
-
-class ColumnDataType(str, Enum):
-    NUMBER = 'number'
-    DATE = 'date'
-    TEXT = 'text'
-    LIST = 'list'
-    MULTI_SELECT = 'multiSelect'
-    ATTRIBUTE_LIST = 'attributeList'
-    BOOLEAN = 'boolean'
-    UNIT = 'unit'
-    LINK = 'link'
-    EXTERNAL_LINK = 'externalLink'
-
-
-class ColumnDefinition(BaseModel):
-    key: UUID
-    title: str
-    type: ColumnDataType
-    is_external_key: Optional[bool] = Field(alias='isExternalKey', default=None)
-    is_user_defined: Optional[bool] = Field(alias='isUserDefined', default=None)
-    saved: Optional[bool] = Field(default=None)
-    read_only: bool = Field(default=True, alias='readOnly')
-
-    class Config:
-        frozen = True
-
-
-class AttributeListColumnDefinition(ColumnDefinition):
-    type: Literal[ColumnDataType.ATTRIBUTE_LIST]
-    options: List[str]
-    attribute_list_eid: EID = Field(alias='attributeListEid')
-    multi_select: bool = Field(alias='multiSelect')
-
-
-ColumnDefinitionClasses = Union[AttributeListColumnDefinition, ColumnDefinition]
-
-
-class ColumnDefinitions(BaseModel):
-    id: EID
-    type: Literal[EntityType.COLUMN_DEFINITIONS]
-    columns: List[ColumnDefinitionClasses]
-
-    class Config:
-        frozen = True
-
-
-class _Content(BaseModel):
-    value: Any
-    type: Optional[EntitySubtype] = None
-    display: Optional[str] = None
-
-
-class Cell(BaseModel):
-    id: UUID = Field(allow_mutation=False, alias='key')
-    type: ColumnDataType = Field(allow_mutation=False)
-    name: str = Field(allow_mutation=False)
-    content: _Content
-
-    class Config:
-        validate_assignment = True
-
-    @property
-    def value(self) -> Any:
-        return self.content.value
+from signals_notebook.entities.tables.cell import GenericCell, ColumnDefinition, ColumnDefinitions
+from signals_notebook.types import EntitySubtype, EntityType, Response, ResponseData
 
 
 class Row(BaseModel):
     id: UUID = Field(allow_mutation=False)
     type: Literal[EntityType.ADT_ROW] = Field(allow_mutation=False)
-    cells: List[Cell]
-    _cells_dict: Dict[Union[UUID, str], Cell] = PrivateAttr(default={})
+    cells: List[GenericCell]
+    _cells_dict: Dict[Union[UUID, str], GenericCell] = PrivateAttr(default={})
     _table: Optional['Table'] = PrivateAttr(default=None)
 
     class Config:
@@ -105,7 +40,7 @@ class Row(BaseModel):
         key_getter = attrgetter('name') if use_labels else attrgetter('key')
         return {key_getter(cell): cell.value for cell in self.cells}
 
-    def __getitem__(self, index: Union[int, str, UUID]) -> Cell:
+    def __getitem__(self, index: Union[int, str, UUID]) -> GenericCell:
         if isinstance(index, int):
             return self.cells[index]
 
@@ -118,6 +53,9 @@ class Row(BaseModel):
             return self._cells_dict[index]
 
         raise IndexError('Invalid index type')
+
+    def __iter__(self):
+        return self.cells.__iter__()
 
     def delete(self) -> None:
         assert self.table
