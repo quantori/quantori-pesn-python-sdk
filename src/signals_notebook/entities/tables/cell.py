@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Generic, List, Literal, Optional, TypeVar, Union
+from typing import Any, cast, Generic, List, Literal, Optional, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field
@@ -90,6 +90,7 @@ class ColumnDefinitions(BaseModel):
 
 class CellContent(GenericModel, Generic[CellContentType]):
     value: CellContentType
+    values: Optional[List[CellContentType]] = None
     type: Optional[EntitySubtype] = None
     display: Optional[str] = None
 
@@ -104,8 +105,12 @@ class Cell(GenericModel, Generic[CellContentType]):
         validate_assignment = True
 
     @property
-    def value(self) -> CellContentType:
-        return self.content.value
+    def value(self) -> Union[CellContentType, List[CellContentType]]:
+        return self.content.values or self.content.value
+
+    @property
+    def display(self) -> str:
+        return self.content.display or ''
 
 
 class TextCell(Cell[str]):
@@ -132,17 +137,46 @@ class ExternalLink(Cell[str]):
     type: Literal[ColumnDataType.EXTERNAL_LINK] = Field(allow_mutation=False)
 
 
-class LinkCell(Cell[Entity]):
+class LinkCell(Cell[EID]):
     type: Literal[ColumnDataType.LINK] = Field(allow_mutation=False)
+
+    @property
+    def entity(self) -> Entity:
+        return Entity.get(self.content.value)
+
+
+class UnitCell(Cell[float]):
+    type: Literal[ColumnDataType.UNIT] = Field(allow_mutation=False)
+
+
+class MultiSelectCell(Cell[str]):
+    type: Literal[ColumnDataType.MULTI_SELECT] = Field(allow_mutation=False)
+
+
+class AttributeListCell(Cell[str]):
+    type: Literal[ColumnDataType.ATTRIBUTE_LIST] = Field(allow_mutation=False)
+
+
+class ListCell(Cell[str]):
+    type: Literal[ColumnDataType.LIST] = Field(allow_mutation=False)
+
+
+class AutotextListCell(Cell[str]):
+    type: Literal[ColumnDataType.AUTOTEXT_LIST] = Field(allow_mutation=False)
 
 
 GenericCell = Union[
+    AttributeListCell,
+    AutotextListCell,
     BooleanCell,
     DateTimeCell,
     ExternalLink,
     IntegerCell,
     LinkCell,
+    ListCell,
+    MultiSelectCell,
     NumberCell,
     TextCell,
+    UnitCell,
     Cell,  # must be the last
 ]

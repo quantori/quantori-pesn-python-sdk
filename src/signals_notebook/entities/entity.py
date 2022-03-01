@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, cast, Dict, Generator, List, Optional, Type, TypeVar
+from typing import Any, cast, Dict, Generator, List, Optional, Type, TypeVar, Union
 
 from pydantic import BaseModel, Field
 
@@ -29,6 +29,9 @@ class Entity(BaseModel):
 
     class Config:
         validate_assignment = True
+
+    def __str__(self) -> str:
+        return f'<{self.__class__.__name__} eid={self.eid}>'
 
     @classmethod
     def _get_subtype(cls) -> EntitySubtype:
@@ -59,7 +62,8 @@ class Entity(BaseModel):
             path=(cls._get_endpoint(), eid),
         )
 
-        result = Response[cls](**response.json())  # type: ignore
+        entity_classes = (*Entity.get_subclasses(), Entity)
+        result = Response[Union[entity_classes]](**response.json())  # type: ignore
 
         return cast(ResponseData, result.data).body
 

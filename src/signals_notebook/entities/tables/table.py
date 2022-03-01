@@ -47,12 +47,17 @@ class Row(BaseModel):
         if isinstance(index, str):
             if index in self._cells_dict:
                 return self._cells_dict[index]
-            return self._cells_dict[UUID(index)]
+
+            try:
+                if UUID(index) in self._cells_dict:
+                    return self._cells_dict[UUID(index)]
+            except ValueError:
+                pass
 
         if isinstance(index, UUID):
             return self._cells_dict[index]
 
-        raise IndexError('Invalid index type')
+        raise IndexError('Invalid index')
 
     def __iter__(self):
         return self.cells.__iter__()
@@ -90,7 +95,7 @@ class Table(ContentfulEntity):
             method='GET',
             path=(self._get_adt_endpoint(), self.eid),
         )
-
+        breakpoint()
         result = TableDataResponse(**response.json())
 
         self._rows = []
@@ -148,7 +153,7 @@ class Table(ContentfulEntity):
         if isinstance(index, UUID):
             return self._rows_by_id[index]
 
-        raise IndexError('Invalid index type')
+        raise IndexError('Invalid index')
 
     def __iter__(self):
         return self._rows.__iter__()
