@@ -50,7 +50,7 @@ class Entity(BaseModel):
     @classmethod
     def _get_list_params(cls) -> Dict[str, Any]:
         return {
-            'include_types': cls._get_subtype(),
+            'include_types': [cls._get_subtype()],
         }
 
     @classmethod

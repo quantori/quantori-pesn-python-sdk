@@ -43,7 +43,11 @@ def test_get_list(api_mock):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = Notebook.get_list()
+    result_generator = Notebook.get_list()
+
+    api_mock.call.assert_not_called()
+
+    result = list(result_generator)
 
     api_mock.call.assert_called_once_with(
         method='GET', path=('entities',), params={'includeTypes': EntitySubtype.NOTEBOOK}
