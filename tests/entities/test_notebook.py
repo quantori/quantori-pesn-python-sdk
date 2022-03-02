@@ -5,40 +5,6 @@ from signals_notebook.entities.notebook import Notebook
 from signals_notebook.types import EID, EntitySubtype, EntityType
 
 
-def test_get(api_mock):
-    eid = EID('journal:878a87ca-3777-4692-8561-a4a81ccfd85d')
-    response = {
-        'links': {'self': f'https://example.com/{eid}'},
-        'data': {
-            'type': EntityType.ENTITY,
-            'id': eid,
-            'links': {'self': f'https://example.com/{eid}'},
-            'attributes': {
-                'eid': eid,
-                'name': 'My notebook',
-                'description': 'test description',
-                'type': EntitySubtype.NOTEBOOK,
-                'createdAt': '2019-09-06T03:12:35.129Z',
-                'editedAt': '2019-09-06T15:22:47.309Z',
-                'digest': '1234234',
-            },
-        },
-    }
-    api_mock.call.return_value.json.return_value = response
-
-    result = Notebook.get(eid)
-
-    api_mock.call.assert_called_once_with(method='GET', path=('entities', eid))
-
-    assert isinstance(result, Notebook)
-    assert result.eid == eid
-    assert result.digest == response['data']['attributes']['digest']
-    assert result.name == response['data']['attributes']['name']
-    assert result.description == response['data']['attributes']['description']
-    assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
-    assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
-
-
 def test_get_list(api_mock):
     eid1 = EID('journal:878a87ca-3777-4692-8561-a4a81ccfd85d')
     eid2 = EID('journal:52062e1d-7e03-464f-8caf-d7ed93261213')
@@ -160,22 +126,6 @@ def test_delete_instance(notebook_factory, api_mock):
         params={
             'digest': None,
             'force': 'true',
-        },
-    )
-
-
-@pytest.mark.parametrize('digest, force', [('1234234', False), (None, True)])
-def test_delete_by_id(api_mock, digest, force):
-    eid = EID('journal:e360eea6-b331-4c6f-b340-6d0eaa7eb070')
-
-    Notebook.delete_by_id(eid, digest, force)
-
-    api_mock.call.assert_called_once_with(
-        method='DELETE',
-        path=('entities', eid),
-        params={
-            'digest': digest,
-            'force': 'true' if force else 'false',
         },
     )
 

@@ -69,7 +69,7 @@ class EntityStore:
         response = api.call(
             method='GET',
             path=(cls._get_endpoint(),),
-            params=params,
+            params=params or None,
         )
 
         result = Response[Union[entity_classes]](**response.json())  # type: ignore
