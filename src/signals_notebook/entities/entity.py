@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, cast, Dict, Generator, List, Optional, Type, TypeVar, Union
+from typing import Any, cast, Dict, Generator, List, Optional, Type, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -50,52 +50,17 @@ class Entity(BaseModel):
     @classmethod
     def _get_list_params(cls) -> Dict[str, Any]:
         return {
-            'includeTypes': cls._get_subtype(),
+            'include_types': cls._get_subtype(),
         }
 
     @classmethod
-    def get(cls, eid: EID) -> EntityClass:
-        api = SignalsNotebookApi.get_default_api()
-
-        response = api.call(
-            method='GET',
-            path=(cls._get_endpoint(), eid),
-        )
-
-        entity_classes = (*Entity.get_subclasses(), Entity)
-        result = Response[Union[entity_classes]](**response.json())  # type: ignore
-
-        return cast(ResponseData, result.data).body
-
-    @classmethod
-    def get_list(cls) -> List[EntityClass]:
-        api = SignalsNotebookApi.get_default_api()
-
-        response = api.call(
-            method='GET',
-            path=(cls._get_endpoint(),),
-            params=cls._get_list_params(),
-        )
-
-        result = Response[cls](**response.json())  # type: ignore
-
-        return [cast(ResponseData, item).body for item in result.data]
-
-    @classmethod
-    def delete_by_id(cls, eid: EID, digest: str = None, force: bool = True) -> None:
-        api = SignalsNotebookApi.get_default_api()
-
-        api.call(
-            method='DELETE',
-            path=(cls._get_endpoint(), eid),
-            params={
-                'digest': digest,
-                'force': json.dumps(force),
-            },
-        )
+    def get_list(cls) -> Generator['Entity', None, None]:
+        from signals_notebook.entities.entity_store import EntityStore
+        return EntityStore.get_list(**cls._get_list_params())
 
     def delete(self) -> None:
-        self.delete_by_id(self.eid)
+        from signals_notebook.entities.entity_store import EntityStore
+        EntityStore.delete(self.eid)
 
     @classmethod
     def _create(cls, *, digest: str = None, force: bool = True, request: EntityCreationRequestPayload) -> EntityClass:

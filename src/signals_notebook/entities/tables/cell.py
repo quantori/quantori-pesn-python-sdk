@@ -1,12 +1,13 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, cast, Generic, List, Literal, Optional, TypeVar, Union
+from typing import Generic, List, Literal, Optional, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field
 from pydantic.generics import GenericModel
 
 from signals_notebook.entities import Entity
+from signals_notebook.entities.entity_store import EntityStore
 from signals_notebook.types import EID, EntitySubtype, EntityType
 
 CellContentType = TypeVar('CellContentType')
@@ -142,7 +143,7 @@ class LinkCell(Cell[EID]):
 
     @property
     def entity(self) -> Entity:
-        return Entity.get(self.content.value)
+        return EntityStore.get(self.content.value)
 
 
 class UnitCell(Cell[float]):

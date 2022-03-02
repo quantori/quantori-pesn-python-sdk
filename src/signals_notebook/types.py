@@ -29,6 +29,7 @@ class Links(BaseModel):
     self: HttpUrl
     first: Optional[HttpUrl] = None
     next: Optional[HttpUrl] = None
+    prev: Optional[HttpUrl] = None
 
 
 class ResponseData(GenericModel, Generic[EntityClass]):
