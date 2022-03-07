@@ -8,7 +8,7 @@ from pydantic.generics import GenericModel
 
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
-from signals_notebook.types import EID, EntitySubtype, ObjectType
+from signals_notebook.types import EID, EntityType, ObjectType
 
 CellContentType = TypeVar('CellContentType')
 
@@ -92,7 +92,7 @@ class ColumnDefinitions(BaseModel):
 class CellContent(GenericModel, Generic[CellContentType]):
     value: CellContentType
     values: Optional[List[CellContentType]] = None
-    type: Optional[EntitySubtype] = None
+    type: Optional[EntityType] = None
     display: Optional[str] = None
 
 

@@ -10,7 +10,7 @@ from signals_notebook.types import (
     EntityClass,
     EntityCreationRequestPayload,
     EntityShortDescription,
-    EntitySubtype,
+    EntityType,
     Response,
     ResponseData,
 )
@@ -34,7 +34,7 @@ class Entity(BaseModel):
         return f'<{self.__class__.__name__} eid={self.eid}>'
 
     @classmethod
-    def _get_subtype(cls) -> EntitySubtype:
+    def _get_entity_type(cls) -> EntityType:
         raise NotImplementedError
 
     @classmethod
@@ -50,7 +50,7 @@ class Entity(BaseModel):
     @classmethod
     def _get_list_params(cls) -> Dict[str, Any]:
         return {
-            'include_types': [cls._get_subtype()],
+            'include_types': [cls._get_entity_type()],
         }
 
     @classmethod

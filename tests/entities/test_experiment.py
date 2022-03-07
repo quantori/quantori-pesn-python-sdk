@@ -2,7 +2,7 @@ import arrow
 import pytest
 
 from signals_notebook.entities import ChemicalDrawing, Entity, Experiment, Text
-from signals_notebook.types import EID, EntitySubtype, ObjectType
+from signals_notebook.types import EID, EntityType, ObjectType
 
 
 def test_get_list(api_mock):
@@ -19,7 +19,7 @@ def test_get_list(api_mock):
                     'eid': eid1,
                     'name': 'My experiment 1',
                     'description': 'test description 1',
-                    'type': EntitySubtype.EXPERIMENT,
+                    'type': EntityType.EXPERIMENT,
                     'createdAt': '2020-09-06T03:12:35.129Z',
                     'editedAt': '2020-09-06T15:22:47.309Z',
                     'digest': '53263456',
@@ -33,7 +33,7 @@ def test_get_list(api_mock):
                     'eid': eid2,
                     'name': 'My experiment 2',
                     'description': 'test description 2',
-                    'type': EntitySubtype.EXPERIMENT,
+                    'type': EntityType.EXPERIMENT,
                     'createdAt': '2021-09-06T03:12:35.129Z',
                     'editedAt': '2021-09-06T15:22:47.309Z',
                     'digest': '34563546',
@@ -50,7 +50,7 @@ def test_get_list(api_mock):
     result = list(result_generator)
 
     api_mock.call.assert_called_once_with(
-        method='GET', path=('entities',), params={'includeTypes': EntitySubtype.EXPERIMENT}
+        method='GET', path=('entities',), params={'includeTypes': EntityType.EXPERIMENT}
     )
 
     for item, raw_item in zip(result, response['data']):
@@ -77,7 +77,7 @@ def test_create(api_mock, description, digest, force):
                 'eid': eid,
                 'name': 'My experiment',
                 'description': description,
-                'type': EntitySubtype.EXPERIMENT,
+                'type': EntityType.EXPERIMENT,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': digest,
@@ -90,7 +90,7 @@ def test_create(api_mock, description, digest, force):
 
     request_body = {
         'data': {
-            'type': EntitySubtype.EXPERIMENT,
+            'type': EntityType.EXPERIMENT,
             'attributes': {
                 'name': response['data']['attributes']['name'],
             },
@@ -132,7 +132,7 @@ def test_create_with_ancestors(api_mock, notebook_factory):
                 'eid': eid,
                 'name': 'My experiment',
                 'description': 'Some description',
-                'type': EntitySubtype.EXPERIMENT,
+                'type': EntityType.EXPERIMENT,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': '123144',
@@ -145,7 +145,7 @@ def test_create_with_ancestors(api_mock, notebook_factory):
 
     request_body = {
         'data': {
-            'type': EntitySubtype.EXPERIMENT,
+            'type': EntityType.EXPERIMENT,
             'attributes': {
                 'name': response['data']['attributes']['name'],
                 'description': response['data']['attributes']['description'],
@@ -155,7 +155,7 @@ def test_create_with_ancestors(api_mock, notebook_factory):
                     'data': [
                         {
                             'id': notebook.eid,
-                            'type': EntitySubtype.NOTEBOOK,
+                            'type': EntityType.NOTEBOOK,
                         }
                     ]
                 }
@@ -195,7 +195,7 @@ def test_create_with_template(api_mock, experiment_factory):
                 'eid': eid,
                 'name': 'My experiment',
                 'description': 'Some description',
-                'type': EntitySubtype.EXPERIMENT,
+                'type': EntityType.EXPERIMENT,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': '123144',
@@ -208,7 +208,7 @@ def test_create_with_template(api_mock, experiment_factory):
 
     request_body = {
         'data': {
-            'type': EntitySubtype.EXPERIMENT,
+            'type': EntityType.EXPERIMENT,
             'attributes': {
                 'name': response['data']['attributes']['name'],
                 'description': response['data']['attributes']['description'],
@@ -217,7 +217,7 @@ def test_create_with_template(api_mock, experiment_factory):
                 'template': {
                     'data': {
                         'id': template.eid,
-                        'type': EntitySubtype.EXPERIMENT,
+                        'type': EntityType.EXPERIMENT,
                     }
                 }
             },
@@ -296,7 +296,7 @@ def test_add_children(api_mock, experiment_factory, force):
                 'eid': eid,
                 'name': 'My text',
                 'description': '',
-                'type': EntitySubtype.TEXT,
+                'type': EntityType.TEXT,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': '123144',
@@ -347,7 +347,7 @@ def test_get_children(api_mock, experiment_factory):
                     'eid': 'text:ce0b5848-6256-4eb9-9e90-3dfaefc0e53d',
                     'name': 'My text',
                     'description': '',
-                    'type': EntitySubtype.TEXT,
+                    'type': EntityType.TEXT,
                     'createdAt': '2019-09-06T03:12:35.129Z',
                     'editedAt': '2019-09-06T15:22:47.309Z',
                     'digest': '123144',
@@ -361,7 +361,7 @@ def test_get_children(api_mock, experiment_factory):
                     'eid': 'chemicalDrawing:2a632ec6-e8a0-4dcd-ac8a-75327654b4c3',
                     'name': 'Some reactions',
                     'description': '',
-                    'type': EntitySubtype.CHEMICAL_DRAWING,
+                    'type': EntityType.CHEMICAL_DRAWING,
                     'createdAt': '2019-09-06T03:12:35.129Z',
                     'editedAt': '2019-09-06T15:22:47.309Z',
                     'digest': '123144',

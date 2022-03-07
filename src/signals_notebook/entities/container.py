@@ -5,14 +5,14 @@ from typing import cast, List, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities import Entity
-from signals_notebook.types import EntitySubtype, Response, ResponseData
+from signals_notebook.types import EntityType, Response, ResponseData
 
 
 class Container(Entity, abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def _get_subtype(cls) -> EntitySubtype:
+    def _get_entity_type(cls) -> EntityType:
         pass
 
     def add_child(

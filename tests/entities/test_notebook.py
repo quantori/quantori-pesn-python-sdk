@@ -2,7 +2,7 @@ import arrow
 import pytest
 
 from signals_notebook.entities.notebook import Notebook
-from signals_notebook.types import EID, EntitySubtype, ObjectType
+from signals_notebook.types import EID, EntityType, ObjectType
 
 
 def test_get_list(api_mock):
@@ -19,7 +19,7 @@ def test_get_list(api_mock):
                     'eid': eid1,
                     'name': 'My notebook 1',
                     'description': 'test description 1',
-                    'type': EntitySubtype.NOTEBOOK,
+                    'type': EntityType.NOTEBOOK,
                     'createdAt': '2020-09-06T03:12:35.129Z',
                     'editedAt': '2020-09-06T15:22:47.309Z',
                     'digest': '53263456',
@@ -33,7 +33,7 @@ def test_get_list(api_mock):
                     'eid': eid2,
                     'name': 'My notebook 2',
                     'description': 'test description 2',
-                    'type': EntitySubtype.NOTEBOOK,
+                    'type': EntityType.NOTEBOOK,
                     'createdAt': '2021-09-06T03:12:35.129Z',
                     'editedAt': '2021-09-06T15:22:47.309Z',
                     'digest': '34563546',
@@ -50,7 +50,7 @@ def test_get_list(api_mock):
     result = list(result_generator)
 
     api_mock.call.assert_called_once_with(
-        method='GET', path=('entities',), params={'includeTypes': EntitySubtype.NOTEBOOK}
+        method='GET', path=('entities',), params={'includeTypes': EntityType.NOTEBOOK}
     )
 
     for item, raw_item in zip(result, response['data']):
@@ -77,7 +77,7 @@ def test_create(api_mock, description, digest, force):
                 'eid': eid,
                 'name': 'My notebook',
                 'description': description,
-                'type': EntitySubtype.NOTEBOOK,
+                'type': EntityType.NOTEBOOK,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': digest,
@@ -90,7 +90,7 @@ def test_create(api_mock, description, digest, force):
 
     request_body = {
         'data': {
-            'type': EntitySubtype.NOTEBOOK,
+            'type': EntityType.NOTEBOOK,
             'attributes': {
                 'name': response['data']['attributes']['name'],
             },

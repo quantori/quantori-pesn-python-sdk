@@ -5,7 +5,7 @@ from typing import cast, Generator, List, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities import Entity
-from signals_notebook.types import EID, EntitySubtype, Response, ResponseData
+from signals_notebook.types import EID, EntityType, Response, ResponseData
 
 
 class EntityStore:
@@ -44,8 +44,8 @@ class EntityStore:
     @classmethod
     def get_list(
         cls,
-        include_types: List[EntitySubtype] = None,
-        exclude_types: List[EntitySubtype] = None,
+        include_types: List[EntityType] = None,
+        exclude_types: List[EntityType] = None,
         include_options: List[IncludeOptions] = None,
         modified_after: datetime = None,
         modified_before: datetime = None,

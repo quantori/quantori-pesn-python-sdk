@@ -5,7 +5,7 @@ import pytest
 
 from signals_notebook.entities import Experiment, Notebook
 from signals_notebook.entities.entity_store import EntityStore
-from signals_notebook.types import EID, EntitySubtype, ObjectType
+from signals_notebook.types import EID, EntityType, ObjectType
 
 
 @pytest.fixture()
@@ -20,8 +20,8 @@ def get_response_object(mocker):
 @pytest.mark.parametrize(
     'eid,entity_type,expected_class',
     [
-        (EID('experiment:878a87ca-3777-4692-8561-a4a81ccfd85d'), EntitySubtype.EXPERIMENT, Experiment),
-        (EID('journal:878a87ca-3777-4692-8561-a4a81ccfd85d'), EntitySubtype.NOTEBOOK, Notebook),
+        (EID('experiment:878a87ca-3777-4692-8561-a4a81ccfd85d'), EntityType.EXPERIMENT, Experiment),
+        (EID('journal:878a87ca-3777-4692-8561-a4a81ccfd85d'), EntityType.NOTEBOOK, Notebook),
     ],
 )
 def test_get(api_mock, eid, entity_type, expected_class):
@@ -87,7 +87,7 @@ def test_get_list_with_params(api_mock):
                     'eid': eid1,
                     'name': 'My experiment 1',
                     'description': 'test description 1',
-                    'type': EntitySubtype.EXPERIMENT,
+                    'type': EntityType.EXPERIMENT,
                     'createdAt': '2020-09-06T03:12:35.129Z',
                     'editedAt': '2020-09-06T15:22:47.309Z',
                     'digest': '53263456',
@@ -101,7 +101,7 @@ def test_get_list_with_params(api_mock):
                     'eid': eid2,
                     'name': 'My experiment 2',
                     'description': 'test description 2',
-                    'type': EntitySubtype.EXPERIMENT,
+                    'type': EntityType.EXPERIMENT,
                     'createdAt': '2021-09-06T03:12:35.129Z',
                     'editedAt': '2021-09-06T15:22:47.309Z',
                     'digest': '34563546',
@@ -112,8 +112,8 @@ def test_get_list_with_params(api_mock):
     api_mock.call.return_value.json.return_value = response
 
     result_generator = EntityStore.get_list(
-        include_types=[EntitySubtype.EXPERIMENT, EntitySubtype.TEXT],
-        exclude_types=[EntitySubtype.NOTEBOOK],
+        include_types=[EntityType.EXPERIMENT, EntityType.TEXT],
+        exclude_types=[EntityType.NOTEBOOK],
         include_options=[EntityStore.IncludeOptions.MINE, EntityStore.IncludeOptions.STARRED],
         modified_after=datetime(2022, 2, 24, 6, 0),
         modified_before=datetime(2022, 3, 2, 15, 45, 12),
@@ -159,7 +159,7 @@ def test_get_list_without_params(api_mock):
                     'eid': eid1,
                     'name': 'My experiment 1',
                     'description': 'test description 1',
-                    'type': EntitySubtype.EXPERIMENT,
+                    'type': EntityType.EXPERIMENT,
                     'createdAt': '2020-09-06T03:12:35.129Z',
                     'editedAt': '2020-09-06T15:22:47.309Z',
                     'digest': '53263456',
@@ -173,7 +173,7 @@ def test_get_list_without_params(api_mock):
                     'eid': eid2,
                     'name': 'My experiment 2',
                     'description': 'test description 2',
-                    'type': EntitySubtype.EXPERIMENT,
+                    'type': EntityType.EXPERIMENT,
                     'createdAt': '2021-09-06T03:12:35.129Z',
                     'editedAt': '2021-09-06T15:22:47.309Z',
                     'digest': '34563546',
@@ -222,7 +222,7 @@ def test_get_several_pages(api_mock, mocker, get_response_object):
                     'eid': eid1,
                     'name': 'My experiment 1',
                     'description': 'test description 1',
-                    'type': EntitySubtype.EXPERIMENT,
+                    'type': EntityType.EXPERIMENT,
                     'createdAt': '2020-09-06T03:12:35.129Z',
                     'editedAt': '2020-09-06T15:22:47.309Z',
                     'digest': '53263456',
@@ -244,7 +244,7 @@ def test_get_several_pages(api_mock, mocker, get_response_object):
                     'eid': eid2,
                     'name': 'My experiment 2',
                     'description': 'test description 2',
-                    'type': EntitySubtype.EXPERIMENT,
+                    'type': EntityType.EXPERIMENT,
                     'createdAt': '2021-09-06T03:12:35.129Z',
                     'editedAt': '2021-09-06T15:22:47.309Z',
                     'digest': '34563546',

@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, PrivateAttr
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import GenericCell, ColumnDefinition, ColumnDefinitions
-from signals_notebook.types import EntitySubtype, ObjectType, Response, ResponseData
+from signals_notebook.types import EntityType, ObjectType, Response, ResponseData
 
 
 class Row(BaseModel):
@@ -76,13 +76,13 @@ class ColumnDefinitionsResponse(Response[ColumnDefinitions]):
 
 
 class Table(ContentfulEntity):
-    type: Literal[EntitySubtype.GRID] = Field(allow_mutation=False)
+    type: Literal[EntityType.GRID] = Field(allow_mutation=False)
     _rows: List[Row] = PrivateAttr(default=[])
     _rows_by_id: Dict[UUID, Row] = PrivateAttr(default={})
 
     @classmethod
-    def _get_subtype(cls) -> EntitySubtype:
-        return EntitySubtype.GRID
+    def _get_entity_type(cls) -> EntityType:
+        return EntityType.GRID
 
     @classmethod
     def _get_adt_endpoint(cls) -> str:

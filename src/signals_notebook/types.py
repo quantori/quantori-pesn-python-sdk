@@ -15,7 +15,7 @@ class ObjectType(str, Enum):
     COLUMN_DEFINITIONS = 'columnDefinitions'
 
 
-class EntitySubtype(str, Enum):
+class EntityType(str, Enum):
     NOTEBOOK = 'journal'
     EXPERIMENT = 'experiment'
     TEXT = 'text'
@@ -57,7 +57,7 @@ class EntityCreationRequestPayload(DataObject[AnyModel], Generic[AnyModel]):
 
 
 class EntityShortDescription(BaseModel):
-    type: Union[EntitySubtype, str]
+    type: Union[EntityType, str]
     id: EID
 
 
