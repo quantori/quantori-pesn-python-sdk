@@ -2,7 +2,7 @@ import arrow
 import pytest
 
 from signals_notebook.entities import ChemicalDrawing, Entity, Experiment, Text
-from signals_notebook.types import EID, EntitySubtype, EntityType
+from signals_notebook.types import EID, EntitySubtype, ObjectType
 
 
 def test_get_list(api_mock):
@@ -12,7 +12,7 @@ def test_get_list(api_mock):
         'links': {'self': f'https://example.com/{eid1}'},
         'data': [
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid1,
                 'links': {'self': f'https://example.com/{eid1}'},
                 'attributes': {
@@ -26,7 +26,7 @@ def test_get_list(api_mock):
                 },
             },
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid2,
                 'links': {'self': f'https://example.com/{eid2}'},
                 'attributes': {
@@ -70,7 +70,7 @@ def test_create(api_mock, description, digest, force):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': EntityType.ENTITY,
+            'type': ObjectType.ENTITY,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {
@@ -125,7 +125,7 @@ def test_create_with_ancestors(api_mock, notebook_factory):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': EntityType.ENTITY,
+            'type': ObjectType.ENTITY,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {
@@ -188,7 +188,7 @@ def test_create_with_template(api_mock, experiment_factory):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': EntityType.ENTITY,
+            'type': ObjectType.ENTITY,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {
@@ -289,7 +289,7 @@ def test_add_children(api_mock, experiment_factory, force):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': EntityType.ENTITY,
+            'type': ObjectType.ENTITY,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {
@@ -340,7 +340,7 @@ def test_get_children(api_mock, experiment_factory):
         'links': {'self': f'https://example.com/{experiment.eid}/children'},
         'data': [
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': 'text:ce0b5848-6256-4eb9-9e90-3dfaefc0e53d',
                 'links': {'self': f'https://example.com/text:ce0b5848-6256-4eb9-9e90-3dfaefc0e53d'},
                 'attributes': {
@@ -354,7 +354,7 @@ def test_get_children(api_mock, experiment_factory):
                 },
             },
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': 'chemicalDrawing:2a632ec6-e8a0-4dcd-ac8a-75327654b4c3',
                 'links': {'self': f'https://example.com/chemicalDrawing:2a632ec6-e8a0-4dcd-ac8a-75327654b4c3'},
                 'attributes': {
@@ -368,7 +368,7 @@ def test_get_children(api_mock, experiment_factory):
                 },
             },
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': 'unknown:d25eeb3a-ff62-47b8-ab43-e0f89ec8799d',
                 'links': {'self': f'https://example.com/unknown:d25eeb3a-ff62-47b8-ab43-e0f89ec8799d'},
                 'attributes': {

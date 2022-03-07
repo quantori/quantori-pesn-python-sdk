@@ -8,7 +8,7 @@ from pydantic.generics import GenericModel
 
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
-from signals_notebook.types import EID, EntitySubtype, EntityType
+from signals_notebook.types import EID, EntitySubtype, ObjectType
 
 CellContentType = TypeVar('CellContentType')
 
@@ -82,7 +82,7 @@ ColumnDefinitionClasses = Union[
 
 class ColumnDefinitions(BaseModel):
     id: EID
-    type: Literal[EntityType.COLUMN_DEFINITIONS]
+    type: Literal[ObjectType.COLUMN_DEFINITIONS]
     columns: List[ColumnDefinitionClasses]
 
     class Config:

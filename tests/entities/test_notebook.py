@@ -2,7 +2,7 @@ import arrow
 import pytest
 
 from signals_notebook.entities.notebook import Notebook
-from signals_notebook.types import EID, EntitySubtype, EntityType
+from signals_notebook.types import EID, EntitySubtype, ObjectType
 
 
 def test_get_list(api_mock):
@@ -12,7 +12,7 @@ def test_get_list(api_mock):
         'links': {'self': f'https://example.com/{eid1}'},
         'data': [
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid1,
                 'links': {'self': f'https://example.com/{eid1}'},
                 'attributes': {
@@ -26,7 +26,7 @@ def test_get_list(api_mock):
                 },
             },
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid2,
                 'links': {'self': f'https://example.com/{eid2}'},
                 'attributes': {
@@ -70,7 +70,7 @@ def test_create(api_mock, description, digest, force):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': EntityType.ENTITY,
+            'type': ObjectType.ENTITY,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {

@@ -5,7 +5,7 @@ import pytest
 
 from signals_notebook.entities import Experiment, Notebook
 from signals_notebook.entities.entity_store import EntityStore
-from signals_notebook.types import EID, EntitySubtype, EntityType
+from signals_notebook.types import EID, EntitySubtype, ObjectType
 
 
 @pytest.fixture()
@@ -28,7 +28,7 @@ def test_get(api_mock, eid, entity_type, expected_class):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': EntityType.ENTITY,
+            'type': ObjectType.ENTITY,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {
@@ -80,7 +80,7 @@ def test_get_list_with_params(api_mock):
         'links': {'self': f'https://example.com/{eid1}'},
         'data': [
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid1,
                 'links': {'self': f'https://example.com/{eid1}'},
                 'attributes': {
@@ -94,7 +94,7 @@ def test_get_list_with_params(api_mock):
                 },
             },
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid2,
                 'links': {'self': f'https://example.com/{eid2}'},
                 'attributes': {
@@ -152,7 +152,7 @@ def test_get_list_without_params(api_mock):
         'links': {'self': f'https://example.com/{eid1}'},
         'data': [
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid1,
                 'links': {'self': f'https://example.com/{eid1}'},
                 'attributes': {
@@ -166,7 +166,7 @@ def test_get_list_without_params(api_mock):
                 },
             },
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid2,
                 'links': {'self': f'https://example.com/{eid2}'},
                 'attributes': {
@@ -215,7 +215,7 @@ def test_get_several_pages(api_mock, mocker, get_response_object):
         },
         'data': [
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid1,
                 'links': {'self': f'https://example.com/{eid1}'},
                 'attributes': {
@@ -237,7 +237,7 @@ def test_get_several_pages(api_mock, mocker, get_response_object):
         },
         'data': [
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid2,
                 'links': {'self': f'https://example.com/{eid2}'},
                 'attributes': {

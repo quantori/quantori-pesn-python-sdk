@@ -9,12 +9,12 @@ from pydantic import BaseModel, Field, PrivateAttr
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import GenericCell, ColumnDefinition, ColumnDefinitions
-from signals_notebook.types import EntitySubtype, EntityType, Response, ResponseData
+from signals_notebook.types import EntitySubtype, ObjectType, Response, ResponseData
 
 
 class Row(BaseModel):
     id: UUID = Field(allow_mutation=False)
-    type: Literal[EntityType.ADT_ROW] = Field(allow_mutation=False)
+    type: Literal[ObjectType.ADT_ROW] = Field(allow_mutation=False)
     cells: List[GenericCell]
     _cells_dict: Dict[Union[UUID, str], GenericCell] = PrivateAttr(default={})
     _table: Optional['Table'] = PrivateAttr(default=None)
