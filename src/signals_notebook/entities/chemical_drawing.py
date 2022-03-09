@@ -6,7 +6,7 @@ from pydantic import Field
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.types import EntitySubtype, File
+from signals_notebook.types import EntityType, File
 
 
 class ChemicalDrawingFormat(str, Enum):
@@ -18,11 +18,11 @@ class ChemicalDrawingFormat(str, Enum):
 
 
 class ChemicalDrawing(ContentfulEntity):
-    type: Literal[EntitySubtype.CHEMICAL_DRAWING] = Field(allow_mutation=False)
+    type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
 
     @classmethod
-    def _get_subtype(cls) -> EntitySubtype:
-        return EntitySubtype.CHEMICAL_DRAWING
+    def _get_entity_type(cls) -> EntityType:
+        return EntityType.CHEMICAL_DRAWING
 
     @classmethod
     def create(

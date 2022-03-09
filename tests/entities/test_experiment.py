@@ -2,41 +2,7 @@ import arrow
 import pytest
 
 from signals_notebook.entities import ChemicalDrawing, Entity, Experiment, Text
-from signals_notebook.types import EID, EntitySubtype, EntityType
-
-
-def test_get(api_mock):
-    eid = EID('experiment:878a87ca-3777-4692-8561-a4a81ccfd85d')
-    response = {
-        'links': {'self': f'https://example.com/{eid}'},
-        'data': {
-            'type': EntityType.ENTITY,
-            'id': eid,
-            'links': {'self': f'https://example.com/{eid}'},
-            'attributes': {
-                'eid': eid,
-                'name': 'My experiment',
-                'description': 'test description',
-                'type': EntitySubtype.EXPERIMENT,
-                'createdAt': '2019-09-06T03:12:35.129Z',
-                'editedAt': '2019-09-06T15:22:47.309Z',
-                'digest': '1234234',
-            },
-        },
-    }
-    api_mock.call.return_value.json.return_value = response
-
-    result = Experiment.get(eid)
-
-    api_mock.call.assert_called_once_with(method='GET', path=('entities', eid))
-
-    assert isinstance(result, Experiment)
-    assert result.eid == eid
-    assert result.digest == response['data']['attributes']['digest']
-    assert result.name == response['data']['attributes']['name']
-    assert result.description == response['data']['attributes']['description']
-    assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
-    assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+from signals_notebook.types import EID, EntityType, ObjectType
 
 
 def test_get_list(api_mock):
@@ -46,28 +12,28 @@ def test_get_list(api_mock):
         'links': {'self': f'https://example.com/{eid1}'},
         'data': [
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid1,
                 'links': {'self': f'https://example.com/{eid1}'},
                 'attributes': {
                     'eid': eid1,
                     'name': 'My experiment 1',
                     'description': 'test description 1',
-                    'type': EntitySubtype.EXPERIMENT,
+                    'type': EntityType.EXPERIMENT,
                     'createdAt': '2020-09-06T03:12:35.129Z',
                     'editedAt': '2020-09-06T15:22:47.309Z',
                     'digest': '53263456',
                 },
             },
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': eid2,
                 'links': {'self': f'https://example.com/{eid2}'},
                 'attributes': {
                     'eid': eid2,
                     'name': 'My experiment 2',
                     'description': 'test description 2',
-                    'type': EntitySubtype.EXPERIMENT,
+                    'type': EntityType.EXPERIMENT,
                     'createdAt': '2021-09-06T03:12:35.129Z',
                     'editedAt': '2021-09-06T15:22:47.309Z',
                     'digest': '34563546',
@@ -77,10 +43,14 @@ def test_get_list(api_mock):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = Experiment.get_list()
+    result_generator = Experiment.get_list()
+
+    api_mock.call.assert_not_called()
+
+    result = list(result_generator)
 
     api_mock.call.assert_called_once_with(
-        method='GET', path=('entities',), params={'includeTypes': EntitySubtype.EXPERIMENT}
+        method='GET', path=('entities',), params={'includeTypes': EntityType.EXPERIMENT}
     )
 
     for item, raw_item in zip(result, response['data']):
@@ -100,14 +70,14 @@ def test_create(api_mock, description, digest, force):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': EntityType.ENTITY,
+            'type': ObjectType.ENTITY,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {
                 'eid': eid,
                 'name': 'My experiment',
                 'description': description,
-                'type': EntitySubtype.EXPERIMENT,
+                'type': EntityType.EXPERIMENT,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': digest,
@@ -120,7 +90,7 @@ def test_create(api_mock, description, digest, force):
 
     request_body = {
         'data': {
-            'type': EntitySubtype.EXPERIMENT,
+            'type': EntityType.EXPERIMENT,
             'attributes': {
                 'name': response['data']['attributes']['name'],
             },
@@ -155,14 +125,14 @@ def test_create_with_ancestors(api_mock, notebook_factory):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': EntityType.ENTITY,
+            'type': ObjectType.ENTITY,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {
                 'eid': eid,
                 'name': 'My experiment',
                 'description': 'Some description',
-                'type': EntitySubtype.EXPERIMENT,
+                'type': EntityType.EXPERIMENT,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': '123144',
@@ -175,7 +145,7 @@ def test_create_with_ancestors(api_mock, notebook_factory):
 
     request_body = {
         'data': {
-            'type': EntitySubtype.EXPERIMENT,
+            'type': EntityType.EXPERIMENT,
             'attributes': {
                 'name': response['data']['attributes']['name'],
                 'description': response['data']['attributes']['description'],
@@ -185,7 +155,7 @@ def test_create_with_ancestors(api_mock, notebook_factory):
                     'data': [
                         {
                             'id': notebook.eid,
-                            'type': EntitySubtype.NOTEBOOK,
+                            'type': EntityType.NOTEBOOK,
                         }
                     ]
                 }
@@ -218,14 +188,14 @@ def test_create_with_template(api_mock, experiment_factory):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': EntityType.ENTITY,
+            'type': ObjectType.ENTITY,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {
                 'eid': eid,
                 'name': 'My experiment',
                 'description': 'Some description',
-                'type': EntitySubtype.EXPERIMENT,
+                'type': EntityType.EXPERIMENT,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': '123144',
@@ -238,7 +208,7 @@ def test_create_with_template(api_mock, experiment_factory):
 
     request_body = {
         'data': {
-            'type': EntitySubtype.EXPERIMENT,
+            'type': EntityType.EXPERIMENT,
             'attributes': {
                 'name': response['data']['attributes']['name'],
                 'description': response['data']['attributes']['description'],
@@ -247,7 +217,7 @@ def test_create_with_template(api_mock, experiment_factory):
                 'template': {
                     'data': {
                         'id': template.eid,
-                        'type': EntitySubtype.EXPERIMENT,
+                        'type': EntityType.EXPERIMENT,
                     }
                 }
             },
@@ -288,22 +258,6 @@ def test_delete_instance(experiment_factory, api_mock):
     )
 
 
-@pytest.mark.parametrize('digest, force', [('1234234', False), (None, True)])
-def test_delete_by_id(api_mock, digest, force):
-    eid = EID('experiment:e360eea6-b331-4c6f-b340-6d0eaa7eb070')
-
-    Experiment.delete_by_id(eid, digest, force)
-
-    api_mock.call.assert_called_once_with(
-        method='DELETE',
-        path=('entities', eid),
-        params={
-            'digest': digest,
-            'force': 'true' if force else 'false',
-        },
-    )
-
-
 @pytest.mark.parametrize('force', [True, False])
 def test_update(api_mock, experiment_factory, force):
     experiment = experiment_factory()
@@ -335,14 +289,14 @@ def test_add_children(api_mock, experiment_factory, force):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': EntityType.ENTITY,
+            'type': ObjectType.ENTITY,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {
                 'eid': eid,
                 'name': 'My text',
                 'description': '',
-                'type': EntitySubtype.TEXT,
+                'type': EntityType.TEXT,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': '123144',
@@ -386,35 +340,35 @@ def test_get_children(api_mock, experiment_factory):
         'links': {'self': f'https://example.com/{experiment.eid}/children'},
         'data': [
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': 'text:ce0b5848-6256-4eb9-9e90-3dfaefc0e53d',
                 'links': {'self': f'https://example.com/text:ce0b5848-6256-4eb9-9e90-3dfaefc0e53d'},
                 'attributes': {
                     'eid': 'text:ce0b5848-6256-4eb9-9e90-3dfaefc0e53d',
                     'name': 'My text',
                     'description': '',
-                    'type': EntitySubtype.TEXT,
+                    'type': EntityType.TEXT,
                     'createdAt': '2019-09-06T03:12:35.129Z',
                     'editedAt': '2019-09-06T15:22:47.309Z',
                     'digest': '123144',
                 },
             },
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': 'chemicalDrawing:2a632ec6-e8a0-4dcd-ac8a-75327654b4c3',
                 'links': {'self': f'https://example.com/chemicalDrawing:2a632ec6-e8a0-4dcd-ac8a-75327654b4c3'},
                 'attributes': {
                     'eid': 'chemicalDrawing:2a632ec6-e8a0-4dcd-ac8a-75327654b4c3',
                     'name': 'Some reactions',
                     'description': '',
-                    'type': EntitySubtype.CHEMICAL_DRAWING,
+                    'type': EntityType.CHEMICAL_DRAWING,
                     'createdAt': '2019-09-06T03:12:35.129Z',
                     'editedAt': '2019-09-06T15:22:47.309Z',
                     'digest': '123144',
                 },
             },
             {
-                'type': EntityType.ENTITY,
+                'type': ObjectType.ENTITY,
                 'id': 'unknown:d25eeb3a-ff62-47b8-ab43-e0f89ec8799d',
                 'links': {'self': f'https://example.com/unknown:d25eeb3a-ff62-47b8-ab43-e0f89ec8799d'},
                 'attributes': {

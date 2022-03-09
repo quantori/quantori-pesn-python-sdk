@@ -10,7 +10,7 @@ from signals_notebook.types import (
     EntityClass,
     EntityCreationRequestPayload,
     EntityShortDescription,
-    EntitySubtype,
+    EntityType,
     Response,
     ResponseData,
 )
@@ -30,8 +30,11 @@ class Entity(BaseModel):
     class Config:
         validate_assignment = True
 
+    def __str__(self) -> str:
+        return f'<{self.__class__.__name__} eid={self.eid}>'
+
     @classmethod
-    def _get_subtype(cls) -> EntitySubtype:
+    def _get_entity_type(cls) -> EntityType:
         raise NotImplementedError
 
     @classmethod
@@ -47,51 +50,17 @@ class Entity(BaseModel):
     @classmethod
     def _get_list_params(cls) -> Dict[str, Any]:
         return {
-            'includeTypes': cls._get_subtype(),
+            'include_types': [cls._get_entity_type()],
         }
 
     @classmethod
-    def get(cls, eid: EID) -> EntityClass:
-        api = SignalsNotebookApi.get_default_api()
-
-        response = api.call(
-            method='GET',
-            path=(cls._get_endpoint(), eid),
-        )
-
-        result = Response[cls](**response.json())  # type: ignore
-
-        return cast(ResponseData, result.data).body
-
-    @classmethod
-    def get_list(cls) -> List[EntityClass]:
-        api = SignalsNotebookApi.get_default_api()
-
-        response = api.call(
-            method='GET',
-            path=(cls._get_endpoint(),),
-            params=cls._get_list_params(),
-        )
-
-        result = Response[cls](**response.json())  # type: ignore
-
-        return [cast(ResponseData, item).body for item in result.data]
-
-    @classmethod
-    def delete_by_id(cls, eid: EID, digest: str = None, force: bool = True) -> None:
-        api = SignalsNotebookApi.get_default_api()
-
-        api.call(
-            method='DELETE',
-            path=(cls._get_endpoint(), eid),
-            params={
-                'digest': digest,
-                'force': json.dumps(force),
-            },
-        )
+    def get_list(cls) -> Generator['Entity', None, None]:
+        from signals_notebook.entities.entity_store import EntityStore
+        return EntityStore.get_list(**cls._get_list_params())
 
     def delete(self) -> None:
-        self.delete_by_id(self.eid)
+        from signals_notebook.entities.entity_store import EntityStore
+        EntityStore.delete(self.eid)
 
     @classmethod
     def _create(cls, *, digest: str = None, force: bool = True, request: EntityCreationRequestPayload) -> EntityClass:

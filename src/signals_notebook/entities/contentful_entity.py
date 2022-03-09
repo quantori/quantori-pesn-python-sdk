@@ -4,13 +4,13 @@ from typing import Optional
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities import Entity
-from signals_notebook.types import EntitySubtype, File
+from signals_notebook.types import EntityType, File
 
 
 class ContentfulEntity(Entity, abc.ABC):
     @classmethod
     @abc.abstractmethod
-    def _get_subtype(cls) -> EntitySubtype:
+    def _get_entity_type(cls) -> EntityType:
         pass
 
     def _get_content(self, format: Optional[str] = None) -> File:

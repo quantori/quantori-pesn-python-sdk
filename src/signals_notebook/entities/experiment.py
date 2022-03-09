@@ -5,7 +5,7 @@ from pydantic import BaseModel, Field
 
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
-from signals_notebook.types import Ancestors, EntityCreationRequestPayload, EntitySubtype, Template
+from signals_notebook.types import Ancestors, EntityCreationRequestPayload, EntityType, Template
 
 
 class _Attributes(BaseModel):
@@ -19,7 +19,7 @@ class _Relationships(BaseModel):
 
 
 class _RequestBody(BaseModel):
-    type: EntitySubtype
+    type: EntityType
     attributes: _Attributes
     relationships: Optional[_Relationships] = None
 
@@ -34,12 +34,12 @@ class ExperimentState(str, Enum):
 
 
 class Experiment(Container):
-    type: Literal[EntitySubtype.EXPERIMENT] = Field(allow_mutation=False)
+    type: Literal[EntityType.EXPERIMENT] = Field(allow_mutation=False)
     state: Optional[ExperimentState] = Field(allow_mutation=False, default=None)
 
     @classmethod
-    def _get_subtype(cls) -> EntitySubtype:
-        return EntitySubtype.EXPERIMENT
+    def _get_entity_type(cls) -> EntityType:
+        return EntityType.EXPERIMENT
 
     @classmethod
     def create(
@@ -66,7 +66,7 @@ class Experiment(Container):
 
         request = _RequestPayload(
             data=_RequestBody(
-                type=cls._get_subtype(),
+                type=cls._get_entity_type(),
                 attributes=_Attributes(
                     name=name,
                     description=description,

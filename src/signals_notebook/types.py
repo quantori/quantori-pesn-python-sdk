@@ -9,27 +9,33 @@ EntityClass = TypeVar('EntityClass')
 AnyModel = TypeVar('AnyModel')
 
 
-class EntityType(str, Enum):
+class ObjectType(str, Enum):
     ENTITY = 'entity'
+    ADT_ROW = 'adtRow'
+    COLUMN_DEFINITIONS = 'columnDefinitions'
 
 
-class EntitySubtype(str, Enum):
+class EntityType(str, Enum):
     NOTEBOOK = 'journal'
     EXPERIMENT = 'experiment'
     TEXT = 'text'
     CHEMICAL_DRAWING = 'chemicalDrawing'
+    GRID = 'grid'
+    ASSET = 'asset'
+    BIO_SEQUENCE = 'bioSequence'
 
 
 class Links(BaseModel):
     self: HttpUrl
     first: Optional[HttpUrl] = None
     next: Optional[HttpUrl] = None
+    prev: Optional[HttpUrl] = None
 
 
 class ResponseData(GenericModel, Generic[EntityClass]):
-    type: EntityType
+    type: ObjectType
     eid: EID = Field(alias='id')
-    links: Links
+    links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
 
 
@@ -51,7 +57,7 @@ class EntityCreationRequestPayload(DataObject[AnyModel], Generic[AnyModel]):
 
 
 class EntityShortDescription(BaseModel):
-    type: Union[EntitySubtype, str]
+    type: Union[EntityType, str]
     id: EID
 
 

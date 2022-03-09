@@ -3,7 +3,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
 from signals_notebook.entities.container import Container
-from signals_notebook.types import EntityCreationRequestPayload, EntitySubtype
+from signals_notebook.types import EntityCreationRequestPayload, EntityType
 
 
 class _Attributes(BaseModel):
@@ -12,7 +12,7 @@ class _Attributes(BaseModel):
 
 
 class _RequestBody(BaseModel):
-    type: EntitySubtype
+    type: EntityType
     attributes: _Attributes
 
 
@@ -21,11 +21,11 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
 
 
 class Notebook(Container):
-    type: Literal[EntitySubtype.NOTEBOOK] = Field(allow_mutation=False)
+    type: Literal[EntityType.NOTEBOOK] = Field(allow_mutation=False)
 
     @classmethod
-    def _get_subtype(cls) -> EntitySubtype:
-        return EntitySubtype.NOTEBOOK
+    def _get_entity_type(cls) -> EntityType:
+        return EntityType.NOTEBOOK
 
     @classmethod
     def create(
@@ -34,7 +34,7 @@ class Notebook(Container):
 
         request = _RequestPayload(
             data=_RequestBody(
-                type=cls._get_subtype(),
+                type=cls._get_entity_type(),
                 attributes=_Attributes(
                     name=name,
                     description=description,
