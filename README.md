@@ -50,9 +50,10 @@ notebooks = Notebook.get_list()
 ```
 or one specified by id
 ```python
-notebook = Notebook.get("journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e")
+from signals_notebook.entities.entity_store import EntityStore
+notebook = EntityStore.get("journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e")
 ```
 Deletion can be performed without retrieving the whole object if you know an id
 ```python
-Notebook.delete_by_id("journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e")
+EntityStore.delete("journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e")
 ```

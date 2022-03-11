@@ -1,10 +1,11 @@
 import pytest
 from pytest_factoryboy import register
 
-from tests.entities.factories import ExperimentFactory, NotebookFactory
+from tests.entities.factories import ExperimentFactory, NotebookFactory, TextFactory
 
 register(NotebookFactory)
 register(ExperimentFactory)
+register(TextFactory)
 
 
 @pytest.fixture()
