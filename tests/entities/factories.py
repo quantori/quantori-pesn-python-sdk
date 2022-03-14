@@ -1,6 +1,6 @@
 import factory
 
-from signals_notebook.entities import Experiment, Notebook
+from signals_notebook.entities import Experiment, Notebook, Text
 from signals_notebook.types import EntityType
 
 
@@ -10,7 +10,7 @@ class EntityFactory(factory.Factory):
         exclude = ('uuid', )
 
     uuid = factory.Faker('uuid4')
-    eid = factory.LazyAttribute(lambda o: f'{EntityType.NOTEBOOK}{o.uuid}')
+    eid = factory.LazyAttribute(lambda o: f'{EntityType.NOTEBOOK}:{o.uuid}')
     name = factory.Faker('word')
     description = factory.Faker('text')
     digest = factory.Sequence(lambda n: f'{n}')
@@ -30,4 +30,12 @@ class ExperimentFactory(EntityFactory):
         model = Experiment
 
     type = EntityType.EXPERIMENT
+    eid = factory.LazyAttribute(lambda o: f'{EntityType.EXPERIMENT}:{o.uuid}')
 
+
+class TextFactory(EntityFactory):
+    class Meta:
+        model = Text
+
+    type = EntityType.TEXT
+    eid = factory.LazyAttribute(lambda o: f'{EntityType.TEXT}:{o.uuid}')
