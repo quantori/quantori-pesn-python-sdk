@@ -1,10 +1,10 @@
 from enum import Enum
 from typing import Generic, List, NewType, Optional, TypeVar, Union
+from uuid import UUID
 
 from pydantic import BaseModel, Field, HttpUrl
 from pydantic.generics import GenericModel
 
-EID = NewType('EID', str)
 EntityClass = TypeVar('EntityClass')
 AnyModel = TypeVar('AnyModel')
 
@@ -23,6 +23,18 @@ class EntityType(str, Enum):
     GRID = 'grid'
     ASSET = 'asset'
     BIO_SEQUENCE = 'bioSequence'
+
+
+class EID(BaseModel):
+    type: Union[EntityType, str]
+    id: UUID
+
+    def __init__(self, value: str):
+        _type, _id = value.split(':')
+        super().__init__(type=_type, id=_id)
+
+    def __str__(self) -> str:
+        return f'{self.type}:{self.id}'
 
 
 class Links(BaseModel):
