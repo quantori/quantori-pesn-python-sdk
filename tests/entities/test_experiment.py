@@ -5,64 +5,6 @@ from signals_notebook.entities import ChemicalDrawing, Entity, Experiment, Text
 from signals_notebook.types import EID, EntityType, ObjectType
 
 
-def test_get_list(api_mock):
-    eid1 = EID('experiment:878a87ca-3777-4692-8561-a4a81ccfd85d')
-    eid2 = EID('experiment:52062e1d-7e03-464f-8caf-d7ed93261213')
-    response = {
-        'links': {'self': f'https://example.com/{eid1}'},
-        'data': [
-            {
-                'type': ObjectType.ENTITY,
-                'id': eid1,
-                'links': {'self': f'https://example.com/{eid1}'},
-                'attributes': {
-                    'eid': eid1,
-                    'name': 'My experiment 1',
-                    'description': 'test description 1',
-                    'type': EntityType.EXPERIMENT,
-                    'createdAt': '2020-09-06T03:12:35.129Z',
-                    'editedAt': '2020-09-06T15:22:47.309Z',
-                    'digest': '53263456',
-                },
-            },
-            {
-                'type': ObjectType.ENTITY,
-                'id': eid2,
-                'links': {'self': f'https://example.com/{eid2}'},
-                'attributes': {
-                    'eid': eid2,
-                    'name': 'My experiment 2',
-                    'description': 'test description 2',
-                    'type': EntityType.EXPERIMENT,
-                    'createdAt': '2021-09-06T03:12:35.129Z',
-                    'editedAt': '2021-09-06T15:22:47.309Z',
-                    'digest': '34563546',
-                },
-            },
-        ],
-    }
-    api_mock.call.return_value.json.return_value = response
-
-    result_generator = Experiment.get_list()
-
-    api_mock.call.assert_not_called()
-
-    result = list(result_generator)
-
-    api_mock.call.assert_called_once_with(
-        method='GET', path=('entities',), params={'includeTypes': EntityType.EXPERIMENT}
-    )
-
-    for item, raw_item in zip(result, response['data']):
-        assert isinstance(item, Experiment)
-        assert item.eid == raw_item['id']
-        assert item.digest == raw_item['attributes']['digest']
-        assert item.name == raw_item['attributes']['name']
-        assert item.description == raw_item['attributes']['description']
-        assert item.created_at == arrow.get(raw_item['attributes']['createdAt'])
-        assert item.edited_at == arrow.get(raw_item['attributes']['editedAt'])
-
-
 @pytest.mark.parametrize('description', ['test description', None])
 @pytest.mark.parametrize('digest, force', [('1234234', False), (None, True)])
 def test_create(api_mock, description, digest, force):
@@ -241,45 +183,6 @@ def test_create_with_template(api_mock, experiment_factory):
     assert result.description == response['data']['attributes']['description']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
-
-
-def test_delete_instance(experiment_factory, api_mock):
-    experiment = experiment_factory()
-
-    experiment.delete()
-
-    api_mock.call.assert_called_once_with(
-        method='DELETE',
-        path=('entities', experiment.eid),
-        params={
-            'digest': None,
-            'force': 'true',
-        },
-    )
-
-
-@pytest.mark.parametrize('force', [True, False])
-def test_update(api_mock, experiment_factory, force):
-    experiment = experiment_factory()
-
-    experiment.name = 'My experiment'
-    experiment.description = 'New description'
-    experiment.save(force=force)
-
-    api_mock.call.assert_called_once_with(
-        method='PATCH',
-        path=('entities', experiment.eid, 'properties'),
-        params={
-            'digest': None if force else experiment.digest,
-            'force': 'true' if force else 'false',
-        },
-        json={
-            'data': [
-                {'attributes': {'name': 'Name', 'value': 'My experiment'}},
-                {'attributes': {'name': 'Description', 'value': 'New description'}},
-            ]
-        },
-    )
 
 
 @pytest.mark.parametrize('force', [True, False])

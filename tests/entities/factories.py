@@ -10,7 +10,7 @@ class EntityFactory(factory.Factory):
         exclude = ('uuid', )
 
     uuid = factory.Faker('uuid4')
-    eid = factory.LazyAttribute(lambda o: f'{EntityType.NOTEBOOK}:{o.uuid}')
+    eid = factory.LazyAttribute(lambda o: f'{o.type}:{o.uuid}')
     name = factory.Faker('word')
     description = factory.Faker('text')
     digest = factory.Sequence(lambda n: f'{n}')
@@ -30,7 +30,6 @@ class ExperimentFactory(EntityFactory):
         model = Experiment
 
     type = EntityType.EXPERIMENT
-    eid = factory.LazyAttribute(lambda o: f'{EntityType.EXPERIMENT}:{o.uuid}')
 
 
 class TextFactory(EntityFactory):
@@ -38,4 +37,3 @@ class TextFactory(EntityFactory):
         model = Text
 
     type = EntityType.TEXT
-    eid = factory.LazyAttribute(lambda o: f'{EntityType.TEXT}:{o.uuid}')
