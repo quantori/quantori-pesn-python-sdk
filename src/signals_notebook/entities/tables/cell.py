@@ -1,9 +1,9 @@
 from datetime import datetime
 from enum import Enum
-from typing import Generic, List, Literal, Optional, TypeVar, Union
+from typing import cast, Generic, List, Literal, Optional, TypeVar, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
 from signals_notebook.entities import Entity
@@ -95,12 +95,16 @@ class CellContent(GenericModel, Generic[CellContentType]):
     type: Optional[EntityType] = None
     display: Optional[str] = None
 
+    class Config:
+        validate_assignment = True
+
 
 class Cell(GenericModel, Generic[CellContentType]):
     id: UUID = Field(allow_mutation=False, alias='key')
     type: ColumnDataType = Field(allow_mutation=False)
     name: str = Field(allow_mutation=False)
     content: CellContent[CellContentType]
+    _changed: bool = PrivateAttr(default=False)
 
     class Config:
         validate_assignment = True
@@ -108,6 +112,14 @@ class Cell(GenericModel, Generic[CellContentType]):
     @property
     def value(self) -> Union[CellContentType, List[CellContentType]]:
         return self.content.values or self.content.value
+
+    def set_value(self, new_value: Union[CellContentType, List[CellContentType]]) -> None:
+        if isinstance(new_value, List):
+            self.content.value = cast(CellContentType, ','.join(map(str, new_value)))
+            self.content.values = new_value
+        else:
+            self.content.value = new_value
+        self._changed = True
 
     @property
     def display(self) -> str:

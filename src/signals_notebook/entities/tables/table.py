@@ -95,7 +95,7 @@ class Table(ContentfulEntity):
             method='GET',
             path=(self._get_adt_endpoint(), self.eid),
         )
-        breakpoint()
+
         result = TableDataResponse(**response.json())
 
         self._rows = []
