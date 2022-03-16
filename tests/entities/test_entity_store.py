@@ -283,3 +283,35 @@ def test_get_several_pages(api_mock, mocker, get_response_object):
         assert item.description == raw_item['attributes']['description']
         assert item.created_at == arrow.get(raw_item['attributes']['createdAt'])
         assert item.edited_at == arrow.get(raw_item['attributes']['editedAt'])
+
+
+def test_refresh(api_mock, notebook_factory):
+    notebook = notebook_factory(name='My notebook')
+
+    response = {
+        'links': {'self': f'https://example.com/{notebook.eid}'},
+        'data':
+            {
+                'type': ObjectType.ENTITY,
+                'id': notebook.eid,
+                'links': {'self': f'https://example.com/{notebook.eid}'},
+                'attributes': {
+                    'eid': notebook.eid,
+                    'name': 'Updated notebook name',
+                    'description': 'Updated notebook description',
+                    'type': EntityType.NOTEBOOK,
+                    'createdAt': notebook.created_at,
+                    'editedAt': notebook.edited_at,
+                    'digest': notebook.digest,
+                },
+            },
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    EntityStore.refresh(notebook)
+
+    api_mock.call.assert_called_once_with(
+        method='GET', path=('entities', notebook.eid),
+    )
+    assert notebook.name == response['data']['attributes']['name']
+    assert notebook.description == response['data']['attributes']['description']

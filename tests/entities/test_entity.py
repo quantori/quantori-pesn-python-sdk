@@ -104,3 +104,11 @@ def test_update(api_mock, notebook_factory, force):
             ]
         },
     )
+
+
+def test_refresh(notebook_factory, entity_store_mock):
+    notebook = notebook_factory(name='My notebook')
+
+    notebook.refresh()
+
+    entity_store_mock.refresh.assert_called_once_with(notebook)
