@@ -308,7 +308,7 @@ def test_refresh(api_mock, notebook_factory):
     }
     api_mock.call.return_value.json.return_value = response
 
-    notebook.refresh()
+    EntityStore.refresh(notebook)
 
     api_mock.call.assert_called_once_with(
         method='GET', path=('entities', notebook.eid),
