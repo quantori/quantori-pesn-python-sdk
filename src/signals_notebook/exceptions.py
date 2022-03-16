@@ -1,7 +1,7 @@
 from typing import List
 
 import requests
-from pydantic import BaseModel, parse_obj_as
+from pydantic import BaseModel, parse_obj_as, PydanticValueError
 
 
 class ErrorBody(BaseModel):
@@ -24,3 +24,7 @@ class SignalsNotebookError(Exception):
         return (
             f'<SignalsNotebookError status={error.status} code={error.code}> title={error.title} detail={error.detail}>'
         )
+
+
+class EIDError(PydanticValueError):
+    msg_template = 'incorrect EID value'
