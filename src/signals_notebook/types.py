@@ -25,6 +25,7 @@ class EntityType(str, Enum):
     GRID = 'grid'
     ASSET = 'asset'
     BIO_SEQUENCE = 'bioSequence'
+    UPLOADED_RESOURCE = 'uploadedResource'
 
 
 class EID(str):
