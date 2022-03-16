@@ -1,8 +1,9 @@
 import pytest
 from pytest_factoryboy import register
 
-from tests.entities.factories import ExperimentFactory, NotebookFactory, TextFactory
+from tests.entities.factories import EIDFactory, ExperimentFactory, NotebookFactory, TextFactory
 
+register(EIDFactory)
 register(NotebookFactory)
 register(ExperimentFactory)
 register(TextFactory)

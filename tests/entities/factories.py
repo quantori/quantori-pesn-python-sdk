@@ -1,16 +1,28 @@
 import factory
 
 from signals_notebook.entities import Experiment, Notebook, Text
-from signals_notebook.types import EntityType
+from signals_notebook.types import EID, EntityType
+
+
+class EIDFactory(factory.Factory):
+    class Meta:
+        model = EID
+
+    id = factory.Faker('uuid4')
+    type = factory.Iterator(EntityType)
+
+    @classmethod
+    def _create(cls, model_class, *args, **kwargs):
+        _id = kwargs.get('id')
+        _type = kwargs.get('type')
+        return model_class(f'{_type}:{_id}')
 
 
 class EntityFactory(factory.Factory):
     class Meta:
         abstract = True
-        exclude = ('uuid', )
 
-    uuid = factory.Faker('uuid4')
-    eid = factory.LazyAttribute(lambda o: f'{o.type}:{o.uuid}')
+    eid = factory.SubFactory(EIDFactory)
     name = factory.Faker('word')
     description = factory.Faker('text')
     digest = factory.Sequence(lambda n: f'{n}')
