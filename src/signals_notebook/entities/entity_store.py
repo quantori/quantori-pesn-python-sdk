@@ -85,6 +85,14 @@ class EntityStore:
             yield from [cast(ResponseData, item).body for item in result.data]
 
     @classmethod
+    def refresh(cls, entity: Entity) -> None:
+        refreshed_entity = cls.get(entity.eid)
+        for field in entity.__fields__.values():
+            if field.field_info.allow_mutation:
+                new_value = getattr(refreshed_entity, field.name)
+                setattr(entity, field.name, new_value)
+
+    @classmethod
     def delete(cls, eid: EID, digest: str = None, force: bool = True) -> None:
         api = SignalsNotebookApi.get_default_api()
 

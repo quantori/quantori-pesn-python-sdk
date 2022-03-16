@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, cast, Dict, Generator, List, Optional, Type, TypeVar
+from typing import Any, cast, Dict, Generator, Optional, Type, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -81,7 +81,9 @@ class Entity(BaseModel):
         return cast(ResponseData, result.data).body
 
     def refresh(self) -> None:
-        pass
+        from signals_notebook.entities import EntityStore
+
+        EntityStore.refresh(self)
 
     def save(self, force: bool = True) -> None:
         api = SignalsNotebookApi.get_default_api()
