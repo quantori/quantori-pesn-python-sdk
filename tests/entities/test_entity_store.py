@@ -20,8 +20,8 @@ def get_response_object(mocker):
 @pytest.mark.parametrize(
     'eid,entity_type,expected_class',
     [
-        (EID('experiment:878a87ca-3777-4692-8561-a4a81ccfd85d'), EntityType.EXPERIMENT, Experiment),
-        (EID('journal:878a87ca-3777-4692-8561-a4a81ccfd85d'), EntityType.NOTEBOOK, Notebook),
+        ('experiment:878a87ca-3777-4692-8561-a4a81ccfd85d', EntityType.EXPERIMENT, Experiment),
+        ('journal:878a87ca-3777-4692-8561-a4a81ccfd85d', EntityType.NOTEBOOK, Notebook),
     ],
 )
 def test_get(api_mock, eid, entity_type, expected_class):

@@ -2,13 +2,13 @@ import arrow
 import pytest
 
 from signals_notebook.entities import ChemicalDrawing, Entity, Experiment, Text
-from signals_notebook.types import EID, EntityType, ObjectType
+from signals_notebook.types import EntityType, ObjectType
 
 
 @pytest.mark.parametrize('description', ['test description', None])
 @pytest.mark.parametrize('digest, force', [('1234234', False), (None, True)])
-def test_create(api_mock, description, digest, force):
-    eid = EID('experiment:e360eea6-b331-4c6f-b340-6d0eaa7eb070')
+def test_create(api_mock, description, digest, force, eid_factory):
+    eid = eid_factory(type=EntityType.EXPERIMENT)
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
@@ -61,9 +61,9 @@ def test_create(api_mock, description, digest, force):
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
-def test_create_with_ancestors(api_mock, notebook_factory):
+def test_create_with_ancestors(api_mock, notebook_factory, eid_factory):
     notebook = notebook_factory()
-    eid = EID('experiment:e360eea6-b331-4c6f-b340-6d0eaa7eb070')
+    eid = eid_factory(type=EntityType.EXPERIMENT)
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
@@ -124,9 +124,9 @@ def test_create_with_ancestors(api_mock, notebook_factory):
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
-def test_create_with_template(api_mock, experiment_factory):
+def test_create_with_template(api_mock, experiment_factory, eid_factory):
     template = experiment_factory()
-    eid = EID('experiment:e360eea6-b331-4c6f-b340-6d0eaa7eb070')
+    eid = eid_factory(type=EntityType.EXPERIMENT)
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
@@ -186,9 +186,9 @@ def test_create_with_template(api_mock, experiment_factory):
 
 
 @pytest.mark.parametrize('force', [True, False])
-def test_add_children(api_mock, experiment_factory, force):
+def test_add_children(api_mock, experiment_factory, force, eid_factory):
     experiment = experiment_factory()
-    eid = EID('experiment:e360eea6-b331-4c6f-b340-6d0eaa7eb070')
+    eid = eid_factory(type=EntityType.EXPERIMENT)
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
@@ -237,17 +237,20 @@ def test_add_children(api_mock, experiment_factory, force):
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
-def test_get_children(api_mock, experiment_factory):
+def test_get_children(api_mock, experiment_factory, eid_factory):
     experiment = experiment_factory()
+    text_eid = eid_factory(type=EntityType.TEXT)
+    chem_draw_eid = eid_factory(type=EntityType.CHEMICAL_DRAWING)
+    unknown_eid = eid_factory(type='unknown')
     response = {
         'links': {'self': f'https://example.com/{experiment.eid}/children'},
         'data': [
             {
                 'type': ObjectType.ENTITY,
-                'id': 'text:ce0b5848-6256-4eb9-9e90-3dfaefc0e53d',
-                'links': {'self': f'https://example.com/text:ce0b5848-6256-4eb9-9e90-3dfaefc0e53d'},
+                'id': text_eid,
+                'links': {'self': f'https://example.com/{text_eid}'},
                 'attributes': {
-                    'eid': 'text:ce0b5848-6256-4eb9-9e90-3dfaefc0e53d',
+                    'eid': text_eid,
                     'name': 'My text',
                     'description': '',
                     'type': EntityType.TEXT,
@@ -258,10 +261,10 @@ def test_get_children(api_mock, experiment_factory):
             },
             {
                 'type': ObjectType.ENTITY,
-                'id': 'chemicalDrawing:2a632ec6-e8a0-4dcd-ac8a-75327654b4c3',
-                'links': {'self': f'https://example.com/chemicalDrawing:2a632ec6-e8a0-4dcd-ac8a-75327654b4c3'},
+                'id': chem_draw_eid,
+                'links': {'self': f'https://example.com/{chem_draw_eid}'},
                 'attributes': {
-                    'eid': 'chemicalDrawing:2a632ec6-e8a0-4dcd-ac8a-75327654b4c3',
+                    'eid': chem_draw_eid,
                     'name': 'Some reactions',
                     'description': '',
                     'type': EntityType.CHEMICAL_DRAWING,
@@ -272,10 +275,10 @@ def test_get_children(api_mock, experiment_factory):
             },
             {
                 'type': ObjectType.ENTITY,
-                'id': 'unknown:d25eeb3a-ff62-47b8-ab43-e0f89ec8799d',
-                'links': {'self': f'https://example.com/unknown:d25eeb3a-ff62-47b8-ab43-e0f89ec8799d'},
+                'id': unknown_eid,
+                'links': {'self': f'https://example.com/{unknown_eid}'},
                 'attributes': {
-                    'eid': 'unknown:d25eeb3a-ff62-47b8-ab43-e0f89ec8799d',
+                    'eid': unknown_eid,
                     'name': 'Some reactions',
                     'description': '',
                     'type': 'unknown',
@@ -296,10 +299,10 @@ def test_get_children(api_mock, experiment_factory):
     )
 
     assert isinstance(result[0], Text)
-    assert result[0].eid == 'text:ce0b5848-6256-4eb9-9e90-3dfaefc0e53d'
+    assert result[0].eid == text_eid
 
     assert isinstance(result[1], ChemicalDrawing)
-    assert result[1].eid == 'chemicalDrawing:2a632ec6-e8a0-4dcd-ac8a-75327654b4c3'
+    assert result[1].eid == chem_draw_eid
 
     assert isinstance(result[2], Entity)
-    assert result[2].eid == 'unknown:d25eeb3a-ff62-47b8-ab43-e0f89ec8799d'
+    assert result[2].eid == unknown_eid

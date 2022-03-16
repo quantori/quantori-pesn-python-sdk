@@ -12,15 +12,17 @@ class EIDFactory(factory.Factory):
     type = factory.Iterator(EntityType)
 
     @classmethod
-    def _create(cls, model_class, id, type):
-        return model_class(f'{type}:{id}')
+    def _create(cls, model_class, *args, **kwargs):
+        _id = kwargs.get('id')
+        _type = kwargs.get('type')
+        return model_class(f'{_type}:{_id}')
 
 
 class EntityFactory(factory.Factory):
     class Meta:
         abstract = True
 
-    eid = factory.SubFactory(EIDFactory) # factory.LazyAttribute(lambda o: f'{EntityType.NOTEBOOK}:{o.uuid}')
+    eid = factory.SubFactory(EIDFactory)
     name = factory.Faker('word')
     description = factory.Faker('text')
     digest = factory.Sequence(lambda n: f'{n}')
@@ -47,4 +49,3 @@ class TextFactory(EntityFactory):
         model = Text
 
     type = EntityType.TEXT
-
