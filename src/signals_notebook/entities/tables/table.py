@@ -8,8 +8,8 @@ from pydantic import Field, PrivateAttr
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import ColumnDefinition, ColumnDefinitions
-from signals_notebook.entities.tables.row import Row
-from signals_notebook.types import EntityType, Response, ResponseData
+from signals_notebook.entities.tables.row import ChangeRowRequest, Row
+from signals_notebook.types import DataList, EntityType, Response, ResponseData
 
 
 class TableDataResponse(Response[Row]):
@@ -17,6 +17,10 @@ class TableDataResponse(Response[Row]):
 
 
 class ColumnDefinitionsResponse(Response[ColumnDefinitions]):
+    pass
+
+
+class ChangeTableDataRequest(DataList[ChangeRowRequest]):
     pass
 
 
@@ -119,12 +123,31 @@ class Table(ContentfulEntity):
             },
         )
 
+        self._reload_data()
+
     def save(self, force: bool = True) -> None:
         super().save(force)
 
-        api = SignalsNotebookApi.get_default_api()
+        row_requests: List[ChangeRowRequest] = []
         for row in self._rows:
-            if not row.is_changed:
-                continue
+            row_request = row.get_change_request()
+            if row_request:
+                row_requests.append(row_request)
 
+        if not row_requests:
+            return
 
+        request = ChangeTableDataRequest(data=row_requests)
+        api = SignalsNotebookApi.get_default_api()
+
+        api.call(
+            method='PATCH',
+            path=(self._get_adt_endpoint(), self.eid),
+            params={
+                'digest': None if force else self.digest,
+                'force': json.dumps(force),
+            },
+            data=request.json(exclude_none=True, by_alias=True),
+        )
+
+        self._reload_data()

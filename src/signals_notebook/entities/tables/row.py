@@ -1,6 +1,6 @@
 from enum import Enum
 from operator import attrgetter
-from typing import Any, Dict, List, Literal, Union
+from typing import Any, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -105,7 +105,7 @@ class Row(BaseModel):
     def delete(self) -> None:
         self._deleted = True
 
-    def get_change_request(self) -> ChangeRowRequest:
+    def get_change_request(self) -> Optional[ChangeRowRequest]:
         if self.is_deleted:
             return DeleteRowRequest(id=self.id)
 
@@ -114,3 +114,5 @@ class Row(BaseModel):
                 id=self.id,
                 attributes=UpdateRowActionBody(cells=[cell.update_request for cell in self.cells if cell.is_changed])
             )
+
+        return None
