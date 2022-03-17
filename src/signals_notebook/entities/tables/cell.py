@@ -99,6 +99,11 @@ class CellContent(GenericModel, Generic[CellContentType]):
         validate_assignment = True
 
 
+class UpdateCellRequest(GenericModel, Generic[CellContentType]):
+    key: UUID
+    content: CellContent[CellContentType]
+
+
 class Cell(GenericModel, Generic[CellContentType]):
     id: UUID = Field(allow_mutation=False, alias='key')
     type: ColumnDataType = Field(allow_mutation=False)
@@ -122,8 +127,16 @@ class Cell(GenericModel, Generic[CellContentType]):
         self._changed = True
 
     @property
+    def is_changed(self) -> bool:
+        return self._changed
+
+    @property
     def display(self) -> str:
         return self.content.display or ''
+
+    @property
+    def update_request(self) -> Optional[UpdateCellRequest[CellContentType]]:
+        return UpdateCellRequest[CellContentType](key=self.id, content=self.content) if self._changed else None
 
 
 class TextCell(Cell[str]):

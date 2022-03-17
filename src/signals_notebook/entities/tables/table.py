@@ -1,70 +1,15 @@
 import json
-from operator import attrgetter
-from typing import Any, cast, Dict, List, Literal, Optional, Union
+from typing import Any, cast, Dict, List, Literal, Union
 from uuid import UUID
 
 import pandas as pd
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.entities.tables.cell import GenericCell, ColumnDefinition, ColumnDefinitions
-from signals_notebook.types import EntityType, ObjectType, Response, ResponseData
-
-
-class Row(BaseModel):
-    id: UUID = Field(allow_mutation=False)
-    type: Literal[ObjectType.ADT_ROW] = Field(allow_mutation=False)
-    cells: List[GenericCell]
-    _cells_dict: Dict[Union[UUID, str], GenericCell] = PrivateAttr(default={})
-    _table: Optional['Table'] = PrivateAttr(default=None)
-
-    class Config:
-        validate_assignment = True
-
-    def __init__(self, **data):
-        super().__init__(**data)
-
-        for cell in self.cells:
-            self._cells_dict[cell.id] = cell
-            self._cells_dict[cell.name] = cell
-
-    @property
-    def table(self) -> Optional['Table']:
-        return self._table
-
-    def set_table(self, table_instance: 'Table') -> None:
-        self._table = table_instance
-
-    def get_values(self, use_labels: bool = True) -> Dict[str, Any]:
-        key_getter = attrgetter('name') if use_labels else attrgetter('key')
-        return {key_getter(cell): cell.value for cell in self.cells}
-
-    def __getitem__(self, index: Union[int, str, UUID]) -> GenericCell:
-        if isinstance(index, int):
-            return self.cells[index]
-
-        if isinstance(index, str):
-            if index in self._cells_dict:
-                return self._cells_dict[index]
-
-            try:
-                if UUID(index) in self._cells_dict:
-                    return self._cells_dict[UUID(index)]
-            except ValueError:
-                pass
-
-        if isinstance(index, UUID):
-            return self._cells_dict[index]
-
-        raise IndexError('Invalid index')
-
-    def __iter__(self):
-        return self.cells.__iter__()
-
-    def delete(self) -> None:
-        assert self.table
-        self.table.delete_row_by_id(self.id)
+from signals_notebook.entities.tables.cell import ColumnDefinition, ColumnDefinitions
+from signals_notebook.entities.tables.row import Row
+from signals_notebook.types import EntityType, Response, ResponseData
 
 
 class TableDataResponse(Response[Row]):
@@ -102,7 +47,6 @@ class Table(ContentfulEntity):
         self._rows_by_id = {}
         for item in result.data:
             row = cast(Row, cast(ResponseData, item).body)
-            row.set_table(self)
             self._rows.append(row)
             self._rows_by_id[row.id] = row
 
@@ -174,4 +118,13 @@ class Table(ContentfulEntity):
                 'force': json.dumps(force),
             },
         )
+
+    def save(self, force: bool = True) -> None:
+        super().save(force)
+
+        api = SignalsNotebookApi.get_default_api()
+        for row in self._rows:
+            if not row.is_changed:
+                continue
+
 

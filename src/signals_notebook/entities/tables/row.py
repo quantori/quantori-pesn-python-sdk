@@ -1,0 +1,116 @@
+from enum import Enum
+from operator import attrgetter
+from typing import Any, Dict, List, Literal, Union
+from uuid import UUID
+
+from pydantic import BaseModel, Field, PrivateAttr
+
+from signals_notebook.entities.tables.cell import GenericCell, UpdateCellRequest
+from signals_notebook.types import ObjectType
+
+
+class RowAction(str, Enum):
+    UPDATE = 'update'
+    CREATE = 'create'
+    DELETE = 'delete'
+
+
+class DeleteRowActionBody(BaseModel):
+    action: Literal[RowAction.DELETE] = Field(allow_mutation=False, default=RowAction.DELETE)
+
+    class Config:
+        validate_assignment = True
+
+
+class UpdateRowActionBody(BaseModel):
+    action: Literal[RowAction.UPDATE] = Field(allow_mutation=False, default=RowAction.UPDATE)
+    cells: List[UpdateCellRequest]
+
+    class Config:
+        validate_assignment = True
+
+
+class ChangeRowRequest(BaseModel):
+    id: UUID
+    type: Literal[ObjectType.ADT_ROW] = Field(allow_mutation=False, default=ObjectType.ADT_ROW)
+
+    class Config:
+        validate_assignment = True
+
+
+class DeleteRowRequest(ChangeRowRequest):
+    body: DeleteRowActionBody = Field(alias='attributes', default_factory=DeleteRowActionBody)
+
+
+class UpdateRowRequest(ChangeRowRequest):
+    body: UpdateRowActionBody = Field(alias='attributes')
+
+
+class Row(BaseModel):
+    id: UUID = Field(allow_mutation=False)
+    type: Literal[ObjectType.ADT_ROW] = Field(allow_mutation=False)
+    cells: List[GenericCell]
+    _cells_dict: Dict[Union[UUID, str], GenericCell] = PrivateAttr(default={})
+    _deleted: bool = PrivateAttr(default=False)
+    _new: bool = PrivateAttr(default=False)
+
+    class Config:
+        validate_assignment = True
+
+    def __init__(self, **data):
+        super().__init__(**data)
+
+        for cell in self.cells:
+            self._cells_dict[cell.id] = cell
+            self._cells_dict[cell.name] = cell
+
+    @property
+    def is_deleted(self) -> bool:
+        return self._deleted
+
+    @property
+    def is_changed(self) -> bool:
+        return any([cell.is_changed for cell in self.cells])
+
+    @property
+    def is_new(self) -> bool:
+        return self._new
+
+    def get_values(self, use_labels: bool = True) -> Dict[str, Any]:
+        key_getter = attrgetter('name') if use_labels else attrgetter('key')
+        return {key_getter(cell): cell.value for cell in self.cells}
+
+    def __getitem__(self, index: Union[int, str, UUID]) -> GenericCell:
+        if isinstance(index, int):
+            return self.cells[index]
+
+        if isinstance(index, str):
+            if index in self._cells_dict:
+                return self._cells_dict[index]
+
+            try:
+                if UUID(index) in self._cells_dict:
+                    return self._cells_dict[UUID(index)]
+            except ValueError:
+                pass
+
+        if isinstance(index, UUID):
+            return self._cells_dict[index]
+
+        raise IndexError('Invalid index')
+
+    def __iter__(self):
+        return self.cells.__iter__()
+
+    def delete(self) -> None:
+        self._deleted = True
+
+    def get_change_request(self) -> ChangeRowRequest:
+        if self.is_deleted:
+            return DeleteRowRequest(id=self.id)
+
+        if self.is_changed:
+            return UpdateRowRequest(
+                id=self.id,
+                attributes=UpdateRowActionBody(cells=[cell.update_request for cell in self.cells if cell.is_changed])
+            )
