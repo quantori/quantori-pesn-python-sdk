@@ -1,3 +1,5 @@
+import base64 as b64
+
 import arrow
 import pytest
 
@@ -52,7 +54,8 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force):
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
-def test_get_content(image_factory, api_mock):
+@pytest.mark.parametrize('base64', [False, True])
+def test_get_content(image_factory, api_mock, base64):
     image = image_factory()
     file_name = 'image.png'
     content = b'image content'
@@ -60,11 +63,11 @@ def test_get_content(image_factory, api_mock):
 
     api_mock.call.return_value.headers = {
         'content-type': content_type,
-        'content-disposition': f'attachment; filename={file_name}'
+        'content-disposition': f'attachment; filename={file_name}',
     }
     api_mock.call.return_value.content = content
 
-    result = image.get_content()
+    result = image.get_content(base64=base64)
 
     api_mock.call.assert_called_once_with(
         method='GET',
@@ -76,5 +79,8 @@ def test_get_content(image_factory, api_mock):
 
     assert isinstance(result, File)
     assert result.name == file_name
-    assert result.content == content
     assert result.content_type == content_type
+    if base64:
+        assert result.content == b64.b64encode(content)
+    else:
+        assert result.content == content
