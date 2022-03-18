@@ -43,6 +43,9 @@ class Table(ContentfulEntity):
         response = api.call(
             method='GET',
             path=(self._get_adt_endpoint(), self.eid),
+            params={
+                'value': 'normalized',
+            }
         )
 
         result = TableDataResponse(**response.json())

@@ -118,12 +118,10 @@ class Cell(GenericModel, Generic[CellContentType]):
     def value(self) -> Union[CellContentType, List[CellContentType]]:
         return self.content.values or self.content.value
 
-    def set_value(self, new_value: Union[CellContentType, List[CellContentType]]) -> None:
-        if isinstance(new_value, List):
-            self.content.value = cast(CellContentType, ','.join(map(str, new_value)))
-            self.content.values = new_value
-        else:
-            self.content.value = new_value
+    def _set_value(self, new_value: CellContentType, display: Optional[str] = None) -> None:
+        self.content.value = new_value
+        self.content.display = display
+
         self._changed = True
 
     @property
@@ -142,25 +140,43 @@ class Cell(GenericModel, Generic[CellContentType]):
 class TextCell(Cell[str]):
     type: Literal[ColumnDataType.TEXT] = Field(allow_mutation=False)
 
+    def set_value(self, new_value: str, display: Optional[str] = None) -> None:
+        super()._set_value(new_value, display)
+
 
 class NumberCell(Cell[float]):
     type: Literal[ColumnDataType.NUMBER] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: float, display: Optional[str] = None) -> None:
+        super()._set_value(new_value, display)
 
 
 class IntegerCell(Cell[int]):
     type: Literal[ColumnDataType.INTEGER] = Field(allow_mutation=False)
 
+    def set_value(self, new_value: int, display: Optional[str] = None) -> None:
+        super()._set_value(new_value, display)
+
 
 class BooleanCell(Cell[bool]):
     type: Literal[ColumnDataType.BOOLEAN] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: bool, display: Optional[str] = None) -> None:
+        super()._set_value(new_value, display)
 
 
 class DateTimeCell(Cell[datetime]):
     type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
 
+    def set_value(self, new_value: datetime, display: Optional[str] = None) -> None:
+        super()._set_value(new_value, display)
+
 
 class ExternalLink(Cell[str]):
     type: Literal[ColumnDataType.EXTERNAL_LINK] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: str, display: Optional[str] = None) -> None:
+        super()._set_value(new_value, display)
 
 
 class LinkCell(Cell[EID]):
@@ -170,25 +186,57 @@ class LinkCell(Cell[EID]):
     def entity(self) -> Entity:
         return EntityStore.get(self.content.value)
 
+    def set_value(self, new_value: EID, display: str) -> None:
+        super()._set_value(new_value, display)
+
 
 class UnitCell(Cell[float]):
     type: Literal[ColumnDataType.UNIT] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: float, display: Optional[str] = None) -> None:
+        super()._set_value(new_value, display)
 
 
 class MultiSelectCell(Cell[str]):
     type: Literal[ColumnDataType.MULTI_SELECT] = Field(allow_mutation=False)
 
+    def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -> None:
+        if isinstance(new_value, List):
+            value = ', '.join(new_value)
+            self.content.values = new_value
+        else:
+            value = new_value
+            self.content.values = [new_value]
+
+        super()._set_value(value, display)
+
 
 class AttributeListCell(Cell[str]):
     type: Literal[ColumnDataType.ATTRIBUTE_LIST] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -> None:
+        if isinstance(new_value, List):
+            value = ', '.join(new_value)
+            self.content.values = new_value
+        else:
+            value = new_value
+            self.content.values = [new_value]
+
+        super()._set_value(value, display)
 
 
 class ListCell(Cell[str]):
     type: Literal[ColumnDataType.LIST] = Field(allow_mutation=False)
 
+    def set_value(self, new_value: str, display: Optional[str] = None) -> None:
+        super()._set_value(new_value, display)
+
 
 class AutotextListCell(Cell[str]):
     type: Literal[ColumnDataType.AUTOTEXT_LIST] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: str, display: Optional[str] = None) -> None:
+        super()._set_value(new_value, display)
 
 
 GenericCell = Union[
