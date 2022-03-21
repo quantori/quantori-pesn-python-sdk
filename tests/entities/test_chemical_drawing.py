@@ -1,16 +1,25 @@
 import arrow
 import pytest
 
-from signals_notebook.entities import Text
-from signals_notebook.types import EntityType, EID, ObjectType, File
+from signals_notebook.entities import ChemicalDrawing, ChemicalDrawingFormat, Entity
+from signals_notebook.types import EntityType, File, ObjectType
 
 
 @pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
-def test_create(api_mock, experiment_factory, eid_factory, digest, force):
+@pytest.mark.parametrize(
+    'entity_class, entity_type, content_type, file_extension',
+    [
+        (ChemicalDrawing, EntityType.CHEMICAL_DRAWING, 'chemical/x-cdxml', 'cdxml'),
+        (Entity, EntityType.UPLOADED_RESOURCE, 'image/svg+xml', 'svg'),
+    ],
+)
+def test_create(
+    api_mock, experiment_factory, eid_factory, digest, force, entity_class, entity_type, content_type, file_extension
+):
     container = experiment_factory(digest=digest)
-    eid = eid_factory(type=EntityType.TEXT)
-    file_name = 'Text'
-    content = 'Some text'
+    eid = eid_factory(type=entity_type)
+    file_name = 'chemDraw'
+    content = b'<?xml version="1.0" encoding="UTF-8" ?>'
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
@@ -20,7 +29,7 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force):
                 'eid': eid,
                 'name': file_name,
                 'description': '',
-                'type': EntityType.TEXT,
+                'type': entity_type,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': '222',
@@ -29,22 +38,24 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = Text.create(container=container, name=file_name, content=content, force=force)
+    result = ChemicalDrawing.create(
+        container=container, name=file_name, content_type=content_type, content=content, force=force
+    )
 
     api_mock.call.assert_called_once_with(
         method='POST',
-        path=('entities', container.eid, 'children', f'{file_name}.txt'),
+        path=('entities', container.eid, 'children', f'{file_name}.{file_extension}'),
         params={
             'digest': container.digest,
             'force': 'true' if force else 'false',
         },
         headers={
-            'Content-Type': 'text/plain',
+            'Content-Type': content_type,
         },
-        data=content.encode('utf-8'),
+        data=content,
     )
 
-    assert isinstance(result, Text)
+    assert isinstance(result, entity_class)
     assert result.eid == eid
     assert result.digest == response['data']['attributes']['digest']
     assert result.name == response['data']['attributes']['name']
@@ -52,25 +63,25 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force):
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
-def test_get_content(text_factory, api_mock):
-    text = text_factory()
-    file_name = 'Text.txt'
-    content = b'Some text'
-    content_type = 'text/plain'
+def test_get_content(chemical_drawing_factory, api_mock):
+    chemical_drawing = chemical_drawing_factory()
+    file_name = 'chemDraw.cdxml'
+    content = b'<?xml version="1.0" encoding="UTF-8" ?>'
+    content_type = 'chemical/x-cdxml'
 
     api_mock.call.return_value.headers = {
         'content-type': content_type,
-        'content-disposition': f'attachment; filename={file_name}'
+        'content-disposition': f'attachment; filename={file_name}',
     }
     api_mock.call.return_value.content = content
 
-    result = text.get_content()
+    result = chemical_drawing.get_content(format=ChemicalDrawingFormat.CDXML)
 
     api_mock.call.assert_called_once_with(
         method='GET',
-        path=('entities', text.eid, 'export'),
+        path=('entities', chemical_drawing.eid, 'export'),
         params={
-            'format': None,
+            'format': ChemicalDrawingFormat.CDXML,
         },
     )
 

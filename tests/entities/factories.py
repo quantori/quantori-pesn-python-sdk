@@ -1,6 +1,6 @@
 import factory
 
-from signals_notebook.entities import Experiment, Notebook, Text
+from signals_notebook.entities import ChemicalDrawing, Experiment, Image, Notebook, Text
 from signals_notebook.types import EID, EntityType
 
 
@@ -49,3 +49,17 @@ class TextFactory(EntityFactory):
         model = Text
 
     type = EntityType.TEXT
+
+
+class ChemicalDrawingFactory(EntityFactory):
+    class Meta:
+        model = ChemicalDrawing
+
+    type = EntityType.CHEMICAL_DRAWING
+
+
+class ImageFactory(EntityFactory):
+    class Meta:
+        model = Image
+
+    type = EntityType.IMAGE_RESOURCE
