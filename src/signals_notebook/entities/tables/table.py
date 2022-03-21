@@ -57,7 +57,7 @@ class Table(ContentfulEntity):
             self._rows.append(row)
             self._rows_by_id[row.id] = row
 
-    def get_column_definitions(self) -> List[GenericColumnDefinition]:
+    def get_column_definitions_list(self) -> List[GenericColumnDefinition]:
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(method='GET', path=(self._get_adt_endpoint(), self.eid, '_column'))
@@ -65,6 +65,16 @@ class Table(ContentfulEntity):
         result = ColumnDefinitionsResponse(**response.json())
 
         return cast(ResponseData, result.data).body.columns
+
+    def get_column_definitions_map(self) -> Dict[str, GenericColumnDefinition]:
+        column_definitions = self.get_column_definitions_list()
+        column_definitions_map: Dict[str, GenericColumnDefinition] = {}
+
+        for column_definition in column_definitions:
+            column_definitions_map[str(column_definition.key)] = column_definition
+            column_definitions_map[column_definition.title] = column_definition
+
+        return column_definitions_map
 
     def as_dataframe(self, use_labels: bool = True) -> pd.DataFrame:
         if not self._rows:
@@ -126,15 +136,11 @@ class Table(ContentfulEntity):
         self._reload_data()
 
     def add_row(self, data: Dict[str, CellContentDict]) -> None:
-        column_definitions = self.get_column_definitions()
-        column_definitions_dict: Dict[str, GenericColumnDefinition] = {}
-        for column_definition in column_definitions:
-            column_definitions_dict[str(column_definition.key)] = column_definition
-            column_definitions_dict[column_definition.title] = column_definition
+        column_definitions_map = self.get_column_definitions_map()
 
         prepared_data: List[Dict[str, Any]] = []
         for key, value in data.items():
-            column_definition = column_definitions_dict.get(key)
+            column_definition = column_definitions_map.get(key)
             if not column_definition:
                 continue
 
