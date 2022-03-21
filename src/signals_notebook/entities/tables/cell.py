@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import cast, Generic, List, Literal, Optional, TypeVar, Union
+from typing import cast, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -70,7 +70,7 @@ class UnitColumnDefinition(ColumnDefinition):
     default_unit: str = Field(alias='defaultUnit')
 
 
-ColumnDefinitionClasses = Union[
+GenericColumnDefinition = Union[
     AttributeListColumnDefinition,
     AutotextListColumnDefinition,
     ListColumnDefinition,
@@ -83,7 +83,7 @@ ColumnDefinitionClasses = Union[
 class ColumnDefinitions(BaseModel):
     id: EID
     type: Literal[ObjectType.COLUMN_DEFINITIONS]
-    columns: List[ColumnDefinitionClasses]
+    columns: List[GenericColumnDefinition]
 
     class Config:
         frozen = True
@@ -97,6 +97,13 @@ class CellContent(GenericModel, Generic[CellContentType]):
 
     class Config:
         validate_assignment = True
+
+
+class CellContentDict(TypedDict):
+    value: CellContentType
+    values: Optional[List[CellContentType]]
+    type: Optional[EntityType]
+    display: Optional[str]
 
 
 class UpdateCellRequest(GenericModel, Generic[CellContentType]):
@@ -133,8 +140,8 @@ class Cell(GenericModel, Generic[CellContentType]):
         return self.content.display or ''
 
     @property
-    def update_request(self) -> Optional[UpdateCellRequest[CellContentType]]:
-        return UpdateCellRequest[CellContentType](key=self.id, content=self.content) if self._changed else None
+    def update_request(self) -> UpdateCellRequest[CellContentType]:
+        return UpdateCellRequest[CellContentType](key=self.id, content=self.content)
 
 
 class TextCell(Cell[str]):
@@ -252,5 +259,4 @@ GenericCell = Union[
     NumberCell,
     TextCell,
     UnitCell,
-    Cell,  # must be the last
 ]

@@ -7,7 +7,7 @@ from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.entities.tables.cell import ColumnDefinition, ColumnDefinitions
+from signals_notebook.entities.tables.cell import CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
 from signals_notebook.types import DataList, EntityType, Response, ResponseData
 
@@ -45,7 +45,7 @@ class Table(ContentfulEntity):
             path=(self._get_adt_endpoint(), self.eid),
             params={
                 'value': 'normalized',
-            }
+            },
         )
 
         result = TableDataResponse(**response.json())
@@ -57,13 +57,10 @@ class Table(ContentfulEntity):
             self._rows.append(row)
             self._rows_by_id[row.id] = row
 
-    def get_column_definitions(self) -> List[ColumnDefinition]:
+    def get_column_definitions(self) -> List[GenericColumnDefinition]:
         api = SignalsNotebookApi.get_default_api()
 
-        response = api.call(
-            method='GET',
-            path=(self._get_adt_endpoint(), self.eid, '_column')
-        )
+        response = api.call(method='GET', path=(self._get_adt_endpoint(), self.eid, '_column'))
 
         result = ColumnDefinitionsResponse(**response.json())
 
@@ -127,6 +124,31 @@ class Table(ContentfulEntity):
         )
 
         self._reload_data()
+
+    def add_row(self, data: Dict[str, CellContentDict]) -> None:
+        column_definitions = self.get_column_definitions()
+        column_definitions_dict: Dict[str, GenericColumnDefinition] = {}
+        for column_definition in column_definitions:
+            column_definitions_dict[str(column_definition.key)] = column_definition
+            column_definitions_dict[column_definition.title] = column_definition
+
+        prepared_data: List[Dict[str, Any]] = []
+        for key, value in data.items():
+            column_definition = column_definitions_dict.get(key)
+            if not column_definition:
+                continue
+
+            prepared_data.append(
+                {
+                    'key': column_definition.key,
+                    'type': column_definition.type,
+                    'name': column_definition.title,
+                    'content': value,
+                }
+            )
+
+        row = Row(cells=prepared_data)
+        self._rows.append(row)
 
     def save(self, force: bool = True) -> None:
         super().save(force)

@@ -30,8 +30,15 @@ class UpdateRowActionBody(BaseModel):
         validate_assignment = True
 
 
+class CreateRowActionBody(BaseModel):
+    action: Literal[RowAction.CREATE] = Field(allow_mutation=False, default=RowAction.CREATE)
+    cells: List[UpdateCellRequest]
+
+    class Config:
+        validate_assignment = True
+
+
 class ChangeRowRequest(BaseModel):
-    id: UUID
     type: Literal[ObjectType.ADT_ROW] = Field(allow_mutation=False, default=ObjectType.ADT_ROW)
 
     class Config:
@@ -39,20 +46,25 @@ class ChangeRowRequest(BaseModel):
 
 
 class DeleteRowRequest(ChangeRowRequest):
+    id: UUID
     body: DeleteRowActionBody = Field(alias='attributes', default_factory=DeleteRowActionBody)
 
 
 class UpdateRowRequest(ChangeRowRequest):
+    id: UUID
     body: UpdateRowActionBody = Field(alias='attributes')
 
 
+class CreateRowRequest(ChangeRowRequest):
+    body: CreateRowActionBody = Field(alias='attributes')
+
+
 class Row(BaseModel):
-    id: UUID = Field(allow_mutation=False)
-    type: Literal[ObjectType.ADT_ROW] = Field(allow_mutation=False)
+    id: Optional[UUID] = Field(allow_mutation=False, default=None)
+    type: Literal[ObjectType.ADT_ROW] = Field(allow_mutation=False, default=ObjectType.ADT_ROW)
     cells: List[GenericCell]
     _cells_dict: Dict[Union[UUID, str], GenericCell] = PrivateAttr(default={})
     _deleted: bool = PrivateAttr(default=False)
-    _new: bool = PrivateAttr(default=False)
 
     class Config:
         validate_assignment = True
@@ -74,7 +86,7 @@ class Row(BaseModel):
 
     @property
     def is_new(self) -> bool:
-        return self._new
+        return self.id is None
 
     def get_values(self, use_labels: bool = True) -> Dict[str, Any]:
         key_getter = attrgetter('name') if use_labels else attrgetter('key')
@@ -112,7 +124,10 @@ class Row(BaseModel):
         if self.is_changed:
             return UpdateRowRequest(
                 id=self.id,
-                attributes=UpdateRowActionBody(cells=[cell.update_request for cell in self.cells if cell.is_changed])
+                attributes=UpdateRowActionBody(cells=[cell.update_request for cell in self.cells if cell.is_changed]),
             )
+
+        if self.is_new:
+            return CreateRowRequest(attributes=CreateRowActionBody(cells=[cell.update_request for cell in self.cells]))
 
         return None
