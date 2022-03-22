@@ -1,6 +1,6 @@
 import factory
 
-from signals_notebook.entities import ChemicalDrawing, Experiment, Image, Notebook, Text
+from signals_notebook.entities import ChemicalDrawing, Experiment, Image, Notebook, Table, Text
 from signals_notebook.types import EID, EntityType
 
 
@@ -63,3 +63,10 @@ class ImageFactory(EntityFactory):
         model = Image
 
     type = EntityType.IMAGE_RESOURCE
+
+
+class TableFactory(EntityFactory):
+    class Meta:
+        model = Table
+
+    type = EntityType.GRID
