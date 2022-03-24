@@ -29,7 +29,12 @@ class Notebook(Container):
 
     @classmethod
     def create(
-        cls, *, name: str, description: Optional[str] = None, digest: str = None, force: bool = True
+        cls,
+        *,
+        name: str,
+        description: Optional[str] = None,
+        digest: str = None,
+        force: bool = True,
     ) -> 'Notebook':
 
         request = _RequestPayload(

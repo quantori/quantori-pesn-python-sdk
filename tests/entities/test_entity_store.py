@@ -14,6 +14,7 @@ def get_response_object(mocker):
         mock = mocker.Mock()
         mock.json.return_value = response
         return mock
+
     return _f
 
 
@@ -210,8 +211,8 @@ def test_get_several_pages(api_mock, mocker, get_response_object):
     eid2 = EID('experiment:52062e1d-7e03-464f-8caf-d7ed93261213')
     response1 = {
         'links': {
-            'self': f'https://example.com/entities?page[offset]=0&page[limit]=20',
-            'next': f'https://example.com/entities?page[offset]=20&page[limit]=20',
+            'self': 'https://example.com/entities?page[offset]=0&page[limit]=20',
+            'next': 'https://example.com/entities?page[offset]=20&page[limit]=20',
         },
         'data': [
             {
@@ -232,8 +233,8 @@ def test_get_several_pages(api_mock, mocker, get_response_object):
     }
     response2 = {
         'links': {
-            'prev': f'https://example.com/entities?page[offset]=0&page[limit]=20',
-            'self': f'https://example.com/entities?page[offset]=20&page[limit]=20',
+            'prev': 'https://example.com/entities?page[offset]=0&page[limit]=20',
+            'self': 'https://example.com/entities?page[offset]=20&page[limit]=20',
         },
         'data': [
             {
@@ -290,28 +291,28 @@ def test_refresh(api_mock, notebook_factory):
 
     response = {
         'links': {'self': f'https://example.com/{notebook.eid}'},
-        'data':
-            {
-                'type': ObjectType.ENTITY,
-                'id': notebook.eid,
-                'links': {'self': f'https://example.com/{notebook.eid}'},
-                'attributes': {
-                    'eid': notebook.eid,
-                    'name': 'Updated notebook name',
-                    'description': 'Updated notebook description',
-                    'type': EntityType.NOTEBOOK,
-                    'createdAt': notebook.created_at,
-                    'editedAt': notebook.edited_at,
-                    'digest': notebook.digest,
-                },
+        'data': {
+            'type': ObjectType.ENTITY,
+            'id': notebook.eid,
+            'links': {'self': f'https://example.com/{notebook.eid}'},
+            'attributes': {
+                'eid': notebook.eid,
+                'name': 'Updated notebook name',
+                'description': 'Updated notebook description',
+                'type': EntityType.NOTEBOOK,
+                'createdAt': notebook.created_at,
+                'editedAt': notebook.edited_at,
+                'digest': notebook.digest,
             },
+        },
     }
     api_mock.call.return_value.json.return_value = response
 
     EntityStore.refresh(notebook)
 
     api_mock.call.assert_called_once_with(
-        method='GET', path=('entities', notebook.eid),
+        method='GET',
+        path=('entities', notebook.eid),
     )
     assert notebook.name == response['data']['attributes']['name']
     assert notebook.description == response['data']['attributes']['description']

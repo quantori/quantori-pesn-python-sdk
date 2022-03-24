@@ -62,4 +62,3 @@ def test_pydantic_validation():
 
     assert model.eid == EID(data['eid'])
     assert isinstance(model.eid, EID)
-
