@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import cast, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
+from typing import Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -100,8 +100,8 @@ class CellContent(GenericModel, Generic[CellContentType]):
 
 
 class CellContentDict(TypedDict):
-    value: CellContentType
-    values: Optional[List[CellContentType]]
+    value: Any
+    values: Optional[List[Any]]
     type: Optional[EntityType]
     display: Optional[str]
 
