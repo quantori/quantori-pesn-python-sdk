@@ -1,11 +1,11 @@
 from collections.abc import Sequence
-from typing import Any, Dict, IO, Iterable, Mapping, Optional, Union
+from typing import Any, Dict, IO, Iterable, Mapping, Optional, Tuple, Union
 
 import requests
 
 from signals_notebook.exceptions import SignalsNotebookError
 
-_Data = Union[None, str, bytes, Mapping[str, Any], Mapping[str, Any], Iterable[tuple[str, Optional[str]]], IO[Any]]
+_Data = Union[None, str, bytes, Mapping[str, Any], Mapping[str, Any], Iterable[Tuple[str, Optional[str]]], IO[Any]]
 
 
 class SignalsNotebookApi:
