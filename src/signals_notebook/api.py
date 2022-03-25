@@ -1,5 +1,4 @@
-from collections.abc import Sequence
-from typing import Any, Dict, IO, Iterable, Mapping, Optional, Tuple, Union
+from typing import Any, Dict, IO, Iterable, Mapping, Optional, Tuple, Union, Sequence
 
 import requests
 
