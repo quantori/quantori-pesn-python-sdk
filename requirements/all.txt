@@ -1,0 +1,4 @@
+-r package.txt
+-r tests.txt
+-r lint.txt
+-r mypy.txt
