@@ -1,70 +1,15 @@
 import json
-from operator import attrgetter
-from typing import Any, cast, Dict, List, Literal, Optional, Union
+from typing import Any, cast, Dict, List, Literal, Union
 from uuid import UUID
 
 import pandas as pd
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.entities.tables.cell import GenericCell, ColumnDefinition, ColumnDefinitions
-from signals_notebook.types import EntityType, ObjectType, Response, ResponseData
-
-
-class Row(BaseModel):
-    id: UUID = Field(allow_mutation=False)
-    type: Literal[ObjectType.ADT_ROW] = Field(allow_mutation=False)
-    cells: List[GenericCell]
-    _cells_dict: Dict[Union[UUID, str], GenericCell] = PrivateAttr(default={})
-    _table: Optional['Table'] = PrivateAttr(default=None)
-
-    class Config:
-        validate_assignment = True
-
-    def __init__(self, **data):
-        super().__init__(**data)
-
-        for cell in self.cells:
-            self._cells_dict[cell.id] = cell
-            self._cells_dict[cell.name] = cell
-
-    @property
-    def table(self) -> Optional['Table']:
-        return self._table
-
-    def set_table(self, table_instance: 'Table') -> None:
-        self._table = table_instance
-
-    def get_values(self, use_labels: bool = True) -> Dict[str, Any]:
-        key_getter = attrgetter('name') if use_labels else attrgetter('key')
-        return {key_getter(cell): cell.value for cell in self.cells}
-
-    def __getitem__(self, index: Union[int, str, UUID]) -> GenericCell:
-        if isinstance(index, int):
-            return self.cells[index]
-
-        if isinstance(index, str):
-            if index in self._cells_dict:
-                return self._cells_dict[index]
-
-            try:
-                if UUID(index) in self._cells_dict:
-                    return self._cells_dict[UUID(index)]
-            except ValueError:
-                pass
-
-        if isinstance(index, UUID):
-            return self._cells_dict[index]
-
-        raise IndexError('Invalid index')
-
-    def __iter__(self):
-        return self.cells.__iter__()
-
-    def delete(self) -> None:
-        assert self.table
-        self.table.delete_row_by_id(self.id)
+from signals_notebook.entities.tables.cell import CellContentDict, ColumnDefinitions, GenericColumnDefinition
+from signals_notebook.entities.tables.row import ChangeRowRequest, Row
+from signals_notebook.types import DataList, EntityType, Response, ResponseData
 
 
 class TableDataResponse(Response[Row]):
@@ -72,6 +17,10 @@ class TableDataResponse(Response[Row]):
 
 
 class ColumnDefinitionsResponse(Response[ColumnDefinitions]):
+    pass
+
+
+class ChangeTableDataRequest(DataList[ChangeRowRequest]):
     pass
 
 
@@ -94,29 +43,40 @@ class Table(ContentfulEntity):
         response = api.call(
             method='GET',
             path=(self._get_adt_endpoint(), self.eid),
+            params={
+                'value': 'normalized',
+            },
         )
-        breakpoint()
+
         result = TableDataResponse(**response.json())
 
         self._rows = []
         self._rows_by_id = {}
         for item in result.data:
             row = cast(Row, cast(ResponseData, item).body)
-            row.set_table(self)
+            assert row.id
+
             self._rows.append(row)
             self._rows_by_id[row.id] = row
 
-    def get_column_definitions(self) -> List[ColumnDefinition]:
+    def get_column_definitions_list(self) -> List[GenericColumnDefinition]:
         api = SignalsNotebookApi.get_default_api()
 
-        response = api.call(
-            method='GET',
-            path=(self._get_adt_endpoint(), self.eid, '_column')
-        )
+        response = api.call(method='GET', path=(self._get_adt_endpoint(), self.eid, '_column'))
 
         result = ColumnDefinitionsResponse(**response.json())
 
         return cast(ResponseData, result.data).body.columns
+
+    def get_column_definitions_map(self) -> Dict[str, GenericColumnDefinition]:
+        column_definitions = self.get_column_definitions_list()
+        column_definitions_map: Dict[str, GenericColumnDefinition] = {}
+
+        for column_definition in column_definitions:
+            column_definitions_map[str(column_definition.key)] = column_definition
+            column_definitions_map[column_definition.title] = column_definition
+
+        return column_definitions_map
 
     def as_dataframe(self, use_labels: bool = True) -> pd.DataFrame:
         if not self._rows:
@@ -175,3 +135,52 @@ class Table(ContentfulEntity):
             },
         )
 
+        self._reload_data()
+
+    def add_row(self, data: Dict[str, CellContentDict]) -> None:
+        column_definitions_map = self.get_column_definitions_map()
+
+        prepared_data: List[Dict[str, Any]] = []
+        for key, value in data.items():
+            column_definition = column_definitions_map.get(key)
+            if not column_definition:
+                continue
+
+            prepared_data.append(
+                {
+                    'key': column_definition.key,
+                    'type': column_definition.type,
+                    'name': column_definition.title,
+                    'content': value,
+                }
+            )
+
+        row = Row(cells=prepared_data)
+        self._rows.append(row)
+
+    def save(self, force: bool = True) -> None:
+        super().save(force)
+
+        row_requests: List[ChangeRowRequest] = []
+        for row in self._rows:
+            row_request = row.get_change_request()
+            if row_request:
+                row_requests.append(row_request)
+
+        if not row_requests:
+            return
+
+        request = ChangeTableDataRequest(data=row_requests)
+        api = SignalsNotebookApi.get_default_api()
+
+        api.call(
+            method='PATCH',
+            path=(self._get_adt_endpoint(), self.eid),
+            params={
+                'digest': None if force else self.digest,
+                'force': json.dumps(force),
+            },
+            data=request.json(exclude_none=True, by_alias=True),
+        )
+
+        self._reload_data()

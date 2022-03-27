@@ -13,14 +13,20 @@ pipelines:
           caches:
             - pip
           script:
-            - if [ -f test_requirements.txt ]; then pip install -r test_requirements.txt; fi
+            - pip install -r requirements/tests.txt
             - pytest -v tests/* --junitxml=test-reports/report.xml
       - step:
           name: Lint code
+          caches:
+            - pip
           script:
-            - flake8 . --extend-exclude=dist,build --show-source --statistics
+            - pip install -r requirements/lint.txt
+            - flake8 .
       - step:
           name: Static types checking
+          caches:
+            - pip
           script:
+            - pip install -r requirements/mypy.txt
             - cd src
             - mypy .

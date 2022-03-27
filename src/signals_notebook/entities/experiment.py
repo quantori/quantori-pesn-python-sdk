@@ -50,18 +50,14 @@ class Experiment(Container):
         template: Optional['Experiment'] = None,
         notebook: Optional[Notebook] = None,
         digest: str = None,
-        force: bool = True
+        force: bool = True,
     ) -> 'Notebook':
 
         relationships = None
         if template or notebook:
             relationships = _Relationships(
-                ancestors=Ancestors(
-                    data=[notebook.short_description]
-                ) if notebook else None,
-                template=Template(
-                    data=template.short_description
-                ) if template else None,
+                ancestors=Ancestors(data=[notebook.short_description]) if notebook else None,
+                template=Template(data=template.short_description) if template else None,
             )
 
         request = _RequestPayload(

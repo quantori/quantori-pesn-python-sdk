@@ -19,7 +19,13 @@ class Image(ContentfulEntity):
 
     @classmethod
     def create(
-        cls, *, container: Container, name: str, content: bytes = b'', file_extension: str = '', force: bool = True
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content: bytes = b'',
+        file_extension: str = '',
+        force: bool = True,
     ) -> Entity:
         file_extension = file_extension.replace('.', '')
         content_type = mimetypes.types_map.get(f'.{file_extension}', 'application/octet-stream')

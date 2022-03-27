@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Generic, List, Optional, TypeVar, Union
+from typing import Any, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, HttpUrl
@@ -30,9 +30,9 @@ class EntityType(str, Enum):
 
 
 class EID(str):
-
-    def __new__(cls, content):
-        EID.validate(content)
+    def __new__(cls, content: Any, validate: bool = True):
+        if validate:
+            cls.validate(content)
         return str.__new__(cls, content)
 
     @classmethod
@@ -40,14 +40,17 @@ class EID(str):
         yield cls.validate
 
     @classmethod
-    def validate(cls, v: str):
+    def validate(cls, v: Any):
+        if not isinstance(v, str):
+            raise EIDError(value=v)
+
         try:
             _type, _id = v.split(':')
             UUID(_id)
         except ValueError:
-            raise EIDError()
+            raise EIDError(value=v)
 
-        return v
+        return cls(v, validate=False)
 
     @property
     def type(self) -> Union[EntityType, str]:
@@ -72,7 +75,7 @@ class Links(BaseModel):
 
 class ResponseData(GenericModel, Generic[EntityClass]):
     type: ObjectType
-    eid: EID = Field(alias='id')
+    eid: Union[EID, UUID] = Field(alias='id')
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
 

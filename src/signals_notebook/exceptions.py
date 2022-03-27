@@ -27,4 +27,4 @@ class SignalsNotebookError(Exception):
 
 
 class EIDError(PydanticValueError):
-    msg_template = 'incorrect EID value'
+    msg_template = 'incorrect EID value: "{value}"'
