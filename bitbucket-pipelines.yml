@@ -21,7 +21,7 @@ pipelines:
             - pip
           script:
             - pip install -r requirements/lint.txt
-            - flake8 . --extend-exclude=dist,build --show-source --statistics
+            - flake8 .
       - step:
           name: Static types checking
           caches:
