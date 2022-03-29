@@ -15,6 +15,8 @@ class ObjectType(str, Enum):
     ENTITY = 'entity'
     ADT_ROW = 'adtRow'
     COLUMN_DEFINITIONS = 'columnDefinitions'
+    MATERIAL = 'material'
+    ASSET_TYPE = 'assetType'
 
 
 class EntityType(str, Enum):
@@ -29,7 +31,14 @@ class EntityType(str, Enum):
     IMAGE_RESOURCE = 'imageResource'
 
 
+class MaterialType(str, Enum):
+    ASSET = 'asset'
+    BATCH = 'batch'
+
+
 class EID(str):
+    """Entity ID"""
+
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -66,6 +75,38 @@ class EID(str):
         return UUID(_id)
 
 
+class MID(str):
+    """Material ID"""
+
+    def __new__(cls, content):
+        MID.validate(content)
+        return str.__new__(cls, content)
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: str):
+        try:
+            _type, _id = v.split(':')
+            MaterialType(_type)
+        except ValueError:
+            raise EIDError()
+
+        return v
+
+    @property
+    def type(self) -> Union[MaterialType, str]:
+        _type, _ = self.split(':')
+        return MaterialType(_type)
+
+    @property
+    def id(self) -> str:
+        _, _id = self.split(':')
+        return _id
+
+
 class Links(BaseModel):
     self: HttpUrl
     first: Optional[HttpUrl] = None
@@ -75,13 +116,13 @@ class Links(BaseModel):
 
 class ResponseData(GenericModel, Generic[EntityClass]):
     type: ObjectType
-    eid: Union[EID, UUID] = Field(alias='id')
+    eid: Union[EID, MID, UUID, str] = Field(alias='id')
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
 
 
 class Response(GenericModel, Generic[EntityClass]):
-    links: Links
+    links: Optional[Links] = None
     data: Union[ResponseData[EntityClass], List[ResponseData[EntityClass]]]
 
 

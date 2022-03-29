@@ -8,7 +8,7 @@ from pydantic.generics import GenericModel
 
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
-from signals_notebook.types import EID, EntityType, ObjectType
+from signals_notebook.types import EID, EntityType, MID, ObjectType
 
 CellContentType = TypeVar('CellContentType')
 
@@ -186,14 +186,14 @@ class ExternalLink(Cell[str]):
         super()._set_value(new_value, display)
 
 
-class LinkCell(Cell[EID]):
+class LinkCell(Cell[Union[EID, MID]]):
     type: Literal[ColumnDataType.LINK] = Field(allow_mutation=False)
 
     @property
     def entity(self) -> Entity:
         return EntityStore.get(self.content.value)
 
-    def set_value(self, new_value: EID, display: str) -> None:
+    def set_value(self, new_value: Union[EID, MID], display: str) -> None:
         super()._set_value(new_value, display)
 
 
