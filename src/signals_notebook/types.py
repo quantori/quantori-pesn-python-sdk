@@ -32,7 +32,7 @@ class EntityType(str, Enum):
 
 
 class MaterialType(str, Enum):
-    ASSET_TYPE = 'assetType'
+    LIBRARY = 'assetType'
     ASSET = 'asset'
     BATCH = 'batch'
 

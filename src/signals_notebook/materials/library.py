@@ -32,14 +32,14 @@ class _LibraryListData(BaseModel):
 
 
 class Library(Material):
-    type: Literal[MaterialType.ASSET_TYPE] = Field(allow_mutation=False, default=MaterialType.ASSET_TYPE)
+    type: Literal[MaterialType.LIBRARY] = Field(allow_mutation=False, default=MaterialType.LIBRARY)
 
     class Config:
         validate_assignment = True
 
     @classmethod
     def _get_material_type(cls) -> MaterialType:
-        return MaterialType.ASSET_TYPE
+        return MaterialType.LIBRARY
 
     @classmethod
     def get_list(cls) -> List['Library']:
@@ -58,7 +58,7 @@ class Library(Material):
             libraries.append(
                 cls(
                     assetTypeId=data.id,
-                    eid=MID(f'{MaterialType.ASSET_TYPE}:{data.id}'),
+                    eid=MID(f'{MaterialType.LIBRARY}:{data.id}'),
                     library=data.name,
                     name=data.name,
                     digest=data.digest.split(':')[0],
@@ -68,7 +68,3 @@ class Library(Material):
             )
 
         return libraries
-
-    @classmethod
-    def get(cls, eid: MID) -> 'Library':
-        return super()._get(eid)

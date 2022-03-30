@@ -1,11 +1,10 @@
 import abc
 from datetime import datetime
-from typing import cast, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.types import MaterialType, MID, Response, ResponseData
+from signals_notebook.types import MaterialType, MID
 
 
 class Material(BaseModel, abc.ABC):
@@ -33,15 +32,4 @@ class Material(BaseModel, abc.ABC):
     def _get_endpoint(cls) -> str:
         return 'materials'
 
-    @classmethod
-    def _get(cls, eid: MID) -> 'Material':
-        api = SignalsNotebookApi.get_default_api()
 
-        response = api.call(
-            method='GET',
-            path=(cls._get_endpoint(), eid),
-        )
-
-        result = Response[cls](**response.json())  # type: ignore
-
-        return cast(ResponseData, result.data).body
