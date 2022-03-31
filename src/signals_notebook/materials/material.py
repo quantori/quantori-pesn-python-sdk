@@ -1,13 +1,12 @@
-import abc
 from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.types import MaterialType, MID
+from signals_notebook.types import MID
 
 
-class Material(BaseModel, abc.ABC):
+class Material(BaseModel):
     asset_type_id: str = Field(alias='assetTypeId', allow_mutation=False)
     eid: MID = Field(allow_mutation=False)
     library: str = Field(allow_mutation=False)
@@ -22,11 +21,6 @@ class Material(BaseModel, abc.ABC):
 
     def __str__(self) -> str:
         return f'<{self.__class__.__name__} eid={self.eid}>'
-
-    @classmethod
-    @abc.abstractmethod
-    def _get_material_type(cls) -> MaterialType:
-        pass
 
     @classmethod
     def _get_endpoint(cls) -> str:

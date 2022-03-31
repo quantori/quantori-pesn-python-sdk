@@ -1,7 +1,7 @@
 import arrow
 import pytest
 
-from signals_notebook.materials import Library, MaterialStore
+from signals_notebook.materials import Asset, Batch, Library, MaterialStore
 from signals_notebook.types import MaterialType, ObjectType
 
 
@@ -9,6 +9,8 @@ from signals_notebook.types import MaterialType, ObjectType
     'material_type,expected_class',
     [
         (MaterialType.LIBRARY, Library),
+        (MaterialType.ASSET, Asset),
+        (MaterialType.BATCH, Batch),
     ],
 )
 def test_get(api_mock, mid_factory, material_type, expected_class):

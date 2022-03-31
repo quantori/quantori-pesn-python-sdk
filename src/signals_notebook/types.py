@@ -2,7 +2,7 @@ from enum import Enum
 from typing import Any, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, validator
 from pydantic.generics import GenericModel
 
 from signals_notebook.exceptions import EIDError
@@ -113,6 +113,13 @@ class Links(BaseModel):
     first: Optional[HttpUrl] = None
     next: Optional[HttpUrl] = None
     prev: Optional[HttpUrl] = None
+
+    @validator('*', pre=True)
+    def name_must_contain_space(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            return v.replace(' ', '%20')
+
+        return v
 
 
 class ResponseData(GenericModel, Generic[EntityClass]):

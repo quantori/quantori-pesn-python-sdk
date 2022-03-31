@@ -38,10 +38,6 @@ class Library(Material):
         validate_assignment = True
 
     @classmethod
-    def _get_material_type(cls) -> MaterialType:
-        return MaterialType.LIBRARY
-
-    @classmethod
     def get_list(cls) -> List['Library']:
         api = SignalsNotebookApi.get_default_api()
 
