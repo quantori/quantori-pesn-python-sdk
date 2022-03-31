@@ -9,7 +9,7 @@ from signals_notebook.types import MID
 class Material(BaseModel):
     asset_type_id: str = Field(alias='assetTypeId', allow_mutation=False)
     eid: MID = Field(allow_mutation=False)
-    library: str = Field(allow_mutation=False)
+    library_name: str = Field(allow_mutation=False, alias='library')
     digest: Optional[str] = Field(allow_mutation=False, default=None)
     name: str = Field(title='Name')
     description: Optional[str] = Field(title='Description', default=None)

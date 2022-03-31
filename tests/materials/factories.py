@@ -1,6 +1,6 @@
 import factory
 
-from signals_notebook.materials import Asset
+from signals_notebook.materials import Asset, Batch, Library
 from signals_notebook.types import MaterialType, MID
 
 
@@ -18,9 +18,9 @@ class MIDFactory(factory.Factory):
         return model_class(f'{_type}:{_id}')
 
 
-class AssetFactory(factory.Factory):
+class MaterialFactory(factory.Factory):
     class Meta:
-        model = Asset
+        abstract = True
 
     assetTypeId = factory.Faker('md5')
     library = factory.Faker('word')
@@ -30,3 +30,24 @@ class AssetFactory(factory.Factory):
     digest = factory.Sequence(lambda n: f'{n}')
     createdAt = factory.Faker('date_time')
     editedAt = factory.Faker('date_time')
+
+
+class LibraryFactory(MaterialFactory):
+    class Meta:
+        model = Library
+
+    type = MaterialType.LIBRARY
+
+
+class AssetFactory(MaterialFactory):
+    class Meta:
+        model = Asset
+
+    type = MaterialType.ASSET
+
+
+class BatchFactory(MaterialFactory):
+    class Meta:
+        model = Batch
+
+    type = MaterialType.BATCH

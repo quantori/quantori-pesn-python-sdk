@@ -2,7 +2,7 @@ import arrow
 import pytest
 
 from signals_notebook.materials import Batch
-from signals_notebook.types import MaterialType, ObjectType
+from signals_notebook.types import MaterialType, MID, ObjectType
 
 
 @pytest.fixture()
@@ -28,7 +28,7 @@ def test_get_batches__one_page(api_mock, asset_factory, mid_factory):
                 'links': {'self': f'https://example.com/{eid1}'},
                 'attributes': {
                     'assetTypeId': asset.asset_type_id,
-                    'library': asset.library,
+                    'library': asset.library_name,
                     'eid': eid1,
                     'name': 'My lot 1',
                     'description': 'test description 1',
@@ -44,7 +44,7 @@ def test_get_batches__one_page(api_mock, asset_factory, mid_factory):
                 'links': {'self': f'https://example.com/{eid2}'},
                 'attributes': {
                     'assetTypeId': asset.asset_type_id,
-                    'library': asset.library,
+                    'library': asset.library_name,
                     'eid': eid2,
                     'name': 'My lot 2',
                     'description': 'test description 2',
@@ -66,13 +66,13 @@ def test_get_batches__one_page(api_mock, asset_factory, mid_factory):
 
     api_mock.call.assert_called_once_with(
         method='GET',
-        path=('materials', asset.library, 'assets', asset.name, 'batches'),
+        path=('materials', asset.library_name, 'assets', asset.name, 'batches'),
     )
 
     for item, raw_item in zip(result, response['data']):
         assert isinstance(item, Batch)
         assert item.asset_type_id == asset.asset_type_id
-        assert item.library == asset.library
+        assert item.library_name == asset.library_name
         assert item.eid == raw_item['id']
         assert item.digest == raw_item['attributes']['digest']
         assert item.name == raw_item['attributes']['name']
@@ -88,11 +88,11 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
     response1 = {
         'links': {
             'self': (
-                f'https://example.com/materials/{asset.library}/'
+                f'https://example.com/materials/{asset.library_name}/'
                 'assets/{asset.name}/batches?page[offset]=0&page[limit]=20'
             ),
             'next': (
-                f'https://example.com/materials/{asset.library}/'
+                f'https://example.com/materials/{asset.library_name}/'
                 'assets/{asset.name}/batches?page[offset]=20&page[limit]=20'
             ),
         },
@@ -103,7 +103,7 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
                 'links': {'self': f'https://example.com/{eid1}'},
                 'attributes': {
                     'assetTypeId': asset.asset_type_id,
-                    'library': asset.library,
+                    'library': asset.library_name,
                     'eid': eid1,
                     'name': 'My lot 1',
                     'description': 'test description 1',
@@ -118,11 +118,11 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
     response2 = {
         'links': {
             'prev': (
-                f'https://example.com/materials/{asset.library}/'
+                f'https://example.com/materials/{asset.library_name}/'
                 'assets/{asset.name}/batches?page[offset]=0&page[limit]=20'
             ),
             'self': (
-                f'https://example.com/materials/{asset.library}/'
+                f'https://example.com/materials/{asset.library_name}/'
                 'assets/{asset.name}/batches?page[offset]=20&page[limit]=20'
             ),
         },
@@ -133,7 +133,7 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
                 'links': {'self': f'https://example.com/{eid2}'},
                 'attributes': {
                     'assetTypeId': asset.asset_type_id,
-                    'library': asset.library,
+                    'library': asset.library_name,
                     'eid': eid2,
                     'name': 'My lot 2',
                     'description': 'test description 2',
@@ -158,7 +158,7 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
         [
             mocker.call(
                 method='GET',
-                path=('materials', asset.library, 'assets', asset.name, 'batches'),
+                path=('materials', asset.library_name, 'assets', asset.name, 'batches'),
             ),
             mocker.call(
                 method='GET',
@@ -170,10 +170,24 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
     for item, raw_item in zip(result, [*response1['data'], *response2['data']]):
         assert isinstance(item, Batch)
         assert item.asset_type_id == asset.asset_type_id
-        assert item.library == asset.library
+        assert item.library_name == asset.library_name
         assert item.eid == raw_item['id']
         assert item.digest == raw_item['attributes']['digest']
         assert item.name == raw_item['attributes']['name']
         assert item.description == raw_item['attributes']['description']
         assert item.created_at == arrow.get(raw_item['attributes']['createdAt'])
         assert item.edited_at == arrow.get(raw_item['attributes']['editedAt'])
+
+
+def test_library_property(asset_factory, library_factory, mocker):
+    library = library_factory()
+    asset = asset_factory()
+
+    mock = mocker.patch('signals_notebook.materials.material_store.MaterialStore')
+    mock.get.return_value = library
+
+    result = asset.library
+
+    assert result == library
+    mock.get.assert_called_once_with(MID(f'{MaterialType.LIBRARY}:{asset.asset_type_id}'))
+
