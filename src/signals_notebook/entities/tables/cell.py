@@ -8,6 +8,9 @@ from pydantic.generics import GenericModel
 
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
+from signals_notebook.exceptions import EIDError
+from signals_notebook.materials import MaterialStore
+from signals_notebook.materials.material import Material
 from signals_notebook.types import EID, EntityType, MID, ObjectType
 
 CellContentType = TypeVar('CellContentType')
@@ -190,8 +193,14 @@ class LinkCell(Cell[Union[EID, MID]]):
     type: Literal[ColumnDataType.LINK] = Field(allow_mutation=False)
 
     @property
-    def entity(self) -> Entity:
-        return EntityStore.get(self.content.value)
+    def object(self) -> Union[Entity, Material]:
+        object_id = self.content.value
+        try:
+            return MaterialStore.get(MID(object_id))
+        except EIDError:
+            pass
+
+        return EntityStore.get(EID(object_id))
 
     def set_value(self, new_value: Union[EID, MID], display: str) -> None:
         super()._set_value(new_value, display)

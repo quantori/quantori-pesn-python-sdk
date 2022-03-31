@@ -75,7 +75,7 @@ class EntityStore:
         result = Response[Union[entity_classes]](**response.json())  # type: ignore
         yield from [cast(ResponseData, item).body for item in result.data]
 
-        while result.links.next:
+        while result.links and result.links.next:
             response = api.call(
                 method='GET',
                 path=result.links.next,

@@ -25,5 +25,3 @@ class Material(BaseModel):
     @classmethod
     def _get_endpoint(cls) -> str:
         return 'materials'
-
-
