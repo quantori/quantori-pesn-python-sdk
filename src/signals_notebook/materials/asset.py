@@ -1,12 +1,14 @@
-from typing import cast, Generator, Literal
+from typing import cast, Generator, Literal, TYPE_CHECKING
 
 from pydantic import Field
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.materials.library import Library
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.material import Material
 from signals_notebook.types import MaterialType, MID, Response, ResponseData
+
+if TYPE_CHECKING:
+    from signals_notebook.materials.library import Library
 
 
 class BatchesListResponse(Response[Batch]):
@@ -17,10 +19,10 @@ class Asset(Material):
     type: Literal[MaterialType.ASSET] = Field(allow_mutation=False, default=MaterialType.ASSET)
 
     @property
-    def library(self) -> Library:
+    def library(self) -> 'Library':
         from signals_notebook.materials.material_store import MaterialStore
         library = MaterialStore.get(MID(f'{MaterialType.LIBRARY}:{self.asset_type_id}'))
-        return cast(Library, library)
+        return cast('Library', library)
 
     def get_batches(self) -> Generator[Batch, None, None]:
         api = SignalsNotebookApi.get_default_api()

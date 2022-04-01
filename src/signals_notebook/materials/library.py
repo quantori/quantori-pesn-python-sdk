@@ -4,6 +4,8 @@ from typing import cast, List, Literal
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.materials.asset import Asset
+from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.material import Material
 from signals_notebook.types import Links, MaterialType, MID, Response, ResponseData
 
@@ -31,6 +33,18 @@ class _LibraryListData(BaseModel):
         validate_assignment = True
 
 
+class LibraryListResponse(Response[_LibraryListData]):
+    pass
+
+
+class AssetResponse(Response[Asset]):
+    pass
+
+
+class BatchResponse(Response[Batch]):
+    pass
+
+
 class Library(Material):
     type: Literal[MaterialType.LIBRARY] = Field(allow_mutation=False, default=MaterialType.LIBRARY)
 
@@ -46,7 +60,7 @@ class Library(Material):
             path=(cls._get_endpoint(), 'libraries'),
         )
 
-        result = Response[_LibraryListData](**response.json())
+        result = LibraryListResponse(**response.json())
 
         libraries: List['Library'] = []
         for item in result.data:
@@ -64,3 +78,39 @@ class Library(Material):
             )
 
         return libraries
+
+    def get_asset(self, name: str) -> Asset:
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.name, 'assets', 'id', name),
+        )
+
+        result = AssetResponse(**response.json())
+
+        return cast(ResponseData, result.data).body
+
+    def get_asset_batches(self, name: str) -> List[Batch]:
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.name, 'assets', name, 'batches'),
+        )
+
+        result = BatchResponse(**response.json())
+
+        return [cast(ResponseData, item).body for item in result.data]
+
+    def get_batch(self, name: str) -> Batch:
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.name, 'batches', 'id', name),
+        )
+
+        result = BatchResponse(**response.json())
+
+        return cast(ResponseData, result.data).body
