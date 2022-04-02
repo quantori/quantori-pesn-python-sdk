@@ -37,6 +37,7 @@ class LibraryFactory(MaterialFactory):
         model = Library
 
     type = MaterialType.LIBRARY
+    name = factory.LazyAttribute(lambda o: o.library)
 
 
 class AssetFactory(MaterialFactory):

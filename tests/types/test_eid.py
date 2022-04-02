@@ -18,6 +18,7 @@ class Model(BaseModel):
         'text:',
         'text:vjarjhfwvqq',
         '',
+        1,
     ],
 )
 def test_incorrect_data(input_data):

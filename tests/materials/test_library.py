@@ -1,6 +1,6 @@
 import arrow
 
-from signals_notebook.materials import Library
+from signals_notebook.materials import Asset, Batch, Library
 from signals_notebook.types import MaterialType, ObjectType
 
 
@@ -108,3 +108,157 @@ def test_get_list_without_params(api_mock, mid_factory):
         assert item.description is None
         assert item.created_at == arrow.get(raw_item['attributes']['created']['at'])
         assert item.edited_at == arrow.get(raw_item['attributes']['edited']['at'])
+
+
+def test_get_asset(api_mock, mid_factory, library_factory):
+    asset_name = 'AST-0001'
+    library = library_factory()
+
+    eid = mid_factory(type=MaterialType.ASSET)
+
+    response = {
+        'links': {'self': f'https://example.com/{eid}'},
+        'data': {
+            'type': ObjectType.MATERIAL,
+            'id': eid,
+            'links': {'self': f'https://example.com/{eid}'},
+            'attributes': {
+                'assetTypeId': library.asset_type_id,
+                'library': library.name,
+                'eid': eid,
+                'name': asset_name,
+                'description': 'test description',
+                'type': MaterialType.ASSET,
+                'createdAt': '2019-09-06T03:12:35.129Z',
+                'editedAt': '2019-09-06T15:22:47.309Z',
+                'digest': '1234234',
+            },
+        },
+    }
+
+    api_mock.call.return_value.json.return_value = response
+
+    result = library.get_asset(asset_name)
+
+    api_mock.call.assert_called_once_with(method='GET', path=('materials', library.name, 'assets', 'id', asset_name))
+
+    assert isinstance(result, Asset)
+    assert result.eid == eid
+    assert result.digest == response['data']['attributes']['digest']
+    assert result.name == response['data']['attributes']['name']
+    assert result.description == response['data']['attributes']['description']
+    assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
+    assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+
+
+def test_get_batch(api_mock, mid_factory, library_factory):
+    batch_name = 'AST-0001-001'
+    library = library_factory()
+
+    eid = mid_factory(type=MaterialType.BATCH)
+
+    response = {
+        'links': {'self': f'https://example.com/{eid}'},
+        'data': {
+            'type': ObjectType.MATERIAL,
+            'id': eid,
+            'links': {'self': f'https://example.com/{eid}'},
+            'attributes': {
+                'assetTypeId': library.asset_type_id,
+                'library': library.name,
+                'eid': eid,
+                'name': batch_name,
+                'description': 'test description',
+                'type': MaterialType.BATCH,
+                'createdAt': '2019-09-06T03:12:35.129Z',
+                'editedAt': '2019-09-06T15:22:47.309Z',
+                'digest': '1234234',
+            },
+        },
+    }
+
+    api_mock.call.return_value.json.return_value = response
+
+    result = library.get_batch(batch_name)
+
+    api_mock.call.assert_called_once_with(method='GET', path=('materials', library.name, 'batches', 'id', batch_name))
+
+    assert isinstance(result, Batch)
+    assert result.eid == eid
+    assert result.digest == response['data']['attributes']['digest']
+    assert result.name == response['data']['attributes']['name']
+    assert result.description == response['data']['attributes']['description']
+    assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
+    assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+
+
+def test_get_asset_batches(api_mock, mid_factory, library_factory):
+    asset_name = 'AST-0001'
+    library = library_factory()
+
+    eid1 = mid_factory(type=MaterialType.BATCH)
+    eid2 = mid_factory(type=MaterialType.BATCH)
+
+    response = {
+        'links': {
+            'self': (
+                f'https://example.com/api/rest/v1.0/materials/{library.name}'
+                '/assets/{asset_name}/batches?page[offset]=0&page[limit]=20'
+            ),
+            'first': (
+                f'https://example.com/api/rest/v1.0/materials/{library.name}'
+                '/assets/{asset_name}/batches?page[offset]=0&page[limit]=20'
+            ),
+        },
+        'data': [
+            {
+                'type': ObjectType.MATERIAL,
+                'id': eid1,
+                'links': {'self': f'https://example.com/{eid1}'},
+                'attributes': {
+                    'assetTypeId': library.asset_type_id,
+                    'library': library.name,
+                    'eid': eid1,
+                    'name': 'AST-0001-001',
+                    'description': 'test description',
+                    'type': MaterialType.BATCH,
+                    'createdAt': '2019-09-06T03:12:35.129Z',
+                    'editedAt': '2019-09-06T15:22:47.309Z',
+                    'digest': '1234234',
+                },
+            },
+            {
+                'type': ObjectType.MATERIAL,
+                'id': eid2,
+                'links': {'self': f'https://example.com/{eid2}'},
+                'attributes': {
+                    'assetTypeId': library.asset_type_id,
+                    'library': library.name,
+                    'eid': eid2,
+                    'name': 'AST-0001-002',
+                    'description': 'test description',
+                    'type': MaterialType.BATCH,
+                    'createdAt': '2021-09-06T03:12:35.129Z',
+                    'editedAt': '2021-09-06T15:22:47.309Z',
+                    'digest': '1234233',
+                },
+            },
+        ],
+    }
+
+    api_mock.call.return_value.json.return_value = response
+
+    result = library.get_asset_batches(asset_name)
+
+    api_mock.call.assert_called_once_with(
+        method='GET', path=('materials', library.name, 'assets', asset_name, 'batches')
+    )
+
+    for item, raw_item, eid in zip(result, response['data'], [eid1, eid2]):
+        assert isinstance(item, Batch)
+        assert item.eid == eid
+        assert item.digest == raw_item['attributes']['digest']
+        assert item.name == raw_item['attributes']['name']
+        assert item.description == raw_item['attributes']['description']
+        assert item.created_at == arrow.get(raw_item['attributes']['createdAt'])
+        assert item.edited_at == arrow.get(raw_item['attributes']['editedAt'])

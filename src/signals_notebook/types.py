@@ -1,3 +1,4 @@
+import re
 from enum import Enum
 from typing import Any, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
@@ -78,6 +79,7 @@ class EID(str):
 
 class MID(str):
     """Material ID"""
+    _id_pattern = re.compile('[0-9a-f]+', flags=re.IGNORECASE)
 
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
@@ -97,6 +99,9 @@ class MID(str):
             _type, _id = v.split(':')
             MaterialType(_type)
         except ValueError:
+            raise EIDError(value=v)
+
+        if not cls._id_pattern.fullmatch(_id):
             raise EIDError(value=v)
 
         return cls(v, validate=False)
@@ -119,7 +124,7 @@ class Links(BaseModel):
     prev: Optional[HttpUrl] = None
 
     @validator('*', pre=True)
-    def name_must_contain_space(cls, v: Optional[str]) -> Optional[str]:
+    def escape_spaces(cls, v: Optional[str]) -> Optional[str]:
         if v is not None:
             return v.replace(' ', '%20')
 

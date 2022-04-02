@@ -19,7 +19,7 @@ def test_get(api_mock, mid_factory, material_type, expected_class):
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
-            'type': ObjectType.ENTITY,
+            'type': ObjectType.MATERIAL,
             'id': eid,
             'links': {'self': f'https://example.com/{eid}'},
             'attributes': {

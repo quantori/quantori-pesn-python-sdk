@@ -190,4 +190,3 @@ def test_library_property(asset_factory, library_factory, mocker):
 
     assert result == library
     mock.get.assert_called_once_with(MID(f'{MaterialType.LIBRARY}:{asset.asset_type_id}'))
-
