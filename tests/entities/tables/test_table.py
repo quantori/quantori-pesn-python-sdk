@@ -4,9 +4,9 @@ from uuid import UUID
 import pandas as pd
 import pytest
 
+from signals_notebook.common_types import EntityType, ObjectType
 from signals_notebook.entities.tables.cell import ColumnDefinition
 from signals_notebook.entities.tables.row import Row
-from signals_notebook.common_types import EntityType, ObjectType
 
 
 DIGEST = '123'
@@ -155,7 +155,7 @@ def test_getitem_with_invalid_index(api_mock, reload_data_response, table):
     api_mock.call.return_value.json.return_value = reload_data_response
 
     with pytest.raises(IndexError) as e:
-        row = table[1.5]
+        row = table[1.5]  # noqa: F841
 
     assert str(e.value) == 'Invalid index'
 

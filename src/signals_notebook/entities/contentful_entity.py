@@ -3,8 +3,8 @@ import cgi
 from typing import Optional
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.entities import Entity
 from signals_notebook.common_types import EntityType, File
+from signals_notebook.entities import Entity
 
 
 class ContentfulEntity(Entity, abc.ABC):

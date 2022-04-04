@@ -1,8 +1,8 @@
 import arrow
 import pytest
 
-from signals_notebook.entities import Text
 from signals_notebook.common_types import EntityType, File, ObjectType
+from signals_notebook.entities import Text
 
 
 @pytest.mark.parametrize('digest, force', [('111', False), (None, True)])

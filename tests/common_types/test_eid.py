@@ -3,8 +3,8 @@ from uuid import UUID
 import pytest
 from pydantic import BaseModel
 
-from signals_notebook.exceptions import EIDError
 from signals_notebook.common_types import EID, EntityType
+from signals_notebook.exceptions import EIDError
 
 
 class Model(BaseModel):

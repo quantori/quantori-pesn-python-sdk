@@ -3,9 +3,9 @@ from datetime import datetime
 import arrow
 import pytest
 
+from signals_notebook.common_types import EID, EntityType, ObjectType
 from signals_notebook.entities import Experiment, Notebook
 from signals_notebook.entities.entity_store import EntityStore
-from signals_notebook.common_types import EID, EntityType, ObjectType
 
 
 @pytest.fixture()

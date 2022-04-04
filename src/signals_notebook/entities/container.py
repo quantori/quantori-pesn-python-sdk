@@ -4,8 +4,8 @@ import mimetypes
 from typing import cast, List, Union
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.entities import Entity
 from signals_notebook.common_types import EntityType, Response, ResponseData
+from signals_notebook.entities import Entity
 
 
 class Container(Entity, abc.ABC):

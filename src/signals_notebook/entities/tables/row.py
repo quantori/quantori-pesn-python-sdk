@@ -5,8 +5,8 @@ from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
 
-from signals_notebook.entities.tables.cell import GenericCell, UpdateCellRequest
 from signals_notebook.common_types import ObjectType
+from signals_notebook.entities.tables.cell import GenericCell, UpdateCellRequest
 
 
 class RowAction(str, Enum):
