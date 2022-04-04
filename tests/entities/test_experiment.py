@@ -2,7 +2,7 @@ import arrow
 import pytest
 
 from signals_notebook.entities import ChemicalDrawing, Entity, Experiment, Text
-from signals_notebook.types import EntityType, ObjectType
+from signals_notebook.common_types import EntityType, ObjectType
 
 
 @pytest.mark.parametrize('description', ['test description', None])

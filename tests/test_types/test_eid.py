@@ -4,7 +4,7 @@ import pytest
 from pydantic import BaseModel
 
 from signals_notebook.exceptions import EIDError
-from signals_notebook.types import EID, EntityType
+from signals_notebook.common_types import EID, EntityType
 
 
 class Model(BaseModel):

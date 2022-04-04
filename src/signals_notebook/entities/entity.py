@@ -5,7 +5,7 @@ from typing import Any, cast, Dict, Generator, Optional, Type, TypeVar
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.types import (
+from signals_notebook.common_types import (
     EID,
     EntityClass,
     EntityCreationRequestPayload,

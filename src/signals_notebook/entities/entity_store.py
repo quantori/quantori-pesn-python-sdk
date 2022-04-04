@@ -5,7 +5,7 @@ from typing import cast, Generator, List, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.entities import Entity
-from signals_notebook.types import EID, EntityType, Response, ResponseData
+from signals_notebook.common_types import EID, EntityType, Response, ResponseData
 
 
 class EntityStore:

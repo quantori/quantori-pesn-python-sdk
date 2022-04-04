@@ -5,7 +5,7 @@ from pydantic import Field
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.types import EntityType, File
+from signals_notebook.common_types import EntityType, File
 
 
 class Text(ContentfulEntity):

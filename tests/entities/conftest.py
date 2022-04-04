@@ -7,9 +7,9 @@ from tests.entities.factories import (
     ExperimentFactory,
     ImageFactory,
     NotebookFactory,
-    TableFactory,
     TextFactory,
 )
+from entities.tables.factories import TableFactory
 
 register(EIDFactory)
 register(NotebookFactory)

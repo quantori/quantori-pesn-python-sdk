@@ -2,7 +2,7 @@ import arrow
 import pytest
 
 from signals_notebook.entities.notebook import Notebook
-from signals_notebook.types import EID, EntityType, ObjectType
+from signals_notebook.common_types import EID, EntityType, ObjectType
 
 
 @pytest.mark.parametrize('description', ['test description', None])

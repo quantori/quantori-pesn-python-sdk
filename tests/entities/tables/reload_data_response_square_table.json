@@ -1,0 +1,145 @@
+{
+  "links": {
+    "self": "https://example.com/grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf"
+  },
+  "data": [
+    {
+      "type": "adtRow",
+      "id": "2c7b2fb5-bf34-480f-8402-455632c1bdb8",
+      "links": {
+        "self": "https://example.com/grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf/2c7b2fb5-bf34-480f-8402-455632c1bdb8"
+      },
+      "attributes": {
+        "id": "2c7b2fb5-bf34-480f-8402-455632c1bdb8",
+        "type": "adtRow",
+        "cells": [
+          {
+            "key": "bcd31f4d-c2ea-45fe-819a-1725f4ab3900",
+            "type": "text",
+            "name": "Column 1",
+            "content": {
+              "value": "Text 1"
+            }
+          },
+          {
+            "key": "bb95e25d-0eb5-43c2-b5e1-73411e610927",
+            "type": "text",
+            "name": "Column 2",
+            "content": {
+              "value": "Text 2"
+            }
+          }
+        ]
+      },
+      "relationships": {
+        "entity": {
+          "links": {
+            "self": "https://example.com/grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf"
+          },
+          "data": {
+            "type": "entity",
+            "id": "grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf"
+          }
+        },
+        "columnDefinitions": {
+          "data": {
+            "type": "columnDefinitions",
+            "id": "grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf"
+          }
+        }
+      }
+    },
+    {
+      "type": "adtRow",
+      "id": "ef836a0a-09b1-43d7-bb64-34587e873097",
+      "links": {
+        "self": "https://example.com/grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf/ef836a0a-09b1-43d7-bb64-34587e873097"
+      },
+      "attributes": {
+        "id": "ef836a0a-09b1-43d7-bb64-34587e873097",
+        "type": "adtRow",
+        "cells": [
+          {
+            "key": "bcd31f4d-c2ea-45fe-819a-1725f4ab3900",
+            "type": "text",
+            "name": "Column 1",
+            "content": {
+              "value": "Temp 1"
+            }
+          },
+          {
+            "key": "bb95e25d-0eb5-43c2-b5e1-73411e610927",
+            "type": "text",
+            "name": "Column 2",
+            "content": {
+              "value": "Temp 2"
+            }
+          }
+        ]
+      },
+      "relationships": {
+        "entity": {
+          "links": {
+            "self": "https://example.com/grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf"
+          },
+          "data": {
+            "type": "entity",
+            "id": "grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf"
+          }
+        },
+        "columnDefinitions": {
+          "data": {
+            "type": "columnDefinitions",
+            "id": "grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf"
+          }
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "type": "entity",
+      "id": "grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf",
+      "links": {
+        "self": "https://example.com/grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf"
+      },
+      "attributes": {
+        "type": "grid",
+        "eid": "grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf",
+        "name": "Square table",
+        "digest": "46212054",
+        "fields": {
+          "Description": {
+            "value": ""
+          },
+          "Name": {
+            "value": "Square table"
+          }
+        }
+      }
+    },
+    {
+      "type": "columnDefinitions",
+      "id": "grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf",
+      "attributes": {
+        "id": "grid:f964c4af-49e1-4d4f-a53f-ed539b881fbf",
+        "type": "columnDefinitions",
+        "templateId": "grid:b84a29e1-a19a-49c9-87e5-798e0f91aeba",
+        "columns": [
+          {
+            "key": "bcd31f4d-c2ea-45fe-819a-1725f4ab3900",
+            "title": "Column 1",
+            "type": "text",
+            "saved": true
+          },
+          {
+            "key": "bb95e25d-0eb5-43c2-b5e1-73411e610927",
+            "title": "Column 2",
+            "type": "text",
+            "saved": true
+          }
+        ]
+      }
+    }
+  ]
+}
