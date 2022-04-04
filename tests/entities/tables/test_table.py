@@ -1,4 +1,5 @@
 import json
+import os.path
 from uuid import UUID
 
 import pandas as pd
@@ -26,7 +27,8 @@ def table_with_digest(eid_factory, table_factory):
 
 @pytest.fixture()
 def reload_data_response():
-    with open('entities/tables/reload_data_response.json', 'r') as f:
+    path = os.path.join(os.path.dirname(__file__), 'reload_data_response.json')
+    with open(path, 'r') as f:
         response = json.load(f)
 
     return response
@@ -34,7 +36,8 @@ def reload_data_response():
 
 @pytest.fixture()
 def reload_data_response_square_table():
-    with open('entities/tables/reload_data_response_square_table.json', 'r') as f:
+    path = os.path.join(os.path.dirname(__file__), 'reload_data_response_square_table.json')
+    with open(path, 'r') as f:
         response = json.load(f)
 
     return response
