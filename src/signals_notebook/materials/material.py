@@ -1,9 +1,17 @@
 from datetime import datetime
-from typing import Optional
+from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 
+from signals_notebook.materials.user import User
 from signals_notebook.types import MID
+
+
+MaterialFieldValue = Union[str, List[str], User]
+
+
+class MaterialField(BaseModel):
+    value: MaterialFieldValue
 
 
 class Material(BaseModel):
@@ -15,6 +23,7 @@ class Material(BaseModel):
     description: Optional[str] = Field(title='Description', default=None)
     created_at: datetime = Field(alias='createdAt', allow_mutation=False)
     edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
+    fields: Dict[str, MaterialField] = Field(alias='fields', default={})
 
     class Config:
         validate_assignment = True
@@ -25,3 +34,6 @@ class Material(BaseModel):
     @classmethod
     def _get_endpoint(cls) -> str:
         return 'materials'
+
+    def __getitem__(self, index: str) -> MaterialFieldValue:
+        return self.fields[index].value

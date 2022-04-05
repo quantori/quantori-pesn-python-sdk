@@ -32,6 +32,17 @@ def test_get(api_mock, mid_factory, material_type, expected_class):
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': '1234234',
+                'fields': {
+                    'String field': {
+                        'value': 'test',
+                    },
+                    'String list field': {
+                        'value': [
+                            'test1',
+                            'test2',
+                        ]
+                    },
+                },
             },
         },
     }
@@ -42,9 +53,13 @@ def test_get(api_mock, mid_factory, material_type, expected_class):
     api_mock.call.assert_called_once_with(method='GET', path=('materials', eid))
 
     assert isinstance(result, expected_class)
+    assert str(result) == f'<{expected_class.__name__} eid={result.eid}>'
+
     assert result.eid == eid
     assert result.digest == response['data']['attributes']['digest']
     assert result.name == response['data']['attributes']['name']
     assert result.description == response['data']['attributes']['description']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+    assert result['String field'] == 'test'
+    assert result['String list field'] == ['test1', 'test2']
