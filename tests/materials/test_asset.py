@@ -2,7 +2,7 @@ import arrow
 import pytest
 
 from signals_notebook.materials import Batch
-from signals_notebook.types import MaterialType, MID, ObjectType
+from signals_notebook.types import ChemicalDrawingFormat, File, MaterialType, MID, ObjectType
 
 
 @pytest.fixture()
@@ -190,3 +190,32 @@ def test_library_property(asset_factory, library_factory, mocker):
 
     assert result == library
     mock.get.assert_called_once_with(MID(f'{MaterialType.LIBRARY}:{asset.asset_type_id}'))
+
+
+def test_get_chemical_drawing(asset_factory, api_mock):
+    asset = asset_factory()
+
+    file_name = 'asset.cdxml'
+    content = b'<?xml version="1.0" encoding="UTF-8" ?>'
+    content_type = 'chemical/x-cdxml'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+
+    result = asset.get_chemical_drawing(format=ChemicalDrawingFormat.CDXML)
+
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=('materials', asset.eid, 'drawing'),
+        params={
+            'format': ChemicalDrawingFormat.CDXML,
+        },
+    )
+
+    assert isinstance(result, File)
+    assert result.name == file_name
+    assert result.content == content
+    assert result.content_type == content_type
