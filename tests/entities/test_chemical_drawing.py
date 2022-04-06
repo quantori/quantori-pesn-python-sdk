@@ -1,8 +1,8 @@
 import arrow
 import pytest
 
-from signals_notebook.entities import ChemicalDrawing, ChemicalDrawingFormat, Entity
-from signals_notebook.types import EntityType, File, ObjectType
+from signals_notebook.entities import ChemicalDrawing, Entity
+from signals_notebook.types import ChemicalDrawingFormat, EntityType, File, ObjectType
 
 
 @pytest.mark.parametrize('digest, force', [('111', False), (None, True)])

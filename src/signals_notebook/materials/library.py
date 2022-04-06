@@ -5,8 +5,8 @@ from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.materials.asset import Asset
+from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
-from signals_notebook.materials.material import Material
 from signals_notebook.types import Links, MaterialType, MID, Response, ResponseData
 
 
@@ -45,7 +45,7 @@ class BatchResponse(Response[Batch]):
     pass
 
 
-class Library(Material):
+class Library(BaseMaterialEntity):
     type: Literal[MaterialType.LIBRARY] = Field(allow_mutation=False, default=MaterialType.LIBRARY)
 
     class Config:

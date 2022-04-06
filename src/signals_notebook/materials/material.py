@@ -1,11 +1,12 @@
-from datetime import datetime
-from typing import Dict, List, Optional, Union
+import cgi
+from typing import cast, List, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
+from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.user import User
-from signals_notebook.types import MID
-
+from signals_notebook.types import ChemicalDrawingFormat, File, MaterialType, MID
 
 MaterialFieldValue = Union[str, List[str], User]
 
@@ -14,26 +15,28 @@ class MaterialField(BaseModel):
     value: MaterialFieldValue
 
 
-class Material(BaseModel):
-    asset_type_id: str = Field(alias='assetTypeId', allow_mutation=False)
-    eid: MID = Field(allow_mutation=False)
-    library_name: str = Field(allow_mutation=False, alias='library')
-    digest: Optional[str] = Field(allow_mutation=False, default=None)
-    name: str = Field(title='Name')
-    description: Optional[str] = Field(title='Description', default=None)
-    created_at: datetime = Field(alias='createdAt', allow_mutation=False)
-    edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
-    fields: Dict[str, MaterialField] = Field(alias='fields', default={})
+class Material(BaseMaterialEntity):
 
-    class Config:
-        validate_assignment = True
+    @property
+    def library(self) -> 'Library':
+        from signals_notebook.materials.material_store import MaterialStore
+        library = MaterialStore.get(MID(f'{MaterialType.LIBRARY}:{self.asset_type_id}'))
+        return cast('Library', library)
 
-    def __str__(self) -> str:
-        return f'<{self.__class__.__name__} eid={self.eid}>'
+    def get_chemical_drawing(self, format: Optional[ChemicalDrawingFormat] = None) -> File:
+        api = SignalsNotebookApi.get_default_api()
 
-    @classmethod
-    def _get_endpoint(cls) -> str:
-        return 'materials'
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'drawing'),
+            params={
+                'format': format,
+            },
+        )
 
-    def __getitem__(self, index: str) -> MaterialFieldValue:
-        return self.fields[index].value
+        content_disposition = response.headers.get('content-disposition', '')
+        _, params = cgi.parse_header(content_disposition)
+
+        return File(
+            name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
+        )

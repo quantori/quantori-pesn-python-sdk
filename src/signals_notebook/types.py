@@ -12,6 +12,14 @@ EntityClass = TypeVar('EntityClass')
 AnyModel = TypeVar('AnyModel')
 
 
+class ChemicalDrawingFormat(str, Enum):
+    CDXML = 'cdxml'
+    SVG = 'svg'
+    MOL = 'mol'
+    MOL3000 = 'mol-v3000'
+    SMILES = 'smiles'
+
+
 class ObjectType(str, Enum):
     ENTITY = 'entity'
     ADT_ROW = 'adtRow'
@@ -79,6 +87,7 @@ class EID(str):
 
 class MID(str):
     """Material ID"""
+
     _id_pattern = re.compile('[0-9a-f]+', flags=re.IGNORECASE)
 
     def __new__(cls, content: Any, validate: bool = True):
