@@ -29,6 +29,7 @@ class Entity(BaseModel):
 
     class Config:
         validate_assignment = True
+        allow_population_by_field_name = True
 
     def __str__(self) -> str:
         return f'<{self.__class__.__name__} eid={self.eid}>'

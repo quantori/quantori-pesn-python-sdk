@@ -18,21 +18,21 @@ class MIDFactory(factory.Factory):
         return model_class(f'{_type}:{_id}')
 
 
-class MaterialFactory(factory.Factory):
+class BaseMaterialEntityFactory(factory.Factory):
     class Meta:
         abstract = True
 
-    assetTypeId = factory.Faker('md5')
+    asset_type_id = factory.Faker('md5')
     library = factory.Faker('word')
     eid = factory.SubFactory(MIDFactory)
     name = factory.Faker('word')
     description = factory.Faker('text')
     digest = factory.Sequence(lambda n: f'{n}')
-    createdAt = factory.Faker('date_time')
-    editedAt = factory.Faker('date_time')
+    created_at = factory.Faker('date_time')
+    edited_at = factory.Faker('date_time')
 
 
-class LibraryFactory(MaterialFactory):
+class LibraryFactory(BaseMaterialEntityFactory):
     class Meta:
         model = Library
 
@@ -40,14 +40,14 @@ class LibraryFactory(MaterialFactory):
     name = factory.LazyAttribute(lambda o: o.library)
 
 
-class AssetFactory(MaterialFactory):
+class AssetFactory(BaseMaterialEntityFactory):
     class Meta:
         model = Asset
 
     type = MaterialType.ASSET
 
 
-class BatchFactory(MaterialFactory):
+class BatchFactory(BaseMaterialEntityFactory):
     class Meta:
         model = Batch
 

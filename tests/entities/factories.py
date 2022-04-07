@@ -26,8 +26,8 @@ class EntityFactory(factory.Factory):
     name = factory.Faker('word')
     description = factory.Faker('text')
     digest = factory.Sequence(lambda n: f'{n}')
-    createdAt = factory.Faker('date_time')
-    editedAt = factory.Faker('date_time')
+    created_at = factory.Faker('date_time')
+    edited_at = factory.Faker('date_time')
 
 
 class NotebookFactory(EntityFactory):
