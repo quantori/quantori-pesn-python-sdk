@@ -67,3 +67,29 @@ def test_get_image(batch_factory, api_mock):
     assert result.name == file_name
     assert result.content == content
     assert result.content_type == content_type
+
+
+def test_get_bio_sequence(batch_factory, api_mock):
+    batch = batch_factory()
+
+    file_name = 'PKI-000001-0001.dna'
+    content = b'GGA TCC ATG GCC CTG TGG ATG CG'
+    content_type = 'application/vnd.snapgene.dna'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+
+    result = batch.get_bio_sequence()
+
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=('materials', batch.eid, 'bioSequence'),
+    )
+
+    assert isinstance(result, File)
+    assert result.name == file_name
+    assert result.content == content
+    assert result.content_type == content_type
