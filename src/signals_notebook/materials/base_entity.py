@@ -3,9 +3,8 @@ from typing import Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 
+from signals_notebook.common_types import MID
 from signals_notebook.materials.user import User
-from signals_notebook.types import MID
-
 
 MaterialFieldValue = Union[str, List[str], User]
 

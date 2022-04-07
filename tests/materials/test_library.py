@@ -1,7 +1,7 @@
 import arrow
 
+from signals_notebook.common_types import MaterialType, ObjectType
 from signals_notebook.materials import Asset, Batch, Library
-from signals_notebook.types import MaterialType, ObjectType
 
 
 def test_get_list_without_params(api_mock, mid_factory):

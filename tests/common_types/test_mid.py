@@ -1,10 +1,8 @@
-from uuid import UUID
-
 import pytest
 from pydantic import BaseModel
 
+from signals_notebook.common_types import MaterialType, MID
 from signals_notebook.exceptions import EIDError
-from signals_notebook.types import MaterialType, MID, EntityType
 
 
 class Model(BaseModel):

@@ -1,11 +1,11 @@
 from typing import cast, Union
 
 from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import MID, Response, ResponseData
 from signals_notebook.materials.asset import Asset
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.library import Library
 from signals_notebook.materials.material import Material
-from signals_notebook.types import MID, Response, ResponseData
 
 
 class MaterialResponse(Response[Union[Library, Asset, Batch]]):

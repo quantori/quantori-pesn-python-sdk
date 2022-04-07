@@ -4,10 +4,10 @@ from typing import cast, List, Literal
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import Links, MaterialType, MID, Response, ResponseData
 from signals_notebook.materials.asset import Asset
 from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
-from signals_notebook.types import Links, MaterialType, MID, Response, ResponseData
 
 
 class ChangeBlameRecord(BaseModel):

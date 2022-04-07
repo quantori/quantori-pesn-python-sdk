@@ -1,4 +1,4 @@
-from signals_notebook.types import ChemicalDrawingFormat, File, MaterialType, MID
+from signals_notebook.common_types import ChemicalDrawingFormat, File, MaterialType, MID
 
 
 def test_library_property(batch_factory, library_factory, mocker):

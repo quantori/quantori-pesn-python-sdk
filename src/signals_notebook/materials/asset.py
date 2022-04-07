@@ -3,9 +3,9 @@ from typing import cast, Generator, Literal
 from pydantic import Field
 
 from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import MaterialType, Response, ResponseData
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.material import Material
-from signals_notebook.types import MaterialType, Response, ResponseData
 
 
 class BatchesListResponse(Response[Batch]):
@@ -34,4 +34,3 @@ class Asset(Material):
 
             result = BatchesListResponse(**response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
-

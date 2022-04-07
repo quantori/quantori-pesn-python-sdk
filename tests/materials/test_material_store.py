@@ -1,8 +1,8 @@
 import arrow
 import pytest
 
+from signals_notebook.common_types import MaterialType, ObjectType
 from signals_notebook.materials import Asset, Batch, Library, MaterialStore
-from signals_notebook.types import MaterialType, ObjectType
 
 
 @pytest.mark.parametrize(

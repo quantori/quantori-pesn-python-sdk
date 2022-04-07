@@ -1,8 +1,8 @@
 import arrow
 import pytest
 
+from signals_notebook.common_types import ChemicalDrawingFormat, File, MaterialType, MID, ObjectType
 from signals_notebook.materials import Batch
-from signals_notebook.types import ChemicalDrawingFormat, File, MaterialType, MID, ObjectType
 
 
 @pytest.fixture()

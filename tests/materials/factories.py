@@ -1,7 +1,7 @@
 import factory
 
+from signals_notebook.common_types import MaterialType, MID
 from signals_notebook.materials import Asset, Batch, Library
-from signals_notebook.types import MaterialType, MID
 
 
 class MIDFactory(factory.Factory):

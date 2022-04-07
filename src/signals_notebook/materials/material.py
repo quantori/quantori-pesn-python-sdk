@@ -1,12 +1,15 @@
 import cgi
-from typing import cast, List, Optional, Union
+from typing import cast, List, Optional, TYPE_CHECKING, Union
 
 from pydantic import BaseModel
 
 from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import ChemicalDrawingFormat, File, MaterialType, MID
 from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.user import User
-from signals_notebook.types import ChemicalDrawingFormat, File, MaterialType, MID
+
+if TYPE_CHECKING:
+    from signals_notebook.materials.library import Library
 
 MaterialFieldValue = Union[str, List[str], User]
 
