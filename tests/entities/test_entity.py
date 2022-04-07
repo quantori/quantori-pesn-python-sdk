@@ -5,8 +5,8 @@ This file contains common tests for all entity types.
 import arrow
 import pytest
 
+from signals_notebook.common_types import EID, EntityType, ObjectType
 from signals_notebook.entities.notebook import Notebook
-from signals_notebook.types import EID, EntityType, ObjectType
 
 
 def test_get_list(api_mock):

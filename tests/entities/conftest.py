@@ -9,6 +9,8 @@ from tests.entities.factories import (
     NotebookFactory,
     TextFactory,
 )
+from tests.entities.tables.factories import TableFactory
+
 
 register(EIDFactory)
 register(NotebookFactory)
@@ -16,6 +18,7 @@ register(ExperimentFactory)
 register(TextFactory)
 register(ChemicalDrawingFactory)
 register(ImageFactory)
+register(TableFactory)
 
 
 @pytest.fixture()

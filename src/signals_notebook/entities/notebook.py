@@ -2,8 +2,8 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
+from signals_notebook.common_types import EntityCreationRequestPayload, EntityType
 from signals_notebook.entities.container import Container
-from signals_notebook.types import EntityCreationRequestPayload, EntityType
 
 
 class _Attributes(BaseModel):
