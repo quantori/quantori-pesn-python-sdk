@@ -43,3 +43,18 @@ class Material(BaseMaterialEntity):
         return File(
             name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
         )
+
+    def get_image(self) -> File:
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'image'),
+        )
+
+        content_disposition = response.headers.get('content-disposition', '')
+        _, params = cgi.parse_header(content_disposition)
+
+        return File(
+            name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
+        )
