@@ -6,12 +6,12 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
+from signals_notebook.common_types import EID, EntityType, MID, ObjectType
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
 from signals_notebook.exceptions import EIDError
 from signals_notebook.materials import MaterialStore
 from signals_notebook.materials.material import Material
-from signals_notebook.types import EID, EntityType, MID, ObjectType
 
 CellContentType = TypeVar('CellContentType')
 

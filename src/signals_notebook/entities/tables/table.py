@@ -6,10 +6,10 @@ import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import DataList, EntityType, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
-from signals_notebook.types import DataList, EntityType, Response, ResponseData
 
 
 class TableDataResponse(Response[Row]):
@@ -116,6 +116,9 @@ class Table(ContentfulEntity):
         raise IndexError('Invalid index')
 
     def __iter__(self):
+        if not self._rows:
+            self._reload_data()
+
         return self._rows.__iter__()
 
     def delete_row_by_id(self, row_id: Union[str, UUID], digest: str = None, force: bool = True) -> None:

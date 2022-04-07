@@ -2,10 +2,10 @@ from typing import Literal, Optional
 
 from pydantic import Field
 
+from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.types import ChemicalDrawingFormat, EntityType, File
 
 
 class ChemicalDrawing(ContentfulEntity):
