@@ -14,9 +14,8 @@ DIGEST = '123'
 
 
 @pytest.fixture()
-def table(eid_factory, table_factory):
-    eid = eid_factory(type=EntityType.GRID)
-    return table_factory(eid=eid)
+def table(table_factory):
+    return table_factory(eid__type=EntityType.GRID)
 
 
 @pytest.fixture()
@@ -62,6 +61,15 @@ def column_definitions_response(table):
     }
 
 
+@pytest.fixture()
+def all_column_types_definitions_response():
+    path = os.path.join(os.path.dirname(__file__), 'all_column_types_definitions_response.json')
+    with open(path, 'r') as f:
+        response = json.load(f)
+
+    return response
+
+
 def test_reload_data(api_mock, reload_data_response, table):
     api_mock.call.return_value.json.return_value = reload_data_response
 
@@ -82,11 +90,11 @@ def test_reload_data(api_mock, reload_data_response, table):
         assert isinstance(row, Row)
 
 
-def test_get_column_definitions_list(api_mock, column_definitions_response, table):
-    api_mock.call.return_value.json.return_value = column_definitions_response
+def test_get_column_definitions_list(api_mock, all_column_types_definitions_response, table):
+    api_mock.call.return_value.json.return_value = all_column_types_definitions_response
 
     result = table.get_column_definitions_list()
-    columns = column_definitions_response['data']['attributes']['columns']
+    columns = all_column_types_definitions_response['data']['attributes']['columns']
 
     api_mock.call.assert_called_once_with(
         method='GET',
@@ -103,11 +111,11 @@ def test_get_column_definitions_list(api_mock, column_definitions_response, tabl
         assert result[i].saved == columns[i]['saved']
 
 
-def test_get_column_definitions_map(api_mock, column_definitions_response, table):
-    api_mock.call.return_value.json.return_value = column_definitions_response
+def test_get_column_definitions_map(api_mock, all_column_types_definitions_response, table):
+    api_mock.call.return_value.json.return_value = all_column_types_definitions_response
 
     result = table.get_column_definitions_map()
-    columns = column_definitions_response['data']['attributes']['columns']
+    columns = all_column_types_definitions_response['data']['attributes']['columns']
 
     api_mock.call.assert_called_once_with(
         method='GET',
@@ -158,15 +166,13 @@ def test_getitem_with_invalid_index(api_mock, reload_data_response, table):
     api_mock.call.return_value.json.return_value = reload_data_response
 
     with pytest.raises(IndexError) as e:
-        row = table[1.5]  # noqa: F841
+        table[1.5]
 
     assert str(e.value) == 'Invalid index'
 
 
 def test_iter(api_mock, reload_data_response, table):
     api_mock.call.return_value.json.return_value = reload_data_response
-
-    table._reload_data()
 
     for row in table:
         assert isinstance(row, Row)
