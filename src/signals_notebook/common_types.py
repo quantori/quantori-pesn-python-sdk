@@ -26,6 +26,7 @@ class ObjectType(str, Enum):
     COLUMN_DEFINITIONS = 'columnDefinitions'
     MATERIAL = 'material'
     ASSET_TYPE = 'assetType'
+    ATTRIBUTE = 'attribute'
 
 
 class EntityType(str, Enum):
@@ -116,7 +117,7 @@ class MID(str):
         return cls(v, validate=False)
 
     @property
-    def type(self) -> Union[MaterialType, str]:
+    def type(self) -> MaterialType:
         _type, _ = self.split(':')
         return MaterialType(_type)
 
@@ -124,6 +125,44 @@ class MID(str):
     def id(self) -> str:
         _, _id = self.split(':')
         return _id
+
+
+class AttrID(str):
+
+    def __new__(cls, content: Any, validate: bool = True):
+        if validate:
+            cls.validate(content)
+        return str.__new__(cls, content)
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: Any):
+        if not isinstance(v, str):
+            raise EIDError(value=v)
+
+        try:
+            _type, _id = v.split(':')
+            int(_id)
+        except ValueError:
+            raise EIDError(value=v)
+
+        if _type != ObjectType.ATTRIBUTE:
+            raise EIDError(value=v)
+
+        return cls(v, validate=False)
+
+    @property
+    def type(self) -> ObjectType:
+        _type, _ = self.split(':')
+        return ObjectType(_type)
+
+    @property
+    def id(self) -> int:
+        _, _id = self.split(':')
+        return int(_id)
 
 
 class Links(BaseModel):
@@ -142,7 +181,7 @@ class Links(BaseModel):
 
 class ResponseData(GenericModel, Generic[EntityClass]):
     type: ObjectType
-    eid: Union[EID, MID, UUID, str] = Field(alias='id')
+    eid: Union[EID, MID, AttrID, UUID, str] = Field(alias='id')
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
 
