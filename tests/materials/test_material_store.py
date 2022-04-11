@@ -58,7 +58,6 @@ def test_get(api_mock, mid_factory, material_type, expected_class):
     assert result.eid == eid
     assert result.digest == response['data']['attributes']['digest']
     assert result.name == response['data']['attributes']['name']
-    assert result.description == response['data']['attributes']['description']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
     assert result['String field'] == 'test'

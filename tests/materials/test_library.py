@@ -105,7 +105,6 @@ def test_get_list_without_params(api_mock, mid_factory):
         assert item.eid == f'{MaterialType.LIBRARY}:{raw_item["id"]}'
         assert item.digest == raw_item['attributes']['digest'].split(':')[0]
         assert item.name == raw_item['attributes']['name']
-        assert item.description is None
         assert item.created_at == arrow.get(raw_item['attributes']['created']['at'])
         assert item.edited_at == arrow.get(raw_item['attributes']['edited']['at'])
 
@@ -127,7 +126,6 @@ def test_get_asset(api_mock, mid_factory, library_factory):
                 'library': library.name,
                 'eid': eid,
                 'name': asset_name,
-                'description': 'test description',
                 'type': MaterialType.ASSET,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
@@ -146,7 +144,6 @@ def test_get_asset(api_mock, mid_factory, library_factory):
     assert result.eid == eid
     assert result.digest == response['data']['attributes']['digest']
     assert result.name == response['data']['attributes']['name']
-    assert result.description == response['data']['attributes']['description']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
@@ -168,7 +165,6 @@ def test_get_batch(api_mock, mid_factory, library_factory):
                 'library': library.name,
                 'eid': eid,
                 'name': batch_name,
-                'description': 'test description',
                 'type': MaterialType.BATCH,
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
@@ -187,7 +183,6 @@ def test_get_batch(api_mock, mid_factory, library_factory):
     assert result.eid == eid
     assert result.digest == response['data']['attributes']['digest']
     assert result.name == response['data']['attributes']['name']
-    assert result.description == response['data']['attributes']['description']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
@@ -220,7 +215,6 @@ def test_get_asset_batches(api_mock, mid_factory, library_factory):
                     'library': library.name,
                     'eid': eid1,
                     'name': 'AST-0001-001',
-                    'description': 'test description',
                     'type': MaterialType.BATCH,
                     'createdAt': '2019-09-06T03:12:35.129Z',
                     'editedAt': '2019-09-06T15:22:47.309Z',
@@ -236,7 +230,6 @@ def test_get_asset_batches(api_mock, mid_factory, library_factory):
                     'library': library.name,
                     'eid': eid2,
                     'name': 'AST-0001-002',
-                    'description': 'test description',
                     'type': MaterialType.BATCH,
                     'createdAt': '2021-09-06T03:12:35.129Z',
                     'editedAt': '2021-09-06T15:22:47.309Z',
@@ -259,6 +252,5 @@ def test_get_asset_batches(api_mock, mid_factory, library_factory):
         assert item.eid == eid
         assert item.digest == raw_item['attributes']['digest']
         assert item.name == raw_item['attributes']['name']
-        assert item.description == raw_item['attributes']['description']
         assert item.created_at == arrow.get(raw_item['attributes']['createdAt'])
         assert item.edited_at == arrow.get(raw_item['attributes']['editedAt'])

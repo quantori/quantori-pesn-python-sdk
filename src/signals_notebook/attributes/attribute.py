@@ -28,7 +28,7 @@ class Attribute(BaseModel):
             path=(cls._get_endpoint(), id),
         )
 
-        result = Response[cls](**response.json())
+        result = Response[cls](**response.json())  # type: ignore
 
         return cast(ResponseData, result.data).body
 

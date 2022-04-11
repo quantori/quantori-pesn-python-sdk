@@ -76,7 +76,6 @@ def test_get_batches__one_page(api_mock, asset_factory, mid_factory):
         assert item.eid == raw_item['id']
         assert item.digest == raw_item['attributes']['digest']
         assert item.name == raw_item['attributes']['name']
-        assert item.description == raw_item['attributes']['description']
         assert item.created_at == arrow.get(raw_item['attributes']['createdAt'])
         assert item.edited_at == arrow.get(raw_item['attributes']['editedAt'])
 
@@ -106,7 +105,6 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
                     'library': asset.library_name,
                     'eid': eid1,
                     'name': 'My lot 1',
-                    'description': 'test description 1',
                     'type': MaterialType.BATCH,
                     'createdAt': '2020-09-06T03:12:35.129Z',
                     'editedAt': '2020-09-06T15:22:47.309Z',
@@ -136,7 +134,6 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
                     'library': asset.library_name,
                     'eid': eid2,
                     'name': 'My lot 2',
-                    'description': 'test description 2',
                     'type': MaterialType.BATCH,
                     'createdAt': '2021-09-06T03:12:35.129Z',
                     'editedAt': '2021-09-06T15:22:47.309Z',
@@ -174,7 +171,6 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
         assert item.eid == raw_item['id']
         assert item.digest == raw_item['attributes']['digest']
         assert item.name == raw_item['attributes']['name']
-        assert item.description == raw_item['attributes']['description']
         assert item.created_at == arrow.get(raw_item['attributes']['createdAt'])
         assert item.edited_at == arrow.get(raw_item['attributes']['editedAt'])
 

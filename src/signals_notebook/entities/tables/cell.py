@@ -1,6 +1,6 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
+from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -255,17 +255,20 @@ class AutotextListCell(Cell[str]):
         super()._set_value(new_value, display)
 
 
-GenericCell = Union[
-    AttributeListCell,
-    AutotextListCell,
-    BooleanCell,
-    DateTimeCell,
-    ExternalLink,
-    IntegerCell,
-    LinkCell,
-    ListCell,
-    MultiSelectCell,
-    NumberCell,
-    TextCell,
-    UnitCell,
+GenericCell = Annotated[
+    Union[
+        AttributeListCell,
+        AutotextListCell,
+        BooleanCell,
+        DateTimeCell,
+        ExternalLink,
+        IntegerCell,
+        LinkCell,
+        ListCell,
+        MultiSelectCell,
+        NumberCell,
+        TextCell,
+        UnitCell,
+    ],
+    Field(discriminator='type'),
 ]
