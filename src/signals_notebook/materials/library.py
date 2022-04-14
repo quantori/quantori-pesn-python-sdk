@@ -28,22 +28,35 @@ class Numbering(BaseModel):
 
 
 class AssetConfig(BaseModel):
-    asset_name_field_id: Optional[str] = Field(alias='assetNameFieldId', default=None)
-    display_name: str = Field(alias='displayName')
     numbering: Numbering
     fields: List[GenericField]
+    display_name: str = Field(alias='displayName')
+    asset_name_field_id: Optional[str] = Field(alias='assetNameFieldId', default=None)
+
+    class Config:
+        frozen = True
+
+
+class BatchConfig(BaseModel):
+    numbering: Numbering
+    fields: List[GenericField]
+    display_name: str = Field(alias='displayName')
+
+    class Config:
+        frozen = True
 
 
 class _LibraryListData(BaseModel):
-    id: str = Field(allow_mutation=False)
-    name: str = Field(title='Name')
-    digest: str = Field(allow_mutation=False, default=None)
-    edited: ChangeRecord = Field(allow_mutation=False)
-    created: ChangeRecord = Field(allow_mutation=False)
+    id: str
+    name: str
+    digest: str
+    edited: ChangeRecord
+    created: ChangeRecord
     asset_config: AssetConfig = Field(alias='assets')
+    batch_config: BatchConfig = Field(alias='batches')
 
     class Config:
-        validate_assignment = True
+        frozen = True
 
 
 class LibraryListResponse(Response[_LibraryListData]):
@@ -61,22 +74,27 @@ class BatchResponse(Response[Batch]):
 class Library(BaseMaterialEntity):
     type: Literal[MaterialType.LIBRARY] = Field(allow_mutation=False, default=MaterialType.LIBRARY)
     _asset_config: Optional[AssetConfig] = PrivateAttr(default=None)
+    _batch_config: Optional[BatchConfig] = PrivateAttr(default=None)
 
     class Config:
         validate_assignment = True
 
-    @property
-    def asset_config(self) -> AssetConfig:
-        if self._asset_config:
-            return self._asset_config
-
+    def _load_configs(self) -> None:
         # the only way to get config is to fetch all libraries
         result = self._get_library_list_response()
         for item in result.data:
             data = cast(_LibraryListData, cast(ResponseData, item).body)
             if data.id == self.asset_type_id:
                 self._asset_config = data.asset_config
-                break
+                self._batch_config = data.batch_config
+                return
+
+    @property
+    def asset_config(self) -> AssetConfig:
+        if self._asset_config:
+            return self._asset_config
+
+        self._load_configs()
 
         assert self._asset_config is not None
         return self._asset_config
@@ -84,6 +102,20 @@ class Library(BaseMaterialEntity):
     @asset_config.setter
     def asset_config(self, config: AssetConfig) -> None:
         self._asset_config = config
+
+    @property
+    def batch_config(self) -> BatchConfig:
+        if self._batch_config:
+            return self._batch_config
+
+        self._load_configs()
+
+        assert self._batch_config is not None
+        return self._batch_config
+
+    @batch_config.setter
+    def batch_config(self, config: BatchConfig) -> None:
+        self._batch_config = config
 
     @classmethod
     def _get_library_list_response(cls) -> LibraryListResponse:
@@ -113,6 +145,7 @@ class Library(BaseMaterialEntity):
                 edited_at=data.edited.at,
             )
             library.asset_config = data.asset_config
+            # library.batch_config = data.batch_config
             libraries.append(library)
 
         return libraries

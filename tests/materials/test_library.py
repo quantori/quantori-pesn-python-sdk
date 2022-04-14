@@ -16,7 +16,6 @@ def test_get_list(api_mock, mid_factory):
                     'name': 'Reagents (SNB)',
                     'id': eid1.id,
                     'enabled': True,
-                    'batches': {},
                     'displayImage': {'enabled': True, 'userChosen': False, 'useFieldId': '6172be4052faff000750114b'},
                     'created': {
                         'by': {
@@ -67,6 +66,28 @@ def test_get_list(api_mock, mid_factory):
                             },
                         ],
                     },
+                    'batches': {
+                        'displayName': 'Lot',
+                        'fields': [
+                            {
+                                'id': '6172be4052faff000750116d',
+                                'name': '% active',
+                                'dataType': 'PERCENTAGE',
+                                'mandatory': False,
+                                'hidden': False,
+                                'definedBy': 'SYSTEM_DEFAULT',
+                            },
+                            {
+                                'id': '6172be4052faff000750116e',
+                                'name': 'Amount',
+                                'dataType': 'MASS',
+                                'mandatory': True,
+                                'hidden': False,
+                                'definedBy': 'SYSTEM_DEFAULT',
+                            },
+                        ],
+                        'numbering': {'format': '{####}'},
+                    },
                 },
             },
             {
@@ -76,7 +97,6 @@ def test_get_list(api_mock, mid_factory):
                     'name': 'Cell Lines',
                     'id': eid2.id,
                     'enabled': True,
-                    'batches': {},
                     'displayImage': {'enabled': True, 'userChosen': True, 'useFieldId': '6172be4052faff000750114e'},
                     'created': {
                         'by': {
@@ -144,6 +164,28 @@ def test_get_list(api_mock, mid_factory):
                                 'collection': 'LIST',
                             },
                         ],
+                    },
+                    'batches': {
+                        'displayName': 'Lot',
+                        'fields': [
+                            {
+                                'id': '6172be4052faff00075011a6',
+                                'name': 'Passage #',
+                                'dataType': 'INTEGER',
+                                'mandatory': False,
+                                'hidden': False,
+                                'definedBy': 'SYSTEM_DEFAULT',
+                            },
+                            {
+                                'id': '6172be4052faff00075011a7',
+                                'name': 'Cell Count',
+                                'dataType': 'DECIMAL',
+                                'mandatory': False,
+                                'hidden': False,
+                                'definedBy': 'SYSTEM_DEFAULT',
+                            },
+                        ],
+                        'numbering': {'format': '{####}'},
                     },
                 },
             },
