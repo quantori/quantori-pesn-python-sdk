@@ -71,11 +71,14 @@ class Library(BaseMaterialEntity):
             return self._asset_config
 
         # the only way to get config is to fetch all libraries
-        libraries = self.get_list()
-        for library in libraries:
-            if library.eid == self.eid:
-                self._asset_config = library.asset_config
+        result = self._get_library_list_response()
+        for item in result.data:
+            data = cast(_LibraryListData, cast(ResponseData, item).body)
+            if data.id == self.asset_type_id:
+                self._asset_config = data.asset_config
                 break
+
+        assert self._asset_config is not None
         return self._asset_config
 
     @asset_config.setter
@@ -83,7 +86,7 @@ class Library(BaseMaterialEntity):
         self._asset_config = config
 
     @classmethod
-    def get_list(cls) -> List['Library']:
+    def _get_library_list_response(cls) -> LibraryListResponse:
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -91,7 +94,11 @@ class Library(BaseMaterialEntity):
             path=(cls._get_endpoint(), 'libraries'),
         )
 
-        result = LibraryListResponse(**response.json())
+        return LibraryListResponse(**response.json())
+
+    @classmethod
+    def get_list(cls) -> List['Library']:
+        result = cls._get_library_list_response()
 
         libraries: List['Library'] = []
         for item in result.data:

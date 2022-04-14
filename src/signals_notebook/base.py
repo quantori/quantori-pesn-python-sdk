@@ -17,7 +17,7 @@ class PatchedModel(BaseModel):
             setters = inspect.getmembers(
                 self.__class__, predicate=lambda x: isinstance(x, property) and x.fset is not None
             )
-            for setter_name, func in setters:
+            for setter_name, _ in setters:
                 if setter_name == name:
                     object.__setattr__(self, name, value)
                     break

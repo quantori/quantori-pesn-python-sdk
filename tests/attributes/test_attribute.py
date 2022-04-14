@@ -4,18 +4,18 @@ from signals_notebook.attributes import Attribute
 
 
 def test_get(attr_id_factory, api_mock):
-    id = attr_id_factory()
+    _id = attr_id_factory()
 
     response = {
         'links': {'self': f'https://quantori.signalsnotebook.perkinelmer.cloud/api/rest/v1.0/attributes/{id}'},
         'data': {
             'type': 'attribute',
-            'id': id,
+            'id': _id,
             'links': {
                 'self': f'https://quantori.signalsnotebook.perkinelmer.cloud/api/rest/v1.0/attributes/{id}'
             },
             'attributes': {
-                'id': id,
+                'id': _id,
                 'name': 'GHS Signal Words',
                 'type': 'choice',
                 'options': ['WARNING', 'DANGER'],
@@ -26,14 +26,14 @@ def test_get(attr_id_factory, api_mock):
 
     api_mock.call.return_value.json.return_value = response
 
-    result = Attribute.get(id)
+    result = Attribute.get(_id)
 
-    api_mock.call.assert_called_once_with(method='GET', path=('attributes', id))
+    api_mock.call.assert_called_once_with(method='GET', path=('attributes', _id))
 
     assert isinstance(result, Attribute)
     assert result.type == 'choice'
     assert result.name == response['data']['attributes']['name']
-    assert result.id == id
+    assert result.id == _id
     assert result.options == response['data']['attributes']['options']
 
 

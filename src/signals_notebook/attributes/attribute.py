@@ -33,7 +33,7 @@ class Attribute(BaseModel):
         return cast(ResponseData, result.data).body
 
     def __call__(self, value: str) -> str:
-        if not value in self.options:
+        if value not in self.options:
             raise ValueError('Incorrect attribute value')
 
         return value

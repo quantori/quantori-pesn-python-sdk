@@ -4,7 +4,7 @@ from signals_notebook.common_types import MaterialType, ObjectType
 from signals_notebook.materials import Asset, Batch, Library
 
 
-def test_get_list_without_params(api_mock, mid_factory):
+def test_get_list(api_mock, mid_factory):
     eid1 = mid_factory(type=MaterialType.LIBRARY)
     eid2 = mid_factory(type=MaterialType.LIBRARY)
     response = {
@@ -16,7 +16,6 @@ def test_get_list_without_params(api_mock, mid_factory):
                     'name': 'Reagents (SNB)',
                     'id': eid1.id,
                     'enabled': True,
-                    'assets': {},
                     'batches': {},
                     'displayImage': {'enabled': True, 'userChosen': False, 'useFieldId': '6172be4052faff000750114b'},
                     'created': {
@@ -45,6 +44,29 @@ def test_get_list_without_params(api_mock, mid_factory):
                         'canComment': True,
                         'isShared': True,
                     },
+                    'assets': {
+                        'assetNameFieldId': '6172be4052faff000750114c',
+                        'displayName': 'Reagent',
+                        'numbering': {'format': 'RGT-{####}'},
+                        'fields': [
+                            {
+                                'id': '6172be4052faff000750114c',
+                                'name': 'Chemical Name',
+                                'dataType': 'TEXT',
+                                'mandatory': True,
+                                'hidden': False,
+                                'definedBy': 'SYSTEM_DEFAULT',
+                            },
+                            {
+                                'id': '6172be4052faff000750114b',
+                                'name': 'Chemical Structure',
+                                'dataType': 'CHEMICAL_DRAWING',
+                                'mandatory': False,
+                                'hidden': True,
+                                'definedBy': 'SYSTEM_DEFAULT',
+                            },
+                        ],
+                    },
                 },
             },
             {
@@ -54,7 +76,6 @@ def test_get_list_without_params(api_mock, mid_factory):
                     'name': 'Cell Lines',
                     'id': eid2.id,
                     'enabled': True,
-                    'assets': {},
                     'batches': {},
                     'displayImage': {'enabled': True, 'userChosen': True, 'useFieldId': '6172be4052faff000750114e'},
                     'created': {
@@ -86,6 +107,43 @@ def test_get_list_without_params(api_mock, mid_factory):
                         'canWrite': True,
                         'canComment': True,
                         'isShared': True,
+                    },
+                    'assets': {
+                        'assetNameFieldId': '6172be4052faff000750114d',
+                        'displayName': 'Cell Line',
+                        'numbering': {'format': 'PKI-{######}'},
+                        'fields': [
+                            {
+                                'id': '6172be4052faff000750114d',
+                                'name': 'Cell Line Name',
+                                'dataType': 'TEXT',
+                                'mandatory': True,
+                                'hidden': False,
+                                'definedBy': 'SYSTEM_DEFAULT',
+                            },
+                            {
+                                'id': '6172be4052faff000750119d',
+                                'name': 'Organism',
+                                'dataType': 'TEXT',
+                                'mandatory': True,
+                                'hidden': False,
+                                'definedBy': 'SYSTEM_DEFAULT',
+                                'options': [
+                                    'Bovine',
+                                    'Dog',
+                                    'Hamster',
+                                    'Human',
+                                    'Monkey',
+                                    'Mouse',
+                                    'Pig',
+                                    'Rat',
+                                    'Rhesus Monkey',
+                                    'Sheep',
+                                    'E. coli',
+                                ],
+                                'collection': 'LIST',
+                            },
+                        ],
                     },
                 },
             },
