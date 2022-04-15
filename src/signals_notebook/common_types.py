@@ -1,8 +1,9 @@
+import re
 from enum import Enum
 from typing import Any, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field, HttpUrl, validator
 from pydantic.generics import GenericModel
 
 from signals_notebook.exceptions import EIDError
@@ -11,10 +12,21 @@ EntityClass = TypeVar('EntityClass')
 AnyModel = TypeVar('AnyModel')
 
 
+class ChemicalDrawingFormat(str, Enum):
+    CDXML = 'cdxml'
+    SVG = 'svg'
+    MOL = 'mol'
+    MOL3000 = 'mol-v3000'
+    SMILES = 'smiles'
+
+
 class ObjectType(str, Enum):
     ENTITY = 'entity'
     ADT_ROW = 'adtRow'
     COLUMN_DEFINITIONS = 'columnDefinitions'
+    MATERIAL = 'material'
+    ASSET_TYPE = 'assetType'
+    ATTRIBUTE = 'attribute'
 
 
 class EntityType(str, Enum):
@@ -29,7 +41,15 @@ class EntityType(str, Enum):
     IMAGE_RESOURCE = 'imageResource'
 
 
+class MaterialType(str, Enum):
+    LIBRARY = 'assetType'
+    ASSET = 'asset'
+    BATCH = 'batch'
+
+
 class EID(str):
+    """Entity ID"""
+
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -66,22 +86,108 @@ class EID(str):
         return UUID(_id)
 
 
+class MID(str):
+    """Material ID"""
+
+    _id_pattern = re.compile('[0-9a-f]+', flags=re.IGNORECASE)
+
+    def __new__(cls, content: Any, validate: bool = True):
+        if validate:
+            cls.validate(content)
+        return str.__new__(cls, content)
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: Any):
+        if not isinstance(v, str):
+            raise EIDError(value=v)
+
+        try:
+            _type, _id = v.split(':')
+            MaterialType(_type)
+        except ValueError:
+            raise EIDError(value=v)
+
+        if not cls._id_pattern.fullmatch(_id):
+            raise EIDError(value=v)
+
+        return cls(v, validate=False)
+
+    @property
+    def type(self) -> MaterialType:
+        _type, _ = self.split(':')
+        return MaterialType(_type)
+
+    @property
+    def id(self) -> str:
+        _, _id = self.split(':')
+        return _id
+
+
+class AttrID(str):
+
+    def __new__(cls, content: Any, validate: bool = True):
+        if validate:
+            cls.validate(content)
+        return str.__new__(cls, content)
+
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
+
+    @classmethod
+    def validate(cls, v: Any):
+        if not isinstance(v, str):
+            raise EIDError(value=v)
+
+        try:
+            _type, _id = v.split(':')
+            int(_id)
+        except ValueError:
+            raise EIDError(value=v)
+
+        if _type != ObjectType.ATTRIBUTE:
+            raise EIDError(value=v)
+
+        return cls(v, validate=False)
+
+    @property
+    def type(self) -> ObjectType:
+        _type, _ = self.split(':')
+        return ObjectType(_type)
+
+    @property
+    def id(self) -> int:
+        _, _id = self.split(':')
+        return int(_id)
+
+
 class Links(BaseModel):
     self: HttpUrl
     first: Optional[HttpUrl] = None
     next: Optional[HttpUrl] = None
     prev: Optional[HttpUrl] = None
 
+    @validator('*', pre=True)
+    def escape_spaces(cls, v: Optional[str]) -> Optional[str]:
+        if v is not None:
+            return v.replace(' ', '%20')
+
+        return v
+
 
 class ResponseData(GenericModel, Generic[EntityClass]):
     type: ObjectType
-    eid: Union[EID, UUID] = Field(alias='id')
+    eid: Union[EID, MID, AttrID, UUID, str] = Field(alias='id')
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
 
 
 class Response(GenericModel, Generic[EntityClass]):
-    links: Links
+    links: Optional[Links] = None
     data: Union[ResponseData[EntityClass], List[ResponseData[EntityClass]]]
 
 

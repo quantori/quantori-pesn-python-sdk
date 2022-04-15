@@ -7,7 +7,7 @@ from pydantic import BaseModel, parse_obj_as, PydanticValueError
 class ErrorBody(BaseModel):
     status: str
     code: str
-    title: str
+    title: str = ''
     detail: str = ''
 
 

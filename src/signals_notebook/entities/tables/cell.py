@@ -1,14 +1,17 @@
 from datetime import datetime
 from enum import Enum
-from typing import Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
+from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID, EntityType, ObjectType
+from signals_notebook.common_types import EID, EntityType, MID, ObjectType
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
+from signals_notebook.exceptions import EIDError
+from signals_notebook.materials import MaterialStore
+from signals_notebook.materials.material import Material
 
 CellContentType = TypeVar('CellContentType')
 
@@ -186,14 +189,20 @@ class ExternalLink(Cell[str]):
         super()._set_value(new_value, display)
 
 
-class LinkCell(Cell[EID]):
+class LinkCell(Cell[Union[EID, MID]]):
     type: Literal[ColumnDataType.LINK] = Field(allow_mutation=False)
 
     @property
-    def entity(self) -> Entity:
-        return EntityStore.get(self.content.value)
+    def object(self) -> Union[Entity, Material]:
+        object_id = self.content.value
+        try:
+            return MaterialStore.get(MID(object_id))
+        except EIDError:
+            pass
 
-    def set_value(self, new_value: EID, display: str) -> None:
+        return EntityStore.get(EID(object_id))
+
+    def set_value(self, new_value: Union[EID, MID], display: str) -> None:
         super()._set_value(new_value, display)
 
 
@@ -246,17 +255,20 @@ class AutotextListCell(Cell[str]):
         super()._set_value(new_value, display)
 
 
-GenericCell = Union[
-    AttributeListCell,
-    AutotextListCell,
-    BooleanCell,
-    DateTimeCell,
-    ExternalLink,
-    IntegerCell,
-    LinkCell,
-    ListCell,
-    MultiSelectCell,
-    NumberCell,
-    TextCell,
-    UnitCell,
+GenericCell = Annotated[
+    Union[
+        AttributeListCell,
+        AutotextListCell,
+        BooleanCell,
+        DateTimeCell,
+        ExternalLink,
+        IntegerCell,
+        LinkCell,
+        ListCell,
+        MultiSelectCell,
+        NumberCell,
+        TextCell,
+        UnitCell,
+    ],
+    Field(discriminator='type'),
 ]

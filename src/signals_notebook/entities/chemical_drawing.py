@@ -1,20 +1,11 @@
-from enum import Enum
 from typing import Literal, Optional
 
 from pydantic import Field
 
-from signals_notebook.common_types import EntityType, File
+from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-
-
-class ChemicalDrawingFormat(str, Enum):
-    CDXML = 'cdxml'
-    SVG = 'svg'
-    MOL = 'mol'
-    MOL3000 = 'mol-v3000'
-    SMILES = 'smiles'
 
 
 class ChemicalDrawing(ContentfulEntity):
