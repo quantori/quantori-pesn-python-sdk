@@ -27,6 +27,7 @@ class ObjectType(str, Enum):
     MATERIAL = 'material'
     ASSET_TYPE = 'assetType'
     ATTRIBUTE = 'attribute'
+    STOICHIOMETRY = 'stoichiometry'
 
 
 class EntityType(str, Enum):

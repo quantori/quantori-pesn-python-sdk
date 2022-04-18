@@ -6,9 +6,10 @@ from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, Fil
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
+from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
 
 
-class ChemicalDrawing(ContentfulEntity):
+class ChemicalDrawing(ContentfulEntity, Stoichiometry):
     type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
 
     @classmethod
