@@ -52,14 +52,26 @@ class Stoichiometry(BaseModel, abc.ABC):
         )
 
         result = StoichiometryDataResponse(**response.json())
-        body = cast(ResponseData, result.data).body
-
+        data = cast(ResponseData, result.data)
         self._stoichiometry_rows = []
         self._stoichiometry_rows_by_id = {}
-        self.reactants = getattr(body, DataGridKind.REACTANTS, [])
-        self.products = getattr(body, DataGridKind.PRODUCTS, [])
-        self.solvents = getattr(body, DataGridKind.SOLVENTS, [])
-        self.conditions = getattr(body, DataGridKind.CONDITIONS, [])
+        self.reactants = self.products = self.solvents = self.conditions = []
+
+        if isinstance(data, list):
+            for item in data:
+                reactants = getattr(item.body, DataGridKind.REACTANTS, [])
+                products = getattr(item.body, DataGridKind.PRODUCTS, [])
+                solvents = getattr(item.body, DataGridKind.SOLVENTS, [])
+                conditions = getattr(item.body, DataGridKind.CONDITIONS, [])
+                self.reactants.extend(reactants)
+                self.products.extend(products)
+                self.solvents.extend(solvents)
+                self.conditions.extend(conditions)
+        else:
+            self.reactants = getattr(data.body, DataGridKind.REACTANTS, [])
+            self.products = getattr(data.body, DataGridKind.PRODUCTS, [])
+            self.solvents = getattr(data.body, DataGridKind.SOLVENTS, [])
+            self.conditions = getattr(data.body, DataGridKind.CONDITIONS, [])
 
         for row in chain(self.reactants, self.products, self.solvents, self.conditions):
             assert row.row_id

@@ -6,6 +6,7 @@ from pydantic import BaseModel, Field
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
+from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
 
 
 class _Attributes(BaseModel):
@@ -33,7 +34,7 @@ class ExperimentState(str, Enum):
     CLOSED = 'closed'
 
 
-class Experiment(Container):
+class Experiment(Container, Stoichiometry):
     type: Literal[EntityType.EXPERIMENT] = Field(allow_mutation=False)
     state: Optional[ExperimentState] = Field(allow_mutation=False, default=None)
 
