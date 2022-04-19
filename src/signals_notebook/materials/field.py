@@ -1,7 +1,7 @@
 from enum import Enum
-from typing import Annotated, List, Literal, Optional, Union
+from typing import Annotated, Any, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, validator
 
 from signals_notebook.attributes import Attribute
 from signals_notebook.common_types import AttrID
@@ -28,10 +28,11 @@ class MaterialFieldType(str, Enum):
     CAS_NUMBER = 'CAS_NUMBER'
     DENSITY = 'DENSITY'
     SEQUENCE = 'SEQUENCE'
+    SEQUENCE_FILE = 'SEQUENCE_FILE'
     INTEGER = 'INTEGER'
 
 
-class BaseField(BaseModel):
+class BaseFieldDefinition(BaseModel):
     id: str
     name: str
     mandatory: bool
@@ -42,61 +43,61 @@ class BaseField(BaseModel):
     defined_by: str = Field(alias='definedBy')
 
 
-class TextField(BaseField):
+class TextFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.TEXT] = Field(alias='dataType')
     collection: Optional[CollectionType] = Field(default=None)
     options: Optional[List[str]] = Field(default=None)
 
 
-class ChemicalDrawingField(BaseField):
+class ChemicalDrawingFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.CHEMICAL_DRAWING] = Field(alias='dataType')
 
 
-class MolecularMassField(BaseField):
+class MolecularMassFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.MOLECULAR_MASS] = Field(alias='dataType')
 
 
-class DecimalField(BaseField):
+class DecimalFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.DECIMAL] = Field(alias='dataType')
 
 
-class IntegerField(BaseField):
+class IntegerFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.INTEGER] = Field(alias='dataType')
 
 
-class BooleanField(BaseField):
+class BooleanFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.BOOLEAN] = Field(alias='dataType')
 
 
-class MolecularFormulaField(BaseField):
+class MolecularFormulaFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.MOLECULAR_FORMULA] = Field(alias='dataType')
 
 
-class CASNumberField(BaseField):
+class CASNumberFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.CAS_NUMBER] = Field(alias='dataType')
 
 
-class DensityField(BaseField):
+class DensityFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.DENSITY] = Field(alias='dataType')
 
 
-class AttachedFileField(BaseField):
+class AttachedFileFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.ATTACHED_FILE] = Field(alias='dataType')
 
 
-class SequenceField(BaseField):
+class SequenceFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.SEQUENCE] = Field(alias='dataType')
 
 
-class TemperatureField(BaseField):
+class TemperatureFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.TEMPERATURE] = Field(alias='dataType')
 
 
-class LinkField(BaseField):
+class LinkFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.LINK] = Field(alias='dataType')
 
 
-class AttributeField(BaseField):
+class AttributeFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.ATTRIBUTE] = Field(alias='dataType')
     multi_select: bool = Field(alias='multiSelect', default=False)
     attribute_id: AttrID = Field(alias='attribute')
@@ -106,25 +107,101 @@ class AttributeField(BaseField):
         return Attribute.get(self.attribute_id)
 
 
-GenericField = Union[
+GenericFieldDefinition = Union[
     Annotated[
         Union[
-            AttachedFileField,
-            AttributeField,
-            BooleanField,
-            CASNumberField,
-            ChemicalDrawingField,
-            DecimalField,
-            DensityField,
-            IntegerField,
-            LinkField,
-            MolecularFormulaField,
-            MolecularMassField,
-            SequenceField,
-            TemperatureField,
-            TextField,
+            AttachedFileFieldDefinition,
+            AttributeFieldDefinition,
+            BooleanFieldDefinition,
+            CASNumberFieldDefinition,
+            ChemicalDrawingFieldDefinition,
+            DecimalFieldDefinition,
+            DensityFieldDefinition,
+            IntegerFieldDefinition,
+            LinkFieldDefinition,
+            MolecularFormulaFieldDefinition,
+            MolecularMassFieldDefinition,
+            SequenceFieldDefinition,
+            TemperatureFieldDefinition,
+            TextFieldDefinition,
         ],
         Field(discriminator='data_type'),
     ],
-    BaseField,
+    BaseFieldDefinition,
 ]
+
+
+class Numbering(BaseModel):
+    format: str
+
+
+class AssetConfig(BaseModel):
+    numbering: Numbering
+    fields: List[GenericFieldDefinition]
+    display_name: str = Field(alias='displayName')
+    asset_name_field_id: Optional[str] = Field(alias='assetNameFieldId', default=None)
+
+    class Config:
+        frozen = True
+
+
+class BatchConfig(BaseModel):
+    numbering: Numbering
+    fields: List[GenericFieldDefinition]
+    display_name: str = Field(alias='displayName')
+
+    class Config:
+        frozen = True
+
+
+class Field(BaseModel):
+    is_changed: bool = False
+    field_definition: GenericFieldDefinition = Field(allow_mutation=False)
+    value: Any
+
+    class Config:
+        validate_assignment = True
+
+    @validator('value', always=True, pre=True)
+    def validate_value(cls, value: Any, values, **kwargs):
+        field_definition = values['field_definition']
+
+        if (
+            field_definition.mandatory
+            and value is None
+            and field_definition.data_type
+            not in (
+                MaterialFieldType.SEQUENCE,
+                MaterialFieldType.CHEMICAL_DRAWING,
+                MaterialFieldType.ATTACHED_FILE,
+                MaterialFieldType.SEQUENCE_FILE,
+            )
+        ):
+            raise ValueError('Value is mandatory')
+
+        return value
+
+
+class FieldContainer:
+    _data: dict[str, Field] = {}
+
+    def __init__(self, field_definitions: List[GenericFieldDefinition], **data):
+        for field_definition in field_definitions:
+            self._data[field_definition.name] = Field(
+                field_definition=field_definition,
+                value=data.get(field_definition.name, {}).get('value'),
+                is_changed=False,
+            )
+
+    def items(self):
+        return self._data.items()
+
+    def __getitem__(self, key: str) -> Any:
+        return self._data[key].value
+
+    def __setitem__(self, key: str, value: Any):
+        if key not in self._data:
+            raise KeyError()
+
+        self._data[key].value = value
+        self._data[key].is_changed = True

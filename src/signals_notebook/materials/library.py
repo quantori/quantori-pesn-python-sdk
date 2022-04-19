@@ -8,7 +8,7 @@ from signals_notebook.common_types import Links, MaterialType, MID, Response, Re
 from signals_notebook.materials.asset import Asset
 from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
-from signals_notebook.materials.field import GenericField
+from signals_notebook.materials.field import AssetConfig, BatchConfig
 
 
 class ChangeBlameRecord(BaseModel):
@@ -21,29 +21,6 @@ class ChangeRecord(BaseModel):
 
     class Config:
         validate_assignment = True
-
-
-class Numbering(BaseModel):
-    format: str
-
-
-class AssetConfig(BaseModel):
-    numbering: Numbering
-    fields: List[GenericField]
-    display_name: str = Field(alias='displayName')
-    asset_name_field_id: Optional[str] = Field(alias='assetNameFieldId', default=None)
-
-    class Config:
-        frozen = True
-
-
-class BatchConfig(BaseModel):
-    numbering: Numbering
-    fields: List[GenericField]
-    display_name: str = Field(alias='displayName')
-
-    class Config:
-        frozen = True
 
 
 class _LibraryListData(BaseModel):

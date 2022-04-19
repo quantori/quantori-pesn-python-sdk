@@ -1,24 +1,27 @@
 import cgi
-from typing import cast, List, Optional, TYPE_CHECKING, Union
+import json
+from typing import Any, cast, Optional, TYPE_CHECKING
 
-from pydantic import BaseModel
+from pydantic import PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ChemicalDrawingFormat, File, MaterialType, MID
 from signals_notebook.materials.base_entity import BaseMaterialEntity
-from signals_notebook.materials.user import User
+from signals_notebook.materials.field import FieldContainer
 
 if TYPE_CHECKING:
     from signals_notebook.materials.library import Library
 
-MaterialFieldValue = Union[str, List[str], User]
-
-
-class MaterialField(BaseModel):
-    value: MaterialFieldValue
-
 
 class Material(BaseMaterialEntity):
+
+    _material_fields: FieldContainer = PrivateAttr(default={})
+
+    def __getitem__(self, key: str) -> Any:
+        return self._material_fields[key]
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        self._material_fields[key] = value
 
     @property
     def library(self) -> 'Library':
@@ -73,3 +76,34 @@ class Material(BaseMaterialEntity):
         return File(
             name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
         )
+
+    def save(self, force: bool = True) -> None:
+        request_body = []
+
+        for field_name, field in self._material_fields.items():
+            if field.is_changed:
+                request_body.append({
+                    'attributes': {
+                        'name': field_name,
+                        'value': field.value,
+                    }
+                })
+
+        api = SignalsNotebookApi.get_default_api()
+
+        api.call(
+            method='PATCH',
+            path=(self._get_endpoint(), self.eid, 'properties'),
+            params={
+                'digest': None if force else self.digest,
+                'force': json.dumps(force),
+            },
+            json={
+                'data': request_body,
+            },
+        )
+
+
+
+
+
