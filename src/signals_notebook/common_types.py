@@ -1,4 +1,7 @@
+import mimetypes
+import os
 import re
+from base64 import b64encode
 from enum import Enum
 from typing import Any, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
@@ -220,3 +223,25 @@ class File(BaseModel):
     name: str
     content: bytes
     content_type: str
+
+    def __init__(self, f=None, **kwargs):
+        if f:
+            name = os.path.basename(f.name)
+            content = f.read()
+            content_type, _ = mimetypes.guess_type(name)
+
+            super().__init__(name=name, content=content, content_type=content_type)
+        else:
+            super().__init__(**kwargs)
+
+    def base64(self) -> bytes:
+        return b64encode(self.content)
+
+    def save(self, path: str) -> None:
+        _path = path
+        if os.path.isdir(path):
+            _path = os.path.join(path, self.name)
+
+        with open(_path, 'wb') as f:
+            f.write(self.content)
+
