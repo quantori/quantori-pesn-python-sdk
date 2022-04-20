@@ -16,6 +16,7 @@ if TYPE_CHECKING:
 class Material(BaseMaterialEntity):
 
     _material_fields: FieldContainer = PrivateAttr(default={})
+    _library: 'Library' = PrivateAttr(default=None)
 
     def __getitem__(self, key: str) -> Any:
         return self._material_fields[key]
@@ -25,9 +26,12 @@ class Material(BaseMaterialEntity):
 
     @property
     def library(self) -> 'Library':
-        from signals_notebook.materials.material_store import MaterialStore
-        library = MaterialStore.get(MID(f'{MaterialType.LIBRARY}:{self.asset_type_id}'))
-        return cast('Library', library)
+        if not self._library:
+            from signals_notebook.materials.material_store import MaterialStore
+            library = MaterialStore.get(MID(f'{MaterialType.LIBRARY}:{self.asset_type_id}'))
+            self._library = cast('Library', library)
+
+        return self._library
 
     def get_chemical_drawing(self, format: Optional[ChemicalDrawingFormat] = None) -> File:
         api = SignalsNotebookApi.get_default_api()
