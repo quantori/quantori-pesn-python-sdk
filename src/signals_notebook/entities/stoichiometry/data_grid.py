@@ -1,9 +1,10 @@
 from decimal import Decimal
 from enum import Enum
-from typing import Optional, Union
+from typing import Any, Generic, Optional, TypeVar, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
+from pydantic.generics import GenericModel
 
 
 class Cell(BaseModel):
@@ -16,12 +17,42 @@ class Cell(BaseModel):
 
 
 class Row(BaseModel):
-    row_id: Union[int, UUID]
-    inchi: Optional[str] = Field(default='')
-    hash: Optional[str] = Field(default='')
+    row_id: Union[UUID, str]
 
     class Config:
         frozen = True
+
+
+RowClass = TypeVar('RowClass', bound=Row)
+
+
+class Rows(GenericModel, Generic[RowClass]):
+    __root__: list[RowClass]
+    _rows_by_id: dict[Union[str, UUID], RowClass] = PrivateAttr(default={})
+
+    def __init__(self, **data: Any):
+        super(Rows, self).__init__(**data)
+
+        for row in self.__root__:
+            self._rows_by_id[row.row_id] = row
+
+    def __iter__(self):
+        return iter(self.__root__)
+
+    def __getitem__(self, index: Union[int, str, UUID]) -> RowClass:
+        if isinstance(index, int):
+            return self.__root__[index]
+
+        if isinstance(index, str):
+            try:
+                return self._rows_by_id[index]
+            except KeyError:
+                return self._rows_by_id[UUID(index)]
+
+        if isinstance(index, UUID):
+            return self._rows_by_id[index]
+
+        raise IndexError('Invalid index')
 
 
 class Reactant(Row):
@@ -47,9 +78,15 @@ class Reactant(Row):
     barcode: Optional[Cell]
     material_id: Optional[Cell] = Field(alias='materialId')
     container_id: Optional[Cell] = Field(alias='containerId')
+    inchi: Optional[str]
+    hash: Optional[str]
 
     class Config:
         frozen = True
+
+
+class Reactants(Rows[Reactant]):
+    pass
 
 
 class Product(Row):
@@ -72,9 +109,15 @@ class Product(Row):
     barcode: Optional[Cell]
     material_id: Optional[Cell] = Field(alias='materialId')
     container_id: Optional[Cell] = Field(alias='containerId')
+    inchi: Optional[str]
+    hash: Optional[str]
 
     class Config:
         frozen = True
+
+
+class Products(Rows[Product]):
+    pass
 
 
 class Solvent(Row):
@@ -86,6 +129,10 @@ class Solvent(Row):
         frozen = True
 
 
+class Solvents(Rows[Solvent]):
+    pass
+
+
 class Condition(Row):
     pressure: Optional[Cell]
     temperature: Optional[Cell]
@@ -95,11 +142,15 @@ class Condition(Row):
         frozen = True
 
 
+class Conditions(Rows[Condition]):
+    pass
+
+
 class DataGrids(BaseModel):
-    reactants: list[Reactant]
-    products: list[Product]
-    solvents: list[Solvent]
-    conditions: list[Condition]
+    reactants: Reactants
+    products: Products
+    solvents: Solvents
+    conditions: Conditions
 
 
 class DataGridKind(str, Enum):
