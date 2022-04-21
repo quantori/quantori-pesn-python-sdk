@@ -234,8 +234,14 @@ class File(BaseModel):
         else:
             super().__init__(**kwargs)
 
+    @property
     def base64(self) -> bytes:
         return b64encode(self.content)
+
+    @classmethod
+    def read(cls, file_name: str, mode='rb') -> 'File':
+        with open(file_name, mode) as f:
+            return cls(f)
 
     def save(self, path: str) -> None:
         _path = path

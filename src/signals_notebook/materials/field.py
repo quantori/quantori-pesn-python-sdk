@@ -1,10 +1,13 @@
 from enum import Enum
-from typing import Annotated, Any, List, Literal, Optional, Union
+from typing import Annotated, Any, List, Literal, Optional, TYPE_CHECKING, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field
 
 from signals_notebook.attributes import Attribute
-from signals_notebook.common_types import AttrID
+from signals_notebook.common_types import AttrID, File
+
+if TYPE_CHECKING:
+    from signals_notebook.materials.material import Material
 
 
 class CollectionType(str, Enum):
@@ -41,6 +44,12 @@ class BaseFieldDefinition(BaseModel):
     read_only: bool = Field(alias='readOnly', default=False)
     data_type: Union[MaterialFieldType, str] = Field(alias='dataType')
     defined_by: str = Field(alias='definedBy')
+
+    def to_internal_value(self, value: Any) -> Any:
+        return value
+
+    def to_representation(self, value: Any, material: 'Material', **kwargs) -> Any:
+        return value
 
 
 class TextFieldDefinition(BaseFieldDefinition):
@@ -84,6 +93,15 @@ class DensityFieldDefinition(BaseFieldDefinition):
 class AttachedFileFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.ATTACHED_FILE] = Field(alias='dataType')
 
+    def to_representation(self, value: Any, material: 'Material', **kwargs) -> Any:
+        return material.get_attachment(self.id)
+
+    def to_internal_value(self, value: Any) -> Any:
+        if not isinstance(value, File):
+            raise TypeError('File expected')
+
+        return {'filename': value.name, 'base64': value.base64.decode('utf-8')}
+
 
 class SequenceFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.SEQUENCE] = Field(alias='dataType')
@@ -95,6 +113,21 @@ class TemperatureFieldDefinition(BaseFieldDefinition):
 
 class LinkFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.LINK] = Field(alias='dataType')
+
+    def to_representation(self, value: Any, material: 'Material', **kwargs) -> Any:
+        if not value:
+            return None
+
+        from signals_notebook.entities.entity_store import EntityStore
+        return EntityStore.get(value['eid'])
+
+    def to_internal_value(self, value: Any) -> Any:
+        from signals_notebook.entities.entity import Entity
+
+        if not isinstance(value, Entity):
+            raise TypeError('Entity expected')
+
+        return {'eid': value.eid, 'name': value.name, 'type': value.type}
 
 
 class AttributeFieldDefinition(BaseFieldDefinition):
@@ -156,39 +189,21 @@ class BatchConfig(BaseModel):
 
 class Field(BaseModel):
     is_changed: bool = False
-    field_definition: GenericFieldDefinition = Field(allow_mutation=False)
+    definition: GenericFieldDefinition = Field(allow_mutation=False)
     value: Any
 
     class Config:
         validate_assignment = True
 
-    @validator('value', always=True, pre=True)
-    def validate_value(cls, value: Any, values, **kwargs):
-        field_definition = values['field_definition']
-
-        if (
-            field_definition.mandatory
-            and value is None
-            and field_definition.data_type
-            not in (
-                MaterialFieldType.SEQUENCE,
-                MaterialFieldType.CHEMICAL_DRAWING,
-                MaterialFieldType.ATTACHED_FILE,
-                MaterialFieldType.SEQUENCE_FILE,
-            )
-        ):
-            raise ValueError('Value is mandatory')
-
-        return value
-
 
 class FieldContainer:
-    _data: dict[str, Field] = {}
+    def __init__(self, material: 'Material', field_definitions: List[GenericFieldDefinition], **data):
+        self._data: dict[str, Field] = {}
+        self._material = material
 
-    def __init__(self, field_definitions: List[GenericFieldDefinition], **data):
         for field_definition in field_definitions:
             self._data[field_definition.name] = Field(
-                field_definition=field_definition,
+                definition=field_definition,
                 value=data.get(field_definition.name, {}).get('value'),
                 is_changed=False,
             )
@@ -197,11 +212,15 @@ class FieldContainer:
         return self._data.items()
 
     def __getitem__(self, key: str) -> Any:
-        return self._data[key].value
+        field = self._data[key]
+
+        return field.definition.to_representation(field.value, self._material)
 
     def __setitem__(self, key: str, value: Any):
         if key not in self._data:
             raise KeyError()
 
-        self._data[key].value = value
-        self._data[key].is_changed = True
+        field = self._data[key]
+
+        field.value = field.definition.to_internal_value(value)
+        field.is_changed = True

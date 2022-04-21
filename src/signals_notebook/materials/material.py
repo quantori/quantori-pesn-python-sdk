@@ -81,6 +81,21 @@ class Material(BaseMaterialEntity):
             name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
         )
 
+    def get_attachment(self, field_id: str) -> File:
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'attachments', field_id),
+        )
+
+        content_disposition = response.headers.get('content-disposition', '')
+        _, params = cgi.parse_header(content_disposition)
+
+        return File(
+            name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
+        )
+
     def save(self, force: bool = True) -> None:
         request_body = []
 
