@@ -177,10 +177,11 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
 
 def test_library_property(asset_factory, library_factory, mocker):
     library = library_factory()
-    asset = asset_factory()
 
     mock = mocker.patch('signals_notebook.materials.material_store.MaterialStore')
     mock.get.return_value = library
+
+    asset = asset_factory(_library=None)
 
     result = asset.library
 
