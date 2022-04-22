@@ -188,10 +188,29 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
 
+    def __init__(self, _context: dict[str, Any] = {}, **kwargs):
+        attributes = kwargs.get('attributes')
+
+        if _context:
+            attributes = {**attributes, **_context}
+
+        super().__init__(**{**kwargs, 'attributes': attributes})
+
 
 class Response(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     data: Union[ResponseData[EntityClass], List[ResponseData[EntityClass]]]
+
+    def __init__(self, _context: dict[str, Any] = {}, **kwargs):
+        data = kwargs.get('data')
+
+        if _context:
+            if isinstance(data, list):
+                data = [{'_context': _context, **item} for item in data]
+            else:
+                data = {'_context': _context, **data}
+
+        super().__init__(**{**kwargs, 'data': data})
 
 
 class DataObject(GenericModel, Generic[AnyModel]):

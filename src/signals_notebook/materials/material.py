@@ -18,6 +18,10 @@ class Material(BaseMaterialEntity):
     _material_fields: FieldContainer = PrivateAttr(default={})
     _library: 'Library' = PrivateAttr(default=None)
 
+    def __init__(self, _library: 'Library' = None, **data):
+        super().__init__(**data)
+        self._library = _library
+
     def __getitem__(self, key: str) -> Any:
         return self._material_fields[key]
 

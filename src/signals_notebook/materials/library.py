@@ -135,7 +135,7 @@ class Library(BaseMaterialEntity):
             path=(self._get_endpoint(), self.name, 'assets', 'id', name),
         )
 
-        result = AssetResponse(**response.json())
+        result = AssetResponse(_context={'_library': self}, **response.json())
 
         return cast(ResponseData, result.data).body
 
@@ -147,7 +147,7 @@ class Library(BaseMaterialEntity):
             path=(self._get_endpoint(), self.name, 'assets', name, 'batches'),
         )
 
-        result = BatchResponse(**response.json())
+        result = BatchResponse(_context={'_library': self}, **response.json())
 
         return [cast(ResponseData, item).body for item in result.data]
 
@@ -159,6 +159,6 @@ class Library(BaseMaterialEntity):
             path=(self._get_endpoint(), self.name, 'batches', 'id', name),
         )
 
-        result = BatchResponse(**response.json())
+        result = BatchResponse(_context={'_library': self}, **response.json())
 
         return cast(ResponseData, result.data).body

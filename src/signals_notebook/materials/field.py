@@ -43,7 +43,7 @@ class BaseFieldDefinition(BaseModel):
     calculated: bool = Field(default=False)
     read_only: bool = Field(alias='readOnly', default=False)
     data_type: Union[MaterialFieldType, str] = Field(alias='dataType')
-    defined_by: str = Field(alias='definedBy')
+    defined_by: str = Field(alias='definedBy', default='SYSTEM_DEFAULT')
 
     def to_internal_value(self, value: Any) -> Any:
         return value
@@ -53,45 +53,53 @@ class BaseFieldDefinition(BaseModel):
 
 
 class TextFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.TEXT] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.TEXT] = Field(alias='dataType', default=MaterialFieldType.TEXT)
     collection: Optional[CollectionType] = Field(default=None)
     options: Optional[List[str]] = Field(default=None)
 
 
 class ChemicalDrawingFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.CHEMICAL_DRAWING] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.CHEMICAL_DRAWING] = Field(
+        alias='dataType', default=MaterialFieldType.CHEMICAL_DRAWING
+    )
 
 
 class MolecularMassFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.MOLECULAR_MASS] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.MOLECULAR_MASS] = Field(
+        alias='dataType', default=MaterialFieldType.MOLECULAR_MASS
+    )
 
 
 class DecimalFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.DECIMAL] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.DECIMAL] = Field(alias='dataType', default=MaterialFieldType.DECIMAL)
 
 
 class IntegerFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.INTEGER] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.INTEGER] = Field(alias='dataType', default=MaterialFieldType.INTEGER)
 
 
 class BooleanFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.BOOLEAN] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.BOOLEAN] = Field(alias='dataType', default=MaterialFieldType.BOOLEAN)
 
 
 class MolecularFormulaFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.MOLECULAR_FORMULA] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.MOLECULAR_FORMULA] = Field(
+        alias='dataType', default=MaterialFieldType.MOLECULAR_FORMULA
+    )
 
 
 class CASNumberFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.CAS_NUMBER] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.CAS_NUMBER] = Field(alias='dataType', default=MaterialFieldType.CAS_NUMBER)
 
 
 class DensityFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.DENSITY] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.DENSITY] = Field(alias='dataType', default=MaterialFieldType.DENSITY)
 
 
 class AttachedFileFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.ATTACHED_FILE] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.ATTACHED_FILE] = Field(
+        alias='dataType', default=MaterialFieldType.ATTACHED_FILE
+    )
 
     def to_representation(self, value: Any, material: 'Material', **kwargs) -> Any:
         return material.get_attachment(self.id)
@@ -104,21 +112,22 @@ class AttachedFileFieldDefinition(BaseFieldDefinition):
 
 
 class SequenceFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.SEQUENCE] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.SEQUENCE] = Field(alias='dataType', default=MaterialFieldType.SEQUENCE)
 
 
 class TemperatureFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.TEMPERATURE] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.TEMPERATURE] = Field(alias='dataType', default=MaterialFieldType.TEMPERATURE)
 
 
 class LinkFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.LINK] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.LINK] = Field(alias='dataType', default=MaterialFieldType.LINK)
 
     def to_representation(self, value: Any, material: 'Material', **kwargs) -> Any:
         if not value:
             return None
 
         from signals_notebook.entities.entity_store import EntityStore
+
         return EntityStore.get(value['eid'])
 
     def to_internal_value(self, value: Any) -> Any:
@@ -131,7 +140,7 @@ class LinkFieldDefinition(BaseFieldDefinition):
 
 
 class AttributeFieldDefinition(BaseFieldDefinition):
-    data_type: Literal[MaterialFieldType.ATTRIBUTE] = Field(alias='dataType')
+    data_type: Literal[MaterialFieldType.ATTRIBUTE] = Field(alias='dataType', default=MaterialFieldType.ATTRIBUTE)
     multi_select: bool = Field(alias='multiSelect', default=False)
     attribute_id: AttrID = Field(alias='attribute')
 
@@ -176,6 +185,7 @@ class AssetConfig(BaseModel):
 
     class Config:
         frozen = True
+        allow_population_by_field_name = True
 
 
 class BatchConfig(BaseModel):
@@ -185,6 +195,7 @@ class BatchConfig(BaseModel):
 
     class Config:
         frozen = True
+        allow_population_by_field_name = True
 
 
 class Field(BaseModel):
@@ -202,7 +213,7 @@ class FieldContainer:
         self._material = material
 
         for field_definition in field_definitions:
-            self._data[field_definition.name] = Field(
+            self._data[field_definition.name] = Field.construct(
                 definition=field_definition,
                 value=data.get(field_definition.name, {}).get('value'),
                 is_changed=False,

@@ -31,7 +31,7 @@ class Asset(Material):
             path=(self._get_endpoint(), self.library_name, 'assets', self.name, 'batches'),
         )
 
-        result = BatchesListResponse(**response.json())
+        result = BatchesListResponse(_context={'_library': self.library}, **response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
 
         while result.links and result.links.next:
@@ -40,5 +40,5 @@ class Asset(Material):
                 path=result.links.next,
             )
 
-            result = BatchesListResponse(**response.json())
+            result = BatchesListResponse(_context={'_library': self.library}, **response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
