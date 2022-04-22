@@ -9,6 +9,7 @@ from tests.entities.factories import (
     NotebookFactory,
     TextFactory,
 )
+from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
 
 
@@ -19,6 +20,7 @@ register(TextFactory)
 register(ChemicalDrawingFactory)
 register(ImageFactory)
 register(TableFactory)
+register(StoichiometryFactory)
 
 
 @pytest.fixture()

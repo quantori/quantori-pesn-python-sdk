@@ -1,11 +1,13 @@
 from enum import Enum
-from typing import Literal, Optional
+from functools import cached_property
+from typing import Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
+from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
 
 
 class _Attributes(BaseModel):
@@ -36,6 +38,9 @@ class ExperimentState(str, Enum):
 class Experiment(Container):
     type: Literal[EntityType.EXPERIMENT] = Field(allow_mutation=False)
     state: Optional[ExperimentState] = Field(allow_mutation=False, default=None)
+
+    class Config:
+        keep_untouched = (cached_property,)
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -76,3 +81,7 @@ class Experiment(Container):
             force=force,
             request=request,
         )
+
+    @cached_property
+    def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
+        return Stoichiometry.fetch_data(self.eid)

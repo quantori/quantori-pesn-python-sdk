@@ -1,0 +1,207 @@
+{
+  "links": {
+    "self": "https://example.com/chemicalDrawing:2fc7a20f-e74c-4142-b4fa-cfa2fab41c58"
+  },
+  "data": {
+    "type": "stoichiometry",
+    "id": "chemicalDrawing:2fc7a20f-e74c-4142-b4fa-cfa2fab41c58",
+    "links": {
+      "self": "https://example.com/chemicalDrawing:2fc7a20f-e74c-4142-b4fa-cfa2fab41c58"
+    },
+    "attributes": {
+      "reactants": [
+        {
+          "rxnid": {
+            "value": "I"
+          },
+          "formula": {
+            "value": "ClH"
+          },
+          "name": {
+            "value": "HCl"
+          },
+          "IUPACName": {
+            "value": "hydrogen chloride"
+          },
+          "mw": {
+            "display": "36.46 g/mol",
+            "value": 36.46,
+            "units": "g/mol"
+          },
+          "em": {
+            "display": "35.97668",
+            "value": 35.97668
+          },
+          "cas": {
+            "value": "7647-01-0"
+          },
+          "density": {
+            "display": "1.490 g/ml",
+            "value": 1.49,
+            "units": "g/mL"
+          },
+          "limit": {
+            "value": true
+          },
+          "mf": {
+            "display": "36.46 g/mol",
+            "value": 36.46,
+            "units": "g/mol"
+          },
+          "eq": {
+            "display": "1",
+            "value": 1.0
+          },
+          "row_id": "1",
+          "inchi": "InChI=1S/ClH/h1H",
+          "hash": "da873297923efb8e6452ccf77bc0701b6add1e9507b261004cb50ba2f8fd2cda"
+        },
+        {
+          "rxnid": {
+            "value": "II"
+          },
+          "formula": {
+            "value": "HNaO"
+          },
+          "name": {
+            "value": "NaOH"
+          },
+          "IUPACName": {
+            "value": "sodium hydroxide"
+          },
+          "mw": {
+            "display": "40.00 g/mol",
+            "value": 40.0,
+            "units": "g/mol"
+          },
+          "em": {
+            "display": "39.99251",
+            "value": 39.99251
+          },
+          "cas": {
+            "value": "1310-73-2"
+          },
+          "mf": {
+            "display": "40 g/mol",
+            "value": 40.0,
+            "units": "g/mol"
+          },
+          "eq": {
+            "display": "1",
+            "value": 1.0
+          },
+          "row_id": "2",
+          "inchi": "InChI=1S/Na.H2O/h;1H2/q+1;/p-1",
+          "hash": "eeffcce664ef646a8b1c42f8f665a207d0c096b0e03ad0ff2978fa5411b5cfdd"
+        }
+      ],
+      "products": [
+        {
+          "rxnid": {
+            "value": "III"
+          },
+          "formula": {
+            "value": "H<sub>2</sub>O"
+          },
+          "name": {
+            "value": "H2O"
+          },
+          "IUPACName": {
+            "value": "water"
+          },
+          "mw": {
+            "display": "18.02 g/mol",
+            "value": 18.02,
+            "units": "g/mol"
+          },
+          "em": {
+            "display": "18.01056",
+            "value": 18.01056
+          },
+          "density": {
+            "display": "1.000 g/ml",
+            "value": 1.0,
+            "units": "g/mL"
+          },
+          "mf": {
+            "display": "18.02 g/mol",
+            "value": 18.02,
+            "units": "g/mol"
+          },
+          "productId": {
+            "value": "P1"
+          },
+          "row_id": "3",
+          "inchi": "InChI=1S/H2O/h1H2",
+          "hash": "576635f2354d849d2aa1354b734cb232e7847b32dcaad66c92bbcf40717281ba"
+        },
+        {
+          "rxnid": {
+            "value": "IV"
+          },
+          "formula": {
+            "value": "ClNa"
+          },
+          "name": {
+            "value": "sodium chloride"
+          },
+          "IUPACName": {
+            "value": "sodium chloride"
+          },
+          "mw": {
+            "display": "58.44 g/mol",
+            "value": 58.44,
+            "units": "g/mol"
+          },
+          "em": {
+            "display": "57.95862",
+            "value": 57.95862
+          },
+          "mf": {
+            "display": "58.44 g/mol",
+            "value": 58.44,
+            "units": "g/mol"
+          },
+          "productId": {
+            "value": "P2"
+          },
+          "row_id": "54",
+          "inchi": "InChI=1S/ClH.Na/h1H;/q;+1/p-1",
+          "hash": "7648352f4554de83c3e515ea2cdc6116a1c1ee5ffd5f01f93382fa997a6b30e7"
+        }
+      ],
+      "solvents": [
+        {
+          "solvent": {
+            "value": "1,4-Dioxane"
+          },
+          "ratio": {
+            "display": "1",
+            "value": 1.0
+          },
+          "row_id": "5a78ff52-4dd5-4ce2-9b84-78a4da0199d4"
+        }
+      ],
+      "conditions": [
+        {
+          "pressure": {
+            "display": "1 atm",
+            "value": 1.0,
+            "units": "atm"
+          },
+          "temperature": {
+            "display": "100 \u00b0C",
+            "value": 100.0,
+            "units": "\u00b0C"
+          },
+          "duration": {
+            "display": "50 s",
+            "value": 0.8333333333333334,
+            "units": "min"
+          },
+          "row_id": "ca785cab-2f92-42f1-a1d7-5645c1d02ccc"
+        }
+      ]
+    }
+  }
+}
