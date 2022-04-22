@@ -27,10 +27,10 @@ class StoichiometryDataResponse(Response[DataGrids]):
 
 class Stoichiometry(BaseModel, abc.ABC):
     eid: EID = Field(allow_mutation=False)
-    reactants: Reactants = Field(default=[])
-    products: Products = Field(default=[])
-    solvents: Solvents = Field(default=[])
-    conditions: Conditions = Field(default=[])
+    reactants: Reactants = Field(default=Reactants(__root__=[]))
+    products: Products = Field(default=Products(__root__=[]))
+    solvents: Solvents = Field(default=Solvents(__root__=[]))
+    conditions: Conditions = Field(default=Conditions(__root__=[]))
 
     class Config:
         validate_assignment = True
