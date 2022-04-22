@@ -131,7 +131,6 @@ class MID(str):
 
 
 class AttrID(str):
-
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -188,8 +187,8 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
 
-    def __init__(self, _context: dict[str, Any] = {}, **kwargs):
-        attributes = kwargs.get('attributes')
+    def __init__(self, _context: dict[str, Any] = None, **kwargs):
+        attributes = kwargs.get('attributes', {})
 
         if _context:
             attributes = {**attributes, **_context}
@@ -201,8 +200,8 @@ class Response(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     data: Union[ResponseData[EntityClass], List[ResponseData[EntityClass]]]
 
-    def __init__(self, _context: dict[str, Any] = {}, **kwargs):
-        data = kwargs.get('data')
+    def __init__(self, _context: dict[str, Any] = None, **kwargs):
+        data = kwargs.get('data', {})
 
         if _context:
             if isinstance(data, list):
@@ -269,4 +268,3 @@ class File(BaseModel):
 
         with open(_path, 'wb') as f:
             f.write(self.content)
-

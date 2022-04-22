@@ -198,7 +198,7 @@ class BatchConfig(BaseModel):
         allow_population_by_field_name = True
 
 
-class Field(BaseModel):
+class MaterialField(BaseModel):
     is_changed: bool = False
     definition: GenericFieldDefinition = Field(allow_mutation=False)
     value: Any
@@ -209,11 +209,11 @@ class Field(BaseModel):
 
 class FieldContainer:
     def __init__(self, material: 'Material', field_definitions: List[GenericFieldDefinition], **data):
-        self._data: dict[str, Field] = {}
+        self._data: dict[str, MaterialField] = {}
         self._material = material
 
         for field_definition in field_definitions:
-            self._data[field_definition.name] = Field.construct(
+            self._data[field_definition.name] = MaterialField.construct(
                 definition=field_definition,
                 value=data.get(field_definition.name, {}).get('value'),
                 is_changed=False,

@@ -16,9 +16,9 @@ if TYPE_CHECKING:
 class Material(BaseMaterialEntity):
 
     _material_fields: FieldContainer = PrivateAttr(default={})
-    _library: 'Library' = PrivateAttr(default=None)
+    _library: Optional['Library'] = PrivateAttr(default=None)
 
-    def __init__(self, _library: 'Library' = None, **data):
+    def __init__(self, _library: Optional['Library'] = None, **data):
         super().__init__(**data)
         self._library = _library
 
@@ -32,6 +32,7 @@ class Material(BaseMaterialEntity):
     def library(self) -> 'Library':
         if not self._library:
             from signals_notebook.materials.material_store import MaterialStore
+
             library = MaterialStore.get(MID(f'{MaterialType.LIBRARY}:{self.asset_type_id}'))
             self._library = cast('Library', library)
 
@@ -105,12 +106,14 @@ class Material(BaseMaterialEntity):
 
         for field_name, field in self._material_fields.items():
             if field.is_changed:
-                request_body.append({
-                    'attributes': {
-                        'name': field_name,
-                        'value': field.value,
+                request_body.append(
+                    {
+                        'attributes': {
+                            'name': field_name,
+                            'value': field.value,
+                        }
                     }
-                })
+                )
 
         api = SignalsNotebookApi.get_default_api()
 
@@ -125,8 +128,3 @@ class Material(BaseMaterialEntity):
                 'data': request_body,
             },
         )
-
-
-
-
-
