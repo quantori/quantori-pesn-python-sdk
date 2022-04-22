@@ -47,7 +47,7 @@ def test_get_chemical_drawing(batch_factory, api_mock):
 def test_get_image(batch_factory, api_mock):
     batch = batch_factory()
 
-    file_name = 'PKI-000001-0001.dna'
+    file_name = 'PKI-000001-0001.png'
     content = b'PNG'
     content_type = 'image/png'
 
@@ -88,6 +88,33 @@ def test_get_bio_sequence(batch_factory, api_mock):
     api_mock.call.assert_called_once_with(
         method='GET',
         path=('materials', batch.eid, 'bioSequence'),
+    )
+
+    assert isinstance(result, File)
+    assert result.name == file_name
+    assert result.content == content
+    assert result.content_type == content_type
+
+
+def test_get_attachment(batch_factory, api_mock):
+    batch = batch_factory()
+
+    field_id = 'f846f42c5ee7458c817421cf6dc0db9b'
+    file_name = 'PKI-000001-0001.png'
+    content = b'PNG'
+    content_type = 'image/png'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+
+    result = batch.get_attachment(field_id)
+
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=('materials', batch.eid, 'attachments', field_id),
     )
 
     assert isinstance(result, File)

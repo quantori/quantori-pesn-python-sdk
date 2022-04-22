@@ -268,3 +268,30 @@ def test_get_bio_sequence(asset_factory, api_mock):
     assert result.name == file_name
     assert result.content == content
     assert result.content_type == content_type
+
+
+def test_get_attachment(asset_factory, api_mock):
+    asset = asset_factory()
+
+    field_id = 'f846f42c5ee7458c817421cf6dc0db9b'
+    file_name = 'PKI-000001.png'
+    content = b'PNG'
+    content_type = 'image/png'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+
+    result = asset.get_attachment(field_id)
+
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=('materials', asset.eid, 'attachments', field_id),
+    )
+
+    assert isinstance(result, File)
+    assert result.name == file_name
+    assert result.content == content
+    assert result.content_type == content_type
