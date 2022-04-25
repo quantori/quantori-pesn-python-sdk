@@ -1,3 +1,7 @@
+import json
+
+import pytest
+
 from signals_notebook.common_types import ChemicalDrawingFormat, File, MaterialType, MID
 
 
@@ -121,3 +125,31 @@ def test_get_attachment(batch_factory, api_mock):
     assert result.name == file_name
     assert result.content == content
     assert result.content_type == content_type
+
+
+@pytest.mark.parametrize('force', (True, False))
+def test_save_changes(batch_factory, api_mock, force):
+    batch = batch_factory(digest='1234')
+
+    batch['Name'] = 'New name'
+
+    batch.save(force=force)
+
+    api_mock.call.assert_called_once_with(
+        method='PATCH',
+        path=('materials', batch.eid, 'properties'),
+        params={
+            'digest': None if force else batch.digest,
+            'force': json.dumps(force),
+        },
+        json={
+            'data': [
+                {
+                    'attributes': {
+                        'name': 'Name',
+                        'value': 'New name',
+                    }
+                }
+            ],
+        },
+    )

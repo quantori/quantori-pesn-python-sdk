@@ -122,7 +122,7 @@ class Library(BaseMaterialEntity):
                 edited_at=data.edited.at,
             )
             library.asset_config = data.asset_config
-            # library.batch_config = data.batch_config
+            library.batch_config = data.batch_config
             libraries.append(library)
 
         return libraries

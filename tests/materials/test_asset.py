@@ -1,3 +1,5 @@
+import json
+
 import arrow
 import pytest
 
@@ -295,3 +297,31 @@ def test_get_attachment(asset_factory, api_mock):
     assert result.name == file_name
     assert result.content == content
     assert result.content_type == content_type
+
+
+@pytest.mark.parametrize('force', (True, False))
+def test_save_changes(asset_factory, api_mock, force):
+    asset = asset_factory(digest='1234')
+
+    asset['Name'] = 'New name'
+
+    asset.save(force=force)
+
+    api_mock.call.assert_called_once_with(
+        method='PATCH',
+        path=('materials', asset.eid, 'properties'),
+        params={
+            'digest': None if force else asset.digest,
+            'force': json.dumps(force),
+        },
+        json={
+            'data': [
+                {
+                    'attributes': {
+                        'name': 'Name',
+                        'value': 'New name',
+                    }
+                }
+            ],
+        },
+    )
