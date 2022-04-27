@@ -23,10 +23,10 @@ class SignalsNotebookApi:
         self._session = session
 
     @classmethod
-    def init(cls, api_host: Optional[str] = None, api_key: Optional[str] = None) -> 'SignalsNotebookApi':
-        cls._api_host = api_host if api_host else os.getenv('SN_API_HOST', '')
+    def init(cls, api_host: str, api_key: str) -> 'SignalsNotebookApi':
+        cls._api_host = api_host
         session = requests.Session()
-        session.headers.update({'x-api-key': api_key if api_key else os.getenv('SN_API_KEY', '')})
+        session.headers.update({'x-api-key': api_key})
 
         api = cls(session)
         cls.set_default_api(api)

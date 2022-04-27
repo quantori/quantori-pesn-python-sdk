@@ -23,7 +23,7 @@ from signals_notebook.api import SignalsNotebookApi
 
 SignalsNotebookApi.init(
     "https://signalsnotebook.perkinelmer.cloud",
-    "<my-api-token>",
+    "uA0nIQMT1tMc5iGvjawju3MYsmPDFc==",
 )
 ```
 Then you can perform CRUD operations with such entities as Notebook, Experiment, etc.
@@ -57,3 +57,4 @@ Deletion can be performed without retrieving the whole object if you know an id
 ```python
 EntityStore.delete("journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e")
 ```
+Jupyter Notebooks with examples see in examples folder
