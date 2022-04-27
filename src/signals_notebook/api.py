@@ -1,4 +1,3 @@
-import os
 from typing import Any, Dict, IO, Iterable, Mapping, Optional, Sequence, Tuple, Union
 
 import requests
