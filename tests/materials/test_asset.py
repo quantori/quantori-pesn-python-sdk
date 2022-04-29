@@ -1,3 +1,5 @@
+import json
+
 import arrow
 import pytest
 
@@ -177,10 +179,11 @@ def test_get_batches__several_pages(api_mock, mocker, get_response_object, asset
 
 def test_library_property(asset_factory, library_factory, mocker):
     library = library_factory()
-    asset = asset_factory()
 
     mock = mocker.patch('signals_notebook.materials.material_store.MaterialStore')
     mock.get.return_value = library
+
+    asset = asset_factory(_library=None)
 
     result = asset.library
 
@@ -267,3 +270,58 @@ def test_get_bio_sequence(asset_factory, api_mock):
     assert result.name == file_name
     assert result.content == content
     assert result.content_type == content_type
+
+
+def test_get_attachment(asset_factory, api_mock):
+    asset = asset_factory()
+
+    field_id = 'f846f42c5ee7458c817421cf6dc0db9b'
+    file_name = 'PKI-000001.png'
+    content = b'PNG'
+    content_type = 'image/png'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+
+    result = asset.get_attachment(field_id)
+
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=('materials', asset.eid, 'attachments', field_id),
+    )
+
+    assert isinstance(result, File)
+    assert result.name == file_name
+    assert result.content == content
+    assert result.content_type == content_type
+
+
+@pytest.mark.parametrize('force', (True, False))
+def test_save_changes(asset_factory, api_mock, force):
+    asset = asset_factory(digest='1234')
+
+    asset['Name'] = 'New name'
+
+    asset.save(force=force)
+
+    api_mock.call.assert_called_once_with(
+        method='PATCH',
+        path=('materials', asset.eid, 'properties'),
+        params={
+            'digest': None if force else asset.digest,
+            'force': json.dumps(force),
+        },
+        json={
+            'data': [
+                {
+                    'attributes': {
+                        'name': 'Name',
+                        'value': 'New name',
+                    }
+                }
+            ],
+        },
+    )

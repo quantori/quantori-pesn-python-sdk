@@ -2,6 +2,7 @@ import factory
 
 from signals_notebook.common_types import MaterialType, MID
 from signals_notebook.materials import Asset, Batch, Library
+from signals_notebook.materials.field import AssetConfig, BatchConfig, MaterialFieldType, Numbering
 
 
 class MIDFactory(factory.Factory):
@@ -39,12 +40,58 @@ class LibraryFactory(BaseMaterialEntityFactory):
     type = MaterialType.LIBRARY
     name = factory.LazyAttribute(lambda o: o.library)
 
+    @factory.post_generation
+    def _asset_config(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            self._asset_config = extracted
+        else:
+            self._asset_config = AssetConfig(
+                numbering=Numbering(format='AST-###'),
+                fields=[
+                    {
+                        'id': '123',
+                        'name': 'Name',
+                        'mandatory': True,
+                        'hidden': False,
+                        'dataType': MaterialFieldType.TEXT,
+                    }
+                ],
+                display_name='Asset',
+                asset_name_field_id='Name',
+            )
+
+    @factory.post_generation
+    def _batch_config(self, create, extracted, **kwargs):
+        if not create:
+            return
+
+        if extracted:
+            self._batch_config = extracted
+        else:
+            self._batch_config = BatchConfig(
+                numbering=Numbering(format='LOT-###'),
+                fields=[
+                    {
+                        'id': '123',
+                        'name': 'Name',
+                        'mandatory': True,
+                        'hidden': False,
+                        'dataType': MaterialFieldType.TEXT,
+                    }
+                ],
+                display_name='Lot',
+            )
+
 
 class AssetFactory(BaseMaterialEntityFactory):
     class Meta:
         model = Asset
 
     type = MaterialType.ASSET
+    _library = factory.SubFactory(LibraryFactory)
 
 
 class BatchFactory(BaseMaterialEntityFactory):
@@ -52,3 +99,4 @@ class BatchFactory(BaseMaterialEntityFactory):
         model = Batch
 
     type = MaterialType.BATCH
+    _library = factory.SubFactory(LibraryFactory)
