@@ -1,17 +1,10 @@
 from datetime import datetime
-from typing import Any, Dict, List, Optional, Union
+from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from signals_notebook.base import PatchedModel
 from signals_notebook.common_types import MID
-from signals_notebook.materials.user import User
-
-MaterialFieldValue = Union[str, List[str], User, Any]
-
-
-class MaterialField(BaseModel):
-    value: MaterialFieldValue
 
 
 class BaseMaterialEntity(PatchedModel):
@@ -22,7 +15,6 @@ class BaseMaterialEntity(PatchedModel):
     name: str = Field(title='Name', allow_mutation=False)
     created_at: datetime = Field(alias='createdAt', allow_mutation=False)
     edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
-    fields: Dict[str, MaterialField] = Field(alias='fields', default={})
 
     class Config:
         validate_assignment = True
@@ -34,6 +26,3 @@ class BaseMaterialEntity(PatchedModel):
     @classmethod
     def _get_endpoint(cls) -> str:
         return 'materials'
-
-    def __getitem__(self, index: str) -> MaterialFieldValue:
-        return self.fields[index].value

@@ -1,4 +1,7 @@
+import mimetypes
+import os
 import re
+from base64 import b64encode
 from enum import Enum
 from typing import Any, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
@@ -129,7 +132,6 @@ class MID(str):
 
 
 class AttrID(str):
-
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -186,10 +188,29 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
 
+    def __init__(self, _context: dict[str, Any] = None, **kwargs):
+        attributes = kwargs.get('attributes', {})
+
+        if _context:
+            attributes = {**attributes, **_context}
+
+        super().__init__(**{**kwargs, 'attributes': attributes})
+
 
 class Response(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     data: Union[ResponseData[EntityClass], List[ResponseData[EntityClass]]]
+
+    def __init__(self, _context: dict[str, Any] = None, **kwargs):
+        data = kwargs.get('data', {})
+
+        if _context:
+            if isinstance(data, list):
+                data = [{'_context': _context, **item} for item in data]
+            else:
+                data = {'_context': _context, **data}
+
+        super().__init__(**{**kwargs, 'data': data})
 
 
 class DataObject(GenericModel, Generic[AnyModel]):
@@ -221,3 +242,30 @@ class File(BaseModel):
     name: str
     content: bytes
     content_type: str
+
+    def __init__(self, f=None, **kwargs):
+        if f:
+            name = os.path.basename(f.name)
+            content = f.read()
+            content_type, _ = mimetypes.guess_type(name)
+
+            super().__init__(name=name, content=content, content_type=content_type)
+        else:
+            super().__init__(**kwargs)
+
+    @property
+    def base64(self) -> bytes:
+        return b64encode(self.content)
+
+    @classmethod
+    def read(cls, file_name: str, mode='rb') -> 'File':
+        with open(file_name, mode) as f:
+            return cls(f)
+
+    def save(self, path: str) -> None:
+        _path = path
+        if os.path.isdir(path):
+            _path = os.path.join(path, self.name)
+
+        with open(_path, 'wb') as f:
+            f.write(self.content)
