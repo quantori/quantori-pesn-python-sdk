@@ -1,0 +1,21 @@
+<div>
+    {% if data['reactants_html'] %}
+        <h2>Reactants</h2>
+        {{ data['reactants_html'] | safe }}
+    {% endif %}
+
+    {% if data['products_html'] %}
+        <h2>Products</h2>
+        {{ data['products_html'] | safe }}
+    {% endif %}
+
+    {% if data['solvents_html'] %}
+        <h2>Solvents</h2>
+        {{ data['solvents_html'] | safe }}
+    {% endif %}
+
+    {% if data['conditions_html'] %}
+        <h2>Conditions</h2>
+        {{ data['conditions_html'] | safe }}
+    {% endif %}
+</div>

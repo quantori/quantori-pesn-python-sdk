@@ -57,10 +57,12 @@ class Entity(BaseModel):
     @classmethod
     def get_list(cls) -> Generator['Entity', None, None]:
         from signals_notebook.entities.entity_store import EntityStore
+
         return EntityStore.get_list(**cls._get_list_params())
 
     def delete(self) -> None:
         from signals_notebook.entities.entity_store import EntityStore
+
         EntityStore.delete(self.eid)
 
     @classmethod

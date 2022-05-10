@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Sans:wght@100;200;300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"/>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+    <title>{% block title %}{{ title }}{% endblock %}</title>
+    <style>
+        h1 {
+            margin-top: 1.7rem;
+            margin-bottom: 0.3rem;
+            font-size: 1.6rem;
+        }
+
+        h2 {
+            margin-top: 1.2rem;
+            margin-bottom: 0.3rem;
+            font-size: 1.2rem;
+        }
+
+        table.props th, table.props td {
+            text-align: left;
+            padding: 3px;
+        }
+
+        table.dataframe {
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        table.dataframe td, table.dataframe th {
+            padding: 0.4rem 0.8rem;
+            text-align: left;
+            border: 1px solid #666;
+            font-size: 0.7rem;
+        }
+    </style>
+</head>
+<body>
+<table class="props">
+    <tr>
+        <th>Experiment name:</th>
+        <td>{{ title|e }}</td>
+    </tr>
+    <tr>
+        <th>Description:</th>
+        <td>{{ description|e }}</td>
+    </tr>
+    <tr>
+        <th>Last edited at:</th>
+        <td>{{ edited_at|human_readable }}</td>
+    </tr>
+    <tr>
+        <th>State:</th>
+        <td>{{ state }}</td>
+    </tr>
+</table>
+
+{% for item in data['children'] %}
+    {{ item | safe }}
+{% endfor %}
+
+</body>
+</html>

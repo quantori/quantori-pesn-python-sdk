@@ -1,0 +1,10 @@
+<div>
+    <h1>{{ data['name'] }}</h1>
+
+    {% if data['svg'] %}
+        <p><img src="{{ data['svg'] }}" alt="Reaction preview" style="width:100%;"/></p>
+    {% endif %}
+
+    {{ data['stoichiometry_html'] | safe }}
+
+</div>
