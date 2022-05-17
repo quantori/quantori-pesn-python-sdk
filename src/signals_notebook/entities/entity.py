@@ -14,6 +14,7 @@ from signals_notebook.common_types import (
     Response,
     ResponseData,
 )
+from signals_notebook.jinja_env import env
 
 ChildClass = TypeVar('ChildClass', bound='Entity')
 
@@ -113,3 +114,10 @@ class Entity(BaseModel):
     @property
     def short_description(self) -> EntityShortDescription:
         return EntityShortDescription(type=self.type, id=self.eid)
+
+    def get_html(self, template_name: str = 'entity.html') -> str:
+        data = {'name': self.name}
+
+        template = env.get_template(template_name)
+
+        return template.render(data=data)

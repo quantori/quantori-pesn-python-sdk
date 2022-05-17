@@ -8,6 +8,7 @@ from signals_notebook.common_types import Ancestors, EntityCreationRequestPayloa
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
+from signals_notebook.jinja_env import env
 
 
 class _Attributes(BaseModel):
@@ -85,3 +86,17 @@ class Experiment(Container):
     @cached_property
     def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
         return Stoichiometry.fetch_data(self.eid)
+
+    def get_html(self, template_name: str = 'experiment.html') -> str:
+        data = {
+            'title': self.name,
+            'description': self.description,
+            'edited_at': self.edited_at,
+            'state': self.state.value,
+            'children': self.get_children()
+            # 'children': []
+        }
+
+        template = env.get_template(template_name)
+
+        return template.render(data=data)
