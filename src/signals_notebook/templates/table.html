@@ -1,13 +1,22 @@
-<div><h2>{{ name }}</h2>
-    {% if rows %}
+<div>
+    <h2>{{ name }}</h2>
     <table border="1">
-        <tbody>
+        <thead>
+
         <tr>
-            {% for value in rows %}
+            {% for title in table_head %}
+            <th>{{ title }}</th>
+            {% endfor %}
+        </tr>
+        </thead>
+        <tbody>
+        {% for row in rows %}
+        <tr>
+            {% for value in row %}
             <td>{{ value | safe }}</td>
             {% endfor %}
         </tr>
+        {% endfor %}
         </tbody>
     </table>
-    {% endif %}
 </div>

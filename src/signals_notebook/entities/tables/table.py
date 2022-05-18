@@ -8,7 +8,7 @@ from pydantic import Field, PrivateAttr
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import DataList, EntityType, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.entities.tables.cell import CellContentDict, ColumnDefinitions, GenericColumnDefinition
+from signals_notebook.entities.tables.cell import CellContentDict, ColumnDefinitions, GenericColumnDefinition, Cell
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
 from signals_notebook.jinja_env import env
 
@@ -54,11 +54,22 @@ class Table(ContentfulEntity):
         self._rows = []
         self._rows_by_id = {}
         for item in result.data:
-            row = cast(Row, cast(ResponseData, item).body)
+            row = cast(Row, cast(ResponseData, item))
             assert row.id
 
             self._rows.append(row)
             self._rows_by_id[row.id] = row
+
+    def get_table_content(self):
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_adt_endpoint(), self.eid),
+        )
+        result = TableDataResponse(**response.json())
+
+        return cast(ResponseData, result.data)
 
     def get_column_definitions_list(self) -> List[GenericColumnDefinition]:
         api = SignalsNotebookApi.get_default_api()
@@ -192,18 +203,17 @@ class Table(ContentfulEntity):
     def get_html(self, template_name: str = 'table.html') -> str:
         rows = []
 
+        table_head = []
         for column_definition in self.get_column_definitions_list():
-            # for i in column_definition:
-            #     print(i)
-            # print(column_definition, sep='\n\n')
-            rows.append(column_definition)
-            # if hasattr(row, column_definition.key) and not column_definition.hidden:
-            #     cell = getattr(row, column_definition.key, None)
-            #     cell = cast(Cell, cell)
-            #     reformatted_row[column_definition.title] = '' if cell is None else (cell.display or cell.value)
+            table_head.append(column_definition.title)
 
-        # rows.append(reformatted_row)
+        for elem in self.get_table_content():  # TODO: refactor this. Add null content value for Nullable cells
+            row = []
+            for item in elem.body:
+                row.append(item.content.value)
+
+            rows.append(row)
 
         template = env.get_template(template_name)
 
-        return template.render(name=self.name, rows=rows)
+        return template.render(name=self.name, table_head=table_head, rows=rows)
