@@ -20,7 +20,7 @@ class Word(ContentfulEntity):
         return container.add_child(
             name=name,
             content=content.encode('utf-8'),
-            content_type='text/plain',
+            content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
             force=force,
         )
 

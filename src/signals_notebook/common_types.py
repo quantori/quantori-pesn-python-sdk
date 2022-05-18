@@ -43,7 +43,7 @@ class EntityType(str, Enum):
     BIO_SEQUENCE = 'bioSequence'
     UPLOADED_RESOURCE = 'uploadedResource'
     IMAGE_RESOURCE = 'imageResource'
-    WORD = 'word'
+    WORD = 'viewonly'
 
 
 class MaterialType(str, Enum):
