@@ -121,7 +121,7 @@ class Entity(BaseModel):
         return EntityShortDescription(type=self.type, id=self.eid)
 
     def get_html(self) -> str:
-        data = {'name': self.name}
+        data = {'name': self.name, 'edited_at': self.edited_at, 'type': self.type, 'description': self.description}
         template = env.get_template(self._template_name)
 
         return template.render(data=data)
