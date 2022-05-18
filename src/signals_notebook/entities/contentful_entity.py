@@ -5,9 +5,11 @@ from typing import Optional
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, File
 from signals_notebook.entities import Entity
+from signals_notebook.jinja_env import env
 
 
 class ContentfulEntity(Entity, abc.ABC):
+
     @classmethod
     @abc.abstractmethod
     def _get_entity_type(cls) -> EntityType:
@@ -30,3 +32,10 @@ class ContentfulEntity(Entity, abc.ABC):
         return File(
             name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
         )
+
+    def get_html(self) -> str:
+        content = self._get_content()
+        data = {'name': self.name, 'content': content}
+        template = env.get_template(self._template_name)
+
+        return template.render(data=data)

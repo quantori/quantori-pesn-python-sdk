@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, cast, Dict, Generator, Optional, Type, TypeVar
+from typing import Any, cast, Dict, Generator, Optional, Type, TypeVar, ClassVar
 
 from pydantic import BaseModel, Field
 
@@ -27,6 +27,7 @@ class Entity(BaseModel):
     description: Optional[str] = Field(title='Description', default=None)
     created_at: datetime = Field(alias='createdAt', allow_mutation=False)
     edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
+    _template_name: ClassVar = 'entity.html'
 
     class Config:
         validate_assignment = True
@@ -44,6 +45,10 @@ class Entity(BaseModel):
         for subclass in cls.__subclasses__():
             yield from subclass.get_subclasses()
             yield subclass
+
+    @classmethod
+    def set_template_name(cls, template_name: str) -> None:
+        cls._template_name = template_name
 
     @classmethod
     def _get_endpoint(cls) -> str:
@@ -115,9 +120,8 @@ class Entity(BaseModel):
     def short_description(self) -> EntityShortDescription:
         return EntityShortDescription(type=self.type, id=self.eid)
 
-    def get_html(self, template_name: str = 'entity.html') -> str:
+    def get_html(self) -> str:
         data = {'name': self.name}
-
-        template = env.get_template(template_name)
+        template = env.get_template(self._template_name)
 
         return template.render(data=data)

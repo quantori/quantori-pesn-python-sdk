@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import Literal, Optional, Union
+from typing import Literal, Optional, Union, ClassVar
 
 from pydantic import Field
 
@@ -13,6 +13,7 @@ from signals_notebook.jinja_env import env
 
 class ChemicalDrawing(ContentfulEntity):
     type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
+    _template_name: ClassVar = 'chemical_drawing.html'
 
     class Config:
         keep_untouched = (cached_property,)
@@ -45,14 +46,14 @@ class ChemicalDrawing(ContentfulEntity):
     def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
         return Stoichiometry.fetch_data(self.eid)
 
-    def get_html(self, template_name: str = 'chemical_drawing.html') -> str:
+    def get_html(self) -> str:
         data = {'name': self.name, 'stoichiometry': {}}
         file = self.get_content(format=ChemicalDrawingFormat.SVG)
         data['svg'] = 'data:{};base64,{}'.format(file.content_type, file.base64.decode('ascii'))
         if isinstance(self.stoichiometry, Stoichiometry):
             data['stoichiometry_html'] = self.stoichiometry.get_html()
 
-        template = env.get_template(template_name)
+        template = env.get_template(self._template_name)
 
         with open('test_report.html', 'w') as f:
             f.write(template.render(data=data))

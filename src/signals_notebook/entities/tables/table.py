@@ -10,6 +10,7 @@ from signals_notebook.common_types import DataList, EntityType, Response, Respon
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
+from signals_notebook.jinja_env import env
 
 
 class TableDataResponse(Response[Row]):
@@ -187,3 +188,22 @@ class Table(ContentfulEntity):
         )
 
         self._reload_data()
+
+    def get_html(self, template_name: str = 'table.html') -> str:
+        rows = []
+
+        for column_definition in self.get_column_definitions_list():
+            # for i in column_definition:
+            #     print(i)
+            # print(column_definition, sep='\n\n')
+            rows.append(column_definition)
+            # if hasattr(row, column_definition.key) and not column_definition.hidden:
+            #     cell = getattr(row, column_definition.key, None)
+            #     cell = cast(Cell, cell)
+            #     reformatted_row[column_definition.title] = '' if cell is None else (cell.display or cell.value)
+
+        # rows.append(reformatted_row)
+
+        template = env.get_template(template_name)
+
+        return template.render(name=self.name, rows=rows)

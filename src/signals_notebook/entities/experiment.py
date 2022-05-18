@@ -1,6 +1,6 @@
 from enum import Enum
 from functools import cached_property
-from typing import Literal, Optional, Union
+from typing import Literal, Optional, Union, ClassVar
 
 from pydantic import BaseModel, Field
 
@@ -39,6 +39,7 @@ class ExperimentState(str, Enum):
 class Experiment(Container):
     type: Literal[EntityType.EXPERIMENT] = Field(allow_mutation=False)
     state: Optional[ExperimentState] = Field(allow_mutation=False, default=None)
+    _template_name: ClassVar = 'experiment.html'
 
     class Config:
         keep_untouched = (cached_property,)
@@ -87,16 +88,15 @@ class Experiment(Container):
     def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
         return Stoichiometry.fetch_data(self.eid)
 
-    def get_html(self, template_name: str = 'experiment.html') -> str:
+    def get_html(self) -> str:
         data = {
             'title': self.name,
             'description': self.description,
             'edited_at': self.edited_at,
             'state': self.state.value,
             'children': self.get_children()
-            # 'children': []
         }
 
-        template = env.get_template(template_name)
+        template = env.get_template(self._template_name)
 
         return template.render(data=data)

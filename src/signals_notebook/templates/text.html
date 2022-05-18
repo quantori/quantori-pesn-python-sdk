@@ -3,9 +3,7 @@
     <table border="1">
         <tbody>
         <tr>
-            {% for value in data['content'] %}
-            <td>{{ value }}</td>
-            {% endfor %}
+            <td>{{ data['content'] | safe }}</td>
         </tr>
         </tbody>
     </table>

@@ -1,6 +1,6 @@
 import abc
 import cgi
-from typing import cast, Optional, Union
+from typing import cast, Optional, Union, ClassVar
 
 from pydantic import BaseModel, Field
 
@@ -33,9 +33,14 @@ class Stoichiometry(BaseModel, abc.ABC):
     products: Products = Field(default=Products(__root__=[]))
     solvents: Solvents = Field(default=Solvents(__root__=[]))
     conditions: Conditions = Field(default=Conditions(__root__=[]))
+    _template_name: ClassVar = 'stoichiometry.html'
 
     class Config:
         validate_assignment = True
+
+    @classmethod
+    def set_template_name(cls, template_name: str) -> None:
+        cls._template_name = template_name
 
     @classmethod
     def _get_endpoint(cls) -> str:
@@ -114,7 +119,7 @@ class Stoichiometry(BaseModel, abc.ABC):
 
         return getattr(body, data_grid_kind, [])
 
-    def get_html(self, template_name: str = 'stoichiometry.html') -> str:
+    def get_html(self) -> str:
         data = {
             'reactants_html': self.reactants.get_html(),
             'products_html': self.products.get_html(),
@@ -122,6 +127,6 @@ class Stoichiometry(BaseModel, abc.ABC):
             'conditions_html': self.conditions.get_html(),
         }
 
-        template = env.get_template(template_name)
+        template = env.get_template(self._template_name)
 
         return template.render(data=data)
