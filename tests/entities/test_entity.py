@@ -7,14 +7,15 @@ import arrow
 import pytest
 
 from signals_notebook.common_types import EID, EntityType, ObjectType
-from signals_notebook.entities import Entity
 from signals_notebook.entities.notebook import Notebook
 
 
 @pytest.fixture()
-def set_template_name(entity: Entity):
+def set_template_name(entity_factory):
+    entity = entity_factory()
+    previous_template_name = entity.get_template_name()
     entity.set_template_name('smth.html')
-    yield entity
+    yield entity, previous_template_name
     entity.set_template_name('entity.html')
 
 
@@ -123,11 +124,8 @@ def test_refresh(notebook_factory, entity_store_mock):
     entity_store_mock.refresh.assert_called_once_with(notebook)
 
 
-def test_set_template(entity_factory, set_template_name):
-    entity = entity_factory()
-    previous_template_name = entity.get_template_name()
-
-    entity = set_template_name(entity, 'smth.html')
+def test_set_template(set_template_name):
+    entity, previous_template_name = set_template_name
     current_template_name = entity.get_template_name()
 
     assert previous_template_name != current_template_name

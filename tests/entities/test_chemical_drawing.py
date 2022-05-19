@@ -89,3 +89,20 @@ def test_get_content(chemical_drawing_factory, api_mock):
     assert result.name == file_name
     assert result.content == content
     assert result.content_type == content_type
+
+
+def test_get_html(api_mock, chemical_drawing_factory, snapshot):
+    chemical_drawing = chemical_drawing_factory(name='name')
+    file_name = 'chemDraw.cdxml'
+    content = b'<?xml version="1.0" encoding="UTF-8" ?>'
+    content_type = 'chemical/x-cdxml'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+
+    chemical_drawing_html = chemical_drawing.get_html()
+
+    snapshot.assert_match(chemical_drawing_html)

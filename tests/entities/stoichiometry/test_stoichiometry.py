@@ -151,3 +151,13 @@ def test_get_column_definitions(
 
     assert len(result) == columns_count
     assert isinstance(result[0], ColumnDefinition)
+
+
+def test_stoichiometry_get_html(stoichiometry_factory, api_mock, snapshot, column_definitions_response):
+    api_mock.call.return_value.json.return_value = column_definitions_response
+    stoichiometry = stoichiometry_factory()
+
+    stoichiometry_html = stoichiometry.get_html()
+
+    snapshot.assert_match(stoichiometry_html)
+
