@@ -1,6 +1,6 @@
 import base64 as b64
 import mimetypes
-from typing import Literal, ClassVar
+from typing import ClassVar, Literal
 
 from pydantic import Field
 

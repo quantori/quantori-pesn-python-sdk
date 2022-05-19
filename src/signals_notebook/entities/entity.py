@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, cast, Dict, Generator, Optional, Type, TypeVar, ClassVar
+from typing import Any, cast, ClassVar, Dict, Generator, Optional, Type, TypeVar
 
 from pydantic import BaseModel, Field
 

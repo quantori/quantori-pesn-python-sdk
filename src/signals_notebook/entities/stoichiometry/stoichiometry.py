@@ -1,6 +1,6 @@
 import abc
 import cgi
-from typing import cast, Optional, Union, ClassVar
+from typing import cast, ClassVar, Optional, Union
 
 from pydantic import BaseModel, Field
 

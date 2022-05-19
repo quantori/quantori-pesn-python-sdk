@@ -1,5 +1,5 @@
 from functools import cached_property
-from typing import Literal, Optional, Union, ClassVar
+from typing import ClassVar, Literal, Optional, Union
 
 from pydantic import Field
 

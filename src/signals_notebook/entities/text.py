@@ -1,4 +1,4 @@
-from typing import Literal, ClassVar
+from typing import ClassVar, Literal
 
 from pydantic import Field
 
@@ -31,7 +31,7 @@ class Text(ContentfulEntity):
 
     def get_html(self) -> str:
         file = self._get_content()
-        data = {'name': self.name, 'content': file.content.decode("utf-8")}
+        data = {'name': self.name, 'content': file.content.decode('utf-8')}
         template = env.get_template(self._template_name)
 
         return template.render(data=data)
