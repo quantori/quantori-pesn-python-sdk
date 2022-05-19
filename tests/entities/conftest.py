@@ -5,6 +5,7 @@ from tests.entities.factories import (
     ChemicalDrawingFactory,
     EIDFactory,
     ExperimentFactory,
+    ExcelFactory,
     ImageFactory,
     NotebookFactory,
     TextFactory,
@@ -23,6 +24,7 @@ register(ImageFactory)
 register(TableFactory)
 register(StoichiometryFactory)
 register(WordFactory)
+register(ExcelFactory)
 
 
 @pytest.fixture()
