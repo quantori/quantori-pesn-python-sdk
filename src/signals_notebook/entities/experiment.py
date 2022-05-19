@@ -93,7 +93,7 @@ class Experiment(Container):
             'title': self.name,
             'description': self.description,
             'edited_at': self.edited_at,
-            'state': self.state.value,
+            'state': self.state,
             'children': self.get_children()
         }
 
