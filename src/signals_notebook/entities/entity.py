@@ -51,6 +51,10 @@ class Entity(BaseModel):
         cls._template_name = template_name
 
     @classmethod
+    def get_template_name(cls) -> str:
+        return cls._template_name
+
+    @classmethod
     def _get_endpoint(cls) -> str:
         return 'entities'
 

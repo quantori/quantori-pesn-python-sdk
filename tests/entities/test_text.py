@@ -78,3 +78,20 @@ def test_get_content(text_factory, api_mock):
     assert result.name == file_name
     assert result.content == content
     assert result.content_type == content_type
+
+
+def test_get_html(text_factory, snapshot, api_mock):
+    text = text_factory(name='name')
+    file_name = 'Text.txt'
+    content = b'Some text'
+    content_type = 'text/plain'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}'
+    }
+    api_mock.call.return_value.content = content
+
+    text_html = text.get_html()
+
+    snapshot.assert_match(text_html)
