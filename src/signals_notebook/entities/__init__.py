@@ -8,3 +8,4 @@ from signals_notebook.common_types import ChemicalDrawingFormat  # noqa
 from signals_notebook.entities.tables.table import Table  # noqa
 from signals_notebook.entities.image import Image  # noqa
 from signals_notebook.entities.word import Word  # noqa
+from signals_notebook.entities.excel import Excel  # noqa

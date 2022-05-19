@@ -44,6 +44,7 @@ class EntityType(str, Enum):
     UPLOADED_RESOURCE = 'uploadedResource'
     IMAGE_RESOURCE = 'imageResource'
     WORD = 'viewonly'
+    EXCEL = 'excel'
 
 
 class MaterialType(str, Enum):
