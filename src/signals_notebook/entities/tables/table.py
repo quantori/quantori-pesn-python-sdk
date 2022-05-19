@@ -54,7 +54,7 @@ class Table(ContentfulEntity):
         self._rows = []
         self._rows_by_id = {}
         for item in result.data:
-            row = cast(Row, cast(ResponseData, item))
+            row = cast(Row, cast(ResponseData, item).body)
             assert row.id
 
             self._rows.append(row)
