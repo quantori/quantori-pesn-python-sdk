@@ -1,7 +1,7 @@
 import factory
 
 from signals_notebook.common_types import EID, EntityType
-from signals_notebook.entities import ChemicalDrawing, Experiment, Excel, Image, Notebook, Text, Word
+from signals_notebook.entities import ChemicalDrawing, Excel, Experiment, Image, Notebook, Text, Word
 
 
 class EIDFactory(factory.Factory):

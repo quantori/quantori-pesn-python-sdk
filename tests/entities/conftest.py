@@ -4,8 +4,8 @@ from pytest_factoryboy import register
 from tests.entities.factories import (
     ChemicalDrawingFactory,
     EIDFactory,
-    ExperimentFactory,
     ExcelFactory,
+    ExperimentFactory,
     ImageFactory,
     NotebookFactory,
     TextFactory,
