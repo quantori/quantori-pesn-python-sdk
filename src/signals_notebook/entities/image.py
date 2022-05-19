@@ -16,10 +16,6 @@ class Image(ContentfulEntity):
     _template_name: ClassVar = 'image.html'
 
     @classmethod
-    def set_template_name(cls, template_name: str) -> None:
-        cls._template_name = template_name
-
-    @classmethod
     def _get_entity_type(cls) -> EntityType:
         return EntityType.IMAGE_RESOURCE
 

@@ -47,11 +47,8 @@
         <td>{{ data['description']|e }}</td>
     </tr>
     <tr>
-
         <th>Last edited at:</th>
-
         <td>{{ data['edited_at'].strftime('%H:%M:%S %Y-%m-%d') }}</td>
-
     </tr>
     <tr>
         <th>State:</th>
@@ -60,7 +57,7 @@
 </table>
 
 {% for item in data['children'] %}
-    {{ item.get_html() | safe }}
+{{ item.get_html() | safe }}
 {% endfor %}
 
 
