@@ -296,6 +296,7 @@ def test_get_children(api_mock, experiment_factory, eid_factory):
     api_mock.call.assert_called_once_with(
         method='GET',
         path=('entities', experiment.eid, 'children'),
+        params={'order': 'layout'},
     )
 
     assert isinstance(result[0], Text)
