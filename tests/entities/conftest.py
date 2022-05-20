@@ -4,6 +4,7 @@ from pytest_factoryboy import register
 from tests.entities.factories import (
     ChemicalDrawingFactory,
     EIDFactory,
+    ExcelFactory,
     ExperimentFactory,
     ImageFactory,
     NotebookFactory,
@@ -23,6 +24,7 @@ register(ImageFactory)
 register(TableFactory)
 register(StoichiometryFactory)
 register(WordFactory)
+register(ExcelFactory)
 
 
 @pytest.fixture()
