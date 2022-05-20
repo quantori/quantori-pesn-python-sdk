@@ -76,7 +76,7 @@ class Row(BaseModel):
             self._cells_dict[cell.id] = cell
             self._cells_dict[cell.name] = cell
 
-    def get(self, value: Union[str, UUID], default: Any = None) -> Cell:
+    def get(self, value: Union[str, UUID], default: Any = None) -> Union[Cell, Any]:
         try:
             return self[value]
         except KeyError:
