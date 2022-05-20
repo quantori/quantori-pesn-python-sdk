@@ -3,21 +3,21 @@
     <table border="1">
         <tbody>
             <tr>
-                {% for value in data['content'] %}
+            {% for value in data['content'] %}
                 <td>{{ value }}</td>
-                {% endfor %}
+            {% endfor %}
             </tr>
         </tbody>
     </table>
     <table border="1">
         <tbody>
             <tr>
-                {% if data['edited_at'] %}
+            {% if data['edited_at'] %}
                 <td>{{ 'Modified: ' + data['edited_at'].strftime('%H:%M %d.%m.%Y') }}</td>
-                {% endif %}
-                {% if data['description'] %}
+            {% endif %}
+            {% if data['description'] %}
                 <td>{{ 'Description: '+ data['description'] }}</td>
-                {% endif %}
+            {% endif %}
             </tr>
         </tbody>
     </table>

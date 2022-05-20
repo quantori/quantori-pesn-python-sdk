@@ -2,19 +2,19 @@
 <table border="1">
     <thead>
         <tr>
-            {% for title in rows[0] %}
+        {% for title in rows[0] %}
             <th>{{ title }}</th>
-            {% endfor %}
+        {% endfor %}
         </tr>
     </thead>
     <tbody>
-        {% for row in rows %}
+    {% for row in rows %}
         <tr>
-            {% for value in row.values() %}
+        {% for value in row.values() %}
             <td>{{ value | safe }}</td>
-            {% endfor %}
-        </tr>
         {% endfor %}
+        </tr>
+    {% endfor %}
     </tbody>
 </table>
 {% endif %}

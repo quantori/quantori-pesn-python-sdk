@@ -3,19 +3,33 @@
     <table border="1">
         <thead>
             <tr>
-                {% for title in table_head %}
+            {% for title in table_head %}
                 <th>{{ title }}</th>
-                {% endfor %}
+            {% endfor %}
             </tr>
         </thead>
         <tbody>
-            {% for row in rows %}
+        {% for row in rows %}
             <tr>
-                {% for value in row.values() %}
+            {% for value in row.values() %}
+                {% if value.__class__.__name__ == 'list' %}
+                <td>
+                    <div style="margin-bottom: 4px">
+                        {% for elem in value %}
+                        <div style="margin-bottom: 4px; border-radius: 5px; background: #a6cdea">
+                            <div style="justify-content: center; padding: 4px">
+                                <p style="color: #0451a5">{{ elem | safe }}</p>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </td>
+                {% else %}
                 <td>{{ value | safe }}</td>
-                {% endfor %}
-            </tr>
+                {% endif %}
             {% endfor %}
+            </tr>
+        {% endfor %}
         </tbody>
     </table>
 </div>
