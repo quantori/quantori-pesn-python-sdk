@@ -8,7 +8,7 @@ from pydantic import Field, PrivateAttr
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import DataList, EntityType, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.entities.tables.cell import CellContentDict, ColumnDefinitions, GenericColumnDefinition
+from signals_notebook.entities.tables.cell import Cell, CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
 from signals_notebook.jinja_env import env
 
@@ -29,6 +29,7 @@ class Table(ContentfulEntity):
     type: Literal[EntityType.GRID] = Field(allow_mutation=False)
     _rows: List[Row] = PrivateAttr(default=[])
     _rows_by_id: Dict[UUID, Row] = PrivateAttr(default={})
+    _template_name = 'table.html'
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -59,17 +60,6 @@ class Table(ContentfulEntity):
 
             self._rows.append(row)
             self._rows_by_id[row.id] = row
-
-    def get_table_content(self):
-        api = SignalsNotebookApi.get_default_api()
-
-        response = api.call(
-            method='GET',
-            path=(self._get_adt_endpoint(), self.eid),
-        )
-        result = TableDataResponse(**response.json())
-
-        return cast(ResponseData, result.data)
 
     def get_column_definitions_list(self) -> List[GenericColumnDefinition]:
         api = SignalsNotebookApi.get_default_api()
@@ -200,20 +190,30 @@ class Table(ContentfulEntity):
 
         self._reload_data()
 
-    def get_html(self, template_name: str = 'table.html') -> str:
+    def get(self, value, default=None):
+        try:
+            return self[value]
+        except KeyError:
+            return default
+
+    def get_html(self) -> str:
         rows = []
+        column_definitions = self.get_column_definitions_list()
 
         table_head = []
-        for column_definition in self.get_column_definitions_list():
+        for column_definition in column_definitions:
             table_head.append(column_definition.title)
 
-        for elem in self.get_table_content():  # TODO: refactor this. Add null content value for Nullable cells
-            row = []
-            for item in elem.body:
-                row.append(item.content.value)
+        for row in self:
+            reformatted_row = {}
 
-            rows.append(row)
+            for column_definition in column_definitions:
+                cell = cast(Row, row).get(column_definition.key, None)
+                cell = cast(Cell, cell)
+                reformatted_row[column_definition.title] = '' if cell is None else (cell.display or cell.value)
 
-        template = env.get_template(template_name)
+            rows.append(reformatted_row)
+
+        template = env.get_template(self._template_name)
 
         return template.render(name=self.name, table_head=table_head, rows=rows)

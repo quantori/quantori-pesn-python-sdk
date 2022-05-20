@@ -40,6 +40,7 @@ class Rows(GenericModel, Generic[RowClass]):
     __root__: list[RowClass]
     _rows_by_id: dict[Union[str, UUID], RowClass] = PrivateAttr(default={})
     _column_definitions: list[ColumnDefinition] = PrivateAttr(default=[])
+    _template_name: str = 'data_grid.html'
 
     def __init__(self, **data: Any):
         super(Rows, self).__init__(**data)
@@ -72,7 +73,7 @@ class Rows(GenericModel, Generic[RowClass]):
     def set_column_definitions(self, value: list[ColumnDefinition]) -> None:
         self._column_definitions = value
 
-    def get_html(self, template_name: str = 'data_grid.html') -> str:
+    def get_html(self) -> str:
         rows = []
         for row in self.__root__:
             reformatted_row = {}
@@ -85,7 +86,7 @@ class Rows(GenericModel, Generic[RowClass]):
 
             rows.append(reformatted_row)
 
-        template = env.get_template(template_name)
+        template = env.get_template(self._template_name)
 
         return template.render(rows=rows)
 

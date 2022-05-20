@@ -76,6 +76,12 @@ class Row(BaseModel):
             self._cells_dict[cell.id] = cell
             self._cells_dict[cell.name] = cell
 
+    def get(self, value, default=None):
+        try:
+            return self[value]
+        except KeyError:
+            return default
+
     @property
     def is_deleted(self) -> bool:
         return self._deleted

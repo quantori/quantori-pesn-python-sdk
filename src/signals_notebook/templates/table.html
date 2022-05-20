@@ -12,7 +12,7 @@
         <tbody>
         {% for row in rows %}
         <tr>
-            {% for value in row %}
+            {% for value in row.values() %}
             <td>{{ value | safe }}</td>
             {% endfor %}
         </tr>
