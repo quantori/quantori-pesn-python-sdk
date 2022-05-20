@@ -11,9 +11,9 @@ snapshots['test_get_html 1'] = '''<div>
     <h2>name</h2>
     <table border="1">
         <tbody>
-        <tr>
-            <td>Some text</td>
-        </tr>
+            <tr>
+                <td>Some text</td>
+            </tr>
         </tbody>
     </table>
 </div>'''
