@@ -5,10 +5,12 @@ from tests.entities.factories import (
     ChemicalDrawingFactory,
     EIDFactory,
     EntityFactory,
+    ExcelFactory,
     ExperimentFactory,
     ImageFactory,
     NotebookFactory,
     TextFactory,
+    WordFactory
 )
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
@@ -23,6 +25,8 @@ register(ImageFactory)
 register(TableFactory)
 register(StoichiometryFactory)
 register(EntityFactory)
+register(WordFactory)
+register(ExcelFactory)
 
 
 @pytest.fixture()
