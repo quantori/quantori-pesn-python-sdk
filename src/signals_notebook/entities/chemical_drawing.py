@@ -55,7 +55,4 @@ class ChemicalDrawing(ContentfulEntity):
 
         template = env.get_template(self._template_name)
 
-        with open('test_report.html', 'w') as f:
-            f.write(template.render(data=data))
-
         return template.render(data=data)
