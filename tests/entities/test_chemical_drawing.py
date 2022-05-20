@@ -5,6 +5,11 @@ from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, Fil
 from signals_notebook.entities import ChemicalDrawing, Entity
 
 
+@pytest.fixture()
+def chemical_drawing_stoichiometry_mock(mocker):
+    return mocker.patch('signals_notebook.entities.ChemicalDrawing.stoichiometry')
+
+
 @pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
 @pytest.mark.parametrize(
     'entity_class, entity_type, content_type, file_extension',
@@ -91,7 +96,7 @@ def test_get_content(chemical_drawing_factory, api_mock):
     assert result.content_type == content_type
 
 
-def test_get_html(api_mock, chemical_drawing_factory, snapshot):
+def test_get_html(api_mock, chemical_drawing_stoichiometry_mock, chemical_drawing_factory, snapshot):
     chemical_drawing = chemical_drawing_factory(name='name')
     file_name = 'chemDraw.cdxml'
     content = b'<?xml version="1.0" encoding="UTF-8" ?>'
@@ -102,6 +107,7 @@ def test_get_html(api_mock, chemical_drawing_factory, snapshot):
         'content-disposition': f'attachment; filename={file_name}',
     }
     api_mock.call.return_value.content = content
+    chemical_drawing_stoichiometry_mock.return_value = []
 
     chemical_drawing_html = chemical_drawing.get_html()
 
