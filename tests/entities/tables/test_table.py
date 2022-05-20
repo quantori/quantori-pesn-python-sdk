@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 from signals_notebook.common_types import EntityType, ObjectType
-from signals_notebook.entities.tables.cell import ColumnDefinition
+from signals_notebook.entities.tables.cell import ColumnDataType, ColumnDefinition
 from signals_notebook.entities.tables.row import Row
 
 
@@ -352,3 +352,24 @@ def test_save_after_change_cell_and_delete_row(
             'value': 'normalized',
         },
     )
+
+
+@pytest.fixture()
+def get_column_definitions_list_mock(mocker):
+    column_definitions = [
+        ColumnDefinition(key='fac1b3c0-c262-4b47-92c2-5f6535536ca3', title='ID', type=ColumnDataType.TEXT),
+        ColumnDefinition(key='fac1b3c0-c262-4b47-92c2-5f653553dff4', title='Name', type=ColumnDataType.TEXT),
+    ]
+    return mocker.patch(
+        'signals_notebook.entities.tables.table.Table.get_column_definitions_list',
+        return_value=column_definitions,
+    )
+
+
+def test_get_html(api_mock, get_column_definitions_list_mock, reload_data_response, table, snapshot):
+    table.name = 'name'
+    api_mock.call.return_value.json.return_value = reload_data_response
+
+    table_html = table.get_html()
+
+    snapshot.assert_match(table_html)
