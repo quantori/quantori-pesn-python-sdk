@@ -160,4 +160,3 @@ def test_stoichiometry_get_html(stoichiometry_factory, api_mock, snapshot, colum
     stoichiometry_html = stoichiometry.get_html()
 
     snapshot.assert_match(stoichiometry_html)
-
