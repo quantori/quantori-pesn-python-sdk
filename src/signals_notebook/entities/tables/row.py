@@ -6,7 +6,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.common_types import ObjectType
-from signals_notebook.entities.tables.cell import GenericCell, UpdateCellRequest
+from signals_notebook.entities.tables.cell import Cell, GenericCell, UpdateCellRequest
 
 
 class RowAction(str, Enum):
@@ -76,7 +76,7 @@ class Row(BaseModel):
             self._cells_dict[cell.id] = cell
             self._cells_dict[cell.name] = cell
 
-    def get(self, value, default=None):
+    def get(self, value: Union[str, UUID], default: Any = None) -> Cell:
         try:
             return self[value]
         except KeyError:

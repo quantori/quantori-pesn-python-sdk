@@ -190,7 +190,7 @@ class Table(ContentfulEntity):
 
         self._reload_data()
 
-    def get(self, value, default=None):
+    def get(self, value: Union[str, UUID], default: Any = None) -> Row:
         try:
             return self[value]
         except KeyError:
