@@ -1,3 +1,4 @@
+import json
 from datetime import datetime
 from typing import cast, List, Literal, Optional
 
@@ -157,6 +158,37 @@ class Library(BaseMaterialEntity):
         response = api.call(
             method='GET',
             path=(self._get_endpoint(), self.name, 'batches', 'id', name),
+        )
+
+        result = BatchResponse(_context={'_library': self}, **response.json())
+
+        return cast(ResponseData, result.data).body
+
+    def create_batch(self, asset_name: str, batch_fields):
+        api = SignalsNotebookApi.get_default_api()
+        fields = []
+
+        for name, value in batch_fields.items():
+            for field in self.batch_config.fields:
+                if field.name == name:
+                    if field.read_only:
+                        raise KeyError('Field is readonly')
+                    fields.append({"id": field.id,
+                                   "value": json.dumps(value)})
+
+        request = {
+            "data": {
+                "type": "batch",
+                "attributes": {
+                    "fields": fields
+                }
+            }
+        }
+
+        response = api.call(
+            method='POST',
+            path=(self._get_endpoint(), self.library_name, 'assets', asset_name, 'batches'),
+            json=request
         )
 
         result = BatchResponse(_context={'_library': self}, **response.json())
