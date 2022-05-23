@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from typing import cast, List, Literal, Optional
 
@@ -164,7 +163,7 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def create_batch(self, asset_name: str, batch_fields):
+    def create_batch(self, asset_name: str, batch_fields) -> Batch:
         api = SignalsNotebookApi.get_default_api()
         fields = []
 
@@ -174,7 +173,7 @@ class Library(BaseMaterialEntity):
                     if field.read_only:
                         raise KeyError('Field is readonly')
                     fields.append({"id": field.id,
-                                   "value": json.dumps(value)})
+                                   "value": value})
 
         request = {
             "data": {
