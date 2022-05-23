@@ -170,8 +170,6 @@ class Library(BaseMaterialEntity):
         for name, value in batch_fields.items():
             for field in self.batch_config.fields:
                 if field.name == name:
-                    if field.read_only:
-                        raise KeyError('Field is readonly')
                     fields.append({"id": field.id,
                                    "value": value})
 
