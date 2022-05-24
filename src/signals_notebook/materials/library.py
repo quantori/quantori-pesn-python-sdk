@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import cast, List, Literal, Optional
+from typing import cast, List, Literal, Optional, Any
 
 from pydantic import BaseModel, Field, PrivateAttr
 
@@ -46,6 +46,34 @@ class AssetResponse(Response[Asset]):
 
 class BatchResponse(Response[Batch]):
     pass
+
+
+class BatchAssetField(BaseModel):
+    id: str
+    value: Any
+
+
+class BatchAssetAttribute(BaseModel):
+    fields: List[BatchAssetField]
+
+
+class BatchRequestData(BaseModel):
+    type: str = "batch"
+    attributes: BatchAssetAttribute
+
+
+class DataRelationship(BaseModel):
+    data: BatchRequestData
+
+
+class AssetRelationship(BaseModel):
+    batch: DataRelationship
+
+
+class AssetRequestData(BaseModel):
+    type: str = "asset"
+    attributes: BatchAssetAttribute
+    relationships: Optional[AssetRelationship] = None
 
 
 class Library(BaseMaterialEntity):
@@ -171,23 +199,59 @@ class Library(BaseMaterialEntity):
             for field in self.batch_config.fields:
                 if field.name == name:
                     fields.append({"id": field.id,
-                                   "value": value})
+                                   "value": field.to_internal_value(value)})
 
-        request = {
-            "data": {
-                "type": "batch",
-                "attributes": {
-                    "fields": fields
-                }
-            }
-        }
+        request_data = BatchRequestData(type="batch", attributes=BatchAssetAttribute(fields=fields))
 
         response = api.call(
             method='POST',
             path=(self._get_endpoint(), self.library_name, 'assets', asset_name, 'batches'),
-            json=request
+            json={"data": request_data.dict()}
         )
 
         result = BatchResponse(_context={'_library': self}, **response.json())
+
+        return cast(ResponseData, result.data).body
+
+    def create_asset_with_batches(self, asset_fields, batch_fields) -> Asset:
+        api = SignalsNotebookApi.get_default_api()
+        request_batch_fields = []
+        request_asset_fields = []
+
+        for name, value in batch_fields.items():
+            for field in self.batch_config.fields:
+                if field.name == name:
+                    request_batch_fields.append({"id": field.id,
+                                   "value": field.to_internal_value(value)})
+
+        for name, value in asset_fields.items():
+            for field in self.asset_config.fields:
+                if field.name == name:
+                    request_asset_fields.append({
+                        "id": field.id,
+                        "value": field.to_internal_value(value)})
+
+        request_data = AssetRequestData(
+            type="asset",
+            attributes=BatchAssetAttribute(fields=request_asset_fields),
+            relationships=AssetRelationship(
+                batch=DataRelationship(
+                    data = BatchRequestData(
+                        type="batch",
+                        attributes=BatchAssetAttribute(fields=request_batch_fields)
+                    )
+                )
+            )
+        )
+
+        response = api.call(
+            method='POST',
+            path=(self._get_endpoint(), self.library_name, 'assets'),
+            json={
+                "data": request_data.dict()
+            }
+        )
+
+        result = AssetResponse(_context={'_library': self}, **response.json())
 
         return cast(ResponseData, result.data).body
