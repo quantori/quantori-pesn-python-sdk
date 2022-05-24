@@ -8,8 +8,9 @@ from pydantic import Field, PrivateAttr
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import DataList, EntityType, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.entities.tables.cell import CellContentDict, ColumnDefinitions, GenericColumnDefinition
+from signals_notebook.entities.tables.cell import Cell, CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
+from signals_notebook.jinja_env import env
 
 
 class TableDataResponse(Response[Row]):
@@ -28,6 +29,7 @@ class Table(ContentfulEntity):
     type: Literal[EntityType.GRID] = Field(allow_mutation=False)
     _rows: List[Row] = PrivateAttr(default=[])
     _rows_by_id: Dict[UUID, Row] = PrivateAttr(default={})
+    _template_name = 'table.html'
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -187,3 +189,31 @@ class Table(ContentfulEntity):
         )
 
         self._reload_data()
+
+    def get(self, value: Union[str, UUID], default: Any = None) -> Union[Row, Any]:
+        try:
+            return self[value]
+        except KeyError:
+            return default
+
+    def get_html(self) -> str:
+        rows = []
+        column_definitions = self.get_column_definitions_list()
+
+        table_head = []
+        for column_definition in column_definitions:
+            table_head.append(column_definition.title)
+
+        for row in self:
+            reformatted_row = {}
+
+            for column_definition in column_definitions:
+                cell = cast(Row, row).get(column_definition.key, None)
+                cell = cast(Cell, cell)
+                reformatted_row[column_definition.title] = '' if cell is None else (cell.display or cell.value)
+
+            rows.append(reformatted_row)
+
+        template = env.get_template(self._template_name)
+
+        return template.render(name=self.name, table_head=table_head, rows=rows)

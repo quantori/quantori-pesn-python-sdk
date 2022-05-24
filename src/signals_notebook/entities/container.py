@@ -9,7 +9,6 @@ from signals_notebook.entities import Entity
 
 
 class Container(Entity, abc.ABC):
-
     @classmethod
     @abc.abstractmethod
     def _get_entity_type(cls) -> EntityType:
@@ -51,6 +50,9 @@ class Container(Entity, abc.ABC):
         response = api.call(
             method='GET',
             path=(self._get_endpoint(), self.eid, 'children'),
+            params={
+                'order': 'layout',
+            },
         )
 
         entity_classes = (*Entity.get_subclasses(), Entity)

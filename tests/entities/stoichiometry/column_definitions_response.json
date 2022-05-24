@@ -1,0 +1,367 @@
+{
+  "links": {
+    "self": "https://example.com/chemicalDrawing:2fc7a20f-e74c-4142-b4fa-cfa2fab41c58/columns/"
+  },
+  "data": {
+    "type": "columnDefinitions",
+    "id": "chemicalDrawing:2fc7a20f-e74c-4142-b4fa-cfa2fab41c58",
+    "attributes": {
+      "id": "chemicalDrawing:2fc7a20f-e74c-4142-b4fa-cfa2fab41c58",
+      "reactants": [
+        {
+          "key": "rxnid",
+          "title": "Rxn ID",
+          "type": "html",
+          "readOnly": true,
+          "hideable": false,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "name",
+          "title": "Reactant",
+          "type": "text",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "cas",
+          "title": "CAS Number",
+          "type": "text",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "formula",
+          "title": "MF",
+          "type": "html",
+          "readOnly": true,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "mf",
+          "title": "FM",
+          "type": "unit",
+          "measure": "molecular mass",
+          "readOnly": true,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "mw",
+          "title": "MW",
+          "type": "unit",
+          "measure": "molecular mass",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "em",
+          "title": "EM",
+          "type": "unit",
+          "readOnly": true,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "limit",
+          "title": "Limit?",
+          "type": "boolean",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "eq",
+          "title": "Eq",
+          "type": "unit",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "sm",
+          "title": "Sample Mass",
+          "type": "unit",
+          "measure": "mass",
+          "preventEditIdentity": true,
+          "hidden": true
+        },
+        {
+          "key": "moles",
+          "title": "Moles",
+          "type": "unit",
+          "measure": "amount of substance",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "loading",
+          "title": "Load",
+          "type": "unit",
+          "measure": "loading",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "molarity",
+          "title": "Molarity",
+          "type": "unit",
+          "measure": "molarity",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "volume",
+          "title": "Vol",
+          "type": "unit",
+          "measure": "volume",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "density",
+          "title": "d",
+          "type": "unit",
+          "measure": "density",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "wt",
+          "title": "% Wt",
+          "type": "unit",
+          "measure": "fraction",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "supplier",
+          "title": "Supplier",
+          "type": "text",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "lot",
+          "title": "Lot Number",
+          "type": "text",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "IUPACName",
+          "title": "IUPAC Name",
+          "type": "text",
+          "readOnly": true,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "barcode",
+          "title": "Barcode",
+          "type": "text",
+          "readOnly": true,
+          "preventEditIdentity": true
+        },
+        {
+          "key": "materialId",
+          "title": "Material ID",
+          "type": "link",
+          "readOnly": true,
+          "preventEditIdentity": true
+        },
+        {
+          "key": "containerId",
+          "title": "Container ID",
+          "type": "link",
+          "readOnly": true,
+          "preventEditIdentity": true
+        }
+      ],
+      "products": [
+        {
+          "key": "rxnid",
+          "title": "Rxn ID",
+          "type": "html",
+          "readOnly": true,
+          "hideable": false,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "productId",
+          "title": "Product ID",
+          "type": "text",
+          "readOnly": true,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "name",
+          "title": "Product",
+          "type": "text",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "formula",
+          "title": "MF",
+          "type": "html",
+          "readOnly": true,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "mf",
+          "title": "FM",
+          "type": "unit",
+          "measure": "molecular mass",
+          "readOnly": true,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "mw",
+          "title": "MW",
+          "type": "unit",
+          "measure": "molecular mass",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "em",
+          "title": "EM",
+          "type": "unit",
+          "readOnly": true,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "theoMass",
+          "title": "Theo Mass",
+          "type": "unit",
+          "measure": "mass",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "actualMass",
+          "title": "Actual Mass",
+          "type": "unit",
+          "measure": "mass",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "purity",
+          "title": "Purity",
+          "type": "unit",
+          "measure": "fraction",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "density",
+          "title": "d",
+          "type": "unit",
+          "measure": "density",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "yield",
+          "title": "Yield",
+          "type": "unit",
+          "measure": "fraction",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "theoMol",
+          "title": "Theo Mol",
+          "type": "unit",
+          "measure": "amount of substance",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "actualMol",
+          "title": "Actual Mol",
+          "type": "unit",
+          "measure": "amount of substance",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "conversion",
+          "title": "Conversion",
+          "type": "unit",
+          "measure": "fraction",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "IUPACName",
+          "title": "IUPAC Name",
+          "type": "text",
+          "readOnly": true,
+          "preventEditIdentity": true,
+          "preventToggleReadOnly": true
+        },
+        {
+          "key": "barcode",
+          "title": "Barcode",
+          "type": "text",
+          "readOnly": true,
+          "preventEditIdentity": true
+        },
+        {
+          "key": "materialId",
+          "title": "Material ID",
+          "type": "link",
+          "readOnly": true,
+          "preventEditIdentity": true
+        },
+        {
+          "key": "containerId",
+          "title": "Container ID",
+          "type": "link",
+          "readOnly": true,
+          "preventEditIdentity": true
+        }
+      ],
+      "solvents": [
+        {
+          "key": "solvent",
+          "title": "Solvent",
+          "type": "text",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "ratio",
+          "title": "Ratio",
+          "type": "unit",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "volume",
+          "title": "Volume",
+          "type": "unit",
+          "measure": "volume",
+          "preventEditIdentity": true
+        }
+      ],
+      "conditions": [
+        {
+          "key": "pressure",
+          "title": "Pressure",
+          "type": "unit",
+          "measure": "pressure",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "temperature",
+          "title": "Temperature",
+          "type": "unit",
+          "measure": "temperature",
+          "preventEditIdentity": true
+        },
+        {
+          "key": "duration",
+          "title": "Reaction Time",
+          "type": "unit",
+          "measure": "time",
+          "preventEditIdentity": true
+        }
+      ]
+    },
+    "relationships": {
+      "chemicalDrawing": {
+        "links": {
+          "self": "https://example.com/chemicalDrawing:2fc7a20f-e74c-4142-b4fa-cfa2fab41c58"
+        },
+        "data": {
+          "type": "entity",
+          "id": "chemicalDrawing:2fc7a20f-e74c-4142-b4fa-cfa2fab41c58"
+        }
+      }
+    }
+  }
+}

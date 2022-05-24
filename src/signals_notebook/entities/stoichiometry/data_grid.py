@@ -1,10 +1,20 @@
 from decimal import Decimal
 from enum import Enum
-from typing import Any, Generic, Optional, TypeVar, Union
+from typing import Any, cast, Generic, Optional, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
+
+from signals_notebook.entities.stoichiometry.cell import ColumnDefinition
+from signals_notebook.jinja_env import env
+
+
+class DataGridKind(str, Enum):
+    REACTANTS = 'reactants'
+    PRODUCTS = 'products'
+    SOLVENTS = 'solvents'
+    CONDITIONS = 'conditions'
 
 
 class Cell(BaseModel):
@@ -29,6 +39,8 @@ RowClass = TypeVar('RowClass', bound=Row)
 class Rows(GenericModel, Generic[RowClass]):
     __root__: list[RowClass]
     _rows_by_id: dict[Union[str, UUID], RowClass] = PrivateAttr(default={})
+    _column_definitions: list[ColumnDefinition] = PrivateAttr(default=[])
+    _template_name: str = 'data_grid.html'
 
     def __init__(self, **data: Any):
         super(Rows, self).__init__(**data)
@@ -53,6 +65,30 @@ class Rows(GenericModel, Generic[RowClass]):
             return self._rows_by_id[index]
 
         raise IndexError('Invalid index')
+
+    @property
+    def column_definitions(self) -> list[ColumnDefinition]:
+        return self._column_definitions
+
+    def set_column_definitions(self, value: list[ColumnDefinition]) -> None:
+        self._column_definitions = value
+
+    def get_html(self) -> str:
+        rows = []
+        for row in self.__root__:
+            reformatted_row = {}
+
+            for column_definition in self.column_definitions:
+                if hasattr(row, column_definition.key) and not column_definition.hidden:
+                    cell = getattr(row, column_definition.key, None)
+                    cell = cast(Cell, cell)
+                    reformatted_row[column_definition.title] = '' if cell is None else (cell.display or cell.value)
+
+            rows.append(reformatted_row)
+
+        template = env.get_template(self._template_name)
+
+        return template.render(rows=rows)
 
 
 class Reactant(Row):
@@ -151,10 +187,3 @@ class DataGrids(BaseModel):
     products: Products
     solvents: Solvents
     conditions: Conditions
-
-
-class DataGridKind(str, Enum):
-    REACTANTS = 'reactants'
-    PRODUCTS = 'products'
-    SOLVENTS = 'solvents'
-    CONDITIONS = 'conditions'

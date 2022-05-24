@@ -6,9 +6,8 @@ import pandas as pd
 import pytest
 
 from signals_notebook.common_types import EntityType, ObjectType
-from signals_notebook.entities.tables.cell import ColumnDefinition
+from signals_notebook.entities.tables.cell import ColumnDataType, ColumnDefinition
 from signals_notebook.entities.tables.row import Row
-
 
 DIGEST = '123'
 
@@ -352,3 +351,53 @@ def test_save_after_change_cell_and_delete_row(
             'value': 'normalized',
         },
     )
+
+
+@pytest.fixture()
+def get_column_definitions_list_mock(mocker):
+    column_definitions = [
+        ColumnDefinition(key='49b2cf34-b4bb-4868-af67-931f31b46581', title='Col. Text', type=ColumnDataType.TEXT),
+        ColumnDefinition(key='dff966b1-ed21-4f94-9446-78b00b01bdf8', title='Col. Date/Time', type=ColumnDataType.TEXT),
+        ColumnDefinition(key='7dce6a7f-e491-4b70-8bf7-d6f342bedec7', title='Col. Number', type=ColumnDataType.NUMBER),
+        ColumnDefinition(
+            key='f0eb0e49-0460-4f84-8616-b17cebac69a3', title='Col. Number w/Uni', type=ColumnDataType.UNIT
+        ),
+        ColumnDefinition(
+            key='ce8034b6-c29a-4027-b69b-b321a54c5f74', title='Col. Ext. Hyperlink', type=ColumnDataType.EXTERNAL_LINK
+        ),
+        ColumnDefinition(
+            key='77f80aae-014b-4a1d-aaee-5c3b88a5dd66', title='Col. Autotext List', type=ColumnDataType.AUTOTEXT_LIST
+        ),
+        ColumnDefinition(
+            key='cf27a778-9769-4d49-8d09-7fb68f0c7ca8', title='Col. Checkbox', type=ColumnDataType.BOOLEAN
+        ),
+        ColumnDefinition(
+            key='1bdf51d0-08ab-4f56-9d51-4153d5feb228', title='Col. Internal Reference', type=ColumnDataType.LINK
+        ),
+        ColumnDefinition(key='e1f0fcb3-2319-47e7-af49-0ac9e6d66c6c', title='Col. List', type=ColumnDataType.LIST),
+        ColumnDefinition(key='6ed558b6-7ba7-41a3-8f5e-0e16acb71f1c', title='Col. Integer', type=ColumnDataType.INTEGER),
+        ColumnDefinition(
+            key='c07d1a47-fad7-4ae0-b38c-8c7c25b49fa8', title='Col. Multi Select List', type=ColumnDataType.MULTI_SELECT
+        ),
+        ColumnDefinition(
+            key='36ff8edc-e72e-40e2-a0d2-331b565fee90', title='Col. Attribute List', type=ColumnDataType.ATTRIBUTE_LIST
+        ),
+        ColumnDefinition(
+            key='5b0b3a99-dc4f-4b3f-89d3-ed48c7adffe8',
+            title='Col. Multi Attribute List',
+            type=ColumnDataType.ATTRIBUTE_LIST,
+        ),
+    ]
+    return mocker.patch(
+        'signals_notebook.entities.tables.table.Table.get_column_definitions_list',
+        return_value=column_definitions,
+    )
+
+
+def test_get_html(api_mock, get_column_definitions_list_mock, reload_data_response, table, snapshot):
+    table.name = 'name'
+    api_mock.call.return_value.json.return_value = reload_data_response
+
+    table_html = table.get_html()
+
+    snapshot.assert_match(table_html)

@@ -1,12 +1,22 @@
 """
 This file contains common tests for all entity types.
 """
+import datetime
 
 import arrow
 import pytest
 
 from signals_notebook.common_types import EID, EntityType, ObjectType
 from signals_notebook.entities.notebook import Notebook
+
+
+@pytest.fixture()
+def set_template_name(entity_factory):
+    entity = entity_factory()
+    previous_template_name = entity.get_template_name()
+    entity.set_template_name('smth.html')
+    yield entity, previous_template_name
+    entity.set_template_name('entity.html')
 
 
 def test_get_list(api_mock):
@@ -112,3 +122,19 @@ def test_refresh(notebook_factory, entity_store_mock):
     notebook.refresh()
 
     entity_store_mock.refresh.assert_called_once_with(notebook)
+
+
+def test_set_template(set_template_name):
+    entity, previous_template_name = set_template_name
+    current_template_name = entity.get_template_name()
+
+    assert previous_template_name != current_template_name
+    assert current_template_name == 'smth.html'
+
+
+def test_get_html(entity_factory, snapshot):
+    entity = entity_factory(name='name', edited_at=datetime.datetime(2018, 6, 1, 1, 1, 1), description='text')
+
+    entity_html = entity.get_html()
+
+    snapshot.assert_match(entity_html)

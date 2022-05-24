@@ -1,7 +1,7 @@
 import factory
 
 from signals_notebook.common_types import EID, EntityType
-from signals_notebook.entities import ChemicalDrawing, Excel, Experiment, Image, Notebook, Text, Word
+from signals_notebook.entities import ChemicalDrawing, Entity, Excel, Experiment, Image, Notebook, Text, Word
 
 
 class EIDFactory(factory.Factory):
@@ -20,9 +20,10 @@ class EIDFactory(factory.Factory):
 
 class EntityFactory(factory.Factory):
     class Meta:
-        abstract = True
+        model = Entity
 
     eid = factory.SubFactory(EIDFactory)
+    type = factory.Faker('word')
     name = factory.Faker('word')
     description = factory.Faker('text')
     digest = factory.Sequence(lambda n: f'{n}')

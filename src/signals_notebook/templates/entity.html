@@ -1,0 +1,24 @@
+<div>
+    <h2>{{ data['name'] }}</h2>
+    <table border="1">
+        <tbody>
+            <tr>
+            {% for value in data['content'] %}
+                <td>{{ value }}</td>
+            {% endfor %}
+            </tr>
+        </tbody>
+    </table>
+    <table border="1">
+        <tbody>
+            <tr>
+            {% if data['edited_at'] %}
+                <td>{{ 'Modified: ' + data['edited_at'].strftime('%H:%M %d.%m.%Y') }}</td>
+            {% endif %}
+            {% if data['description'] %}
+                <td>{{ 'Description: '+ data['description'] }}</td>
+            {% endif %}
+            </tr>
+        </tbody>
+    </table>
+</div>

@@ -84,3 +84,20 @@ def test_get_content(image_factory, api_mock, base64):
         assert result.content == b64.b64encode(content)
     else:
         assert result.content == content
+
+
+def test_get_html(image_factory, snapshot, api_mock):
+    image = image_factory(name='name')
+    file_name = 'image.png'
+    content = b'image content'
+    content_type = 'image/png'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+
+    image_html = image.get_html()
+
+    snapshot.assert_match(image_html)

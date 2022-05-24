@@ -3,8 +3,6 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.common_types import EID
-
 
 class ColumnDataType(str, Enum):
     NUMBER = 'number'
@@ -32,7 +30,6 @@ class ColumnDefinition(BaseModel):
 
 
 class ColumnDefinitions(BaseModel):
-    id: EID
     reactants: Optional[list[ColumnDefinition]]
     products: Optional[list[ColumnDefinition]]
     solvents: Optional[list[ColumnDefinition]]

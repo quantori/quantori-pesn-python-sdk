@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from typing import Any, cast, Dict, Generator, Optional, Type, TypeVar
+from typing import Any, cast, ClassVar, Dict, Generator, Optional, Type, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -14,6 +14,7 @@ from signals_notebook.common_types import (
     Response,
     ResponseData,
 )
+from signals_notebook.jinja_env import env
 
 ChildClass = TypeVar('ChildClass', bound='Entity')
 
@@ -26,6 +27,7 @@ class Entity(BaseModel):
     description: Optional[str] = Field(title='Description', default=None)
     created_at: datetime = Field(alias='createdAt', allow_mutation=False)
     edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
+    _template_name: ClassVar = 'entity.html'
 
     class Config:
         validate_assignment = True
@@ -45,6 +47,14 @@ class Entity(BaseModel):
             yield subclass
 
     @classmethod
+    def set_template_name(cls, template_name: str) -> None:
+        cls._template_name = template_name
+
+    @classmethod
+    def get_template_name(cls) -> str:
+        return cls._template_name
+
+    @classmethod
     def _get_endpoint(cls) -> str:
         return 'entities'
 
@@ -57,10 +67,12 @@ class Entity(BaseModel):
     @classmethod
     def get_list(cls) -> Generator['Entity', None, None]:
         from signals_notebook.entities.entity_store import EntityStore
+
         return EntityStore.get_list(**cls._get_list_params())
 
     def delete(self) -> None:
         from signals_notebook.entities.entity_store import EntityStore
+
         EntityStore.delete(self.eid)
 
     @classmethod
@@ -111,3 +123,9 @@ class Entity(BaseModel):
     @property
     def short_description(self) -> EntityShortDescription:
         return EntityShortDescription(type=self.type, id=self.eid)
+
+    def get_html(self) -> str:
+        data = {'name': self.name, 'edited_at': self.edited_at, 'type': self.type, 'description': self.description}
+        template = env.get_template(self._template_name)
+
+        return template.render(data=data)

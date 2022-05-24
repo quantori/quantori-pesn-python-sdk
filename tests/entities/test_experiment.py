@@ -1,3 +1,5 @@
+import datetime
+
 import arrow
 import pytest
 
@@ -296,6 +298,7 @@ def test_get_children(api_mock, experiment_factory, eid_factory):
     api_mock.call.assert_called_once_with(
         method='GET',
         path=('entities', experiment.eid, 'children'),
+        params={'order': 'layout'},
     )
 
     assert isinstance(result[0], Text)
@@ -306,3 +309,21 @@ def test_get_children(api_mock, experiment_factory, eid_factory):
 
     assert isinstance(result[2], Entity)
     assert result[2].eid == unknown_eid
+
+
+def test_get_html(api_mock, experiment_factory, snapshot):
+    experiment = experiment_factory(
+        name='name',
+        description='text',
+        edited_at=datetime.datetime(2018, 6, 1, 1, 1, 1),
+        children=[],
+    )
+    response = {
+        'links': {'self': f'https://example.com/{experiment.eid}/children'},
+        'data': [],
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    experiment_html = experiment.get_html()
+
+    snapshot.assert_match(experiment_html)
