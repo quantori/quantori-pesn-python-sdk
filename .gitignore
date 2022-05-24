@@ -53,3 +53,4 @@ Thumbs.db
 /.coverage
 *.egg-info/
 /examples/.ipynb_checkpoints
+*.pdf
