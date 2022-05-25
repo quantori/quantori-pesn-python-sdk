@@ -375,13 +375,13 @@ def test_create_batch(api_mock, mid_factory, library_factory):
     asset_eid = mid_factory(type=MaterialType.ASSET)
     response = {
         'links': {
-            'self': f"https://example.com/api/rest/v1.0/materials/batch:{batch_eid}"
+            'self': f'https://example.com/api/rest/v1.0/materials/batch:{batch_eid}'
         },
         'data': {
             'type': 'material',
             'id': f'batch:{batch_eid.id}',
             'links': {
-                'self': f"https://example.com/api/rest/v1.0/materials/batch:{batch_eid}"
+                'self': f'https://example.com/api/rest/v1.0/materials/batch:{batch_eid}'
             },
             'attributes': {
                 'library': library.name,
@@ -404,7 +404,7 @@ def test_create_batch(api_mock, mid_factory, library_factory):
     result = library.create_batch(asset_name=asset_name, batch_fields={'Link Name': text})
 
     request_data = BatchRequestData(
-        type="batch",
+        type='batch',
         attributes=BatchAssetAttribute(fields=[{'id': library.batch_config.fields[1].id, 'value': {
             'eid': text.eid,
             'name': text.name,
@@ -415,7 +415,7 @@ def test_create_batch(api_mock, mid_factory, library_factory):
     api_mock.call.assert_called_once_with(
         method='POST',
         path=('materials', library.name, 'assets', asset_name, 'batches'),
-        json={"data": request_data.dict()}
+        json={'data': request_data.dict()}
     )
 
     assert isinstance(result, Batch)
@@ -430,7 +430,6 @@ def test_create_batch(api_mock, mid_factory, library_factory):
 
 def test_create_asset_with_batches(api_mock, mid_factory, library_factory):
     asset_name = 'AST-0001'
-    batch_name = 'BTCH-0001'
 
     library = library_factory()
 
@@ -438,13 +437,13 @@ def test_create_asset_with_batches(api_mock, mid_factory, library_factory):
     asset_eid = mid_factory(type=MaterialType.ASSET)
     response = {
         'links': {
-            'self': f"https://example.com/api/rest/v1.0/materials/asset:{asset_eid.id}"
+            'self': f'https://example.com/api/rest/v1.0/materials/asset:{asset_eid.id}'
         },
         'data': {
             'type': 'material',
             'id': f'asset:{asset_eid.id}',
             'links': {
-                'self': f"https://example.com/api/rest/v1.0/materials/asset:{asset_eid.id}"
+                'self': f'https://example.com/api/rest/v1.0/materials/asset:{asset_eid.id}'
             },
             'attributes': {
                 'library': library.name,
@@ -459,12 +458,12 @@ def test_create_asset_with_batches(api_mock, mid_factory, library_factory):
                 'type': 'asset',
                 'digest': '64701446',
             },
-            "relationships": {
-                "batches": {
-                    "data": [
+            'relationships': {
+                'batches': {
+                    'data': [
                         {
-                            "type": "material",
-                            "id": f"batch:{batch_eid.id}"
+                            'type': 'material',
+                            'id': f'batch:{batch_eid.id}'
                         }
                     ]
                 },
@@ -475,21 +474,21 @@ def test_create_asset_with_batches(api_mock, mid_factory, library_factory):
     api_mock.call.return_value.json.return_value = response
     text = TextFactory()
     result = library.create_asset_with_batches(asset_with_batch_fields={
-        "asset": {"Name": "Created"},
-        "batch": {'Link Name': text}
+        'asset': {'Name': 'Created'},
+        'batch': {'Link Name': text}
     })
     request_data = AssetRequestData(
-        type="asset",
+        type='asset',
         attributes=BatchAssetAttribute(
             fields=[{
                 'id': library.asset_config.fields[0].id,
-                'value': "Created"
+                'value': 'Created'
             }]
         ),
         relationships=AssetRelationship(
             batch=DataRelationship(
                 data=BatchRequestData(
-                    type="batch",
+                    type='batch',
                     attributes=BatchAssetAttribute(fields=[{
                         'id': library.batch_config.fields[1].id,
                         'value': {
@@ -506,7 +505,7 @@ def test_create_asset_with_batches(api_mock, mid_factory, library_factory):
     api_mock.call.assert_called_once_with(
         method='POST',
         path=('materials', library.name, 'assets'),
-        json={"data": request_data.dict()}
+        json={'data': request_data.dict()}
     )
 
     assert isinstance(result, Asset)

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import cast, List, Literal, Optional, Any
+from typing import Any, cast, List, Literal, Optional
 
 from pydantic import BaseModel, Field, PrivateAttr
 
@@ -58,7 +58,7 @@ class BatchAssetAttribute(BaseModel):
 
 
 class BatchRequestData(BaseModel):
-    type: str = "batch"
+    type: str = 'batch'
     attributes: BatchAssetAttribute
 
 
@@ -71,7 +71,7 @@ class AssetRelationship(BaseModel):
 
 
 class AssetRequestData(BaseModel):
-    type: str = "asset"
+    type: str = 'asset'
     attributes: BatchAssetAttribute
     relationships: Optional[AssetRelationship] = None
 
@@ -200,20 +200,20 @@ class Library(BaseMaterialEntity):
                 if field.name == name:
                     fields.append(
                         {
-                            "id": field.id,
-                            "value": field.to_internal_value(value)
+                            'id': field.id,
+                            'value': field.to_internal_value(value)
                         }
                     )
 
         request_data = BatchRequestData(
-            type="batch",
+            type='batch',
             attributes=BatchAssetAttribute(fields=fields)
         )
 
         response = api.call(
             method='POST',
             path=(self._get_endpoint(), self.library_name, 'assets', asset_name, 'batches'),
-            json={"data": request_data.dict()}
+            json={'data': request_data.dict()}
         )
 
         result = BatchResponse(_context={'_library': self}, **response.json())
@@ -231,30 +231,30 @@ class Library(BaseMaterialEntity):
         for material_instance in asset_with_batch_fields:
             request_instance_fields = []
             config = self.asset_config
-            if material_instance == "batch":
+            if material_instance == 'batch':
                 config = self.batch_config
             for name, value in asset_with_batch_fields[material_instance].items():
                 for field in config.fields:
                     if field.name == name:
                         request_instance_fields.append(
                             {
-                                "id": field.id,
-                                "value": field.to_internal_value(value)
+                                'id': field.id,
+                                'value': field.to_internal_value(value)
                             }
                         )
 
             request_fields[material_instance] = request_instance_fields
 
         request_data = AssetRequestData(
-            type="asset",
+            type='asset',
             attributes=BatchAssetAttribute(
                 fields=request_fields['asset']
             ),
             relationships=AssetRelationship(
                 batch=DataRelationship(
                     data=BatchRequestData(
-                        type="batch",
-                        attributes=BatchAssetAttribute(fields=request_fields["batch"])
+                        type='batch',
+                        attributes=BatchAssetAttribute(fields=request_fields['batch'])
                     )
                 )
             )
@@ -264,7 +264,7 @@ class Library(BaseMaterialEntity):
             method='POST',
             path=(self._get_endpoint(), self.library_name, 'assets'),
             json={
-                "data": request_data.dict()
+                'data': request_data.dict()
             }
         )
 
