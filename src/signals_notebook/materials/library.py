@@ -191,17 +191,24 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def create_batch(self, asset_name: str, batch_fields) -> Batch:
+    def create_batch(self, asset_name: str, batch_fields: dict[str, Any]) -> Batch:
         api = SignalsNotebookApi.get_default_api()
         fields = []
 
         for name, value in batch_fields.items():
             for field in self.batch_config.fields:
                 if field.name == name:
-                    fields.append({"id": field.id,
-                                   "value": field.to_internal_value(value)})
+                    fields.append(
+                        {
+                            "id": field.id,
+                            "value": field.to_internal_value(value)
+                        }
+                    )
 
-        request_data = BatchRequestData(type="batch", attributes=BatchAssetAttribute(fields=fields))
+        request_data = BatchRequestData(
+            type="batch",
+            attributes=BatchAssetAttribute(fields=fields)
+        )
 
         response = api.call(
             method='POST',
@@ -213,32 +220,41 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def create_asset_with_batches(self, asset_fields, batch_fields) -> Asset:
+    def create_asset_with_batches(
+            self,
+            asset_with_batch_fields: dict[Literal['asset', 'batch'], dict[str, Any]],
+    ) -> Asset:
         api = SignalsNotebookApi.get_default_api()
-        request_batch_fields = []
-        request_asset_fields = []
 
-        for name, value in batch_fields.items():
-            for field in self.batch_config.fields:
-                if field.name == name:
-                    request_batch_fields.append({"id": field.id,
-                                   "value": field.to_internal_value(value)})
+        request_fields = {}
 
-        for name, value in asset_fields.items():
-            for field in self.asset_config.fields:
-                if field.name == name:
-                    request_asset_fields.append({
-                        "id": field.id,
-                        "value": field.to_internal_value(value)})
+        for material_instance in asset_with_batch_fields:
+            request_instance_fields = []
+            config = self.asset_config
+            if material_instance == "batch":
+                config = self.batch_config
+            for name, value in asset_with_batch_fields[material_instance].items():
+                for field in config.fields:
+                    if field.name == name:
+                        request_instance_fields.append(
+                            {
+                                "id": field.id,
+                                "value": field.to_internal_value(value)
+                            }
+                        )
+
+            request_fields[material_instance] = request_instance_fields
 
         request_data = AssetRequestData(
             type="asset",
-            attributes=BatchAssetAttribute(fields=request_asset_fields),
+            attributes=BatchAssetAttribute(
+                fields=request_fields['asset']
+            ),
             relationships=AssetRelationship(
                 batch=DataRelationship(
-                    data = BatchRequestData(
+                    data=BatchRequestData(
                         type="batch",
-                        attributes=BatchAssetAttribute(fields=request_batch_fields)
+                        attributes=BatchAssetAttribute(fields=request_fields["batch"])
                     )
                 )
             )
