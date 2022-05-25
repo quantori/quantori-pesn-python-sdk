@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, cast, List, Literal, Optional
+from typing import Any, cast, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, PrivateAttr
 
@@ -230,7 +230,7 @@ class Library(BaseMaterialEntity):
 
         for material_instance in asset_with_batch_fields:
             request_instance_fields = []
-            config = self.asset_config
+            config: Union[AssetConfig, BatchConfig] = self.asset_config
             if material_instance == 'batch':
                 config = self.batch_config
             for name, value in asset_with_batch_fields[material_instance].items():
