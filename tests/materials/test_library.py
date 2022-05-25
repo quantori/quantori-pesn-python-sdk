@@ -299,7 +299,7 @@ def test_get_asset_batches(api_mock, mid_factory, library_factory):
     asset_name = 'AST-0001'
 
     library = library_factory()
-    # assert False, library.batch_config.fields
+
     eid1 = mid_factory(type=MaterialType.BATCH)
     eid2 = mid_factory(type=MaterialType.BATCH)
 

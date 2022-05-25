@@ -58,7 +58,7 @@ class BatchAssetAttribute(BaseModel):
 
 
 class BatchRequestData(BaseModel):
-    type: str = 'batch'
+    type: str = MaterialType.BATCH
     attributes: BatchAssetAttribute
 
 
@@ -71,7 +71,7 @@ class AssetRelationship(BaseModel):
 
 
 class AssetRequestData(BaseModel):
-    type: str = 'asset'
+    type: str = MaterialType.ASSET
     attributes: BatchAssetAttribute
     relationships: Optional[AssetRelationship] = None
 
@@ -195,15 +195,14 @@ class Library(BaseMaterialEntity):
         api = SignalsNotebookApi.get_default_api()
         fields = []
 
-        for name, value in batch_fields.items():
-            for field in self.batch_config.fields:
-                if field.name == name:
-                    fields.append(
-                        {
-                            'id': field.id,
-                            'value': field.to_internal_value(value)
-                        }
-                    )
+        for field in self.batch_config.fields:
+            if field.name in batch_fields:
+                fields.append(
+                    {
+                        'id': field.id,
+                        'value': field.to_internal_value(batch_fields[field.name])
+                    }
+                )
 
         request_data = BatchRequestData(
             type='batch',
@@ -222,7 +221,7 @@ class Library(BaseMaterialEntity):
 
     def create_asset_with_batches(
             self,
-            asset_with_batch_fields: dict[Literal['asset', 'batch'], dict[str, Any]],
+            asset_with_batch_fields: dict[Literal['asset', 'batch'], dict[str, Any]]
     ) -> Asset:
         api = SignalsNotebookApi.get_default_api()
 
@@ -231,7 +230,7 @@ class Library(BaseMaterialEntity):
         for material_instance in asset_with_batch_fields:
             request_instance_fields = []
             config: Union[AssetConfig, BatchConfig] = self.asset_config
-            if material_instance == 'batch':
+            if material_instance == MaterialType.BATCH:
                 config = self.batch_config
             for name, value in asset_with_batch_fields[material_instance].items():
                 for field in config.fields:
@@ -246,15 +245,15 @@ class Library(BaseMaterialEntity):
             request_fields[material_instance] = request_instance_fields
 
         request_data = AssetRequestData(
-            type='asset',
+            type=MaterialType.ASSET,
             attributes=BatchAssetAttribute(
-                fields=request_fields['asset']
+                fields=request_fields[MaterialType.ASSET]
             ),
             relationships=AssetRelationship(
                 batch=DataRelationship(
                     data=BatchRequestData(
-                        type='batch',
-                        attributes=BatchAssetAttribute(fields=request_fields['batch'])
+                        type=MaterialType.BATCH,
+                        attributes=BatchAssetAttribute(fields=request_fields[MaterialType.BATCH])
                     )
                 )
             )
