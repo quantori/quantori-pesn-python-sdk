@@ -219,10 +219,8 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def create_asset_with_batches(
-            self,
-            asset_with_batch_fields: dict[Literal['asset', 'batch'], dict[str, Any]]
-    ) -> Asset:
+    def create_asset_with_batches(self,
+                                  asset_with_batch_fields: dict[Literal['asset', 'batch'], dict[str, Any]]) -> Asset:
         api = SignalsNotebookApi.get_default_api()
 
         request_fields = {}
