@@ -231,15 +231,14 @@ class Library(BaseMaterialEntity):
             config: Union[AssetConfig, BatchConfig] = self.asset_config
             if material_instance == MaterialType.BATCH:
                 config = self.batch_config
-            for name, value in asset_with_batch_fields[material_instance].items():
-                for field in config.fields:
-                    if field.name == name:
-                        request_instance_fields.append(
-                            {
-                                'id': field.id,
-                                'value': field.to_internal_value(value)
-                            }
-                        )
+            for field in config.fields:
+                if field.name in asset_with_batch_fields[material_instance]:
+                    request_instance_fields.append(
+                        {
+                            'id': field.id,
+                            'value': field.to_internal_value(asset_with_batch_fields[material_instance][field.name])
+                        }
+                    )
 
             request_fields[material_instance] = request_instance_fields
 
