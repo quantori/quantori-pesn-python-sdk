@@ -80,7 +80,14 @@ class LibraryFactory(BaseMaterialEntityFactory):
                         'mandatory': True,
                         'hidden': False,
                         'dataType': MaterialFieldType.TEXT,
-                    }
+                    },
+                    {
+                        'id': '456',
+                        'name': 'Link Name',
+                        'mandatory': True,
+                        'hidden': False,
+                        'dataType': MaterialFieldType.LINK,
+                    },
                 ],
                 display_name='Lot',
             )

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import cast, List, Literal, Optional
+from typing import Any, cast, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, PrivateAttr
 
@@ -46,6 +46,34 @@ class AssetResponse(Response[Asset]):
 
 class BatchResponse(Response[Batch]):
     pass
+
+
+class BatchAssetField(BaseModel):
+    id: str
+    value: Any
+
+
+class BatchAssetAttribute(BaseModel):
+    fields: List[BatchAssetField]
+
+
+class BatchRequestData(BaseModel):
+    type: str = MaterialType.BATCH
+    attributes: BatchAssetAttribute
+
+
+class DataRelationship(BaseModel):
+    data: BatchRequestData
+
+
+class AssetRelationship(BaseModel):
+    batch: DataRelationship
+
+
+class AssetRequestData(BaseModel):
+    type: str = MaterialType.ASSET
+    attributes: BatchAssetAttribute
+    relationships: Optional[AssetRelationship] = None
 
 
 class Library(BaseMaterialEntity):
@@ -160,5 +188,69 @@ class Library(BaseMaterialEntity):
         )
 
         result = BatchResponse(_context={'_library': self}, **response.json())
+
+        return cast(ResponseData, result.data).body
+
+    def create_batch(self, asset_name: str, batch_fields: dict[str, Any]) -> Batch:
+        api = SignalsNotebookApi.get_default_api()
+        fields = []
+
+        for field in self.batch_config.fields:
+            if field.name in batch_fields:
+                fields.append({'id': field.id, 'value': field.to_internal_value(batch_fields[field.name])})
+
+        request_data = BatchRequestData(type='batch', attributes=BatchAssetAttribute(fields=fields))
+
+        response = api.call(
+            method='POST',
+            path=(self._get_endpoint(), self.library_name, 'assets', asset_name, 'batches'),
+            json={'data': request_data.dict()},
+        )
+
+        result = BatchResponse(_context={'_library': self}, **response.json())
+
+        return cast(ResponseData, result.data).body
+
+    def create_asset_with_batches(
+        self, asset_with_batch_fields: dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]
+    ) -> Asset:
+        api = SignalsNotebookApi.get_default_api()
+
+        request_fields = {}
+
+        for material_instance in asset_with_batch_fields:
+            request_instance_fields = []
+            config: Union[AssetConfig, BatchConfig] = self.asset_config
+            if material_instance == MaterialType.BATCH:
+                config = self.batch_config
+            for field in config.fields:
+                if field.name in asset_with_batch_fields[material_instance]:
+                    request_instance_fields.append(
+                        {
+                            'id': field.id,
+                            'value': field.to_internal_value(asset_with_batch_fields[material_instance][field.name]),
+                        }
+                    )
+
+            request_fields[material_instance] = request_instance_fields
+
+        request_data = AssetRequestData(
+            type=MaterialType.ASSET,
+            attributes=BatchAssetAttribute(fields=request_fields[MaterialType.ASSET]),
+            relationships=AssetRelationship(
+                batch=DataRelationship(
+                    data=BatchRequestData(
+                        type=MaterialType.BATCH,
+                        attributes=BatchAssetAttribute(fields=request_fields[MaterialType.BATCH]),
+                    )
+                )
+            ),
+        )
+
+        response = api.call(
+            method='POST', path=(self._get_endpoint(), self.library_name, 'assets'), json={'data': request_data.dict()}
+        )
+
+        result = AssetResponse(_context={'_library': self}, **response.json())
 
         return cast(ResponseData, result.data).body
