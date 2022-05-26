@@ -197,22 +197,14 @@ class Library(BaseMaterialEntity):
 
         for field in self.batch_config.fields:
             if field.name in batch_fields:
-                fields.append(
-                    {
-                        'id': field.id,
-                        'value': field.to_internal_value(batch_fields[field.name])
-                    }
-                )
+                fields.append({'id': field.id, 'value': field.to_internal_value(batch_fields[field.name])})
 
-        request_data = BatchRequestData(
-            type='batch',
-            attributes=BatchAssetAttribute(fields=fields)
-        )
+        request_data = BatchRequestData(type='batch', attributes=BatchAssetAttribute(fields=fields))
 
         response = api.call(
             method='POST',
             path=(self._get_endpoint(), self.library_name, 'assets', asset_name, 'batches'),
-            json={'data': request_data.dict()}
+            json={'data': request_data.dict()},
         )
 
         result = BatchResponse(_context={'_library': self}, **response.json())
@@ -220,7 +212,7 @@ class Library(BaseMaterialEntity):
         return cast(ResponseData, result.data).body
 
     def create_asset_with_batches(
-            self, asset_with_batch_fields: dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]
+        self, asset_with_batch_fields: dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]
     ) -> Asset:
         api = SignalsNotebookApi.get_default_api()
 
@@ -236,7 +228,7 @@ class Library(BaseMaterialEntity):
                     request_instance_fields.append(
                         {
                             'id': field.id,
-                            'value': field.to_internal_value(asset_with_batch_fields[material_instance][field.name])
+                            'value': field.to_internal_value(asset_with_batch_fields[material_instance][field.name]),
                         }
                     )
 
@@ -244,25 +236,19 @@ class Library(BaseMaterialEntity):
 
         request_data = AssetRequestData(
             type=MaterialType.ASSET,
-            attributes=BatchAssetAttribute(
-                fields=request_fields[MaterialType.ASSET]
-            ),
+            attributes=BatchAssetAttribute(fields=request_fields[MaterialType.ASSET]),
             relationships=AssetRelationship(
                 batch=DataRelationship(
                     data=BatchRequestData(
                         type=MaterialType.BATCH,
-                        attributes=BatchAssetAttribute(fields=request_fields[MaterialType.BATCH])
+                        attributes=BatchAssetAttribute(fields=request_fields[MaterialType.BATCH]),
                     )
                 )
-            )
+            ),
         )
 
         response = api.call(
-            method='POST',
-            path=(self._get_endpoint(), self.library_name, 'assets'),
-            json={
-                'data': request_data.dict()
-            }
+            method='POST', path=(self._get_endpoint(), self.library_name, 'assets'), json={'data': request_data.dict()}
         )
 
         result = AssetResponse(_context={'_library': self}, **response.json())
