@@ -3,7 +3,6 @@ from functools import cached_property
 from typing import ClassVar, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
-from xhtml2pdf.pisa import CreatePDF
 
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
 from signals_notebook.entities.container import Container
@@ -101,8 +100,3 @@ class Experiment(Container):
         template = env.get_template(self._template_name)
 
         return template.render(data=data)
-
-    def get_pdf_from_html(self, output_file_name) -> None:
-        converted_html = self.get_html()
-        with open(output_file_name, 'w+b') as f:
-            CreatePDF(converted_html, f)

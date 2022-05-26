@@ -7,25 +7,11 @@ from snapshottest import Snapshot
 
 snapshots = Snapshot()
 
-snapshots['test_get_html 1'] = '''<div>
+snapshots['test_get_html 1'] = '''<div style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
     <h2>name</h2>
-    <table border="1">
-        <tbody>
-            <tr>
-            
-            </tr>
-        </tbody>
-    </table>
-    <table border="1">
-        <tbody>
-            <tr>
-            
-                <td>Modified: 01:01 01.06.2018</td>
-            
-            
-                <td>Description: text</td>
-            
-            </tr>
-        </tbody>
-    </table>
+    
+    <div>
+        <span>Modified: 01:01 01.06.2018</span>
+    </div>
+    
 </div>'''
