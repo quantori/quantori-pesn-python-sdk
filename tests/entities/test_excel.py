@@ -78,3 +78,20 @@ def test_get_content(excel_factory, api_mock):
     assert result.name == file_name
     assert result.content == content
     assert result.content_type == content_type
+
+
+def test_get_html(excel_factory, snapshot, api_mock):
+    excel = excel_factory(name='name')
+    file_name = 'Test.xlsx'
+    content = b'Some text'
+    content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}'
+    }
+    api_mock.call.return_value.content = content
+
+    excel_html = excel.get_html()
+
+    snapshot.assert_match(excel_html)
