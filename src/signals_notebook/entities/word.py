@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import ClassVar, Literal
 
 from pydantic import Field
 
@@ -10,6 +10,7 @@ from signals_notebook.entities.contentful_entity import ContentfulEntity
 
 class Word(ContentfulEntity):
     type: Literal[EntityType.WORD] = Field(allow_mutation=False)
+    _template_name: ClassVar = 'word.html'
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:

@@ -1,0 +1,10 @@
+<div style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
+    <h2>{{ data['name'] }}</h2>
+    {% if data['content'] %}
+    {% if data['name'].endswith('.xlsx') %}
+    <a href="{{ data['content'] }}" download="{{ data['name'] }}">DOWNLOAD .XLSX FILE</a>
+    {% else %}
+    <a href="{{ data['content'] }}" download="{{ data['name'] }}.xlsx">DOWNLOAD .XLSX FILE</a>
+    {% endif %}
+    {% endif %}
+</div>

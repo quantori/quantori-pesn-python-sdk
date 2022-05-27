@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import ClassVar, Literal
 
 from pydantic import Field
 
@@ -10,6 +10,7 @@ from signals_notebook.entities.contentful_entity import ContentfulEntity
 
 class Excel(ContentfulEntity):
     type: Literal[EntityType.EXCEL] = Field(allow_mutation=False)
+    _template_name: ClassVar = 'excel.html'
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:

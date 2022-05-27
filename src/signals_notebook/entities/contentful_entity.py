@@ -34,8 +34,11 @@ class ContentfulEntity(Entity, abc.ABC):
         )
 
     def get_html(self) -> str:
-        content = self._get_content()
-        data = {'name': self.name, 'content': content}
+        file = self._get_content()
+        data = {
+            'name': self.name,
+            'content': 'data:{};base64,{}'.format(file.content_type, file.base64.decode('ascii')),
+        }
         template = env.get_template(self._template_name)
 
         return template.render(data=data)

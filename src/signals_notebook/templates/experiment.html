@@ -16,28 +16,55 @@
             margin-top: 1.2rem;
             margin-bottom: 0.3rem;
             font-size: 1.2rem;
+            color: #00A0E1 !important;
         }
 
         table.props th, table.props td {
             text-align: left;
             padding: 3px;
         }
-
-        table.dataframe {
+        .table-scroll {
+            overflow:auto;
+        }
+        .table-wrapper {
+            position:relative;
+        }
+        table, th, td {
+            border: 1px solid #cccccc;
             border-collapse: collapse;
-            min-width: 600px;
+            table-layout: fixed;
+        }
+        .table-wrapper th, td {
+            padding: 10px 20px;
+        }
+        .table-wrapper table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 5px;
+        }
+        .parent {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            aspect-ratio: auto;
+        }
+        .image-container {
+            width: 60%;
+            height: 60%;
+            overflow: hidden;
         }
 
-        table.dataframe td, table.dataframe th {
-            padding: 0.4rem 0.8rem;
-            text-align: left;
-            border: 1px solid #666;
-            font-size: 0.7rem;
+        .image-container img {
+            width: 100%;
+            min-height: 100%;
+            object-fit: cover;
         }
+
     </style>
 </head>
 <body>
-<table class="props">
+<table class="props" style="margin: 10px 10px; padding: 6px 10px;">
     <tr>
         <th>Experiment name:</th>
         <td>{{ data['title']|e }}</td>

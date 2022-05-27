@@ -7,104 +7,120 @@ from snapshottest import Snapshot
 
 snapshots = Snapshot()
 
-snapshots['test_stoichiometry_get_html 1'] = '''<div>
+snapshots['test_stoichiometry_get_html 1'] = '''<div style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
     
-        <h2>Reactants</h2>
+        <div style="width: 100%;color: #999;padding: 2px 10px;">Reactants</div>
         
-<table border="1">
-    <thead>
-        <tr>
-        
-            <th>Name</th>
-        
-        </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-        
-            <td>HCl</td>
-        
-        </tr>
-    
-        <tr>
-        
-            <td>NaOH</td>
-        
-        </tr>
-    
-    </tbody>
-</table>
+<div class="table-wrapper">
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                
+                    <th>Name</th>
+                
+                </tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                
+                    <td>HCl</td>
+                
+                </tr>
+            
+                <tr>
+                
+                    <td>NaOH</td>
+                
+                </tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
 
     
 
     
-        <h2>Products</h2>
+        <div style="width: 100%;color: #999;padding: 2px 10px;">Products</div>
         
-<table border="1">
-    <thead>
-        <tr>
-        
-            <th>Name</th>
-        
-        </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-        
-            <td>H2O</td>
-        
-        </tr>
-    
-        <tr>
-        
-            <td>sodium chloride</td>
-        
-        </tr>
-    
-    </tbody>
-</table>
+<div class="table-wrapper">
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                
+                    <th>Name</th>
+                
+                </tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                
+                    <td>H2O</td>
+                
+                </tr>
+            
+                <tr>
+                
+                    <td>sodium chloride</td>
+                
+                </tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
 
     
 
     
-        <h2>Solvents</h2>
+        <div style="width: 100%;color: #999;padding: 2px 10px;">Solvents</div>
         
-<table border="1">
-    <thead>
-        <tr>
-        
-        </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-        
-        </tr>
-    
-    </tbody>
-</table>
+<div class="table-wrapper">
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                
+                </tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                
+                </tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
 
     
 
     
-        <h2>Conditions</h2>
+        <div style="width: 100%;color: #999;padding: 2px 10px;">Conditions</div>
         
-<table border="1">
-    <thead>
-        <tr>
-        
-        </tr>
-    </thead>
-    <tbody>
-    
-        <tr>
-        
-        </tr>
-    
-    </tbody>
-</table>
+<div class="table-wrapper">
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                
+                </tr>
+            </thead>
+            <tbody>
+            
+                <tr>
+                
+                </tr>
+            
+            </tbody>
+        </table>
+    </div>
+</div>
 
     
 </div>'''

@@ -78,3 +78,20 @@ def test_get_content(word_factory, api_mock):
     assert result.name == file_name
     assert result.content == content
     assert result.content_type == content_type
+
+
+def test_get_html(word_factory, snapshot, api_mock):
+    word = word_factory(name='name')
+    file_name = 'Test.docx'
+    content = b'Some text'
+    content_type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}'
+    }
+    api_mock.call.return_value.content = content
+
+    word_html = word.get_html()
+
+    snapshot.assert_match(word_html)
