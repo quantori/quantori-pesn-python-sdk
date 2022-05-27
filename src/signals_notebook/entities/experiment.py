@@ -97,6 +97,6 @@ class Experiment(Container):
             'children': self.get_children()
         }
 
-        template = env(self._template_name)
+        template = env.get_template(self._template_name)
 
         return template.render(data=data)

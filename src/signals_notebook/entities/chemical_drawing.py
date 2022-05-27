@@ -53,6 +53,6 @@ class ChemicalDrawing(ContentfulEntity):
         if isinstance(self.stoichiometry, Stoichiometry):
             data['stoichiometry_html'] = self.stoichiometry.get_html()
 
-        template = env(self._template_name)
+        template = env.get_template(self._template_name)
 
         return template.render(data=data)
