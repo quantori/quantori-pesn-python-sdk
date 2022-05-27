@@ -86,7 +86,7 @@ class Rows(GenericModel, Generic[RowClass]):
 
             rows.append(reformatted_row)
 
-        template = env.get_template(self._template_name)
+        template = env(self._template_name)
 
         return template.render(rows=rows)
 

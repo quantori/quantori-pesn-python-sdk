@@ -214,6 +214,6 @@ class Table(ContentfulEntity):
 
             rows.append(reformatted_row)
 
-        template = env.get_template(self._template_name)
+        template = env(self._template_name)
 
         return template.render(name=self.name, table_head=table_head, rows=rows)

@@ -127,6 +127,6 @@ class Stoichiometry(BaseModel, abc.ABC):
             'conditions_html': self.conditions.get_html(),
         }
 
-        template = env.get_template(self._template_name)
+        template = env(self._template_name)
 
         return template.render(data=data)
