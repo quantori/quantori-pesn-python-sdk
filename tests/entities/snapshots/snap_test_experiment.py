@@ -25,7 +25,7 @@ snapshots['test_get_html 1'] = '''<!DOCTYPE html>
             margin-top: 1.2rem;
             margin-bottom: 0.3rem;
             font-size: 1.2rem;
-            color: #00A0E1 !important;
+            color: #00A0E1;
         }
 
         table.props th, table.props td {
