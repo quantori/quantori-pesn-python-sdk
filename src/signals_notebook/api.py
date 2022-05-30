@@ -8,27 +8,26 @@ _Data = Union[None, str, bytes, Mapping[str, Any], Mapping[str, Any], Iterable[T
 
 
 class SignalsNotebookApi:
-    """SignalsNotebookApi class
-
-    Attributes:
-        API_VERSION (str): api version. Default = "v1.0"
-        BASE_PATH (str): api base path
-        HTTP_DEFAULT_HEADERS (dict): headers that are used in api
-    """
 
     _default_api_instance = None
     _api_host = ''
 
     API_VERSION = 'v1.0'
+    """api version. Default = "v1.0" (str)
+    """
     BASE_PATH = 'api/rest'
+    """api base path (str)
+    """
     HTTP_DEFAULT_HEADERS = {
         'Content-Type': 'application/vnd.api+json',
     }
+    """ headers that are used in api (dict)
+    """
 
     def __init__(self, session: requests.Session):
         """
         Args:
-            session: session to call api
+            session: A Requests session
         """
         self._session = session
 
@@ -41,7 +40,7 @@ class SignalsNotebookApi:
             api_key: api key for signals notebook api
 
         Returns:
-            instance of SignalsNotebookApi
+            SignalsNotebookApi
         """
         cls._api_host = api_host
         session = requests.Session()
