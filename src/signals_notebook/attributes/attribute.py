@@ -21,6 +21,14 @@ class Attribute(BaseModel):
 
     @classmethod
     def get(cls, id: AttrID) -> 'Attribute':
+        """Get Attribute object by id
+
+        Args:
+            id: AttrID
+
+        Returns:
+            Attribute
+        """
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
