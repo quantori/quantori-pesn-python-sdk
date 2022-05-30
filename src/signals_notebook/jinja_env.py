@@ -6,8 +6,18 @@ package_env = Environment(loader=PackageLoader('signals_notebook'), autoescape=s
 
 
 class TemplateLocationWrapper:
+    """Wrapper to get template location
 
-    def get_template(self, template_name):
+    """
+    def get_template(self, template_name: str):
+        """
+
+        Args:
+            template_name: Full path to the template
+
+        Returns:
+
+        """
         dir_path, file_name = os.path.split(template_name)
         try:
             file_system_env = Environment(loader=FileSystemLoader(os.path.abspath(dir_path)))
