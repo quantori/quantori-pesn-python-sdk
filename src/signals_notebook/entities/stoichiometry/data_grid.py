@@ -43,6 +43,11 @@ class Rows(GenericModel, Generic[RowClass]):
     _template_name: str = 'data_grid.html'
 
     def __init__(self, **data: Any):
+        """
+
+        Args:
+            **data: data to initialize Rows class
+        """
         super(Rows, self).__init__(**data)
 
         for row in self.__root__:
@@ -68,12 +73,30 @@ class Rows(GenericModel, Generic[RowClass]):
 
     @property
     def column_definitions(self) -> list[ColumnDefinition]:
+        """Get column_definitions
+
+        Returns:
+            list of ColumnDefinition objects
+        """
         return self._column_definitions
 
     def set_column_definitions(self, value: list[ColumnDefinition]) -> None:
+        """Set column definitions to value
+
+        Args:
+            value: list of ColumnDefinition objects
+
+        Returns:
+
+        """
         self._column_definitions = value
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        """
         rows = []
         for row in self.__root__:
             reformatted_row = {}
