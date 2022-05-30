@@ -65,8 +65,17 @@ class EID(str):
     def __get_validators__(cls):
         yield cls.validate
 
+    # TODO: add docstring
     @classmethod
     def validate(cls, v: Any):
+        """
+
+        Args:
+            v:
+
+        Returns:
+
+        """
         if not isinstance(v, str):
             raise EIDError(value=v)
 
@@ -80,6 +89,11 @@ class EID(str):
 
     @property
     def type(self) -> Union[EntityType, str]:
+        """Get entity type
+
+        Returns:
+            One of the entity types
+        """
         _type, _ = self.split(':')
         try:
             return EntityType(_type)
@@ -88,6 +102,11 @@ class EID(str):
 
     @property
     def id(self) -> UUID:
+        """Get uuid
+
+        Returns:
+            UUID
+        """
         _, _id = self.split(':')
         return UUID(_id)
 
@@ -106,8 +125,17 @@ class MID(str):
     def __get_validators__(cls):
         yield cls.validate
 
+    # TODO: add docstring
     @classmethod
     def validate(cls, v: Any):
+        """
+
+        Args:
+            v:
+
+        Returns:
+
+        """
         if not isinstance(v, str):
             raise EIDError(value=v)
 
@@ -124,11 +152,21 @@ class MID(str):
 
     @property
     def type(self) -> MaterialType:
+        """Get one of the material types
+
+        Returns:
+            MaterialType
+        """
         _type, _ = self.split(':')
         return MaterialType(_type)
 
     @property
     def id(self) -> str:
+        """Get id of material type
+
+        Returns:
+            str id
+        """
         _, _id = self.split(':')
         return _id
 
@@ -143,6 +181,7 @@ class AttrID(str):
     def __get_validators__(cls):
         yield cls.validate
 
+    # TODO: add docstring
     @classmethod
     def validate(cls, v: Any):
         if not isinstance(v, str):
@@ -161,11 +200,21 @@ class AttrID(str):
 
     @property
     def type(self) -> ObjectType:
+        """Get one of the object types
+
+        Returns:
+            ObjectType
+        """
         _type, _ = self.split(':')
         return ObjectType(_type)
 
     @property
     def id(self) -> int:
+        """Get id of object type
+
+        Returns:
+            int id
+        """
         _, _id = self.split(':')
         return int(_id)
 
@@ -261,10 +310,27 @@ class File(BaseModel):
 
     @classmethod
     def read(cls, file_name: str, mode='rb') -> 'File':
+        """Read content of the file
+
+        Args:
+            file_name: file name in string format
+            mode: specifies the mode in which the file is opened
+
+        Returns:
+            File
+        """
         with open(file_name, mode) as f:
             return cls(f)
 
     def save(self, path: str) -> None:
+        """Add content to file
+
+        Args:
+            path: path to the file
+
+        Returns:
+
+        """
         _path = path
         if os.path.isdir(path):
             _path = os.path.join(path, self.name)
