@@ -37,7 +37,10 @@ class SignalsNotebookApi:
         api = cls(session)
         cls.set_default_api(api)
         log.info(
-            'Default api configured. Host: %s | Base Path: %s | Version: %s ', api._api_host, api.BASE_PATH, api.API_VERSION
+            'Default api configured. Host: %s | Base Path: %s | Version: %s ',
+            api._api_host,
+            api.BASE_PATH,
+            api.API_VERSION,
         )
         return api
 
