@@ -1,8 +1,11 @@
+import logging
 import os
 
 from jinja2 import Environment, FileSystemLoader, PackageLoader, select_autoescape, TemplateNotFound
 
 package_env = Environment(loader=PackageLoader('signals_notebook'), autoescape=select_autoescape())
+
+log = logging.getLogger(__name__)
 
 
 class TemplateLocationWrapper:
@@ -13,6 +16,7 @@ class TemplateLocationWrapper:
             file_system_env = Environment(loader=FileSystemLoader(os.path.abspath(dir_path)))
             return file_system_env.get_template(file_name)
         except TemplateNotFound:
+            log.info('Template not found in system. It will be find in package location')
             return package_env.get_template(file_name)
 
 

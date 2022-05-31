@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import Any, cast, List, Literal, Optional, Union
 
@@ -9,6 +10,8 @@ from signals_notebook.materials.asset import Asset
 from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.field import AssetConfig, BatchConfig
+
+log = logging.getLogger(__name__)
 
 
 class ChangeBlameRecord(BaseModel):
@@ -86,6 +89,8 @@ class Library(BaseMaterialEntity):
 
     def _load_configs(self) -> None:
         # the only way to get config is to fetch all libraries
+        log.debug('Loading asset and batch configs to %s for %s', self.__class__.__name__, self.eid)
+
         result = self._get_library_list_response()
         for item in result.data:
             data = cast(_LibraryListData, cast(ResponseData, item).body)
@@ -101,7 +106,11 @@ class Library(BaseMaterialEntity):
 
         self._load_configs()
 
+        log.debug('Checking Asset Config for %s...', self.eid)
+        if self._asset_config is None:
+            log.warning('Asset Config for %s cannot be None', self.eid)
         assert self._asset_config is not None
+        log.debug('Asset Config for %s is OK', self.eid)
         return self._asset_config
 
     @asset_config.setter
@@ -114,8 +123,11 @@ class Library(BaseMaterialEntity):
             return self._batch_config
 
         self._load_configs()
-
+        log.debug('Checking Batch Config for %s...', self.eid)
+        if self._batch_config is None:
+            log.warning('Batch Config for %s cannot be None', self.eid)
         assert self._batch_config is not None
+        log.debug('Batch Config for %s is OK', self.eid)
         return self._batch_config
 
     @batch_config.setter
@@ -125,6 +137,7 @@ class Library(BaseMaterialEntity):
     @classmethod
     def _get_library_list_response(cls) -> LibraryListResponse:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get Library List Response for %s', cls.eid)
 
         response = api.call(
             method='GET',
@@ -136,6 +149,7 @@ class Library(BaseMaterialEntity):
     @classmethod
     def get_list(cls) -> List['Library']:
         result = cls._get_library_list_response()
+        log.debug('Get List of Libraries for %s', cls.eid)
 
         libraries: List['Library'] = []
         for item in result.data:
@@ -157,6 +171,7 @@ class Library(BaseMaterialEntity):
 
     def get_asset(self, name: str) -> Asset:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get Asset for %s with name: %s', self.eid, name)
 
         response = api.call(
             method='GET',
@@ -169,6 +184,7 @@ class Library(BaseMaterialEntity):
 
     def get_asset_batches(self, name: str) -> List[Batch]:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get Asset of Batches for %s with name: %s', self.eid, name)
 
         response = api.call(
             method='GET',
@@ -181,6 +197,7 @@ class Library(BaseMaterialEntity):
 
     def get_batch(self, name: str) -> Batch:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get a single Batch for %s with name: %s', self.eid, name)
 
         response = api.call(
             method='GET',
@@ -194,6 +211,7 @@ class Library(BaseMaterialEntity):
     def create_batch(self, asset_name: str, batch_fields: dict[str, Any]) -> Batch:
         api = SignalsNotebookApi.get_default_api()
         fields = []
+        log.debug('Create Batch for %s with asset name: %s', self.eid, asset_name, extra={'batch_fields': batch_fields})
 
         for field in self.batch_config.fields:
             if field.name in batch_fields:
@@ -215,6 +233,7 @@ class Library(BaseMaterialEntity):
         self, asset_with_batch_fields: dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]
     ) -> Asset:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Create Asset with existing Batches for %s', self.eid)
 
         request_fields = {}
 

@@ -1,8 +1,11 @@
+import logging
 from typing import Any, Dict, IO, Iterable, Mapping, Optional, Sequence, Tuple, Union
 
 import requests
 
 from signals_notebook.exceptions import SignalsNotebookError
+
+log = logging.getLogger(__name__)
 
 _Data = Union[None, str, bytes, Mapping[str, Any], Mapping[str, Any], Iterable[Tuple[str, Optional[str]]], IO[Any]]
 
@@ -24,12 +27,18 @@ class SignalsNotebookApi:
     @classmethod
     def init(cls, api_host: str, api_key: str) -> 'SignalsNotebookApi':
         cls._api_host = api_host
+
+        log.info('Initialize session for api...')
         session = requests.Session()
+        log.info('Session created', extra={'headers': session.headers})
+
         session.headers.update({'x-api-key': api_key})
 
         api = cls(session)
         cls.set_default_api(api)
-
+        log.info(
+            'Default api configured. Host:%s| Base Path: %s| Version:%s', api._api_host, api.BASE_PATH, api.API_VERSION
+        )
         return api
 
     @classmethod
@@ -39,6 +48,7 @@ class SignalsNotebookApi:
     @classmethod
     def get_default_api(cls) -> 'SignalsNotebookApi':
         if not cls._default_api_instance:
+            log.error('You must initialize API before using')
             raise AttributeError('You must initialize API before using')
         return cls._default_api_instance
 
@@ -96,9 +106,14 @@ class SignalsNotebookApi:
                 params=params,
                 headers=headers,
             )
-
         if not response.ok:
+            log.error(
+                'Error has been occurred while getting response, status code: %s',
+                response.status_code,
+                extra={'response': response},
+            )
             raise SignalsNotebookError(response)
+        log.info('Successful request - HTTP url: %s, status code: %s', response.url, response.status_code)
 
         return response
 
