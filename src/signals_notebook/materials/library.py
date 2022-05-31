@@ -137,7 +137,7 @@ class Library(BaseMaterialEntity):
     @classmethod
     def _get_library_list_response(cls) -> LibraryListResponse:
         api = SignalsNotebookApi.get_default_api()
-        log.debug('Get Library List Response for %s', cls.eid)
+        log.debug('Get Library List Response for %s', cls.__name__)
 
         response = api.call(
             method='GET',
@@ -149,7 +149,7 @@ class Library(BaseMaterialEntity):
     @classmethod
     def get_list(cls) -> List['Library']:
         result = cls._get_library_list_response()
-        log.debug('Get List of Libraries for %s', cls.eid)
+        log.debug('Get List of Libraries for %s', cls.__name__)
 
         libraries: List['Library'] = []
         for item in result.data:

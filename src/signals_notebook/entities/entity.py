@@ -45,16 +45,16 @@ class Entity(BaseModel):
 
     @classmethod
     def get_subclasses(cls) -> Generator[Type['Entity'], None, None]:
-        log.debug('Get subclasses for: %s', cls.eid)
+        log.debug('Get subclasses for: %s', cls.__name__)
         for subclass in cls.__subclasses__():
             yield from subclass.get_subclasses()
             yield subclass
 
     @classmethod
     def set_template_name(cls, template_name: str) -> None:
-        log.debug('Setting new template for: %s...', cls.eid)
+        log.debug('Setting new template for: %s...', cls.__name__)
         cls._template_name = template_name
-        log.debug('New template (%s) for %s was set', template_name, cls.eid)
+        log.debug('New template (%s) for %s was set', template_name, cls.__name__)
 
     @classmethod
     def get_template_name(cls) -> str:
@@ -85,7 +85,7 @@ class Entity(BaseModel):
     @classmethod
     def _create(cls, *, digest: str = None, force: bool = True, request: EntityCreationRequestPayload) -> EntityClass:
         api = SignalsNotebookApi.get_default_api()
-        log.debug('Create Entity: %s...', cls.eid)
+        log.debug('Create Entity: %s...', cls.__name__)
 
         response = api.call(
             method='POST',
@@ -96,7 +96,7 @@ class Entity(BaseModel):
             },
             json=request.dict(exclude_none=True),
         )
-        log.debug('Entity: %s was created.', cls.eid)
+        log.debug('Entity: %s was created.', cls.__name__)
 
         result = Response[cls](**response.json())  # type: ignore
 

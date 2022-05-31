@@ -22,7 +22,7 @@ class Text(ContentfulEntity):
 
     @classmethod
     def create(cls, *, container: Container, name: str, content: str = '', force: bool = True) -> Entity:
-        log.debug('Create entity: %s with name: %s in Container: %s', cls.eid, name, container.eid)
+        log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
             content=content.encode('utf-8'),

@@ -25,7 +25,6 @@ class Attribute(BaseModel):
     @classmethod
     def get(cls, id: AttrID) -> 'Attribute':
         api = SignalsNotebookApi.get_default_api()
-        log.debug('Get instance of %s (type: %s)', cls.name, cls.type)
 
         response = api.call(
             method='GET',
@@ -33,6 +32,7 @@ class Attribute(BaseModel):
         )
 
         result = Response[cls](**response.json())  # type: ignore
+        log.debug('Get Attribute with ID: %s', id)
 
         return cast(ResponseData, result.data).body
 

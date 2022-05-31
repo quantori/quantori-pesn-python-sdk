@@ -56,7 +56,7 @@ class EntityStore:
         modified_before: datetime = None,
     ) -> Generator[Entity, None, None]:
         api = SignalsNotebookApi.get_default_api()
-        log.debug('Get List of Entities: %s from EntityStore...')
+        log.debug('Get List of Entities from EntityStore...')
 
         params = {}
         if include_types:
@@ -90,7 +90,7 @@ class EntityStore:
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
 
-        log.debug('List of Entities: %s were got successfully from EntityStore.')
+        log.debug('List of Entities were got successfully from EntityStore.')
 
     @classmethod
     def refresh(cls, entity: Entity) -> None:

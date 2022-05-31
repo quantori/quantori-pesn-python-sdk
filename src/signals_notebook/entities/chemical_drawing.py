@@ -35,7 +35,7 @@ class ChemicalDrawing(ContentfulEntity):
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:
-        log.debug('Create entity: %s with name: %s in Container: %s', cls.eid, name, container.eid)
+        log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
             content=content,

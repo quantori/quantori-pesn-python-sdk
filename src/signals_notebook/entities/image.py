@@ -32,7 +32,7 @@ class Image(ContentfulEntity):
         file_extension: str = '',
         force: bool = True,
     ) -> Entity:
-        log.debug('Create entity: %s with name: %s in Container: %s', cls.eid, name, container.eid)
+        log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
 
         file_extension = file_extension.replace('.', '')
         content_type = mimetypes.types_map.get(f'.{file_extension}', 'application/octet-stream')

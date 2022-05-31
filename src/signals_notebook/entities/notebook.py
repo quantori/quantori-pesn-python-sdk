@@ -50,7 +50,7 @@ class Notebook(Container):
             )
         )
 
-        log.debug('Creating Notebook for: %s', cls.eid)
+        log.debug('Creating Notebook for: %s', cls.__name__)
         return super()._create(
             digest=digest,
             force=force,
