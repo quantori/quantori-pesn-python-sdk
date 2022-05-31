@@ -30,14 +30,14 @@ class SignalsNotebookApi:
 
         log.info('Initialize session for api...')
         session = requests.Session()
-        log.info('Session created', extra={'headers': session.headers})
+        log.info('Session created. session.headers: %s', session.headers)
 
         session.headers.update({'x-api-key': api_key})
 
         api = cls(session)
         cls.set_default_api(api)
         log.info(
-            'Default api configured. Host:%s| Base Path: %s| Version:%s', api._api_host, api.BASE_PATH, api.API_VERSION
+            'Default api configured. Host: %s | Base Path: %s | Version: %s ', api._api_host, api.BASE_PATH, api.API_VERSION
         )
         return api
 
