@@ -38,12 +38,8 @@ class BiologicalSequence(ContentfulEntity):
             force=force,
         )
 
-    def get_content(self, base64: bool = False) -> File:
-        file = super()._get_content()
-        if base64:
-            file.content = b64.b64encode(file.content)
-
-        return file
+    def get_content(self) -> File:
+        return super()._get_content()
 
     def get_html(self) -> str:
         data = {'name': self.name}
