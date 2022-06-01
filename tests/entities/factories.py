@@ -1,7 +1,17 @@
 import factory
 
 from signals_notebook.common_types import EID, EntityType
-from signals_notebook.entities import ChemicalDrawing, Entity, Excel, Experiment, Image, Notebook, Text, Word
+from signals_notebook.entities import (
+    BiologicalSequence,
+    ChemicalDrawing,
+    Entity,
+    Excel,
+    Experiment,
+    Image,
+    Notebook,
+    Text,
+    Word,
+)
 
 
 class EIDFactory(factory.Factory):
@@ -78,3 +88,10 @@ class ExcelFactory(EntityFactory):
         model = Excel
 
     type = EntityType.EXCEL
+
+
+class BiologicalSequenceFactory(EntityFactory):
+    class Meta:
+        model = BiologicalSequence
+
+    type = EntityType.BIO_SEQUENCE
