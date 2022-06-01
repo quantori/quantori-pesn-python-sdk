@@ -45,6 +45,7 @@ class EntityType(str, Enum):
     IMAGE_RESOURCE = 'imageResource'
     WORD = 'viewonly'
     EXCEL = 'excel'
+    BIOLOGICAL_SEQUENCE = 'bioSequence'
 
 
 class MaterialType(str, Enum):
