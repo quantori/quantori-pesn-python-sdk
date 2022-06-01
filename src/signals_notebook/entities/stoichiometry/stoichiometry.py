@@ -28,6 +28,9 @@ class StoichiometryDataResponse(Response[DataGrids]):
 
 
 class Stoichiometry(BaseModel, abc.ABC):
+    """Stoichiometry object of Signals Notebook
+
+    """
     eid: EID = Field(allow_mutation=False)
     reactants: Reactants = Field(default=Reactants(__root__=[]))
     products: Products = Field(default=Products(__root__=[]))
@@ -40,6 +43,14 @@ class Stoichiometry(BaseModel, abc.ABC):
 
     @classmethod
     def set_template_name(cls, template_name: str) -> None:
+        """Set new template name
+
+        Args:
+            template_name: name of the template (str)
+
+        Returns:
+
+        """
         cls._template_name = template_name
 
     @classmethod
@@ -69,6 +80,15 @@ class Stoichiometry(BaseModel, abc.ABC):
 
     @classmethod
     def fetch_data(cls, entity_eid: EID) -> Union['Stoichiometry', list['Stoichiometry']]:
+        """Fetch stoichiometry data of experiment or chemicalDrawing by entity_id.
+        Accepted entity types: experiment, chemicalDrawing.
+
+        Args:
+            entity_eid (Entity ID): Unique entity identifier
+
+        Returns:
+            Stoichiometry object or list of Stoichiometry objects
+        """
         api = SignalsNotebookApi.get_default_api()
         fields = ', '.join(DataGridKind)
 
@@ -92,6 +112,15 @@ class Stoichiometry(BaseModel, abc.ABC):
             return stoichiometry
 
     def fetch_structure(self, row_id: str, format: Optional[ChemicalDrawingFormat] = None) -> File:
+        """Fetch structure of reactants/products. Accepted entity types: chemicalDrawing.
+
+        Args:
+            row_id: row_id of grid data.
+            format: one of the ChemicalDrawingFormat formats
+
+        Returns:
+            File
+        """
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -110,6 +139,14 @@ class Stoichiometry(BaseModel, abc.ABC):
         )
 
     def get_column_definitions(self, data_grid_kind: DataGridKind) -> list[ColumnDefinition]:
+        """Get column definitions of stoichiometry grid.
+
+        Args:
+            data_grid_kind (DataGridKind): kind of data grids in stoichiometry
+
+        Returns:
+            list of ColumnDefinition objects
+        """
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(method='GET', path=(self._get_endpoint(), self.eid, 'columns', data_grid_kind))
@@ -120,6 +157,11 @@ class Stoichiometry(BaseModel, abc.ABC):
         return getattr(body, data_grid_kind, [])
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        """
         data = {
             'reactants_html': self.reactants.get_html(),
             'products_html': self.products.get_html(),
