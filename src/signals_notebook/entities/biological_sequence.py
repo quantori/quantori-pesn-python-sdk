@@ -12,12 +12,12 @@ from signals_notebook.jinja_env import env
 
 
 class BiologicalSequence(ContentfulEntity):
-    type: Literal[EntityType.BIOLOGICAL_SEQUENCE] = Field(allow_mutation=False)
+    type: Literal[EntityType.BIO_SEQUENCE] = Field(allow_mutation=False)
     _template_name: ClassVar = 'bio_sequence.html'
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
-        return EntityType.BIOLOGICAL_SEQUENCE
+        return EntityType.BIO_SEQUENCE
 
     @classmethod
     def create(
