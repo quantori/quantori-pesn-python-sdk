@@ -1,0 +1,10 @@
+<div style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
+    <h2>{{ data['bio_sequence'] }}</h2>
+    {% if data['bio_sequence'] %}
+    <div class="parent">
+        <div class="image-container">
+            <img src="{{ data['bio_sequence'] }}" alt="BioSequence preview" style="width:100%;"/>
+        </div>
+    </div>
+    {% endif %}
+</div>
