@@ -88,7 +88,7 @@ def test_get_content(biological_sequence_factory, api_mock, bio_seq_content):
     assert result.content == bio_seq_content
 
 
-@pytest.skip('Fix this test after implementing rendering bio sequence in HTML format')
+@pytest.mark.skip('Fix this test after implementing rendering bio sequence in HTML format')
 def test_get_html(biological_sequence_factory, snapshot, api_mock, bio_seq_content):
     bio_sequence = biological_sequence_factory(name='name')
     file_name = 'bio_sequence.gb'
