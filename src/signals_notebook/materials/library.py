@@ -109,8 +109,7 @@ class Library(BaseMaterialEntity):
         log.debug('Checking Asset Config for %s...', self.eid)
         if self._asset_config is None:
             log.warning('Asset Config for %s cannot be None', self.eid)
-        assert self._asset_config is not None
-        log.debug('Asset Config for %s is OK', self.eid)
+        assert self._asset_config is not None, f'Asset Config for {self.eid} cannot be None'
         return self._asset_config
 
     @asset_config.setter
@@ -126,8 +125,7 @@ class Library(BaseMaterialEntity):
         log.debug('Checking Batch Config for %s...', self.eid)
         if self._batch_config is None:
             log.warning('Batch Config for %s cannot be None', self.eid)
-        assert self._batch_config is not None
-        log.debug('Batch Config for %s is OK', self.eid)
+        assert self._asset_config is not None, f'Batch Config for {self.eid} cannot be None'
         return self._batch_config
 
     @batch_config.setter
