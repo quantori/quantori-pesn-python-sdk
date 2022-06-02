@@ -7,7 +7,7 @@ from signals_notebook.entities import BiologicalSequence
 
 @pytest.fixture
 def bio_seq_content():
-    bio_seq_file = open('test_files/bio_sequence_content.txt')
+    bio_seq_file = open('test_files/bio_sequence_content.gb')
     file = File(bio_seq_file)
     return file.content
 
