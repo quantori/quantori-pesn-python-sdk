@@ -7,9 +7,9 @@ from signals_notebook.entities import BiologicalSequence
 
 @pytest.fixture
 def bio_seq_content():
-    bio_seq_file = open('tests/entities/test_files/bio_sequence_content.gb')
-    file = File(bio_seq_file)
-    return file.content
+    with open('tests/entities/test_files/bio_sequence_content.gb') as bio_seq_file:
+        file = File(bio_seq_file)
+        return file.content
 
 
 @pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
