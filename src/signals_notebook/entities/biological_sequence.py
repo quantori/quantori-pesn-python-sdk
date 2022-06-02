@@ -1,4 +1,3 @@
-import base64 as b64
 import mimetypes
 from typing import ClassVar, Literal
 
@@ -44,7 +43,7 @@ class BiologicalSequence(ContentfulEntity):
     def get_html(self) -> str:
         data = {'name': self.name}
         file = self.get_content()
-        data['bio_sequence'] = 'data:{};base64,{}'.format(file.content_type, file.base64.decode('ascii'))
+        data['bio_sequence'] = 'data:{};base64,{}'.format(file.content_type, file.content)
 
         template = env.get_template(self._template_name)
 
