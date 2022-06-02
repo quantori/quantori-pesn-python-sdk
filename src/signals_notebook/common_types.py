@@ -31,6 +31,7 @@ class ObjectType(str, Enum):
     ASSET_TYPE = 'assetType'
     ATTRIBUTE = 'attribute'
     STOICHIOMETRY = 'stoichiometry'
+    PROPERTY = 'property'
 
 
 class EntityType(str, Enum):
@@ -45,6 +46,8 @@ class EntityType(str, Enum):
     IMAGE_RESOURCE = 'imageResource'
     WORD = 'viewonly'
     EXCEL = 'excel'
+    SAMPLE = 'sample'
+    SAMPLES_CONTAINER = 'samplesContainer'
 
 
 class MaterialType(str, Enum):
