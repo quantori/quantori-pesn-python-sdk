@@ -1,9 +1,12 @@
+import logging
 from typing import cast, List, Literal
 
 from pydantic import BaseModel
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import AttrID, Response, ResponseData
+
+log = logging.getLogger(__name__)
 
 
 class Attribute(BaseModel):
@@ -29,11 +32,13 @@ class Attribute(BaseModel):
         )
 
         result = Response[cls](**response.json())  # type: ignore
+        log.debug('Get Attribute with ID: %s', id)
 
         return cast(ResponseData, result.data).body
 
     def __call__(self, value: str) -> str:
         if value not in self.options:
+            log.exception('Incorrect attribute value')
             raise ValueError('Incorrect attribute value')
 
         return value

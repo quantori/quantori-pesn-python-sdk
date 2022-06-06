@@ -1,11 +1,14 @@
 import abc
 import json
+import logging
 import mimetypes
 from typing import cast, Generator, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
 from signals_notebook.entities import Entity
+
+log = logging.getLogger(__name__)
 
 
 class Container(Entity, abc.ABC):
@@ -38,6 +41,7 @@ class Container(Entity, abc.ABC):
             },
             data=content,
         )
+        log.debug('Added child: %s to Container: %s', self.name, self.eid)
 
         entity_classes = (*Entity.get_subclasses(), Entity)
         result = Response[Union[entity_classes]](**response.json())  # type: ignore
@@ -46,6 +50,7 @@ class Container(Entity, abc.ABC):
 
     def get_children(self) -> Generator[Entity, None, None]:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get children for: %s', self.eid)
 
         response = api.call(
             method='GET',
