@@ -1,7 +1,7 @@
 import logging
 import os
 
-from jinja2 import Environment, FileSystemLoader, PackageLoader, select_autoescape, TemplateNotFound, Template
+from jinja2 import Environment, FileSystemLoader, PackageLoader, select_autoescape, Template, TemplateNotFound
 
 package_env = Environment(loader=PackageLoader('signals_notebook'), autoescape=select_autoescape())
 
