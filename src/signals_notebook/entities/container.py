@@ -1,7 +1,7 @@
 import abc
 import json
 import mimetypes
-from typing import cast, List, Union
+from typing import cast, Generator, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
@@ -44,7 +44,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self) -> List[Entity]:
+    def get_children(self) -> Generator[Entity, None, None]:
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -59,4 +59,13 @@ class Container(Entity, abc.ABC):
 
         result = Response[Union[entity_classes]](**response.json())  # type: ignore
 
-        return [cast(ResponseData, item).body for item in result.data]
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+        while result.links and result.links.next:
+            response = api.call(
+                method='GET',
+                path=result.links.next,
+            )
+
+            result = Response[Union[entity_classes]](**response.json())  # type: ignore
+            yield from [cast(ResponseData, item).body for item in result.data]
