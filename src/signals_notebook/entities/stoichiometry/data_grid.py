@@ -1,3 +1,4 @@
+import logging
 from decimal import Decimal
 from enum import Enum
 from typing import Any, cast, Generic, Optional, TypeVar, Union
@@ -8,6 +9,8 @@ from pydantic.generics import GenericModel
 
 from signals_notebook.entities.stoichiometry.cell import ColumnDefinition
 from signals_notebook.jinja_env import env
+
+log = logging.getLogger(__name__)
 
 
 class DataGridKind(str, Enum):
@@ -59,11 +62,13 @@ class Rows(GenericModel, Generic[RowClass]):
             try:
                 return self._rows_by_id[index]
             except KeyError:
+                log.exception('Row will be returned by UUID index')
                 return self._rows_by_id[UUID(index)]
 
         if isinstance(index, UUID):
             return self._rows_by_id[index]
 
+        log.exception('IndexError were caught. Invalid index')
         raise IndexError('Invalid index')
 
     @property
@@ -87,6 +92,7 @@ class Rows(GenericModel, Generic[RowClass]):
             rows.append(reformatted_row)
 
         template = env.get_template(self._template_name)
+        log.info('Html template for %s has been rendered.', self.__class__.__name__)
 
         return template.render(rows=rows)
 

@@ -1,7 +1,10 @@
 import inspect
+import logging
 from typing import no_type_check
 
 from pydantic import BaseModel
+
+log = logging.getLogger(__name__)
 
 
 class PatchedModel(BaseModel):
@@ -14,6 +17,7 @@ class PatchedModel(BaseModel):
         try:
             super().__setattr__(name, value)
         except ValueError as e:
+            log.exception('Cannot set attribute to %s', self.__class__.__name__)
             setters = inspect.getmembers(
                 self.__class__, predicate=lambda x: isinstance(x, property) and x.fset is not None
             )

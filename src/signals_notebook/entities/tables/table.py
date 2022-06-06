@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import Any, cast, Dict, List, Literal, Union
 from uuid import UUID
 
@@ -11,6 +12,8 @@ from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import Cell, CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
 from signals_notebook.jinja_env import env
+
+log = logging.getLogger(__name__)
 
 
 class TableDataResponse(Response[Row]):
@@ -41,6 +44,7 @@ class Table(ContentfulEntity):
 
     def _reload_data(self) -> None:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Reloading data in Table: %s...', self.eid)
 
         response = api.call(
             method='GET',
@@ -60,6 +64,7 @@ class Table(ContentfulEntity):
 
             self._rows.append(row)
             self._rows_by_id[row.id] = row
+        log.debug('Data in Table: %s were reloaded', self.eid)
 
     def get_column_definitions_list(self) -> List[GenericColumnDefinition]:
         api = SignalsNotebookApi.get_default_api()
@@ -115,6 +120,7 @@ class Table(ContentfulEntity):
         if isinstance(index, UUID):
             return self._rows_by_id[index]
 
+        log.exception('IndexError were caught. Invalid index')
         raise IndexError('Invalid index')
 
     def __iter__(self):
@@ -140,6 +146,7 @@ class Table(ContentfulEntity):
             },
         )
 
+        log.debug('Row %s was deleted', row_id)
         self._reload_data()
 
     def add_row(self, data: Dict[str, CellContentDict]) -> None:
@@ -162,6 +169,7 @@ class Table(ContentfulEntity):
 
         row = Row(cells=prepared_data)
         self._rows.append(row)
+        log.debug('Row: %s was added to Table', row)
 
     def save(self, force: bool = True) -> None:
         super().save(force)
@@ -194,6 +202,7 @@ class Table(ContentfulEntity):
         try:
             return self[value]
         except KeyError:
+            log.debug('KeyError were caught. Default value returned')
             return default
 
     def get_html(self) -> str:
@@ -215,5 +224,6 @@ class Table(ContentfulEntity):
             rows.append(reformatted_row)
 
         template = env.get_template(self._template_name)
+        log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(name=self.name, table_head=table_head, rows=rows)

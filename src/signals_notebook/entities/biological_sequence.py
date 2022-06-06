@@ -1,4 +1,3 @@
-import base64 as b64
 import logging
 import mimetypes
 from typing import ClassVar, Literal
@@ -14,13 +13,13 @@ from signals_notebook.jinja_env import env
 log = logging.getLogger(__name__)
 
 
-class Image(ContentfulEntity):
-    type: Literal[EntityType.IMAGE_RESOURCE] = Field(allow_mutation=False)
-    _template_name: ClassVar = 'image.html'
+class BiologicalSequence(ContentfulEntity):
+    type: Literal[EntityType.BIO_SEQUENCE] = Field(allow_mutation=False)
+    _template_name: ClassVar = 'bio_sequence.html'
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
-        return EntityType.IMAGE_RESOURCE
+        return EntityType.BIO_SEQUENCE
 
     @classmethod
     def create(
@@ -32,10 +31,8 @@ class Image(ContentfulEntity):
         file_extension: str = '',
         force: bool = True,
     ) -> Entity:
-        log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
-
         file_extension = file_extension.replace('.', '')
-        content_type = mimetypes.types_map.get(f'.{file_extension}', 'application/octet-stream')
+        content_type = mimetypes.types_map.get(f'.{file_extension}', 'biosequence/genbank')
         return container.add_child(
             name=name,
             content=content,
@@ -43,17 +40,13 @@ class Image(ContentfulEntity):
             force=force,
         )
 
-    def get_content(self, base64: bool = False) -> File:
-        file = super()._get_content()
-        if base64:
-            file.content = b64.b64encode(file.content)
-
-        return file
+    def get_content(self) -> File:
+        return super()._get_content()
 
     def get_html(self) -> str:
         data = {'name': self.name}
         file = self.get_content()
-        data['image'] = 'data:{};base64,{}'.format(file.content_type, file.base64.decode('ascii'))
+        data['bio_sequence'] = 'data:{};base64,{}'.format(file.content_type, file.base64.decode('ascii'))
 
         template = env.get_template(self._template_name)
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)

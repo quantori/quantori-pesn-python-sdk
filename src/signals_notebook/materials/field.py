@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from typing import Annotated, Any, List, Literal, Optional, TYPE_CHECKING, Union
 
@@ -8,6 +9,8 @@ from signals_notebook.common_types import AttrID, File
 
 if TYPE_CHECKING:
     from signals_notebook.materials.material import Material
+
+log = logging.getLogger(__name__)
 
 
 class CollectionType(str, Enum):
@@ -106,6 +109,7 @@ class AttachedFileFieldDefinition(BaseFieldDefinition):
 
     def to_internal_value(self, value: Any) -> Any:
         if not isinstance(value, File):
+            log.exception('File expected')
             raise TypeError('File expected')
 
         return {'filename': value.name, 'base64': value.base64.decode('utf-8')}
@@ -134,6 +138,7 @@ class LinkFieldDefinition(BaseFieldDefinition):
         from signals_notebook.entities.entity import Entity
 
         if not isinstance(value, Entity):
+            log.exception('Entity expected')
             raise TypeError('Entity expected')
 
         return {'eid': value.eid, 'name': value.name, 'type': value.type}

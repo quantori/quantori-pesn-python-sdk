@@ -1,3 +1,4 @@
+import logging
 import mimetypes
 import os
 import re
@@ -13,6 +14,8 @@ from signals_notebook.exceptions import EIDError
 
 EntityClass = TypeVar('EntityClass')
 AnyModel = TypeVar('AnyModel')
+
+log = logging.getLogger(__name__)
 
 
 class ChemicalDrawingFormat(str, Enum):
@@ -71,12 +74,14 @@ class EID(str):
     @classmethod
     def validate(cls, v: Any):
         if not isinstance(v, str):
+            log.error('%s is not instance of str', v)
             raise EIDError(value=v)
 
         try:
             _type, _id = v.split(':')
             UUID(_id)
         except ValueError:
+            log.exception('Cannot get id and type from value')
             raise EIDError(value=v)
 
         return cls(v, validate=False)
@@ -87,6 +92,7 @@ class EID(str):
         try:
             return EntityType(_type)
         except ValueError:
+            log.exception('Cannot get type: %s. There is no the same type in program', _type)
             return _type
 
     @property
@@ -112,15 +118,18 @@ class MID(str):
     @classmethod
     def validate(cls, v: Any):
         if not isinstance(v, str):
+            log.error('%s is not instance of str', v)
             raise EIDError(value=v)
 
         try:
             _type, _id = v.split(':')
             MaterialType(_type)
         except ValueError:
+            log.exception('Cannot get id and type from value')
             raise EIDError(value=v)
 
         if not cls._id_pattern.fullmatch(_id):
+            log.error('ID: %s is not the same with %s pattern', _id, cls._id_pattern)
             raise EIDError(value=v)
 
         return cls(v, validate=False)
@@ -149,15 +158,18 @@ class AttrID(str):
     @classmethod
     def validate(cls, v: Any):
         if not isinstance(v, str):
+            log.error('%s is not instance of str', v)
             raise EIDError(value=v)
 
         try:
             _type, _id = v.split(':')
             int(_id)
         except ValueError:
+            log.exception('Cannot get id and type from value')
             raise EIDError(value=v)
 
         if _type != ObjectType.ATTRIBUTE:
+            log.error('Type: %s is not the same with %s', _type, ObjectType.ATTRIBUTE)
             raise EIDError(value=v)
 
         return cls(v, validate=False)

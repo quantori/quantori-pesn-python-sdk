@@ -1,5 +1,6 @@
 import cgi
 import json
+import logging
 from typing import Any, cast, Optional, TYPE_CHECKING
 
 from pydantic import PrivateAttr
@@ -11,6 +12,8 @@ from signals_notebook.materials.field import FieldContainer
 
 if TYPE_CHECKING:
     from signals_notebook.materials.library import Library
+
+log = logging.getLogger(__name__)
 
 
 class Material(BaseMaterialEntity):
@@ -40,6 +43,7 @@ class Material(BaseMaterialEntity):
 
     def get_chemical_drawing(self, format: Optional[ChemicalDrawingFormat] = None) -> File:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get Chemical Drawing as File for %s', self.eid)
 
         response = api.call(
             method='GET',
@@ -58,6 +62,7 @@ class Material(BaseMaterialEntity):
 
     def get_image(self) -> File:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get Image as File for %s', self.eid)
 
         response = api.call(
             method='GET',
@@ -73,6 +78,7 @@ class Material(BaseMaterialEntity):
 
     def get_bio_sequence(self) -> File:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get Bio Sequence as File for %s', self.eid)
 
         response = api.call(
             method='GET',
@@ -88,6 +94,7 @@ class Material(BaseMaterialEntity):
 
     def get_attachment(self, field_id: str) -> File:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get Attachment as File for %s', self.eid)
 
         response = api.call(
             method='GET',
@@ -114,6 +121,7 @@ class Material(BaseMaterialEntity):
                         }
                     }
                 )
+        log.debug('Save %s: %s', self.__class__.__name__, self.eid)
 
         api = SignalsNotebookApi.get_default_api()
 
