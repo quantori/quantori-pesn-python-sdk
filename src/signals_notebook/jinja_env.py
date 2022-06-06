@@ -16,7 +16,7 @@ class TemplateLocationWrapper:
             file_system_env = Environment(loader=FileSystemLoader(os.path.abspath(dir_path)))
             return file_system_env.get_template(file_name)
         except TemplateNotFound:
-            log.info('There is no template in the system. Searching in package location...')
+            log.exception('There is no template in the system. Searching in package location...')
             return package_env.get_template(file_name)
 
 
