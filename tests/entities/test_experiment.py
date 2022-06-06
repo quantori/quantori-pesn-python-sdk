@@ -7,6 +7,16 @@ from signals_notebook.common_types import EntityType, ObjectType
 from signals_notebook.entities import ChemicalDrawing, Entity, Experiment, Text
 
 
+@pytest.fixture()
+def get_response_object(mocker):
+    def _f(response):
+        mock = mocker.Mock()
+        mock.json.return_value = response
+        return mock
+
+    return _f
+
+
 @pytest.mark.parametrize('description', ['test description', None])
 @pytest.mark.parametrize('digest, force', [('1234234', False), (None, True)])
 def test_create(api_mock, description, digest, force, eid_factory):
@@ -239,7 +249,7 @@ def test_add_children(api_mock, experiment_factory, force, eid_factory):
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
-def test_get_children(api_mock, experiment_factory, eid_factory):
+def test_get_children__one_page(api_mock, experiment_factory, eid_factory):
     experiment = experiment_factory()
     text_eid = eid_factory(type=EntityType.TEXT)
     chem_draw_eid = eid_factory(type=EntityType.CHEMICAL_DRAWING)
@@ -293,12 +303,106 @@ def test_get_children(api_mock, experiment_factory, eid_factory):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = experiment.get_children()
+    result = list(experiment.get_children())
 
     api_mock.call.assert_called_once_with(
         method='GET',
         path=('entities', experiment.eid, 'children'),
         params={'order': 'layout'},
+    )
+
+    assert isinstance(result[0], Text)
+    assert result[0].eid == text_eid
+
+    assert isinstance(result[1], ChemicalDrawing)
+    assert result[1].eid == chem_draw_eid
+
+    assert isinstance(result[2], Entity)
+    assert result[2].eid == unknown_eid
+
+
+def test_get_children__several_pages(mocker, api_mock, experiment_factory, eid_factory, get_response_object):
+    experiment = experiment_factory()
+    text_eid = eid_factory(type=EntityType.TEXT)
+    chem_draw_eid = eid_factory(type=EntityType.CHEMICAL_DRAWING)
+    unknown_eid = eid_factory(type='unknown')
+    response1 = {
+        'links': {
+            'self': f'https://example.com/{experiment.eid}/children?page[offset]=0&page[limit]=20',
+            'next': f'https://example.com/{experiment.eid}/children?page[offset]=20&page[limit]=20',
+        },
+        'data': [
+            {
+                'type': ObjectType.ENTITY,
+                'id': chem_draw_eid,
+                'links': {'self': f'https://example.com/{chem_draw_eid}'},
+                'attributes': {
+                    'eid': chem_draw_eid,
+                    'name': 'Some reactions',
+                    'description': '',
+                    'type': EntityType.CHEMICAL_DRAWING,
+                    'createdAt': '2019-09-06T03:12:35.129Z',
+                    'editedAt': '2019-09-06T15:22:47.309Z',
+                    'digest': '123144',
+                },
+            },
+            {
+                'type': ObjectType.ENTITY,
+                'id': unknown_eid,
+                'links': {'self': f'https://example.com/{unknown_eid}'},
+                'attributes': {
+                    'eid': unknown_eid,
+                    'name': 'Some reactions',
+                    'description': '',
+                    'type': 'unknown',
+                    'createdAt': '2019-09-06T03:12:35.129Z',
+                    'editedAt': '2019-09-06T15:22:47.309Z',
+                    'digest': '123144',
+                },
+            },
+        ],
+    }
+    response2 = {
+        'links': {
+            'prev': f'https://example.com/{experiment.eid}/children?page[offset]=0&page[limit]=20',
+            'self': f'https://example.com/{experiment.eid}/children?page[offset]=20&page[limit]=20',
+        },
+        'data': [
+            {
+                'type': ObjectType.ENTITY,
+                'id': text_eid,
+                'links': {'self': f'https://example.com/{text_eid}'},
+                'attributes': {
+                    'eid': text_eid,
+                    'name': 'My text',
+                    'description': '',
+                    'type': EntityType.TEXT,
+                    'createdAt': '2019-09-06T03:12:35.129Z',
+                    'editedAt': '2019-09-06T15:22:47.309Z',
+                    'digest': '123144',
+                },
+            },
+        ],
+    }
+
+    api_mock.call.side_effect = [get_response_object(response1), get_response_object(response2)]
+
+    result_generator = experiment.get_children()
+
+    api_mock.call.assert_not_called()
+
+    result = list(result_generator)
+
+    api_mock.call.assert_has_calls(
+        mocker.call(
+            method='GET',
+            path=('entities', experiment.eid, 'children'),
+            params={'order': 'layout'},
+        ),
+        mocker.call(
+            method='GET',
+            path=response1['links']['next'],
+        ),
     )
 
     assert isinstance(result[0], Text)
