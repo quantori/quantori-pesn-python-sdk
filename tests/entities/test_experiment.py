@@ -8,7 +8,7 @@ from signals_notebook.entities import ChemicalDrawing, Entity, Experiment, Text
 
 
 @pytest.fixture()
-def get_response_object(mocker):
+def get_response_experiment(mocker):
     def _f(response):
         mock = mocker.Mock()
         mock.json.return_value = response
@@ -321,12 +321,12 @@ def test_get_children__one_page(api_mock, experiment_factory, eid_factory):
     assert result[2].eid == unknown_eid
 
 
-def test_get_children__several_pages(mocker, api_mock, experiment_factory, eid_factory, get_response_object):
+def test_get_children__several_pages(mocker, api_mock, experiment_factory, eid_factory, get_response_experiment):
     experiment = experiment_factory()
     text_eid = eid_factory(type=EntityType.TEXT)
     chem_draw_eid = eid_factory(type=EntityType.CHEMICAL_DRAWING)
     unknown_eid = eid_factory(type='unknown')
-    response1 = {
+    response_1 = {
         'links': {
             'self': f'https://example.com/{experiment.eid}/children?page[offset]=0&page[limit]=20',
             'next': f'https://example.com/{experiment.eid}/children?page[offset]=20&page[limit]=20',
@@ -362,7 +362,7 @@ def test_get_children__several_pages(mocker, api_mock, experiment_factory, eid_f
             },
         ],
     }
-    response2 = {
+    response_2 = {
         'links': {
             'prev': f'https://example.com/{experiment.eid}/children?page[offset]=0&page[limit]=20',
             'self': f'https://example.com/{experiment.eid}/children?page[offset]=20&page[limit]=20',
@@ -385,7 +385,7 @@ def test_get_children__several_pages(mocker, api_mock, experiment_factory, eid_f
         ],
     }
 
-    api_mock.call.side_effect = [get_response_object(response1), get_response_object(response2)]
+    api_mock.call.side_effect = [get_response_experiment(response_1), get_response_experiment(response_2)]
 
     result_generator = experiment.get_children()
 
@@ -394,25 +394,27 @@ def test_get_children__several_pages(mocker, api_mock, experiment_factory, eid_f
     result = list(result_generator)
 
     api_mock.call.assert_has_calls(
-        mocker.call(
-            method='GET',
-            path=('entities', experiment.eid, 'children'),
-            params={'order': 'layout'},
-        ),
-        mocker.call(
-            method='GET',
-            path=response1['links']['next'],
-        ),
+        [
+            mocker.call(
+                method='GET',
+                path=('entities', experiment.eid, 'children'),
+                params={'order': 'layout'},
+            ),
+            mocker.call(
+                method='GET',
+                path=response_1['links']['next'],
+            ),
+        ]
     )
 
-    assert isinstance(result[0], Text)
-    assert result[0].eid == text_eid
+    assert isinstance(result[0], ChemicalDrawing)
+    assert result[0].eid == chem_draw_eid
 
-    assert isinstance(result[1], ChemicalDrawing)
-    assert result[1].eid == chem_draw_eid
+    assert isinstance(result[1], Entity)
+    assert result[1].eid == unknown_eid
 
-    assert isinstance(result[2], Entity)
-    assert result[2].eid == unknown_eid
+    assert isinstance(result[2], Text)
+    assert result[2].eid == text_eid
 
 
 def test_get_html(api_mock, experiment_factory, snapshot):

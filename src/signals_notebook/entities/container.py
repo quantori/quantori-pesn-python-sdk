@@ -1,7 +1,7 @@
 import abc
 import json
 import mimetypes
-from typing import cast, List, Union, Generator
+from typing import cast, Generator, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
