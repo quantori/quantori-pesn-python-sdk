@@ -1,6 +1,6 @@
 import pytest
 
-from signals_notebook.common_types import File, EntityType
+from signals_notebook.common_types import File
 
 
 @pytest.fixture()
@@ -13,15 +13,6 @@ def samples_container_content():
         b'Sample-1759,2022-06-02T10:37:06.717628796Z,hh,,,0,Sample,,,,,'
         b'Sample-1760,2022-06-02T10:37:06.718687326Z,hh,,,0,Sample,,,,,'
     )
-
-
-@pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
-def test_create(api_mock, experiment_factory, eid_factory, samples_container_content, digest, force):
-    container = experiment_factory(digest=digest)
-    eid = eid_factory(type=EntityType.SAMPLES_CONTAINER)
-    file_name = 'Test.csv'
-    content = samples_container_content
-    content_type = 'text/csv'
 
 
 def test_get_content(samples_container_factory, api_mock, samples_container_content):
