@@ -1,25 +1,26 @@
 import json
-from typing import Literal, ClassVar, Union, Optional
+from typing import Literal, ClassVar, Union, Optional, cast, List
 from uuid import UUID
 
-from pydantic import Field
+from pydantic import Field, BaseModel
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EntityType, File, Response, EID, ObjectType
+from signals_notebook.common_types import EntityType, File, Response, ResponseData, DataList
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
+from signals_notebook.entities.samples.cell import CellPropertyContent
 from signals_notebook.jinja_env import env
 
 
-class SampleProperties:
-    id: EID
-    type: Literal[ObjectType.PROPERTY]
-    # co
+class SampleProperty(BaseModel):
+    id: Optional[Union[UUID, str]]
+    name: Optional[str]
+    content: Optional[CellPropertyContent]
 
 
-# class SamplePropertiesResponse(Response[]):
-#     pass
+class SamplePropertiesResponse(Response[SampleProperty]):
+    pass
 
 
 class Sample(ContentfulEntity):
@@ -34,7 +35,7 @@ class Sample(ContentfulEntity):
     def _get_samples_endpoint(cls) -> str:
         return 'samples'
 
-    def get_properties(self, property_name: Optional[str] = None) -> None:
+    def get_properties(self, property_name: Optional[str] = None):
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -45,7 +46,9 @@ class Sample(ContentfulEntity):
                 'value': 'normalized',
             },
         )
-        print(response.json())
+
+        result = SamplePropertiesResponse(**response.json())
+        yield from [cast(ResponseData, item).body for item in result.data]
 
     def patch_properties(self, property_name: Optional[str] = None, digest: str = None, force: bool = True) -> None:
         api = SignalsNotebookApi.get_default_api()
@@ -85,7 +88,7 @@ class Sample(ContentfulEntity):
         request_body = {'attributes': {'data': attributes}}
         return request_body
 
-    def get_property_by_id(self, property_id: Union[str, UUID]):
+    def get_property_by_id(self, property_id: Union[str, UUID]) -> SampleProperty:
         _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
 
         api = SignalsNotebookApi.get_default_api()
@@ -97,7 +100,9 @@ class Sample(ContentfulEntity):
                 'value': 'normalized',
             },
         )
-        print(response.json())
+
+        result = SamplePropertiesResponse(**response.json())
+        return cast(ResponseData, result.data).body
 
     def patch_property_by_id(self, property_id: Union[str, UUID], digest: str = None, force: bool = True):
         _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
