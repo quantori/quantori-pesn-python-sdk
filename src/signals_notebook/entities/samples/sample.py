@@ -1,8 +1,8 @@
 import json
-from typing import Literal, ClassVar, Union, Optional, cast, List
+from typing import Literal, ClassVar, Union, Optional, cast, List, Generator
 from uuid import UUID
 
-from pydantic import Field, BaseModel
+from pydantic import Field, BaseModel, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, File, Response, ResponseData, DataList
@@ -26,6 +26,7 @@ class SamplePropertiesResponse(Response[SampleProperty]):
 class Sample(ContentfulEntity):
     type: Literal[EntityType.SAMPLE] = Field(allow_mutation=False)
     _template_name: ClassVar = 'sample.html'
+    _properties: List[SampleProperty] = PrivateAttr(default=[])
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -35,7 +36,13 @@ class Sample(ContentfulEntity):
     def _get_samples_endpoint(cls) -> str:
         return 'samples'
 
-    def get_properties(self, property_name: Optional[str] = None):
+    @property
+    def properties(self):
+        if not self._properties:
+            self._reload_properties()
+        return self._properties
+
+    def get_properties(self, property_name: Optional[str] = None) -> Generator[SampleProperty, None, None]:
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -49,6 +56,11 @@ class Sample(ContentfulEntity):
 
         result = SamplePropertiesResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
+
+    def _reload_properties(self) -> None:
+        self._properties = []
+        for item in self.get_properties():
+            self._properties.append(item)
 
     def patch_properties(self, property_name: Optional[str] = None, digest: str = None, force: bool = True) -> None:
         api = SignalsNotebookApi.get_default_api()
@@ -69,6 +81,7 @@ class Sample(ContentfulEntity):
             },
         )
         print(response.json())
+        # self._reload_properties()
 
     def _get_request_body(self, name):
         if name:
@@ -124,6 +137,7 @@ class Sample(ContentfulEntity):
             },
         )
         print(response.json())
+        # self._reload_properties()
 
     @classmethod
     def create(
@@ -140,7 +154,7 @@ class Sample(ContentfulEntity):
             content=content,
             content_type=content_type,
             force=force,
-        )
+        )  # TODO: rewrite this method by Sergey's way
 
     def get_content(self) -> File:
         return super()._get_content()
