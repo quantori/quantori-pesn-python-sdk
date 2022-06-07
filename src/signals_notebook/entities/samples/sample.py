@@ -1,4 +1,5 @@
-from typing import Literal, ClassVar, Union
+import json
+from typing import Literal, ClassVar, Union, Optional
 from uuid import UUID
 
 from pydantic import Field
@@ -33,17 +34,56 @@ class Sample(ContentfulEntity):
     def _get_samples_endpoint(cls) -> str:
         return 'samples'
 
-    def get_properties(self) -> None:
+    def get_properties(self, property_name: Optional[str] = None) -> None:
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
             method='GET',
             path=(self._get_samples_endpoint(), self.eid, 'properties'),
             params={
+                'name': property_name,
                 'value': 'normalized',
             },
         )
         print(response.json())
+
+    def patch_properties(self, property_name: Optional[str] = None, digest: str = None, force: bool = True) -> None:
+        api = SignalsNotebookApi.get_default_api()
+
+        request_body = self._get_request_body(property_name)
+
+        response = api.call(
+            method='PATCH',
+            path=(self._get_samples_endpoint(), self.eid, 'properties'),
+            params={
+                'name': property_name,
+                'digest': digest,
+                'force': json.dumps(force),
+                'value': 'normalized',
+            },
+            json={
+                'data': request_body,
+            },
+        )
+        print(response.json())
+
+    def _get_request_body(self, name):
+        if name:
+            return {"attributes": {"content": {"value": "test edit"}}}
+
+        attributes = []
+        for field in self.__fields__.values():
+            if field.field_info.allow_mutation:
+                attributes.append(
+                    {
+                        'id': '879cd6c6-3aaa-4060-ac8d-7f888a39d214',
+                        'type': 'property',
+                        'attributes': {'content': {'value': 'test edit'}},
+                    },
+                )
+
+        request_body = {'attributes': {'data': attributes}}
+        return request_body
 
     def get_property_by_id(self, property_id: Union[str, UUID]):
         _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
@@ -55,6 +95,27 @@ class Sample(ContentfulEntity):
             path=(self._get_samples_endpoint(), self.eid, 'properties', _property_id),
             params={
                 'value': 'normalized',
+            },
+        )
+        print(response.json())
+
+    def patch_property_by_id(self, property_id: Union[str, UUID], digest: str = None, force: bool = True):
+        _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
+
+        api = SignalsNotebookApi.get_default_api()
+
+        request_body = {"attributes": {"content": {"value": "test edit"}}}
+
+        response = api.call(
+            method='PATCH',
+            path=(self._get_samples_endpoint(), self.eid, 'properties', _property_id),
+            params={
+                'digest': digest,
+                'force': json.dumps(force),
+                'value': 'normalized',
+            },
+            json={
+                'data': request_body,
             },
         )
         print(response.json())

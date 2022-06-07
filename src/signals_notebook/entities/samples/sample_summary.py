@@ -27,3 +27,16 @@ class SampleSummary(SamplesTableBase):
             path=(self._get_sample_summary_endpoint(), sample_summary_id, 'samples'),
         )
         print(response.json())
+        result = Response[Union[entity_classes]](**response.json())  # type: ignore
+
+        # yield from [cast(ResponseData, item).body for item in result.data]
+        #
+        # while result.links and result.links.next:
+        #     response = api.call(
+        #         method='GET',
+        #         path=result.links.next,
+        #     )
+        #
+        #     result = Response[Union[entity_classes]](**response.json())  # type: ignore
+        #     yield from [cast(ResponseData, item).body for item in result.data]
+
