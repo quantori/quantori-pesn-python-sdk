@@ -51,6 +51,7 @@ class EntityType(str, Enum):
     EXCEL = 'excel'
     SAMPLE = 'sample'
     SAMPLES_CONTAINER = 'samplesContainer'
+    SAMPLE_SUMMARY = 'paraSamplesGrid'
 
 
 class MaterialType(str, Enum):

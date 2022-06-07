@@ -30,23 +30,15 @@ class Sample(ContentfulEntity):
         return EntityType.SAMPLE
 
     @classmethod
-    def _get_sample_endpoint(cls) -> str:
+    def _get_samples_endpoint(cls) -> str:
         return 'samples'
-
-    @classmethod
-    def _get_sample_summary_endpoint(cls) -> str:
-        return 'sampleSummary'
-
-    @classmethod
-    def _get_sample_tables_endpoint(cls) -> str:
-        return 'samplesTables'
 
     def get_properties(self) -> None:
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
             method='GET',
-            path=(self._get_sample_endpoint(), self.eid, 'properties'),
+            path=(self._get_samples_endpoint(), self.eid, 'properties'),
             params={
                 'value': 'normalized',
             },
@@ -60,38 +52,10 @@ class Sample(ContentfulEntity):
 
         response = api.call(
             method='GET',
-            path=(self._get_sample_endpoint(), self.eid, 'properties', _property_id),
+            path=(self._get_samples_endpoint(), self.eid, 'properties', _property_id),
             params={
                 'value': 'normalized',
             },
-        )
-        print(response.json())
-
-    def fetch_sample_from_sample_summary(self, sample_summary_id):
-        api = SignalsNotebookApi.get_default_api()
-
-        response = api.call(
-            method='GET',
-            path=(self._get_sample_summary_endpoint(), sample_summary_id, 'samples'),
-        )
-        print(response.json())
-
-    def fetch_sample_from_table(self, samples_table_id, sample_ids=None, fields=None):
-        api = SignalsNotebookApi.get_default_api()
-        if sample_ids is not None:
-            sample_ids = ','.join(sample_ids)
-
-        sample_fields = ''
-        if fields is not None:
-            pass
-
-        response = api.call(
-            method='GET',
-            path=(self._get_sample_tables_endpoint(), samples_table_id, 'rows'),
-            # params={
-            #     'sampleIds': sample_ids,
-            #
-            # },
         )
         print(response.json())
 

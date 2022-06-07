@@ -1,5 +1,6 @@
 from signals_notebook.common_types import EntityType
 from signals_notebook.entities import SamplesContainer, Sample
+from signals_notebook.entities.samples.sample_summary import SampleSummary
 from tests.entities.factories import EntityFactory
 
 
@@ -15,3 +16,10 @@ class SampleFactory(EntityFactory):
         model = Sample
 
     type = EntityType.SAMPLE
+
+
+class SampleSummaryFactory(EntityFactory):
+    class Meta:
+        model = SampleSummary
+
+    type = EntityType.SAMPLE_SUMMARY

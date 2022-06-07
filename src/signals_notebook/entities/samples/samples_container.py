@@ -2,21 +2,18 @@ from typing import ClassVar, Literal
 
 from pydantic import Field
 
-from signals_notebook.common_types import EntityType, File
-from signals_notebook.entities.contentful_entity import ContentfulEntity
+from signals_notebook.common_types import EntityType
+from signals_notebook.entities.samples.sample_tables_base import SamplesTableBase
 from signals_notebook.jinja_env import env
 
 
-class SamplesContainer(ContentfulEntity):
+class SamplesContainer(SamplesTableBase):
     type: Literal[EntityType.SAMPLES_CONTAINER] = Field(allow_mutation=False)
     _template_name: ClassVar = 'samplesContainer.html'
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
-        return EntityType.WORD
-
-    def get_content(self) -> File:
-        return super()._get_content()
+        return EntityType.SAMPLES_CONTAINER
 
     def get_html(self) -> str:
         file = self._get_content()
