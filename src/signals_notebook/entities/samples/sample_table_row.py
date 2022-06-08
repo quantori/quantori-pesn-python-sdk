@@ -20,3 +20,10 @@ class SampleTableRow(BaseModel):
         for key, value in values.items():
             columns[key] = SampleProperty(**value)
         return columns
+
+    @property
+    def representation_for_update(self):
+        return {
+            'type': self.type,
+            'attributes': {'columns': {key: value.dict() for key, value in self.columns.items()}},
+        }

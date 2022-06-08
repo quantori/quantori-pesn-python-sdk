@@ -1,9 +1,10 @@
 import json
 from abc import ABC, abstractmethod
-from typing import cast
+from typing import cast, List
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
+from signals_notebook.entities import Sample
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.samples.sample_table_row import SampleTableRow
 
@@ -13,6 +14,8 @@ class SamplesTableResponse(Response[SampleTableRow]):
 
 
 class SamplesTableBase(ContentfulEntity, ABC):
+    _samples_rows: List[SampleTableRow]
+
     @classmethod
     @abstractmethod
     def _get_entity_type(cls):
@@ -21,9 +24,20 @@ class SamplesTableBase(ContentfulEntity, ABC):
     def get_content(self) -> File:
         return super()._get_content()
 
+    @property
+    def samples_rows(self) -> List[SampleTableRow]:
+        if not self._samples_rows:
+            self._reload_samples_rows()
+        return self._samples_rows
+
     @classmethod
     def _get_sample_tables_endpoint(cls) -> str:
         return 'samplesTables'
+
+    def _reload_samples_rows(self):
+        self._samples_rows = []
+        for item in self.fetch_sample_from_table():
+            self._samples_rows.append(item)
 
     def fetch_sample_from_table(self, sample_ids=None, fields=None):
         api = SignalsNotebookApi.get_default_api()
@@ -53,9 +67,11 @@ class SamplesTableBase(ContentfulEntity, ABC):
         if sample_ids is not None:
             sample_ids = ','.join(sample_ids)
 
-        request_body = self._get_request_body(sample_ids)
+        request_body = []
+        for item in self.samples_rows:
+            request_body.append(item.representation_for_update)
 
-        response = api.call(
+        api.call(
             method='PATCH',
             path=(self._get_sample_tables_endpoint(), self.eid, 'rows'),
             params={
@@ -67,24 +83,5 @@ class SamplesTableBase(ContentfulEntity, ABC):
                 'data': request_body,
             },
         )
-        print(response.json())
+        self._reload_samples_rows()
 
-    def _get_request_body(self, sample_ids):
-        request_body = []
-        fields = []
-        if not sample_ids:
-            for _ in fields:
-                request_body.append(
-                    {
-                        'type': 'samplesTableRow',
-                        'attributes': {'columns': {'2': {'content': {'value': 'test edit text'}}}},
-                    }
-                )
-        for _ in fields:
-            request_body.append(
-                {
-                    'id': 'sample:7bc20d09-852f-4844-a4bc-8a324e0eda61',
-                    'type': 'samplesTableRow',
-                    'attributes': {'columns': {'2': {'content': {'value': 'test edit text'}}}},
-                }
-            )
