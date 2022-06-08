@@ -9,7 +9,7 @@ from signals_notebook.common_types import EntityType, File, Response, ResponseDa
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.entities.samples.cell import CellPropertyContent
+from signals_notebook.entities.samples.cell import CellPropertyContent, CellPropertyUpdateBody
 from signals_notebook.jinja_env import env
 
 
@@ -85,6 +85,7 @@ class Sample(ContentfulEntity):
 
     def _get_request_body(self, name):
         if name:
+            request_body = CellPropertyUpdateBody(value=value, name=name, values=values)
             return {"attributes": {"content": {"value": "test edit"}}}
 
         attributes = []
@@ -117,12 +118,20 @@ class Sample(ContentfulEntity):
         result = SamplePropertiesResponse(**response.json())
         return cast(ResponseData, result.data).body
 
-    def patch_property_by_id(self, property_id: Union[str, UUID], digest: str = None, force: bool = True):
+    def patch_property_by_id(
+        self,
+        property_id: Union[str, UUID],
+        value: Optional[str] = None,
+        name: Optional[str] = None,
+        values: Optional[List[str]] = None,
+        digest: str = None,
+        force: bool = True,
+    ) -> SampleProperty:
         _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
 
         api = SignalsNotebookApi.get_default_api()
 
-        request_body = {"attributes": {"content": {"value": "test edit"}}}
+        request_body = CellPropertyUpdateBody(value=value, name=name, values=values)
 
         response = api.call(
             method='PATCH',
@@ -133,11 +142,13 @@ class Sample(ContentfulEntity):
                 'value': 'normalized',
             },
             json={
-                'data': request_body,
+                'data': {'attributes': {'content': request_body.dict(exclude_none=True)}},
             },
         )
-        print(response.json())
-        # self._reload_properties()
+        self._reload_properties()
+
+        result = SamplePropertiesResponse(**response.json())
+        return cast(ResponseData, result.data).body
 
     @classmethod
     def create(
