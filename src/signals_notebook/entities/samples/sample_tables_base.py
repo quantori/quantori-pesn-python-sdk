@@ -4,7 +4,6 @@ from typing import cast, List
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
-from signals_notebook.entities import Sample
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.samples.sample_table_row import SampleTableRow
 
@@ -84,4 +83,3 @@ class SamplesTableBase(ContentfulEntity, ABC):
             },
         )
         self._reload_samples_rows()
-
