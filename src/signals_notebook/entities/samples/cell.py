@@ -6,7 +6,6 @@ from pydantic.generics import GenericModel
 from signals_notebook.common_types import EID
 
 CellValueType = TypeVar('CellValueType')
-CellType = TypeVar('CellType')
 
 
 class CellPropertyContent(GenericModel, Generic[CellValueType]):
@@ -38,4 +37,3 @@ class FieldData(GenericModel, Generic[CellValueType]):
     value: Optional[CellValueType]
     units: Optional[str]
     eid: Optional[EID]
-    # type: # Optional[str]

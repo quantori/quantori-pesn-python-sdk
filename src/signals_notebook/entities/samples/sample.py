@@ -20,7 +20,7 @@ class SampleProperty(BaseModel):
 
     @property
     def is_changed(self) -> bool:
-        return self.content.is_changed
+        return self.content.is_changed  # type: ignore
 
     @property
     def representation_for_update(self):
@@ -43,7 +43,7 @@ class Sample(ContentfulEntity):
 
     @validator('fields', pre=True)
     def set_fields(cls, values) -> Dict[str, FieldData]:
-        fields = {}
+        fields: Dict[str, FieldData] = {}
         for key, value in values.items():
             fields[key] = FieldData(**value)
         return fields
