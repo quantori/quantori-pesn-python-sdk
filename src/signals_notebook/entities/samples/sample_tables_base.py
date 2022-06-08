@@ -1,9 +1,15 @@
 import json
 from abc import ABC, abstractmethod
+from typing import cast
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import File
+from signals_notebook.common_types import File, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
+from signals_notebook.entities.samples.sample_table_row import SampleTableRow
+
+
+class SamplesTableResponse(Response[SampleTableRow]):
+    pass
 
 
 class SamplesTableBase(ContentfulEntity, ABC):
@@ -23,6 +29,7 @@ class SamplesTableBase(ContentfulEntity, ABC):
         api = SignalsNotebookApi.get_default_api()
         if sample_ids is not None:
             sample_ids = ','.join(sample_ids)
+            print(sample_ids)
 
         sample_fields = ''
         if fields is not None:
@@ -38,7 +45,9 @@ class SamplesTableBase(ContentfulEntity, ABC):
                 'fields': sample_fields,
             },
         )
-        print(response.json())
+        print(response.url, response.json())
+        result = SamplesTableResponse(**response.json())
+        yield from [cast(ResponseData, item).body for item in result.data]
 
     def patch_sample_in_table(self, sample_ids=None, digest: str = None, force: bool = True) -> None:
         api = SignalsNotebookApi.get_default_api()

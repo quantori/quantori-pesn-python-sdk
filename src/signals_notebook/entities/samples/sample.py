@@ -37,7 +37,7 @@ class SamplePropertiesResponse(Response[SampleProperty]):
 
 class Sample(ContentfulEntity):
     type: Literal[EntityType.SAMPLE] = Field(allow_mutation=False)
-    fields: Dict[str, FieldData]
+    fields: Optional[Dict[str, FieldData]]
     _template_name: ClassVar = 'sample.html'
     _properties: List[SampleProperty] = PrivateAttr(default=[])
 
@@ -45,7 +45,7 @@ class Sample(ContentfulEntity):
     def set_fields(cls, values) -> Dict[str, FieldData]:
         fields = {}
         for key, value in values.items():
-            fields[key] = FieldData(**value, column_name=key)
+            fields[key] = FieldData(**value)
         return fields
 
     @classmethod
@@ -131,8 +131,10 @@ class Sample(ContentfulEntity):
 
         api = SignalsNotebookApi.get_default_api()
         request_body = None
-        for item in self._properties:
+        for item in self.properties:
             if item.id == property_id:
+                if not item.is_changed:
+                    raise AttributeError('no properties changed here')
                 request_body = item.representation_for_update_by_id
 
         response = api.call(
@@ -144,7 +146,7 @@ class Sample(ContentfulEntity):
                 'value': 'normalized',
             },
             json={
-                'data': {'attributes': {'content': request_body}},
+                'data': request_body,
             },
         )
         self._reload_properties()

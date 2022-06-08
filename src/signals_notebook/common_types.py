@@ -35,6 +35,7 @@ class ObjectType(str, Enum):
     ATTRIBUTE = 'attribute'
     STOICHIOMETRY = 'stoichiometry'
     PROPERTY = 'property'
+    SAMPLES_TABLE_ROW = 'samplesTableRow'
 
 
 class EntityType(str, Enum):

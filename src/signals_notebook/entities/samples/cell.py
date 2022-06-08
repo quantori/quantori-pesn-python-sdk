@@ -5,27 +5,23 @@ from pydantic.generics import GenericModel
 
 from signals_notebook.common_types import EntityType, EID
 
-CellContentType = TypeVar('CellContentType')
+CellValueType = TypeVar('CellValueType')
+CellType = TypeVar('CellType')
 
 
-class CellPropertyContent(GenericModel, Generic[CellContentType]):
-    value: Optional[CellContentType]
-    type: Optional[EntityType] = None
+class CellPropertyContent(GenericModel, Generic[CellValueType]):
+    value: Optional[CellValueType]
     name: Optional[str]
     eid: Optional[EID]
     values: Optional[List[str]]
     _changed: bool = PrivateAttr(default=False)
 
-    def set_value(self, new_value: CellContentType) -> None:
+    def set_value(self, new_value: CellValueType) -> None:
         self.value = new_value
         self._changed = True
 
     def set_values(self, new_values: List[str]) -> None:
         self.values = new_values
-        self._changed = True
-
-    def set_type(self, new_type: EntityType) -> None:
-        self.type = new_type
         self._changed = True
 
     def set_name(self, new_name: str) -> None:
@@ -37,10 +33,10 @@ class CellPropertyContent(GenericModel, Generic[CellContentType]):
         return self._changed
 
 
-class FieldData(BaseModel):
+class FieldData(GenericModel, Generic[CellValueType]):
     display: Optional[str]
-    value: Optional[Union[EID, str]]
+    value: Optional[CellValueType]
     units: Optional[str]
     eid: Optional[EID]
-    # type: Optional[str]
+    # type: # Optional[str]
 
