@@ -1,11 +1,11 @@
 import json
-from typing import Literal, ClassVar, Union, Optional, cast, List, Generator, Dict
+from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
 from uuid import UUID
 
-from pydantic import Field, BaseModel, PrivateAttr, validator
+from pydantic import BaseModel, Field, PrivateAttr, validator
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EntityType, File, Response, ResponseData, DataList
+from signals_notebook.common_types import EntityType, File, Response, ResponseData
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity

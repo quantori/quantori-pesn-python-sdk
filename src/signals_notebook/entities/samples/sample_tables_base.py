@@ -29,7 +29,6 @@ class SamplesTableBase(ContentfulEntity, ABC):
         api = SignalsNotebookApi.get_default_api()
         if sample_ids is not None:
             sample_ids = ','.join(sample_ids)
-            print(sample_ids)
 
         sample_fields = ''
         if fields is not None:
@@ -45,7 +44,7 @@ class SamplesTableBase(ContentfulEntity, ABC):
                 'fields': sample_fields,
             },
         )
-        print(response.url, response.json())
+
         result = SamplesTableResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
 
@@ -74,18 +73,18 @@ class SamplesTableBase(ContentfulEntity, ABC):
         request_body = []
         fields = []
         if not sample_ids:
-            for elem in fields:
+            for _ in fields:
                 request_body.append(
                     {
-                        "type": "samplesTableRow",
-                        "attributes": {"columns": {"2": {"content": {"value": "test edit text"}}}},
+                        'type': 'samplesTableRow',
+                        'attributes': {'columns': {'2': {'content': {'value': 'test edit text'}}}},
                     }
                 )
-        for elem in fields:
+        for _ in fields:
             request_body.append(
                 {
-                    "id": "sample:7bc20d09-852f-4844-a4bc-8a324e0eda61",
-                    "type": "samplesTableRow",
-                    "attributes": {"columns": {"2": {"content": {"value": "test edit text"}}}},
+                    'id': 'sample:7bc20d09-852f-4844-a4bc-8a324e0eda61',
+                    'type': 'samplesTableRow',
+                    'attributes': {'columns': {'2': {'content': {'value': 'test edit text'}}}},
                 }
             )

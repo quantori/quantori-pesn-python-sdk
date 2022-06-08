@@ -1,9 +1,9 @@
-from typing import TypeVar, Generic, Optional, List, Union
+from typing import Generic, List, Optional, TypeVar
 
-from pydantic import PrivateAttr, BaseModel
+from pydantic import PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EntityType, EID
+from signals_notebook.common_types import EID
 
 CellValueType = TypeVar('CellValueType')
 CellType = TypeVar('CellType')
@@ -39,4 +39,3 @@ class FieldData(GenericModel, Generic[CellValueType]):
     units: Optional[str]
     eid: Optional[EID]
     # type: # Optional[str]
-

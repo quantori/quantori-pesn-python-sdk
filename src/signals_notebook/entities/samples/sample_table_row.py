@@ -1,6 +1,6 @@
 from typing import Dict, Literal
 
-from pydantic import BaseModel, validator, Field
+from pydantic import BaseModel, Field, validator
 
 from signals_notebook.common_types import EID, ObjectType
 from signals_notebook.entities.samples.sample import SampleProperty
