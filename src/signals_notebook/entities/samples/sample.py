@@ -1,15 +1,15 @@
 import json
-from typing import Literal, ClassVar, Union, Optional, cast, List, Generator
+from typing import Literal, ClassVar, Union, Optional, cast, List, Generator, Dict
 from uuid import UUID
 
-from pydantic import Field, BaseModel, PrivateAttr
+from pydantic import Field, BaseModel, PrivateAttr, validator
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, File, Response, ResponseData, DataList
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.entities.samples.cell import CellPropertyContent, CellPropertyUpdateBody
+from signals_notebook.entities.samples.cell import CellPropertyContent, FieldData
 from signals_notebook.jinja_env import env
 
 
@@ -18,6 +18,18 @@ class SampleProperty(BaseModel):
     name: Optional[str]
     content: Optional[CellPropertyContent]
 
+    @property
+    def is_changed(self) -> bool:
+        return self.content.is_changed
+
+    @property
+    def representation_for_update(self):
+        return {'id': self.id, 'type': 'property', 'attributes': {'content': self.content.dict(exclude_none=True)}}
+
+    @property
+    def representation_for_update_by_id(self):
+        return {'attributes': {'content': self.content.dict(exclude_none=True)}}
+
 
 class SamplePropertiesResponse(Response[SampleProperty]):
     pass
@@ -25,8 +37,16 @@ class SamplePropertiesResponse(Response[SampleProperty]):
 
 class Sample(ContentfulEntity):
     type: Literal[EntityType.SAMPLE] = Field(allow_mutation=False)
+    fields: Dict[str, FieldData]
     _template_name: ClassVar = 'sample.html'
     _properties: List[SampleProperty] = PrivateAttr(default=[])
+
+    @validator('fields', pre=True)
+    def set_fields(cls, values) -> Dict[str, FieldData]:
+        fields = {}
+        for key, value in values.items():
+            fields[key] = FieldData(**value, column_name=key)
+        return fields
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -65,9 +85,12 @@ class Sample(ContentfulEntity):
     def patch_properties(self, property_name: Optional[str] = None, digest: str = None, force: bool = True) -> None:
         api = SignalsNotebookApi.get_default_api()
 
-        request_body = self._get_request_body(property_name)
+        request_body = []
+        for item in self._properties:
+            if item.is_changed:
+                request_body.append(item.representation_for_update)
 
-        response = api.call(
+        api.call(
             method='PATCH',
             path=(self._get_samples_endpoint(), self.eid, 'properties'),
             params={
@@ -77,30 +100,10 @@ class Sample(ContentfulEntity):
                 'value': 'normalized',
             },
             json={
-                'data': request_body,
+                'data': {'attributes': {'data': request_body}},
             },
         )
-        print(response.json())
-        # self._reload_properties()
-
-    def _get_request_body(self, name):
-        if name:
-            request_body = CellPropertyUpdateBody(value=value, name=name, values=values)
-            return {"attributes": {"content": {"value": "test edit"}}}
-
-        attributes = []
-        for field in self.__fields__.values():
-            if field.field_info.allow_mutation:
-                attributes.append(
-                    {
-                        'id': '879cd6c6-3aaa-4060-ac8d-7f888a39d214',
-                        'type': 'property',
-                        'attributes': {'content': {'value': 'test edit'}},
-                    },
-                )
-
-        request_body = {'attributes': {'data': attributes}}
-        return request_body
+        self._reload_properties()
 
     def get_property_by_id(self, property_id: Union[str, UUID]) -> SampleProperty:
         _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
@@ -121,17 +124,16 @@ class Sample(ContentfulEntity):
     def patch_property_by_id(
         self,
         property_id: Union[str, UUID],
-        value: Optional[str] = None,
-        name: Optional[str] = None,
-        values: Optional[List[str]] = None,
         digest: str = None,
         force: bool = True,
     ) -> SampleProperty:
         _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
 
         api = SignalsNotebookApi.get_default_api()
-
-        request_body = CellPropertyUpdateBody(value=value, name=name, values=values)
+        request_body = None
+        for item in self._properties:
+            if item.id == property_id:
+                request_body = item.representation_for_update_by_id
 
         response = api.call(
             method='PATCH',
@@ -142,7 +144,7 @@ class Sample(ContentfulEntity):
                 'value': 'normalized',
             },
             json={
-                'data': {'attributes': {'content': request_body.dict(exclude_none=True)}},
+                'data': {'attributes': {'content': request_body}},
             },
         )
         self._reload_properties()
