@@ -77,6 +77,15 @@ class Row(BaseModel):
             self._cells_dict[cell.name] = cell
 
     def get(self, value: Union[str, UUID], default: Any = None) -> Union[Cell, Any]:
+        """Get one of the GenericCell objects by value
+
+        Args:
+            value: key to get one of the GenericCell objects
+            default: default value if key doesn't exist
+
+        Returns:
+            Union[Cell, Any]
+        """
         try:
             return self[value]
         except KeyError:
@@ -84,17 +93,40 @@ class Row(BaseModel):
 
     @property
     def is_deleted(self) -> bool:
+        """Get is_deleted field
+
+        Returns:
+            bool: True/False
+        """
         return self._deleted
 
     @property
     def is_changed(self) -> bool:
+        """Get is_changed field
+
+        Returns:
+            bool: True/False
+        """
         return any([cell.is_changed for cell in self.cells])
 
     @property
     def is_new(self) -> bool:
+        """Check if id field exists
+
+        Returns:
+            bool: True/False
+        """
         return self.id is None
 
     def get_values(self, use_labels: bool = True) -> Dict[str, Any]:
+        """Get row values
+
+        Args:
+            use_labels: if True, key of dictionary is name
+
+        Returns:
+            Dict[str, Any]
+        """
         key_getter = attrgetter('name') if use_labels else attrgetter('key')
         return {key_getter(cell): cell.value for cell in self.cells}
 
@@ -121,9 +153,19 @@ class Row(BaseModel):
         return self.cells.__iter__()
 
     def delete(self) -> None:
+        """Delete Row
+
+        Returns:
+
+        """
         self._deleted = True
 
     def get_change_request(self) -> Optional[ChangeRowRequest]:
+        """Get ChangeRowRequest depending on Row status
+
+        Returns:
+            Optional[ChangeRowRequest]
+        """
         if self.is_deleted:
             return DeleteRowRequest(id=self.id)
 
