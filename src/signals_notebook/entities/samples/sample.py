@@ -82,7 +82,23 @@ class Sample(ContentfulEntity):
         for item in self.get_properties():
             self._properties.append(item)
 
-    def patch_properties(self, property_name: Optional[str] = None, digest: str = None, force: bool = True) -> None:
+    def get_property_by_id(self, property_id: Union[str, UUID]) -> SampleProperty:
+        _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
+
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_samples_endpoint(), self.eid, 'properties', _property_id),
+            params={
+                'value': 'normalized',
+            },
+        )
+
+        result = SamplePropertiesResponse(**response.json())
+        return cast(ResponseData, result.data).body
+
+    def save(self, property_name: Optional[str] = None, digest: str = None, force: bool = True) -> None:
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
@@ -104,55 +120,6 @@ class Sample(ContentfulEntity):
             },
         )
         self._reload_properties()
-
-    def get_property_by_id(self, property_id: Union[str, UUID]) -> SampleProperty:
-        _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
-
-        api = SignalsNotebookApi.get_default_api()
-
-        response = api.call(
-            method='GET',
-            path=(self._get_samples_endpoint(), self.eid, 'properties', _property_id),
-            params={
-                'value': 'normalized',
-            },
-        )
-
-        result = SamplePropertiesResponse(**response.json())
-        return cast(ResponseData, result.data).body
-
-    def patch_property_by_id(
-        self,
-        property_id: Union[str, UUID],
-        digest: str = None,
-        force: bool = True,
-    ) -> SampleProperty:
-        _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
-
-        api = SignalsNotebookApi.get_default_api()
-        request_body = None
-        for item in self.properties:
-            if item.id == property_id:
-                if not item.is_changed:
-                    raise AttributeError('no properties changed here')
-                request_body = item.representation_for_update_by_id
-
-        response = api.call(
-            method='PATCH',
-            path=(self._get_samples_endpoint(), self.eid, 'properties', _property_id),
-            params={
-                'digest': digest,
-                'force': json.dumps(force),
-                'value': 'normalized',
-            },
-            json={
-                'data': request_body,
-            },
-        )
-        self._reload_properties()
-
-        result = SamplePropertiesResponse(**response.json())
-        return cast(ResponseData, result.data).body
 
     @classmethod
     def create(
