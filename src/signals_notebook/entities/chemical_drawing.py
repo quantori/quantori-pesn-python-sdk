@@ -75,7 +75,7 @@ class ChemicalDrawing(ContentfulEntity):
         """Get in HTML format
 
         Returns:
-            Rendered HTML in string format
+            Rendered template as a string
         """
         data = {'name': self.name, 'stoichiometry': {}}
         file = self.get_content(format=ChemicalDrawingFormat.SVG)

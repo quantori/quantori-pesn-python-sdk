@@ -18,6 +18,17 @@ class Excel(ContentfulEntity):
 
     @classmethod
     def create(cls, *, container: Container, name: str, content: str = '', force: bool = True) -> Entity:
+        """Create Excel Entity
+
+        Args:
+            container: Container where create new Excel
+            name: file name
+            content: Excel content
+            force: Force to post attachment
+
+        Returns:
+            Excel
+        """
         return container.add_child(
             name=name,
             content=content.encode('utf-8'),
@@ -26,4 +37,9 @@ class Excel(ContentfulEntity):
         )
 
     def get_content(self) -> File:
+        """Get Excel content
+
+        Returns:
+            File
+        """
         return super()._get_content()
