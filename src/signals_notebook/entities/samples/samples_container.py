@@ -1,3 +1,5 @@
+import csv
+from io import StringIO
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -17,14 +19,9 @@ class SamplesContainer(SamplesTableBase):
 
     def get_html(self) -> str:
         file = self._get_content()
-        content = file.content.decode('utf-8')
-        splited_content = content.split('\r\n')
-        table_head = splited_content.pop(0).split(',')
-        rows = []
-        for elem in splited_content:
-            if len(elem) == 0:
-                continue
-            rows.append(elem.split(','))
-
+        content = StringIO(file.content.decode('utf-8'))
+        csv_data = list(csv.reader(content))
+        table_head = csv_data[0]
+        rows = csv_data[1:]
         template = env.get_template(self._template_name)
         return template.render(name=self.name, table_head=table_head, rows=rows)
