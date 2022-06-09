@@ -32,6 +32,18 @@ class ChemicalDrawing(ContentfulEntity):
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:
+        """Create ChemicalDrawing Entity
+
+        Args:
+            container: Container where create new ChemicalDrawing
+            name: file name
+            content_type: type of the file
+            content: Entity content
+            force: Force to post attachment
+
+        Returns:
+            ChemicalDrawing
+        """
         return container.add_child(
             name=name,
             content=content,
@@ -40,13 +52,31 @@ class ChemicalDrawing(ContentfulEntity):
         )
 
     def get_content(self, format: Optional[ChemicalDrawingFormat] = None) -> File:
+        """Get Entity content
+
+        Args:
+            format: Export resource format
+
+        Returns:
+
+        """
         return super()._get_content(format=format)
 
     @cached_property
     def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
+        """Fetch stoichiometry data of ChemicalDrawing
+
+        Returns:
+            Union[Stoichiometry, list[Stoichiometry]]
+        """
         return Stoichiometry.fetch_data(self.eid)
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered HTML in string format
+        """
         data = {'name': self.name, 'stoichiometry': {}}
         file = self.get_content(format=ChemicalDrawingFormat.SVG)
         data['svg'] = 'data:{};base64,{}'.format(file.content_type, file.base64.decode('ascii'))

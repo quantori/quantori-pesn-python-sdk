@@ -27,7 +27,7 @@ class Container(Entity, abc.ABC):
             name: file name
             content: entity content
             content_type: entity type
-            force: Force to post attachment. Don't care the digest match if set to true.
+            force: Force to post attachment
 
         Returns:
 
