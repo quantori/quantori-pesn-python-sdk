@@ -13,6 +13,16 @@ from signals_notebook.entities.samples.cell import CellPropertyContent, FieldDat
 from signals_notebook.jinja_env import env
 
 
+class Content(BaseModel):
+    content: Optional[CellPropertyContent]
+
+
+class SamplePropertyBody(BaseModel):
+    id: Optional[Union[UUID, str]]
+    type: str = 'property'
+    attributes: Content
+
+
 class SampleProperty(BaseModel):
     id: Optional[Union[UUID, str]]
     name: Optional[str]
@@ -20,15 +30,11 @@ class SampleProperty(BaseModel):
 
     @property
     def is_changed(self) -> bool:
-        return self.content.is_changed  # type: ignore
+        return False if self.content is None else self.content.is_changed
 
     @property
-    def representation_for_update(self):
-        return {'id': self.id, 'type': 'property', 'attributes': {'content': self.content.dict(exclude_none=True)}}
-
-    @property
-    def representation_for_update_by_id(self):
-        return {'attributes': {'content': self.content.dict(exclude_none=True)}}
+    def representation_for_update(self) -> SamplePropertyBody:
+        return SamplePropertyBody(id=self.id, attributes=Content(content=self.content))
 
 
 class SamplePropertiesResponse(Response[SampleProperty]):
@@ -99,14 +105,14 @@ class Sample(ContentfulEntity):
         return cast(ResponseData, result.data).body
 
     def save(self, force: bool = True) -> None:
-        super().save(force)
+        # super().save(force)
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
-        for item in self._properties:
+        for item in self.properties:
             if item.is_changed:
-                request_body.append(item.representation_for_update)
-
+                request_body.append(item.representation_for_update.dict())
+        print(request_body)  # TODO: fix patch here
         api.call(
             method='PATCH',
             path=(self._get_samples_endpoint(), self.eid, 'properties'),
