@@ -122,7 +122,7 @@ class Row(BaseModel):
         """Get row values
 
         Args:
-            use_labels: if True, key of dictionary is name
+            use_labels: use cels names
 
         Returns:
             Dict[str, Any]
