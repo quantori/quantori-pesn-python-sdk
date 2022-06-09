@@ -1,4 +1,4 @@
-from typing import cast, ClassVar, Literal
+from typing import cast, ClassVar, Generator, Literal
 
 from pydantic import Field
 
@@ -24,7 +24,7 @@ class SampleSummary(SamplesTableBase):
     def _get_sample_summary_endpoint(cls) -> str:
         return 'sampleSummary'
 
-    def fetch_samples_from_sample_summary(self):
+    def fetch_samples_from_summary(self) -> Generator[Sample, None, None]:
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(

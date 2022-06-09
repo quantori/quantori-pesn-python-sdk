@@ -12,14 +12,14 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
     value: Optional[CellValueType]
     name: Optional[str]
     eid: Optional[EID]
-    values: Optional[List[str]]
+    values: Optional[List[CellValueType]]
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -> None:
         self.value = new_value
         self._changed = True
 
-    def set_values(self, new_values: List[str]) -> None:
+    def set_values(self, new_values: List[CellValueType]) -> None:
         self.values = new_values
         self._changed = True
 

@@ -1,4 +1,4 @@
-from typing import Dict, Literal
+from typing import Any, Dict, Literal
 
 from pydantic import BaseModel, Field, validator
 
@@ -16,13 +16,10 @@ class SampleTableRow(BaseModel):
 
     @validator('columns', pre=True)
     def set_columns(cls, values) -> Dict[str, SampleProperty]:
-        columns = {}
-        for key, value in values.items():
-            columns[key] = SampleProperty(**value)
-        return columns
+        return {key: SampleProperty(**value) for key, value in values.items()}
 
     @property
-    def representation_for_update(self):
+    def representation_for_update(self) -> Dict[str, Any]:
         return {
             'type': self.type,
             'attributes': {'columns': {key: value.dict() for key, value in self.columns.items()}},

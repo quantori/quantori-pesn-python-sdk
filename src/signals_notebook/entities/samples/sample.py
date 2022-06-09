@@ -57,7 +57,7 @@ class Sample(ContentfulEntity):
         return 'samples'
 
     @property
-    def properties(self):
+    def properties(self) -> List[SampleProperty]:
         if not self._properties:
             self._reload_properties()
         return self._properties

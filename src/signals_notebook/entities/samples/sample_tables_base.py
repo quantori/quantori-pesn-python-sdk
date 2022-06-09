@@ -1,9 +1,9 @@
 import json
 from abc import ABC, abstractmethod
-from typing import cast, List
+from typing import cast, Generator, List
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import File, Response, ResponseData
+from signals_notebook.common_types import EID, File, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.samples.sample_table_row import SampleTableRow
 
@@ -33,15 +33,15 @@ class SamplesTableBase(ContentfulEntity, ABC):
     def _get_sample_tables_endpoint(cls) -> str:
         return 'samplesTables'
 
-    def _reload_samples_rows(self):
+    def _reload_samples_rows(self) -> None:
         self._samples_rows = []
-        for item in self.fetch_sample_from_table():
+        for item in self.fetch_samples_from_table():
             self._samples_rows.append(item)
 
-    def fetch_sample_from_table(self, sample_ids=None, fields=None):
+    def fetch_samples_from_table(
+        self, sample_ids: List[EID] = None, fields: List[str] = None
+    ) -> Generator[SampleTableRow, None, None]:
         api = SignalsNotebookApi.get_default_api()
-        if sample_ids is not None:
-            sample_ids = ','.join(sample_ids)
 
         sample_fields = ''
         if fields is not None:
@@ -53,7 +53,7 @@ class SamplesTableBase(ContentfulEntity, ABC):
             method='GET',
             path=(self._get_sample_tables_endpoint(), self.eid, 'rows'),
             params={
-                'sampleIds': sample_ids,
+                'sampleIds': None if sample_ids is None else ','.join(sample_ids),
                 'fields': sample_fields,
             },
         )
@@ -61,10 +61,8 @@ class SamplesTableBase(ContentfulEntity, ABC):
         result = SamplesTableResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
 
-    def patch_sample_in_table(self, sample_ids=None, digest: str = None, force: bool = True) -> None:
+    def patch_sample_in_table(self, sample_ids: List[EID] = None, digest: str = None, force: bool = True) -> None:
         api = SignalsNotebookApi.get_default_api()
-        if sample_ids is not None:
-            sample_ids = ','.join(sample_ids)
 
         request_body = []
         for item in self.samples_rows:
@@ -76,7 +74,7 @@ class SamplesTableBase(ContentfulEntity, ABC):
             params={
                 'digest': digest,
                 'force': json.dumps(force),
-                'sampleIds': sample_ids,
+                'sampleIds': None if sample_ids is None else ','.join(sample_ids),
             },
             json={
                 'data': request_body,
