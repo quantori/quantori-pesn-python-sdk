@@ -98,7 +98,8 @@ class Sample(ContentfulEntity):
         result = SamplePropertiesResponse(**response.json())
         return cast(ResponseData, result.data).body
 
-    def save(self, property_name: Optional[str] = None, digest: str = None, force: bool = True) -> None:
+    def save(self, force: bool = True) -> None:
+        super().save(force)
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
@@ -110,8 +111,6 @@ class Sample(ContentfulEntity):
             method='PATCH',
             path=(self._get_samples_endpoint(), self.eid, 'properties'),
             params={
-                'name': property_name,
-                'digest': digest,
                 'force': json.dumps(force),
                 'value': 'normalized',
             },
