@@ -3,7 +3,7 @@ import os
 import pytest
 
 from signals_notebook.common_types import File
-from signals_notebook.entities.samples.sample import SampleProperty, Sample
+from signals_notebook.entities.samples.sample import Sample, SampleProperty
 from signals_notebook.entities.samples.sample_table_row import SampleTableRow
 
 

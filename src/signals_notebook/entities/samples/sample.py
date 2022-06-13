@@ -5,11 +5,10 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr, validator
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EntityType, File, Response, ResponseData
+from signals_notebook.common_types import EntityType, Response, ResponseData
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.samples.cell import CellPropertyContent, FieldData
-from signals_notebook.jinja_env import env
 
 
 class Content(BaseModel):

@@ -9,7 +9,7 @@ from signals_notebook.entities.samples.sample import SampleProperty
 @pytest.fixture()
 def sample_properties():
     return {
-        'links': {'self': f'https://example.com/samples/properties'},
+        'links': {'self': 'https://example.com/samples/properties'},
         'data': [
             {
                 'type': 'property',
