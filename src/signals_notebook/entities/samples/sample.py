@@ -5,9 +5,16 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr, validator
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EntityType, Response, ResponseData
+from signals_notebook.common_types import (
+    EntityType,
+    Response,
+    ResponseData,
+    Ancestors,
+    EntityCreationRequestPayload,
+    EID,
+)
 from signals_notebook.entities import Entity
-from signals_notebook.entities.container import Container
+from signals_notebook.entities.experiment import _Relationships, Experiment
 from signals_notebook.entities.samples.cell import CellPropertyContent, FieldData
 
 
@@ -33,6 +40,25 @@ class SampleProperty(BaseModel):
     @property
     def representation_for_update(self) -> SamplePropertyBody:
         return SamplePropertyBody(id=self.id, attributes=Content(content=self.content))
+
+
+class _SampleAttributes(BaseModel):
+    fields: Optional[List[SampleProperty]] = []
+
+
+class _SampleRelationships(BaseModel):
+    template: Optional[Dict] = None
+    ancestors: Optional[Ancestors] = None
+
+
+class _SampleRequestBody(BaseModel):
+    type: EntityType
+    attributes: _SampleAttributes
+    relationships: Optional[_SampleRelationships] = None
+
+
+class _SampleRequestPayload(EntityCreationRequestPayload[_SampleRequestBody]):
+    pass
 
 
 class SamplePropertiesResponse(Response[SampleProperty]):
@@ -128,15 +154,29 @@ class Sample(Entity):
     def create(
         cls,
         *,
-        container: Container,
-        name: str,
-        content_type: str,
-        content: bytes = b'',
+        sample_eid: EID,
+        fields: Optional[List[SampleProperty]] = None,
+        template: Optional['Experiment'] = None,
+        digest: str = None,
         force: bool = True,
-    ) -> Entity:
-        return container.add_child(
-            name=name,
-            content=content,
-            content_type=content_type,
+    ) -> 'Sample':
+        relationships = None
+        if template and sample_eid:
+            relationships = _SampleRelationships(
+                ancestors=Ancestors(data=[template.short_description]),
+                template={'data': {'type': EntityType.SAMPLE, 'id': sample_eid}},
+            )
+
+        request = _SampleRequestPayload(
+            data=_SampleRequestBody(
+                type=cls._get_entity_type(),
+                attributes=_SampleAttributes(fields=fields),
+                relationships=relationships,
+            )
+        )
+
+        return super()._create(
+            digest=digest,
             force=force,
-        )  # TODO: rewrite this method by Sergey's way
+            request=request,
+        )
