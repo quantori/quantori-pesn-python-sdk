@@ -1,11 +1,16 @@
+import csv
 import json
 from abc import ABC, abstractmethod
+from io import StringIO
 from typing import cast, Generator, List
+
+from pydantic import PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EID, File, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.samples.sample_table_row import SampleTableRow
+from signals_notebook.jinja_env import env
 
 
 class SamplesTableResponse(Response[SampleTableRow]):
@@ -13,7 +18,7 @@ class SamplesTableResponse(Response[SampleTableRow]):
 
 
 class SamplesTableBase(ContentfulEntity, ABC):
-    _samples_rows: List[SampleTableRow]
+    _samples_rows: List[SampleTableRow] = PrivateAttr(default=[])
 
     @classmethod
     @abstractmethod
@@ -57,7 +62,6 @@ class SamplesTableBase(ContentfulEntity, ABC):
                 'fields': sample_fields,
             },
         )
-
         result = SamplesTableResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
 
@@ -81,3 +85,12 @@ class SamplesTableBase(ContentfulEntity, ABC):
             },
         )
         self._reload_samples_rows()
+
+    def get_html(self) -> str:
+        file = self.get_content()
+        content = StringIO(file.content.decode('utf-8'))
+        csv_data = list(csv.reader(content))
+        table_head = csv_data[0]
+        rows = csv_data[1:]
+        template = env.get_template(self._template_name)
+        return template.render(name=self.name, table_head=table_head, rows=rows)
