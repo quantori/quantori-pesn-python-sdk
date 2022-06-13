@@ -8,7 +8,6 @@ from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, File, Response, ResponseData
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
-from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.samples.cell import CellPropertyContent, FieldData
 from signals_notebook.jinja_env import env
 
@@ -41,7 +40,7 @@ class SamplePropertiesResponse(Response[SampleProperty]):
     pass
 
 
-class Sample(ContentfulEntity):
+class Sample(Entity):
     type: Literal[EntityType.SAMPLE] = Field(allow_mutation=False)
     fields: Optional[Dict[str, FieldData]]
     _template_name: ClassVar = 'sample.html'
@@ -142,13 +141,3 @@ class Sample(ContentfulEntity):
             content_type=content_type,
             force=force,
         )  # TODO: rewrite this method by Sergey's way
-
-    def get_content(self) -> File:
-        return super()._get_content()
-
-    def get_html(self) -> str:
-        file = self._get_content()
-        data = {'name': self.name, 'content': file.content.decode('utf-8')}
-        template = env.get_template(self._template_name)
-
-        return template.render(data=data)

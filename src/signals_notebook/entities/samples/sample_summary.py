@@ -42,3 +42,6 @@ class SampleSummary(SamplesTableBase):
 
             result = SampleSummaryResponse(**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
+
+    def get_html(self) -> str:
+        pass
