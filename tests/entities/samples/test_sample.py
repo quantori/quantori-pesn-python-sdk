@@ -143,6 +143,7 @@ def test_save(sample_factory):
     pass
 
 
+@pytest.mark.skip()
 @pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
 def test_create(api_mock, experiment_factory, eid_factory, digest, force):
     container = experiment_factory(digest=digest)
