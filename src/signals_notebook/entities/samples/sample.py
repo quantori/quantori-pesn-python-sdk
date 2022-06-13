@@ -6,15 +6,15 @@ from pydantic import BaseModel, Field, PrivateAttr, validator
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import (
+    Ancestors,
+    EID,
+    EntityCreationRequestPayload,
     EntityType,
     Response,
     ResponseData,
-    Ancestors,
-    EntityCreationRequestPayload,
-    EID,
 )
 from signals_notebook.entities import Entity
-from signals_notebook.entities.experiment import _Relationships, Experiment
+from signals_notebook.entities.experiment import Experiment
 from signals_notebook.entities.samples.cell import CellPropertyContent, FieldData
 
 
