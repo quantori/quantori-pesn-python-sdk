@@ -14,7 +14,7 @@ from signals_notebook.common_types import (
     ResponseData,
 )
 from signals_notebook.entities import Entity
-from signals_notebook.entities.experiment import Experiment
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.samples.cell import CellPropertyContent, FieldData
 
 
@@ -154,17 +154,17 @@ class Sample(Entity):
     def create(
         cls,
         *,
-        sample_eid: EID,
         fields: Optional[List[SampleProperty]] = None,
-        template: Optional['Experiment'] = None,
+        template: Optional['Sample'] = None,
+        ancestors: Optional[List[Union[Container, 'SamplesContainer']]] = None,
         digest: str = None,
         force: bool = True,
     ) -> 'Sample':
         relationships = None
-        if template and sample_eid:
+        if template or ancestors:
             relationships = _SampleRelationships(
-                ancestors=Ancestors(data=[template.short_description]),
-                template={'data': {'type': EntityType.SAMPLE, 'id': sample_eid}},
+                ancestors=Ancestors(data=[item.short_description for item in ancestors]) if ancestors else None,
+                template={'data': template.short_description} if template else None,  # convert to dict
             )
 
         request = _SampleRequestPayload(
@@ -174,6 +174,7 @@ class Sample(Entity):
                 relationships=relationships,
             )
         )
+        print(request.json())
 
         return super()._create(
             digest=digest,

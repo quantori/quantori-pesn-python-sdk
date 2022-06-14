@@ -11,9 +11,14 @@ from tests.entities.factories import (
     ImageFactory,
     NotebookFactory,
     TextFactory,
-    WordFactory
+    WordFactory,
 )
-from tests.entities.samples.factories import SampleFactory, SamplesContainerFactory, SampleSummaryFactory
+from tests.entities.samples.factories import (
+    SampleFactory,
+    SamplesContainerFactory,
+    SamplePropertyFactory,
+    SampleSummaryFactory,
+)
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
 
@@ -33,6 +38,7 @@ register(BiologicalSequenceFactory)
 register(SamplesContainerFactory)
 register(SampleFactory)
 register(SampleSummaryFactory)
+register(SamplePropertyFactory)
 
 
 @pytest.fixture()

@@ -1,9 +1,10 @@
+import json
+
 import arrow
 import pytest
 
 from signals_notebook.common_types import EntityType
-from signals_notebook.entities import Sample
-from signals_notebook.entities.samples.sample import SampleProperty
+from signals_notebook.entities import Sample, SampleProperty
 
 
 @pytest.fixture()
@@ -143,33 +144,69 @@ def test_save(sample_factory):
     pass
 
 
-@pytest.mark.skip()
 @pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
-def test_create(api_mock, experiment_factory, eid_factory, digest, force):
+def test_create(api_mock, experiment_factory, sample_property_factory, sample_factory, eid_factory, digest, force):
     container = experiment_factory(digest=digest)
+    sample_template = sample_factory()
     eid = eid_factory(type=EntityType.SAMPLE)
-    response = {}
+    response = {
+        'links': {'self': 'https://example.com/sample:2d9c3f5c-065a-4d56-992f-c0b2003eb9be'},
+        'data': {
+            'type': 'entity',
+            'id': eid,
+            'attributes': {
+                'id': eid,
+                'eid': eid,
+                'name': 'Sample-1781',
+                'description': '',
+                'createdAt': '2022-06-14T09:51:10.765Z',
+                'editedAt': '2022-06-14T09:51:10.765Z',
+                'type': 'sample',
+                'digest': '25881025',
+                'fields': {'Description': {'value': ''}, 'Name': {'value': 'Sample-1781'}},
+                'flags': {'canEdit': True},
+            },
+        },
+    }
+    new_sample_property = sample_property_factory()
+    request_body = {
+        "data": {
+            "type": "sample",
+            "attributes": {
+                "fields": [
+                    new_sample_property.dict(exclude_none=True),
+                ]
+            },
+            "relationships": {
+                "ancestors": {
+                    "data": [
+                        container.short_description.dict(exclude_none=True),
+                    ]
+                },
+                "template": {"data": sample_template.short_description.dict(exclude_none=True)},
+            },
+        }
+    }
 
     api_mock.call.return_value.json.return_value = response
 
-    result = Sample.create(container=container)
+    new_sample = Sample.create(
+        fields=[new_sample_property], template=sample_template, ancestors=[container], digest=digest, force=force
+    )
 
-    # api_mock.call.assert_called_once_with(
-    #     method='POST',
-    #     path=('entities', container.eid, 'children', ...),
-    #     params={
-    #         'digest': container.digest,
-    #         'force': 'true' if force else 'false',
-    #     },
-    #     # headers={
-    #     #     'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-    #     # },
-    #     # data=content.encode('utf-8'),
-    # )
+    api_mock.call.assert_called_once_with(
+        method='POST',
+        path=('entities',),
+        params={
+            'digest': digest,
+            'force': json.dumps(force),
+        },
+        json=request_body,
+    )
 
-    assert isinstance(result, Sample)
-    assert result.eid == eid
-    assert result.digest == response['data']['attributes']['digest']
-    assert result.name == response['data']['attributes']['name']
-    assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
-    assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+    assert isinstance(new_sample, Sample)
+    assert new_sample.eid == eid
+    assert new_sample.digest == response['data']['attributes']['digest']
+    assert new_sample.name == response['data']['attributes']['name']
+    assert new_sample.created_at == arrow.get(response['data']['attributes']['createdAt'])
+    assert new_sample.edited_at == arrow.get(response['data']['attributes']['editedAt'])
