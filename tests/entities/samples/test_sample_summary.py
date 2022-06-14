@@ -87,10 +87,6 @@ def sample_summary_content():
     )
 
 
-def test_create(sample_summary_factory):
-    pass
-
-
 def test_fetch_samples_from_summary(api_mock, sample_summary_factory, samples_from_summary_response):
     sample_summary = sample_summary_factory()
     api_mock.call.return_value.json.return_value = samples_from_summary_response

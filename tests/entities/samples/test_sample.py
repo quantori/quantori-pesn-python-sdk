@@ -159,9 +159,12 @@ def test_save(api_mock, sample_factory, sample_properties, mocker):
     for item in created_properties:
         if item.is_changed:
             request_body.append(item.representation_for_update.dict(exclude_none=True))
-    api_mock.call.assert_has_calls(
+
+    sample.save()
+
+    api_mock.assert_has_calls(
         [
-            mocker.call(
+            mocker.call.call(
                 method='GET',
                 path=(sample._get_samples_endpoint(), sample.eid, 'properties'),
                 params={
@@ -169,20 +172,20 @@ def test_save(api_mock, sample_factory, sample_properties, mocker):
                     'value': 'normalized',
                 },
             ),
-            # mocker.call( # не видит ПАТЧ в своем скоупе
-            #     method='PATCH',
-            #     path=(sample._get_samples_endpoint(), sample.eid, 'properties'),
-            #     params={
-            #         'force': True,
-            #         'value': 'normalized',
-            #     },
-            #     json=request_body,
-            # ),
+            mocker.call.call(
+                method='PATCH',
+                path=(sample._get_samples_endpoint(), sample.eid, 'properties'),
+                params={
+                    'force': 'true',
+                    'value': 'normalized',
+                },
+                json={
+                    'data': {'attributes': {'data': request_body}},
+                },
+            ),
         ],
         any_order=True,
     )
-
-    sample.save()
 
 
 @pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
