@@ -120,5 +120,47 @@ def test_fetch_samples_from_table(api_mock, samples_container_factory, samples_f
     )
 
 
-def test_patch_sample_in_table(api_mock, samples_container_factory):
-    pass
+def test_patch_sample_in_table(api_mock, samples_container_factory, samples_from_table_response, mocker):
+    samples_container = samples_container_factory()
+
+    assert samples_container._samples_rows == []
+
+    api_mock.call.return_value.json.return_value = samples_from_table_response
+    created_sample_rows = samples_container.samples_rows
+
+    assert samples_container._samples_rows != []
+
+    api_mock.call.return_value.json.return_value = {}
+    api_mock.call.return_value.json.return_value = samples_from_table_response
+
+    request_body = []
+    for item in created_sample_rows:
+        request_body.append(item.representation_for_update)
+
+    samples_container.patch_sample_in_table()
+
+    api_mock.assert_has_calls(
+        [
+            mocker.call.call(
+                method='GET',
+                path=(samples_container._get_sample_tables_endpoint(), samples_container.eid, 'rows'),
+                params={
+                    'sampleIds': None,
+                    'fields': '',
+                },
+            ),
+            mocker.call.call(
+                method='PATCH',
+                path=(samples_container._get_sample_tables_endpoint(), samples_container.eid, 'rows'),
+                params={
+                    'force': 'true',
+                    'sampleIds': None,
+                    'digest': None
+                },
+                json={
+                    'data': request_body,
+                },
+            ),
+        ],
+        any_order=True,
+    )
