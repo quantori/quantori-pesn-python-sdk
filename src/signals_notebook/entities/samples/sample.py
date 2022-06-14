@@ -7,7 +7,6 @@ from pydantic import BaseModel, Field, PrivateAttr, validator
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import (
     Ancestors,
-    EID,
     EntityCreationRequestPayload,
     EntityType,
     Response,
@@ -31,7 +30,7 @@ class SamplePropertyBody(BaseModel):
 class SampleProperty(BaseModel):
     id: Optional[Union[UUID, str]]
     name: Optional[str]
-    content: Optional[CellPropertyContent]
+    content: CellPropertyContent = Field(default=CellPropertyContent())
 
     @property
     def is_changed(self) -> bool:
@@ -129,14 +128,13 @@ class Sample(Entity):
         return cast(ResponseData, result.data).body
 
     def save(self, force: bool = True) -> None:
-        # super().save(force)
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
         for item in self.properties:
             if item.is_changed:
-                request_body.append(item.representation_for_update.dict())
-        print(request_body)  # TODO: fix patch here
+                request_body.append(item.representation_for_update.dict(exclude_none=True))
+
         api.call(
             method='PATCH',
             path=(self._get_samples_endpoint(), self.eid, 'properties'),
@@ -156,7 +154,7 @@ class Sample(Entity):
         *,
         fields: Optional[List[SampleProperty]] = None,
         template: Optional['Sample'] = None,
-        ancestors: Optional[List[Union[Container, 'SamplesContainer']]] = None,
+        ancestors: Optional[List[Union[Container]]] = None,  # ADD 'SamplesContainer' (warning!!! circle import)
         digest: str = None,
         force: bool = True,
     ) -> 'Sample':
@@ -164,7 +162,7 @@ class Sample(Entity):
         if template or ancestors:
             relationships = _SampleRelationships(
                 ancestors=Ancestors(data=[item.short_description for item in ancestors]) if ancestors else None,
-                template={'data': template.short_description} if template else None,  # convert to dict
+                template={'data': template.short_description} if template else None,
             )
 
         request = _SampleRequestPayload(
@@ -174,7 +172,6 @@ class Sample(Entity):
                 relationships=relationships,
             )
         )
-        print(request.json())
 
         return super()._create(
             digest=digest,

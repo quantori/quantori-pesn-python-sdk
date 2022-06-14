@@ -140,8 +140,49 @@ def test_get_property_by_id(api_mock, sample_factory, property_id, name, value):
     assert sample_property.content.value == value
 
 
-def test_save(sample_factory):
-    pass
+def test_save(api_mock, sample_factory, sample_properties, mocker):
+    sample = sample_factory()
+    assert sample._properties == []
+
+    api_mock.call.return_value.json.return_value = sample_properties
+    created_properties = sample.properties
+
+    assert sample._properties != []
+
+    for item in created_properties:
+        if item.id == '2':
+            item.content.set_value('555')
+    api_mock.call.return_value.json.return_value = {}
+    api_mock.call.return_value.json.return_value = sample_properties
+
+    request_body = []
+    for item in created_properties:
+        if item.is_changed:
+            request_body.append(item.representation_for_update.dict(exclude_none=True))
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(
+                method='GET',
+                path=(sample._get_samples_endpoint(), sample.eid, 'properties'),
+                params={
+                    'name': None,
+                    'value': 'normalized',
+                },
+            ),
+            # mocker.call( # не видит ПАТЧ в своем скоупе
+            #     method='PATCH',
+            #     path=(sample._get_samples_endpoint(), sample.eid, 'properties'),
+            #     params={
+            #         'force': True,
+            #         'value': 'normalized',
+            #     },
+            #     json=request_body,
+            # ),
+        ],
+        any_order=True,
+    )
+
+    sample.save()
 
 
 @pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
@@ -170,20 +211,20 @@ def test_create(api_mock, experiment_factory, sample_property_factory, sample_fa
     }
     new_sample_property = sample_property_factory()
     request_body = {
-        "data": {
-            "type": "sample",
-            "attributes": {
-                "fields": [
+        'data': {
+            'type': 'sample',
+            'attributes': {
+                'fields': [
                     new_sample_property.dict(exclude_none=True),
                 ]
             },
-            "relationships": {
-                "ancestors": {
-                    "data": [
+            'relationships': {
+                'ancestors': {
+                    'data': [
                         container.short_description.dict(exclude_none=True),
                     ]
                 },
-                "template": {"data": sample_template.short_description.dict(exclude_none=True)},
+                'template': {'data': sample_template.short_description.dict(exclude_none=True)},
             },
         }
     }

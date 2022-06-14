@@ -15,8 +15,8 @@ from tests.entities.factories import (
 )
 from tests.entities.samples.factories import (
     SampleFactory,
-    SamplesContainerFactory,
     SamplePropertyFactory,
+    SamplesContainerFactory,
     SampleSummaryFactory,
 )
 from tests.entities.stoichiometry.factories import StoichiometryFactory
