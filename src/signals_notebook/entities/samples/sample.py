@@ -1,5 +1,5 @@
 import json
-from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
+from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr, validator
@@ -14,7 +14,10 @@ from signals_notebook.common_types import (
 )
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
-from signals_notebook.entities.samples.cell import CellPropertyContent, FieldData
+from signals_notebook.entities.samples.cell import CellPropertyContent, CellValueType, FieldData
+
+if TYPE_CHECKING:
+    from signals_notebook.entities import SamplesContainer
 
 
 class Content(BaseModel):
@@ -32,13 +35,22 @@ class SampleProperty(BaseModel):
     name: Optional[str]
     content: CellPropertyContent = Field(default=CellPropertyContent())
 
+    def set_value(self, new_value: CellValueType) -> None:
+        self.content.set_value(new_value)
+
+    def set_values(self, new_values: List[CellValueType]) -> None:
+        self.content.set_values(new_values)
+
+    def set_name(self, new_name: str) -> None:
+        self.content.set_name(new_name)
+
     @property
     def is_changed(self) -> bool:
         return False if self.content is None else self.content.is_changed
 
     @property
     def representation_for_update(self) -> SamplePropertyBody:
-        return SamplePropertyBody(id=self.id, attributes=Content(content=self.content))
+        return SamplePropertyBody(id=str(self.id), attributes=Content(content=self.content))
 
 
 class _SampleAttributes(BaseModel):
@@ -135,6 +147,9 @@ class Sample(Entity):
             if item.is_changed:
                 request_body.append(item.representation_for_update.dict(exclude_none=True))
 
+        if not request_body:
+            return
+
         api.call(
             method='PATCH',
             path=(self._get_samples_endpoint(), self.eid, 'properties'),
@@ -154,7 +169,7 @@ class Sample(Entity):
         *,
         fields: Optional[List[SampleProperty]] = None,
         template: Optional['Sample'] = None,
-        ancestors: Optional[List[Union[Container]]] = None,  # ADD 'SamplesContainer' (warning!!! circle import)
+        ancestors: Optional[List[Union[Container, 'SamplesContainer']]] = None,
         digest: str = None,
         force: bool = True,
     ) -> 'Sample':

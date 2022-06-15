@@ -2,63 +2,56 @@ import pytest
 
 
 @pytest.fixture()
-def samples_from_table_response():
+def sample_properties():
     return {
+        'links': {'self': 'https://example.com/samples/properties'},
         'data': [
             {
-                'type': 'samplesTableRow',
-                'id': 'sample:0f96db87-a4af-46ae-9aff-711867f23d73',
+                'type': 'property',
+                'id': 'b718adec-73e0-3ce3-ac72-0dd11a06a308',
                 'attributes': {
-                    'eid': 'sample:0f96db87-a4af-46ae-9aff-711867f23d73',
-                    'columns': {
-                        'subExpName': {
-                            'key': 'subExpName',
-                            'type': 'LINK',
-                            'name': 'Name',
-                            'content': {
-                                'type': 'parasubexp',
-                                'display': 'Sub-experiment-1',
-                                'value': 'parasubexp:413779cf-16b9-49ce-bb85-85b2fa6964da',
-                            },
-                        },
-                        'sampleId': {
-                            'key': 'sampleId',
-                            'type': 'LINK',
-                            'name': 'ID',
-                            'content': {
-                                'type': 'sample',
-                                'display': 'Sample-1764',
-                                'value': 'sample:0f96db87-a4af-46ae-9aff-711867f23d73',
-                            },
-                        },
-                        '1': {
-                            'key': '1',
-                            'type': 'DATETIME',
-                            'name': 'Created Date',
-                            'content': {'value': '2022-06-06T08:54:51.677884071Z'},
-                        },
-                        '2': {'key': '2', 'type': 'TEXT', 'name': 'Description', 'content': {'value': 'Description 1'}},
-                        '3': {'key': '3', 'type': 'TEXT', 'name': 'Comments', 'content': {'value': 'Comments 1'}},
-                        '4': {
-                            'key': '4',
-                            'type': 'UNIT',
-                            'name': 'Amount',
-                            'content': {'display': '1 g', 'value': 1.0, 'units': 'g'},
-                        },
-                        '10': {
-                            'key': '10',
-                            'type': 'CHILD_ENTITY_COUNT',
-                            'name': 'Attached Docs',
-                            'content': {'value': '0', 'eid': 'sample:0f96db87-a4af-46ae-9aff-711867f23d73'},
-                        },
-                        'sourceName': {
-                            'key': 'sourceName',
-                            'type': 'TEXT',
-                            'name': 'Template',
-                            'content': {'value': 'Sample'},
-                        },
-                    },
+                    'id': 'b718adec-73e0-3ce3-ac72-0dd11a06a308',
+                    'name': 'ID',
+                    'content': {'value': 'Sample-1756'},
                 },
-            }
+            },
+            {
+                'type': 'property',
+                'id': '278c491b-dd8a-3361-8c14-9c4ac790da34',
+                'attributes': {
+                    'id': '278c491b-dd8a-3361-8c14-9c4ac790da34',
+                    'name': 'Template',
+                    'content': {'value': 'Sample'},
+                },
+            },
+            {
+                'type': 'property',
+                'id': 'digests.self',
+                'attributes': {'id': 'digests.self'},
+            },
+            {
+                'type': 'property',
+                'id': 'digests.external',
+                'attributes': {'id': 'digests.external'},
+            },
+            {
+                'type': 'property',
+                'id': '1',
+                'attributes': {
+                    'id': '1',
+                    'name': 'Created Date',
+                    'content': {'value': '2022-06-02T07:27:10.072365283Z'},
+                },
+            },
+            {
+                'type': 'property',
+                'id': '2',
+                'attributes': {'id': '2', 'name': 'Description', 'content': {'value': 'simple'}},
+            },
+            {
+                'type': 'property',
+                'id': '3',
+                'attributes': {'id': '3', 'name': 'Comments', 'content': {'value': '555'}},
+            },
         ],
     }

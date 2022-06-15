@@ -3,7 +3,6 @@ import factory
 from signals_notebook.common_types import EntityType
 from signals_notebook.entities import Sample, SamplesContainer
 from signals_notebook.entities.samples.sample import SampleProperty
-from signals_notebook.entities.samples.sample_summary import SampleSummary
 from tests.entities.factories import EntityFactory
 
 
@@ -19,13 +18,6 @@ class SampleFactory(EntityFactory):
         model = Sample
 
     type = EntityType.SAMPLE
-
-
-class SampleSummaryFactory(EntityFactory):
-    class Meta:
-        model = SampleSummary
-
-    type = EntityType.SAMPLE_SUMMARY
 
 
 class SamplePropertyFactory(factory.Factory):

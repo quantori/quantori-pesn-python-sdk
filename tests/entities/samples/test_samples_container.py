@@ -3,8 +3,66 @@ import os
 import pytest
 
 from signals_notebook.common_types import File
-from signals_notebook.entities.samples.sample import SampleProperty
-from signals_notebook.entities.samples.sample_table_row import SampleTableRow
+from signals_notebook.entities.samples.sample import Sample, SampleProperty
+
+
+@pytest.fixture()
+def get_samples_response():
+    return {
+        'links': {
+            'self': 'https://example.com/entities/samplesContainer',
+        },
+        'data': [
+            {
+                'type': 'entity',
+                'id': 'sample:fa34c835-6271-4c59-b320-ff26089e89c6',
+                'attributes': {
+                    'id': 'sample:fa34c835-6271-4c59-b320-ff26089e89c6',
+                    'eid': 'sample:fa34c835-6271-4c59-b320-ff26089e89c6',
+                    'name': 'Sample-1776',
+                    'description': '',
+                    'createdAt': '2022-06-13T13:54:43.040Z',
+                    'editedAt': '2022-06-15T12:20:52.715Z',
+                    'type': 'sample',
+                    'digest': '58181453',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'Sample-1776'}},
+                    'flags': {'canEdit': True},
+                },
+            },
+            {
+                'type': 'entity',
+                'id': 'sample:ef8f39e5-3309-4f85-abd6-3ceedce0d8a6',
+                'attributes': {
+                    'id': 'sample:ef8f39e5-3309-4f85-abd6-3ceedce0d8a6',
+                    'eid': 'sample:ef8f39e5-3309-4f85-abd6-3ceedce0d8a6',
+                    'name': 'Sample-1777',
+                    'description': '',
+                    'createdAt': '2022-06-13T13:55:51.150Z',
+                    'editedAt': '2022-06-14T10:46:52.907Z',
+                    'type': 'sample',
+                    'digest': '78660064',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'Sample-1777'}},
+                    'flags': {'canEdit': True},
+                },
+            },
+            {
+                'type': 'entity',
+                'id': 'sample:3ef80703-612e-465a-b930-f3e154dd1937',
+                'attributes': {
+                    'id': 'sample:3ef80703-612e-465a-b930-f3e154dd1937',
+                    'eid': 'sample:3ef80703-612e-465a-b930-f3e154dd1937',
+                    'name': 'Sample-1778',
+                    'description': '',
+                    'createdAt': '2022-06-13T13:59:34.447Z',
+                    'editedAt': '2022-06-13T13:59:34.447Z',
+                    'type': 'sample',
+                    'digest': '18903856',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'Sample-1778'}},
+                    'flags': {'canEdit': True},
+                },
+            },
+        ],
+    }
 
 
 @pytest.fixture()
@@ -69,98 +127,116 @@ def test_get_html(samples_container_factory, snapshot, api_mock, samples_contain
     snapshot.assert_match(samples_container_html)
 
 
-def test_reload_samples_rows(api_mock, samples_container_factory, samples_from_table_response):
+def test_reload_samples(api_mock, samples_container_factory, get_samples_response, mocker, sample_properties):
     samples_container = samples_container_factory()
 
-    assert samples_container._samples_rows == []
+    assert samples_container._samples == []
 
-    api_mock.call.return_value.json.return_value = samples_from_table_response
-    created_sample_rows = samples_container.samples_rows
+    api_mock.call.return_value.json.return_value = get_samples_response
+    created_samples = samples_container.samples
+    assert samples_container._samples != []
+    api_mock.call.return_value.json.return_value = sample_properties
 
-    assert samples_container._samples_rows != []
-    assert isinstance(created_sample_rows[0], SampleTableRow)
-    columns = created_sample_rows[0].columns
+    samples_ids = [item['id'] for item in get_samples_response['data']]
 
-    for item in columns.values():
-        assert isinstance(item, SampleProperty)
+    for sample in created_samples:
+        assert isinstance(sample, Sample)
+        properties = sample.properties
 
-    assert len(columns) == 8
+        for item in properties:
+            assert isinstance(item, SampleProperty)
 
-    api_mock.call.assert_called_once_with(
-        method='GET',
-        path=(samples_container._get_sample_tables_endpoint(), samples_container.eid, 'rows'),
-        params={
-            'sampleIds': None,
-            'fields': '',
-        },
-    )
-
-
-def test_fetch_samples_from_table(api_mock, samples_container_factory, samples_from_table_response):
-    samples_container = samples_container_factory()
-    api_mock.call.return_value.json.return_value = samples_from_table_response
-
-    samples_generator = samples_container.fetch_samples_from_table()
-    samples_table_row = list(samples_generator)[0]
-    columns = samples_table_row.columns
-
-    assert isinstance(samples_table_row, SampleTableRow)
-    for item in columns.values():
-        assert isinstance(item, SampleProperty)
-
-    assert len(columns) == 8
-
-    api_mock.call.assert_called_once_with(
-        method='GET',
-        path=(samples_container._get_sample_tables_endpoint(), samples_container.eid, 'rows'),
-        params={
-            'sampleIds': None,
-            'fields': '',
-        },
-    )
-
-
-def test_patch_sample_in_table(api_mock, samples_container_factory, samples_from_table_response, mocker):
-    samples_container = samples_container_factory()
-
-    assert samples_container._samples_rows == []
-
-    api_mock.call.return_value.json.return_value = samples_from_table_response
-    created_sample_rows = samples_container.samples_rows
-
-    assert samples_container._samples_rows != []
-
-    api_mock.call.return_value.json.return_value = {}
-    api_mock.call.return_value.json.return_value = samples_from_table_response
-
-    request_body = []
-    for item in created_sample_rows:
-        request_body.append(item.representation_for_update)
-
-    samples_container.patch_sample_in_table()
+        assert len(properties) == 7
 
     api_mock.assert_has_calls(
         [
             mocker.call.call(
                 method='GET',
-                path=(samples_container._get_sample_tables_endpoint(), samples_container.eid, 'rows'),
+                path=('samples', item, 'properties'),
                 params={
-                    'sampleIds': None,
-                    'fields': '',
+                    'name': None,
+                    'value': 'normalized',
                 },
-            ),
-            mocker.call.call(
-                method='PATCH',
-                path=(samples_container._get_sample_tables_endpoint(), samples_container.eid, 'rows'),
-                params={
-                    'force': 'true',
-                    'sampleIds': None,
-                    'digest': None
-                },
-                json={
-                    'data': request_body,
-                },
-            ),
+            ) for item in samples_ids
         ],
         any_order=True,
     )
+
+
+def test_get_samples(api_mock, samples_container_factory, get_samples_response, sample_properties, mocker):
+    samples_container = samples_container_factory()
+    api_mock.call.return_value.json.return_value = get_samples_response
+
+    samples_generator = samples_container.get_samples()
+    assert list(samples_generator) != []
+    api_mock.call.return_value.json.return_value = sample_properties
+    for sample in samples_generator:
+        assert isinstance(sample, Sample)
+        properties = sample.properties
+
+        for item in properties:
+            assert isinstance(item, SampleProperty)
+
+        assert len(properties) == 7
+
+        api_mock.assert_has_calls(
+            [
+                mocker.call.call(
+                    method='GET',
+                    path=('entities', samples_container.eid, 'children'),
+                ),
+                mocker.call.call(
+                    method='GET',
+                    path=('samples', sample.eid, 'properties'),
+                    params={
+                        'name': None,
+                        'value': 'normalized',
+                    },
+                ),
+            ],
+            any_order=True,
+        )
+
+
+# def test_update_samples(api_mock, samples_container_factory, get_samples_response, sample_properties, mocker):
+#     samples_container = samples_container_factory()
+#
+#     assert samples_container._samples == []
+#
+#     api_mock.call.return_value.json.return_value = get_samples_response
+#     created_samples = samples_container.samples
+#     assert samples_container._samples != []
+#
+#     api_mock.call.return_value.json.return_value = {}
+#     api_mock.call.return_value.json.return_value = get_samples_response
+#
+#     samples_ids = [item['id'] for item in get_samples_response['data']]
+#
+#
+#     samples_container.update_samples()
+#
+#     api_mock.assert_has_calls(
+#         [ [
+#             mocker.call.call(
+#                 method='GET',
+#                 path=(sample._get_samples_endpoint(), item, 'properties'),
+#                 params={
+#                     'name': None,
+#                     'value': 'normalized',
+#                 },
+#             ),
+#             mocker.call.call(
+#                 method='PATCH',
+#                 path=(sample._get_samples_endpoint(), item, 'properties'),
+#                 params={
+#                     'force': 'true',
+#                     'value': 'normalized',
+#                 },
+#                 json={
+#                     'data': {'attributes': {'data': request_body}},
+#                 },
+#             ),
+#         ]  for item in samples_ids]
+#         ,
+#         any_order=True,
+#     )

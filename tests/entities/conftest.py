@@ -17,7 +17,6 @@ from tests.entities.samples.factories import (
     SampleFactory,
     SamplePropertyFactory,
     SamplesContainerFactory,
-    SampleSummaryFactory,
 )
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
@@ -37,7 +36,6 @@ register(ExcelFactory)
 register(BiologicalSequenceFactory)
 register(SamplesContainerFactory)
 register(SampleFactory)
-register(SampleSummaryFactory)
 register(SamplePropertyFactory)
 
 
