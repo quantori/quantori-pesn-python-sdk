@@ -157,7 +157,8 @@ def test_reload_samples(api_mock, samples_container_factory, get_samples_respons
                     'name': None,
                     'value': 'normalized',
                 },
-            ) for item in samples_ids
+            )
+            for item in samples_ids
         ],
         any_order=True,
     )
@@ -207,27 +208,29 @@ def test_update_samples(api_mock, samples_container_factory, get_samples_respons
     created_samples = samples_container.samples
     assert samples_container._samples != []
 
-    api_mock.call.return_value.json.return_value = {}
-    api_mock.call.return_value.json.return_value = get_samples_response
-
     samples_ids = [item['id'] for item in get_samples_response['data']]
 
+    patch_calls = []
+    for sample in created_samples:
 
-    samples_container.update_samples()
+        request_body = []
+        api_mock.call.return_value.json.return_value = sample_properties
+        created_properties = sample.properties
 
-    api_mock.assert_has_calls(
-        [ [
-            mocker.call.call(
-                method='GET',
-                path=(sample._get_samples_endpoint(), item, 'properties'),
-                params={
-                    'name': None,
-                    'value': 'normalized',
-                },
-            ),
+        for item in created_properties:
+            if item.id == '2':
+                item.content.set_value('555')
+        api_mock.call.return_value.json.return_value = {}
+        api_mock.call.return_value.json.return_value = sample_properties
+
+        for item in created_properties:
+            if item.is_changed:
+                request_body.append(item.representation_for_update.dict(exclude_none=True))
+
+        patch_calls.append(
             mocker.call.call(
                 method='PATCH',
-                path=(sample._get_samples_endpoint(), item, 'properties'),
+                path=('samples', sample.eid, 'properties'),
                 params={
                     'force': 'true',
                     'value': 'normalized',
@@ -235,8 +238,31 @@ def test_update_samples(api_mock, samples_container_factory, get_samples_respons
                 json={
                     'data': {'attributes': {'data': request_body}},
                 },
+            )
+        )
+
+    api_mock.call.return_value.json.return_value = get_samples_response
+    samples_container.update_samples()
+
+    get_calls = [
+        mocker.call.call(
+            method='GET',
+            path=('samples', item, 'properties'),
+            params={
+                'name': None,
+                'value': 'normalized',
+            },
+        )
+        for item in samples_ids
+    ]
+    api_mock.assert_has_calls(
+        [
+            *patch_calls,
+            *get_calls,
+            mocker.call.call(
+                method='GET',
+                path=('entities', samples_container.eid, 'children'),
             ),
-        ]  for item in samples_ids]
-        ,
+        ],
         any_order=True,
     )

@@ -62,7 +62,6 @@ class SamplesContainer(ContentfulEntity):
     def update_samples(self) -> None:
         for item in self.samples:
             item.save()
-        # [item.save() for item in self.samples]
         self._reload_samples()
 
     def get_html(self) -> str:
