@@ -198,45 +198,45 @@ def test_get_samples(api_mock, samples_container_factory, get_samples_response, 
         )
 
 
-# def test_update_samples(api_mock, samples_container_factory, get_samples_response, sample_properties, mocker):
-#     samples_container = samples_container_factory()
-#
-#     assert samples_container._samples == []
-#
-#     api_mock.call.return_value.json.return_value = get_samples_response
-#     created_samples = samples_container.samples
-#     assert samples_container._samples != []
-#
-#     api_mock.call.return_value.json.return_value = {}
-#     api_mock.call.return_value.json.return_value = get_samples_response
-#
-#     samples_ids = [item['id'] for item in get_samples_response['data']]
-#
-#
-#     samples_container.update_samples()
-#
-#     api_mock.assert_has_calls(
-#         [ [
-#             mocker.call.call(
-#                 method='GET',
-#                 path=(sample._get_samples_endpoint(), item, 'properties'),
-#                 params={
-#                     'name': None,
-#                     'value': 'normalized',
-#                 },
-#             ),
-#             mocker.call.call(
-#                 method='PATCH',
-#                 path=(sample._get_samples_endpoint(), item, 'properties'),
-#                 params={
-#                     'force': 'true',
-#                     'value': 'normalized',
-#                 },
-#                 json={
-#                     'data': {'attributes': {'data': request_body}},
-#                 },
-#             ),
-#         ]  for item in samples_ids]
-#         ,
-#         any_order=True,
-#     )
+def test_update_samples(api_mock, samples_container_factory, get_samples_response, sample_properties, mocker):
+    samples_container = samples_container_factory()
+
+    assert samples_container._samples == []
+
+    api_mock.call.return_value.json.return_value = get_samples_response
+    created_samples = samples_container.samples
+    assert samples_container._samples != []
+
+    api_mock.call.return_value.json.return_value = {}
+    api_mock.call.return_value.json.return_value = get_samples_response
+
+    samples_ids = [item['id'] for item in get_samples_response['data']]
+
+
+    samples_container.update_samples()
+
+    api_mock.assert_has_calls(
+        [ [
+            mocker.call.call(
+                method='GET',
+                path=(sample._get_samples_endpoint(), item, 'properties'),
+                params={
+                    'name': None,
+                    'value': 'normalized',
+                },
+            ),
+            mocker.call.call(
+                method='PATCH',
+                path=(sample._get_samples_endpoint(), item, 'properties'),
+                params={
+                    'force': 'true',
+                    'value': 'normalized',
+                },
+                json={
+                    'data': {'attributes': {'data': request_body}},
+                },
+            ),
+        ]  for item in samples_ids]
+        ,
+        any_order=True,
+    )
