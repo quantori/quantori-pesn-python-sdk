@@ -1,5 +1,5 @@
 import json
-from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, TYPE_CHECKING, Union
+from typing import cast, Dict, Generator, List, Literal, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -79,9 +79,28 @@ class SamplePropertiesResponse(Response[SampleProperty]):
 class Sample(Entity):
     type: Literal[EntityType.SAMPLE] = Field(allow_mutation=False)
     _properties: List[SampleProperty] = PrivateAttr(default=[])
+    _properties_by_id: Dict[Union[str, UUID], SampleProperty] = PrivateAttr(default={})
 
-    def __getitem__(self, item):
-        pass
+    def __getitem__(self, index: Union[int, str, UUID]) -> SampleProperty:
+        if not self._properties:
+            self._reload_properties()
+
+        if isinstance(index, int):
+            return self._properties[index]
+
+        if isinstance(index, str):
+            try:
+                return self._properties_by_id[UUID(index)]
+            except ValueError:
+                return self._properties_by_id[index]
+
+        if isinstance(index, UUID):
+            return self._properties_by_id[index]
+
+        raise IndexError('Invalid index')
+
+    def __iter__(self):
+        return self.properties.__iter__()
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -108,15 +127,20 @@ class Sample(Entity):
                 'value': 'normalized',
             },
         )
-        print(response.json())
 
         result = SamplePropertiesResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
 
     def _reload_properties(self) -> None:
         self._properties = []
+        self._properties_by_id = {}
+
         for item in self.get_properties():
-            self._properties.append(item)
+            sample_property = cast(SampleProperty, item)
+            assert sample_property.id
+
+            self._properties.append(sample_property)
+            self._properties_by_id[sample_property.id] = sample_property
 
     def get_property_by_id(self, property_id: Union[str, UUID]) -> SampleProperty:
         _property_id = property_id.hex if isinstance(property_id, UUID) else property_id

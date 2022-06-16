@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from signals_notebook.common_types import File
+from signals_notebook.common_types import File, EID
 from signals_notebook.entities.samples.sample import Sample, SampleProperty
 
 
@@ -135,12 +135,12 @@ def test_reload_samples(api_mock, samples_container_factory, get_samples_respons
     api_mock.call.return_value.json.return_value = get_samples_response
     created_samples = samples_container.samples
     assert samples_container._samples != []
-    api_mock.call.return_value.json.return_value = sample_properties
 
     samples_ids = [item['id'] for item in get_samples_response['data']]
 
     for sample in created_samples:
         assert isinstance(sample, Sample)
+        api_mock.call.return_value.json.return_value = sample_properties
         properties = sample.properties
 
         for item in properties:
@@ -266,3 +266,36 @@ def test_update_samples(api_mock, samples_container_factory, get_samples_respons
         ],
         any_order=True,
     )
+
+
+@pytest.mark.parametrize(
+    'index', [1, 'sample:fa34c835-6271-4c59-b320-ff26089e89c6', EID('sample:fa34c835-6271-4c59-b320-ff26089e89c6')]
+)
+def test_getitem(api_mock, samples_container_factory, get_samples_response, index):
+    samples_container = samples_container_factory()
+
+    assert samples_container._samples == []
+
+    api_mock.call.return_value.json.return_value = get_samples_response
+    _ = samples_container.samples
+    assert samples_container._samples != []
+
+    assert isinstance(samples_container[index], Sample)
+
+
+def test_iter(api_mock, samples_container_factory, get_samples_response, sample_properties):
+    samples_container = samples_container_factory()
+
+    assert samples_container._samples == []
+
+    api_mock.call.return_value.json.return_value = get_samples_response
+    _ = samples_container.samples
+    assert samples_container._samples != []
+
+    for sample in samples_container:
+        assert isinstance(sample, Sample)
+
+        api_mock.call.return_value.json.return_value = sample_properties
+        _ = sample.properties
+        for item in sample:
+            assert isinstance(item, SampleProperty)

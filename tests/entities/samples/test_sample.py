@@ -1,4 +1,5 @@
 import json
+from uuid import UUID
 
 import arrow
 import pytest
@@ -198,3 +199,33 @@ def test_create(api_mock, experiment_factory, sample_property_factory, sample_fa
     assert new_sample.name == response['data']['attributes']['name']
     assert new_sample.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert new_sample.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+
+
+@pytest.mark.parametrize(
+    'index', [1, 'b718adec-73e0-3ce3-ac72-0dd11a06a308', 'digests.self', UUID('b718adec-73e0-3ce3-ac72-0dd11a06a308')]
+)
+def test_getitem(api_mock, sample_properties, sample_factory, index):
+    sample = sample_factory()
+
+    assert sample._properties == []
+
+    api_mock.call.return_value.json.return_value = sample_properties
+    _ = sample.properties
+
+    assert sample._properties != []
+
+    assert isinstance(sample[index], SampleProperty)
+
+
+def test_iter(api_mock, sample_properties, sample_factory):
+    sample = sample_factory()
+
+    assert sample._properties == []
+
+    api_mock.call.return_value.json.return_value = sample_properties
+    _ = sample.properties
+
+    assert sample._properties != []
+
+    for item in sample:
+        assert isinstance(item, SampleProperty)

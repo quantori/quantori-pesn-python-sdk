@@ -1,11 +1,11 @@
 import csv
 from io import StringIO
-from typing import cast, ClassVar, Generator, List, Literal
+from typing import cast, ClassVar, Generator, List, Literal, Dict, Union
 
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EntityType, File, Response, ResponseData
+from signals_notebook.common_types import EntityType, File, Response, ResponseData, EID
 from signals_notebook.entities import Sample
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
@@ -18,7 +18,26 @@ class SamplesContainerResponse(Response[Sample]):
 class SamplesContainer(ContentfulEntity):
     type: Literal[EntityType.SAMPLES_CONTAINER] = Field(allow_mutation=False)
     _template_name: ClassVar = 'samplesContainer.html'
-    _samples = PrivateAttr(default=[])
+    _samples: List[Sample] = PrivateAttr(default=[])
+    _samples_by_id: Dict[EID, Sample] = PrivateAttr(default={})
+
+    def __getitem__(self, index):
+        if not self._samples:
+            self._reload_samples()
+
+        if isinstance(index, int):
+            return self._samples[index]
+
+        if isinstance(index, str):
+            return self._samples_by_id[EID(index)]
+
+        if isinstance(index, EID):
+            return self._samples_by_id[index]
+
+        raise IndexError('Invalid index')
+
+    def __iter__(self):
+        return self.samples.__iter__()
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -35,8 +54,13 @@ class SamplesContainer(ContentfulEntity):
 
     def _reload_samples(self) -> None:
         self._samples = []
+        self._samples_by_id = {}
         for item in self.get_samples():
+            sample = cast(Sample, item)
+            assert sample.eid
+
             self._samples.append(item)
+            self._samples_by_id[sample.eid] = sample
 
     def get_samples(self) -> Generator[Sample, None, None]:
         api = SignalsNotebookApi.get_default_api()
