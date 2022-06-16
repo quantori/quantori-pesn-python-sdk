@@ -2,7 +2,7 @@ import json
 from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
-from pydantic import BaseModel, Field, PrivateAttr, validator
+from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import (
@@ -14,7 +14,7 @@ from signals_notebook.common_types import (
 )
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
-from signals_notebook.entities.samples.cell import CellPropertyContent, CellValueType, FieldData
+from signals_notebook.entities.samples.cell import CellPropertyContent, CellValueType
 
 if TYPE_CHECKING:
     from signals_notebook.entities import SamplesContainer
@@ -78,16 +78,8 @@ class SamplePropertiesResponse(Response[SampleProperty]):
 
 class Sample(Entity):
     type: Literal[EntityType.SAMPLE] = Field(allow_mutation=False)
-    fields: Optional[Dict[str, FieldData]]
     _template_name: ClassVar = 'sample.html'
     _properties: List[SampleProperty] = PrivateAttr(default=[])
-
-    @validator('fields', pre=True)
-    def set_fields(cls, values) -> Dict[str, FieldData]:
-        fields: Dict[str, FieldData] = {}
-        for key, value in values.items():
-            fields[key] = FieldData(**value)
-        return fields
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -114,6 +106,7 @@ class Sample(Entity):
                 'value': 'normalized',
             },
         )
+        print(response.json())
 
         result = SamplePropertiesResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
@@ -167,7 +160,7 @@ class Sample(Entity):
     def create(
         cls,
         *,
-        fields: Optional[List[SampleProperty]] = None,
+        properties: Optional[List[SampleProperty]] = None,
         template: Optional['Sample'] = None,
         ancestors: Optional[List[Union[Container, 'SamplesContainer']]] = None,
         digest: str = None,
@@ -183,7 +176,7 @@ class Sample(Entity):
         request = _SampleRequestPayload(
             data=_SampleRequestBody(
                 type=cls._get_entity_type(),
-                attributes=_SampleAttributes(fields=fields),
+                attributes=_SampleAttributes(fields=properties),
                 relationships=relationships,
             )
         )

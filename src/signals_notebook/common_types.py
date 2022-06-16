@@ -35,7 +35,6 @@ class ObjectType(str, Enum):
     ATTRIBUTE = 'attribute'
     STOICHIOMETRY = 'stoichiometry'
     PROPERTY = 'property'
-    SAMPLES_TABLE_ROW = 'samplesTableRow'
 
 
 class EntityType(str, Enum):
@@ -52,7 +51,6 @@ class EntityType(str, Enum):
     EXCEL = 'excel'
     SAMPLE = 'sample'
     SAMPLES_CONTAINER = 'samplesContainer'
-    SAMPLE_SUMMARY = 'paraSamplesGrid'
 
 
 class MaterialType(str, Enum):

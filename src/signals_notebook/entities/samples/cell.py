@@ -30,10 +30,3 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
     @property
     def is_changed(self) -> bool:
         return self._changed
-
-
-class FieldData(GenericModel, Generic[CellValueType]):
-    display: Optional[str]
-    value: Optional[CellValueType]
-    units: Optional[str]
-    eid: Optional[EID]

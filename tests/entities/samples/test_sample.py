@@ -179,7 +179,7 @@ def test_create(api_mock, experiment_factory, sample_property_factory, sample_fa
     api_mock.call.return_value.json.return_value = response
 
     new_sample = Sample.create(
-        fields=[new_sample_property], template=sample_template, ancestors=[container], digest=digest, force=force
+        properties=[new_sample_property], template=sample_template, ancestors=[container], digest=digest, force=force
     )
 
     api_mock.call.assert_called_once_with(
