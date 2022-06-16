@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from signals_notebook.common_types import File, EID
+from signals_notebook.common_types import EID, File
 from signals_notebook.entities.samples.sample import Sample, SampleProperty
 
 

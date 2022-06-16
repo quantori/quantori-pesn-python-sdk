@@ -1,11 +1,11 @@
 import csv
 from io import StringIO
-from typing import cast, ClassVar, Generator, List, Literal, Dict, Union
+from typing import cast, ClassVar, Dict, Generator, List, Literal
 
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EntityType, File, Response, ResponseData, EID
+from signals_notebook.common_types import EID, EntityType, File, Response, ResponseData
 from signals_notebook.entities import Sample
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
