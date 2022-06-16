@@ -78,8 +78,10 @@ class SamplePropertiesResponse(Response[SampleProperty]):
 
 class Sample(Entity):
     type: Literal[EntityType.SAMPLE] = Field(allow_mutation=False)
-    _template_name: ClassVar = 'sample.html'
     _properties: List[SampleProperty] = PrivateAttr(default=[])
+
+    def __getitem__(self, item):
+        pass
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
