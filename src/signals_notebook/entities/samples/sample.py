@@ -68,6 +68,8 @@ class Sample(Entity):
         raise IndexError('Invalid index')
 
     def __iter__(self):
+        if not self._properties:
+            self._reload_properties()
         return self._properties.__iter__()
 
     @classmethod

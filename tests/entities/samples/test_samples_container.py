@@ -133,9 +133,6 @@ def test_reload_samples(api_mock, samples_container_factory, get_samples_respons
     assert samples_container._samples == []
 
     api_mock.call.return_value.json.return_value = get_samples_response
-    sample = samples_container[0]
-    assert isinstance(sample, Sample)
-    assert samples_container._samples != []
 
     samples_ids = [item['id'] for item in get_samples_response['data']]
 
@@ -147,6 +144,8 @@ def test_reload_samples(api_mock, samples_container_factory, get_samples_respons
 
         for item in sample:
             assert isinstance(item, SampleProperty)
+
+    assert samples_container._samples != []
 
     api_mock.assert_has_calls(
         [
@@ -169,10 +168,6 @@ def test_save(api_mock, samples_container_factory, get_samples_response, sample_
     assert samples_container._samples == []
 
     api_mock.call.return_value.json.return_value = get_samples_response
-    sample = samples_container[0]
-    assert isinstance(sample, Sample)
-
-    assert samples_container._samples != []
 
     samples_ids = [item['id'] for item in get_samples_response['data']]
 
@@ -207,6 +202,8 @@ def test_save(api_mock, samples_container_factory, get_samples_response, sample_
                 },
             )
         )
+
+    assert samples_container._samples != []
 
     api_mock.call.return_value.json.return_value = get_samples_response
     samples_container.save()
@@ -257,10 +254,6 @@ def test_iter(api_mock, samples_container_factory, get_samples_response, sample_
     assert samples_container._samples == []
 
     api_mock.call.return_value.json.return_value = get_samples_response
-    sample = samples_container[0]
-    assert isinstance(sample, Sample)
-
-    assert samples_container._samples != []
 
     for sample in samples_container:
         assert isinstance(sample, Sample)
@@ -271,3 +264,5 @@ def test_iter(api_mock, samples_container_factory, get_samples_response, sample_
 
         for item in sample:
             assert isinstance(item, SampleProperty)
+
+    assert samples_container._samples != []

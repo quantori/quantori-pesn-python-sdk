@@ -15,9 +15,6 @@ def test_reload_properties(api_mock, sample_properties, sample_factory):
 
     api_mock.call.return_value.json.return_value = sample_properties
 
-    sample_property = sample[0]
-    assert isinstance(sample_property, SampleProperty)
-
     for item in sample:
         assert isinstance(item, SampleProperty)
 
@@ -37,9 +34,6 @@ def test_save(api_mock, sample_factory, sample_properties, mocker):
     assert sample._properties == []
 
     api_mock.call.return_value.json.return_value = sample_properties
-
-    sample_property = sample[0]
-    assert isinstance(sample_property, SampleProperty)
 
     for item in sample:
         if item.id == '2':
@@ -159,9 +153,6 @@ def test_getitem(api_mock, sample_properties, sample_factory, index):
 
     api_mock.call.return_value.json.return_value = sample_properties
 
-    sample_property = sample[0]
-    assert isinstance(sample_property, SampleProperty)
-
     for item in sample:
         assert isinstance(item, SampleProperty)
 
@@ -176,8 +167,6 @@ def test_iter(api_mock, sample_properties, sample_factory):
     assert sample._properties == []
 
     api_mock.call.return_value.json.return_value = sample_properties
-    sample_property = sample[0]
-    assert isinstance(sample_property, SampleProperty)
 
     for item in sample:
         assert isinstance(item, SampleProperty)

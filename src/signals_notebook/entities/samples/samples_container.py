@@ -37,6 +37,8 @@ class SamplesContainer(ContentfulEntity):
         raise IndexError('Invalid index')
 
     def __iter__(self):
+        if not self._samples:
+            self._reload_samples()
         return self._samples.__iter__()
 
     @classmethod
