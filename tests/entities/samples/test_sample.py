@@ -8,81 +8,28 @@ from signals_notebook.common_types import EntityType
 from signals_notebook.entities import Sample, SampleProperty
 
 
-def test_get_properties(api_mock, sample_factory, sample_properties):
-    sample = sample_factory()
-    api_mock.call.return_value.json.return_value = sample_properties
-
-    properties_generator = sample.get_properties()
-    properties = list(properties_generator)
-
-    api_mock.call.assert_called_once_with(
-        method='GET',
-        path=(sample._get_samples_endpoint(), sample.eid, 'properties'),
-        params={
-            'name': None,
-            'value': 'normalized',
-        },
-    )
-    for item in properties:
-        assert isinstance(item, SampleProperty)
-
-    assert len(properties) == 7
-
-
 def test_reload_properties(api_mock, sample_properties, sample_factory):
     sample = sample_factory()
 
     assert sample._properties == []
 
     api_mock.call.return_value.json.return_value = sample_properties
-    created_properties = sample.properties
+
+    sample_property = sample[0]
+    assert isinstance(sample_property, SampleProperty)
+
+    for item in sample:
+        assert isinstance(item, SampleProperty)
 
     assert sample._properties != []
-
-    assert len(created_properties) == 7
-    for item in created_properties:
-        assert isinstance(item, SampleProperty)
 
     api_mock.call.assert_called_once_with(
         method='GET',
         path=(sample._get_samples_endpoint(), sample.eid, 'properties'),
         params={
-            'name': None,
             'value': 'normalized',
         },
     )
-
-
-@pytest.mark.parametrize(
-    'property_id, name, value', [('1', 'ID', 'SAMPLE-1'), ('2', 'SMTH', 'F1'), ('3', 'SMTH-ELSE', 'INDYCAR')]
-)
-def test_get_property_by_id(api_mock, sample_factory, property_id, name, value):
-    sample = sample_factory()
-    api_mock.call.return_value.json.return_value = {
-        'data': {
-            'type': 'property',
-            'id': property_id,
-            'attributes': {
-                'id': property_id,
-                'name': name,
-                'content': {'value': value},
-            },
-        },
-    }
-    sample_property = sample.get_property_by_id(property_id)
-
-    api_mock.call.assert_called_once_with(
-        method='GET',
-        path=(sample._get_samples_endpoint(), sample.eid, 'properties', property_id),
-        params={
-            'value': 'normalized',
-        },
-    )
-
-    assert isinstance(sample_property, SampleProperty)
-    assert sample_property.id == property_id
-    assert sample_property.name == name
-    assert sample_property.content.value == value
 
 
 def test_save(api_mock, sample_factory, sample_properties, mocker):
@@ -90,34 +37,35 @@ def test_save(api_mock, sample_factory, sample_properties, mocker):
     assert sample._properties == []
 
     api_mock.call.return_value.json.return_value = sample_properties
-    created_properties = sample.properties
 
-    assert sample._properties != []
+    sample_property = sample[0]
+    assert isinstance(sample_property, SampleProperty)
 
-    for item in created_properties:
+    for item in sample:
         if item.id == '2':
-            item.content.set_value('555')
+            item.set_content_value('555')
     api_mock.call.return_value.json.return_value = {}
     api_mock.call.return_value.json.return_value = sample_properties
 
+    assert sample._properties != []
+
     request_body = []
-    for item in created_properties:
+    for item in sample:
         if item.is_changed:
             request_body.append(item.representation_for_update.dict(exclude_none=True))
 
     sample.save()
 
-    api_mock.assert_has_calls(
+    api_mock.call.assert_has_calls(
         [
-            mocker.call.call(
+            mocker.call(
                 method='GET',
                 path=(sample._get_samples_endpoint(), sample.eid, 'properties'),
                 params={
-                    'name': None,
                     'value': 'normalized',
                 },
             ),
-            mocker.call.call(
+            mocker.call(
                 method='PATCH',
                 path=(sample._get_samples_endpoint(), sample.eid, 'properties'),
                 params={
@@ -210,11 +158,16 @@ def test_getitem(api_mock, sample_properties, sample_factory, index):
     assert sample._properties == []
 
     api_mock.call.return_value.json.return_value = sample_properties
-    _ = sample.properties
 
-    assert sample._properties != []
+    sample_property = sample[0]
+    assert isinstance(sample_property, SampleProperty)
+
+    for item in sample:
+        assert isinstance(item, SampleProperty)
 
     assert isinstance(sample[index], SampleProperty)
+
+    assert sample._properties != []
 
 
 def test_iter(api_mock, sample_properties, sample_factory):
@@ -223,9 +176,10 @@ def test_iter(api_mock, sample_properties, sample_factory):
     assert sample._properties == []
 
     api_mock.call.return_value.json.return_value = sample_properties
-    _ = sample.properties
-
-    assert sample._properties != []
+    sample_property = sample[0]
+    assert isinstance(sample_property, SampleProperty)
 
     for item in sample:
         assert isinstance(item, SampleProperty)
+
+    assert sample._properties != []

@@ -1,5 +1,5 @@
 import json
-from typing import cast, Dict, Generator, List, Literal, Optional, TYPE_CHECKING, Union
+from typing import cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -8,6 +8,7 @@ from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import (
     Ancestors,
     EntityCreationRequestPayload,
+    EntityShortDescription,
     EntityType,
     Response,
     ResponseData,
@@ -70,7 +71,7 @@ class _SampleAttributes(BaseModel):
 
 
 class _SampleRelationships(BaseModel):
-    template: Optional[Dict] = None
+    template: Optional[Dict[str, EntityShortDescription]] = None
     ancestors: Optional[Ancestors] = None
 
 
@@ -112,7 +113,7 @@ class Sample(Entity):
         raise IndexError('Invalid index')
 
     def __iter__(self):
-        return self.properties.__iter__()
+        return self._properties.__iter__()
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -122,59 +123,33 @@ class Sample(Entity):
     def _get_samples_endpoint(cls) -> str:
         return 'samples'
 
-    @property
-    def properties(self) -> List[SampleProperty]:
-        if not self._properties:
-            self._reload_properties()
-        return self._properties
+    def _reload_properties(self) -> None:
+        self._properties = []
+        self._properties_by_id = {}
 
-    def get_properties(self, property_name: Optional[str] = None) -> Generator[SampleProperty, None, None]:
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
             method='GET',
             path=(self._get_samples_endpoint(), self.eid, 'properties'),
-            params={
-                'name': property_name,
-                'value': 'normalized',
-            },
+            params={'value': 'normalized'},
         )
 
         result = SamplePropertiesResponse(**response.json())
-        yield from [cast(ResponseData, item).body for item in result.data]
+        properties = [cast(ResponseData, item).body for item in result.data]
 
-    def _reload_properties(self) -> None:
-        self._properties = []
-        self._properties_by_id = {}
-
-        for item in self.get_properties():
+        for item in properties:
             sample_property = cast(SampleProperty, item)
             assert sample_property.id
 
             self._properties.append(sample_property)
             self._properties_by_id[sample_property.id] = sample_property
 
-    def get_property_by_id(self, property_id: Union[str, UUID]) -> SampleProperty:
-        _property_id = property_id.hex if isinstance(property_id, UUID) else property_id
-
-        api = SignalsNotebookApi.get_default_api()
-
-        response = api.call(
-            method='GET',
-            path=(self._get_samples_endpoint(), self.eid, 'properties', _property_id),
-            params={
-                'value': 'normalized',
-            },
-        )
-
-        result = SamplePropertiesResponse(**response.json())
-        return cast(ResponseData, result.data).body
-
     def save(self, force: bool = True) -> None:
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
-        for item in self.properties:
+        for item in self._properties:
             if item.is_changed:
                 request_body.append(item.representation_for_update.dict(exclude_none=True))
 

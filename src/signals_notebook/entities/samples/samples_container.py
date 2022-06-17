@@ -1,6 +1,6 @@
 import csv
 from io import StringIO
-from typing import cast, ClassVar, Dict, Generator, List, Literal
+from typing import cast, ClassVar, Dict, Generator, List, Literal, Union
 
 from pydantic import Field, PrivateAttr
 
@@ -21,7 +21,7 @@ class SamplesContainer(ContentfulEntity):
     _samples: List[Sample] = PrivateAttr(default=[])
     _samples_by_id: Dict[EID, Sample] = PrivateAttr(default={})
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: Union[EID, int, str]) -> Sample:
         if not self._samples:
             self._reload_samples()
 
@@ -37,7 +37,7 @@ class SamplesContainer(ContentfulEntity):
         raise IndexError('Invalid index')
 
     def __iter__(self):
-        return self.samples.__iter__()
+        return self._samples.__iter__()
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -46,23 +46,17 @@ class SamplesContainer(ContentfulEntity):
     def get_content(self) -> File:
         return super()._get_content()
 
-    @property
-    def samples(self) -> List[Sample]:
-        if not self._samples:
-            self._reload_samples()
-        return self._samples
-
     def _reload_samples(self) -> None:
         self._samples = []
         self._samples_by_id = {}
-        for item in self.get_samples():
+        for item in self._get_samples():
             sample = cast(Sample, item)
             assert sample.eid
 
             self._samples.append(item)
             self._samples_by_id[sample.eid] = sample
 
-    def get_samples(self) -> Generator[Sample, None, None]:
+    def _get_samples(self) -> Generator[Sample, None, None]:
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -83,9 +77,9 @@ class SamplesContainer(ContentfulEntity):
             result = SamplesContainerResponse(**response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
 
-    def update_samples(self) -> None:
-        for item in self.samples:
-            item.save()
+    def save(self, force: bool = True) -> None:
+        for item in self._samples:
+            item.save(force=force)
         self._reload_samples()
 
     def get_html(self) -> str:
