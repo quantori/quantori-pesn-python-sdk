@@ -1,0 +1,14 @@
+<div style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
+    <h2>{{ data['name'] }}</h2>
+
+    {% if data['svg'] %}
+    <div class="parent">
+        <div class="image-container">
+            <img src="{{ data['svg'] }}" alt="Reaction preview" style="width:100%"/>
+        </div>
+    </div>
+    {% endif %}
+
+    {{ data['stoichiometry_html'] | safe }}
+
+</div>

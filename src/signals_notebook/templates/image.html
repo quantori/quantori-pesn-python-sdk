@@ -1,0 +1,10 @@
+<div style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
+    <h2>{{ data['name'] }}</h2>
+    {% if data['image'] %}
+    <div class="parent">
+        <div class="image-container">
+            <img src="{{ data['image'] }}" alt="Image preview" style="width:100%;"/>
+        </div>
+    </div>
+    {% endif %}
+</div>

@@ -1,0 +1,13 @@
+application/json                        json
+application/vnd.snapgene.dna            dna
+application/vnd.snapgene.protein        prot
+application/vnd.spotfire.dxp            dxp
+biosequence/fasta                       fa faa fasta
+biosequence/genbank                     gb gbk gp
+chemical/x-cdx                          cdx
+chemical/x-cdxml                        cdxml
+chemical/x-daylight-smiles              smi
+chemical/x-mdl-molfile                  mol
+chemical/x-mdl-rxnfile                  rxn
+chemical/x-mdl-sdfile                   sdf
+chemical/x-swissprot                    sw
