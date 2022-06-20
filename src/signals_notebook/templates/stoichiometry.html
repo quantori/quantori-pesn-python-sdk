@@ -1,0 +1,21 @@
+<div style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
+    {% if data['reactants_html'] %}
+        <div style="width: 100%;color: #999;padding: 2px 10px;">Reactants</div>
+        {{ data['reactants_html'] | safe }}
+    {% endif %}
+
+    {% if data['products_html'] %}
+        <div style="width: 100%;color: #999;padding: 2px 10px;">Products</div>
+        {{ data['products_html'] | safe }}
+    {% endif %}
+
+    {% if data['solvents_html'] %}
+        <div style="width: 100%;color: #999;padding: 2px 10px;">Solvents</div>
+        {{ data['solvents_html'] | safe }}
+    {% endif %}
+
+    {% if data['conditions_html'] %}
+        <div style="width: 100%;color: #999;padding: 2px 10px;">Conditions</div>
+        {{ data['conditions_html'] | safe }}
+    {% endif %}
+</div>

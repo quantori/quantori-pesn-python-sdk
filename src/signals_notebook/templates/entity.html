@@ -1,0 +1,8 @@
+<div style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
+    <h2>{{ data['name'] }}</h2>
+    {% if data['edited_at'] %}
+    <div>
+        <span>{{ 'Modified: ' + data['edited_at'].strftime('%H:%M %d.%m.%Y') }}</span>
+    </div>
+    {% endif %}
+</div>

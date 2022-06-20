@@ -1,0 +1,24 @@
+{% if rows %}
+<div class="table-wrapper">
+    <div class="table-scroll">
+        <table>
+            <thead>
+                <tr>
+                {% for title in rows[0] %}
+                    <th>{{ title }}</th>
+                {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in rows %}
+                <tr>
+                {% for value in row.values() %}
+                    <td>{{ value | safe }}</td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}

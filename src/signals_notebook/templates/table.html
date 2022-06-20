@@ -1,0 +1,37 @@
+<div class="table-wrapper" style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
+    <div class="table-scroll">
+        <h2>{{ name }}</h2>
+        <table>
+            <thead>
+                <tr>
+                {% for title in table_head %}
+                    <th>{{ title }}</th>
+                {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in rows %}
+                <tr>
+                {% for value in row.values() %}
+                    {% if value.__class__.__name__ == 'list' %}
+                    <td>
+                        <div style="margin-bottom: 4px">
+                            {% for elem in value %}
+                            <div style="margin-bottom: 4px; border-radius: 5px; background: #e6f6ff">
+                                <div style="justify-content: center; padding: 4px">
+                                    <p style="color: #00A0E1 !important;">{{ elem | safe }}</p>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    {% else %}
+                    <td>{{ value | safe }}</td>
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
