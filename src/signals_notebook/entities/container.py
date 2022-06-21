@@ -1,11 +1,14 @@
 import abc
 import json
+import logging
 import mimetypes
-from typing import cast, List, Union
+from typing import cast, Generator, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
 from signals_notebook.entities import Entity
+
+log = logging.getLogger(__name__)
 
 
 class Container(Entity, abc.ABC):
@@ -49,19 +52,21 @@ class Container(Entity, abc.ABC):
             },
             data=content,
         )
+        log.debug('Added child: %s to Container: %s', self.name, self.eid)
 
         entity_classes = (*Entity.get_subclasses(), Entity)
         result = Response[Union[entity_classes]](**response.json())  # type: ignore
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self) -> List[Entity]:
+    def get_children(self) -> Generator[Entity, None, None]:
         """Get children of a specified entity.
 
         Returns:
             list of Entities
         """
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get children for: %s', self.eid)
 
         response = api.call(
             method='GET',
@@ -75,4 +80,13 @@ class Container(Entity, abc.ABC):
 
         result = Response[Union[entity_classes]](**response.json())  # type: ignore
 
-        return [cast(ResponseData, item).body for item in result.data]
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+        while result.links and result.links.next:
+            response = api.call(
+                method='GET',
+                path=result.links.next,
+            )
+
+            result = Response[Union[entity_classes]](**response.json())  # type: ignore
+            yield from [cast(ResponseData, item).body for item in result.data]

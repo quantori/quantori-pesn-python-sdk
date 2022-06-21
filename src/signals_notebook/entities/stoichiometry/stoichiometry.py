@@ -1,5 +1,6 @@
 import abc
 import cgi
+import logging
 from typing import cast, ClassVar, Optional, Union
 
 from pydantic import BaseModel, Field
@@ -17,6 +18,8 @@ from signals_notebook.entities.stoichiometry.data_grid import (
     Solvents,
 )
 from signals_notebook.jinja_env import env
+
+log = logging.getLogger(__name__)
 
 
 class ColumnDefinitionsResponse(Response[ColumnDefinitions]):
@@ -51,7 +54,9 @@ class Stoichiometry(BaseModel, abc.ABC):
         Returns:
 
         """
+        log.debug('Setting new template for: %s...', cls.eid)
         cls._template_name = template_name
+        log.debug('New template (%s) for %s was set', template_name, cls.eid)
 
     @classmethod
     def _get_endpoint(cls) -> str:
@@ -91,6 +96,7 @@ class Stoichiometry(BaseModel, abc.ABC):
         """
         api = SignalsNotebookApi.get_default_api()
         fields = ', '.join(DataGridKind)
+        log.debug('Fetching data for: %s...', entity_eid)
 
         response = api.call(
             method='GET',
@@ -106,9 +112,12 @@ class Stoichiometry(BaseModel, abc.ABC):
             for item in data:
                 stoichiometry = cls._get_stoichiometry(data=item)
                 stoichiometry_list.append(stoichiometry)
+            log.debug('Returned stoichiometry data as list for: %s.', entity_eid)
             return stoichiometry_list
         else:
             stoichiometry = cls._get_stoichiometry(data=data)
+            log.debug('Returned a single stoichiometry for: %s.', entity_eid)
+
             return stoichiometry
 
     def fetch_structure(self, row_id: str, format: Optional[ChemicalDrawingFormat] = None) -> File:
@@ -122,6 +131,7 @@ class Stoichiometry(BaseModel, abc.ABC):
             File
         """
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Fetching structure for: %s, using row: (%s)...', self.eid, row_id)
 
         response = api.call(
             method='GET',
@@ -132,6 +142,7 @@ class Stoichiometry(BaseModel, abc.ABC):
         content_disposition = response.headers.get('content-disposition', '')
         _, params = cgi.parse_header(content_disposition)
 
+        log.debug('Return fetched structure as File for %s', self.eid)
         return File(
             name=params.get('filename', ''),
             content=response.content,
@@ -148,12 +159,14 @@ class Stoichiometry(BaseModel, abc.ABC):
             list of ColumnDefinition objects
         """
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Getting column definitions for: %s...', self.eid)
 
         response = api.call(method='GET', path=(self._get_endpoint(), self.eid, 'columns', data_grid_kind))
 
         result = ColumnDefinitionsResponse(**response.json())
         body = cast(ResponseData, result.data).body
 
+        log.debug('Column definitions for %s was returned', self.eid)
         return getattr(body, data_grid_kind, [])
 
     def get_html(self) -> str:
@@ -170,5 +183,6 @@ class Stoichiometry(BaseModel, abc.ABC):
         }
 
         template = env.get_template(self._template_name)
+        log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)

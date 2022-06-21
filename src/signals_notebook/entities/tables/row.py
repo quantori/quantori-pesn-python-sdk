@@ -1,3 +1,4 @@
+import logging
 from enum import Enum
 from operator import attrgetter
 from typing import Any, Dict, List, Literal, Optional, Union
@@ -7,6 +8,8 @@ from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.common_types import ObjectType
 from signals_notebook.entities.tables.cell import Cell, GenericCell, UpdateCellRequest
+
+log = logging.getLogger(__name__)
 
 
 class RowAction(str, Enum):
@@ -89,6 +92,7 @@ class Row(BaseModel):
         try:
             return self[value]
         except KeyError:
+            log.debug('KeyError were caught. Default value returned')
             return default
 
     @property
@@ -147,6 +151,7 @@ class Row(BaseModel):
         if isinstance(index, UUID):
             return self._cells_dict[index]
 
+        log.exception('IndexError were caught. Invalid index')
         raise IndexError('Invalid index')
 
     def __iter__(self):

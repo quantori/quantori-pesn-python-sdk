@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 from enum import Enum
 from typing import cast, Generator, List, Union
@@ -6,6 +7,8 @@ from typing import cast, Generator, List, Union
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EID, EntityType, Response, ResponseData
 from signals_notebook.entities import Entity
+
+log = logging.getLogger(__name__)
 
 
 class EntityStore:
@@ -39,6 +42,7 @@ class EntityStore:
         """
 
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get Entity: %s from EntityStore...', eid)
 
         response = api.call(
             method='GET',
@@ -47,6 +51,7 @@ class EntityStore:
 
         entity_classes = (*Entity.get_subclasses(), Entity)
         result = Response[Union[entity_classes]](**response.json())  # type: ignore
+        log.debug('Entity: %s was got successfully from EntityStore.', eid)
 
         return cast(ResponseData, result.data).body
 
@@ -74,6 +79,7 @@ class EntityStore:
             Entity
         """
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get List of Entities from EntityStore...')
 
         params = {}
         if include_types:
@@ -107,6 +113,8 @@ class EntityStore:
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
 
+        log.debug('List of Entities were got successfully from EntityStore.')
+
     @classmethod
     def refresh(cls, entity: Entity) -> None:
         """Refresh Entity with new values
@@ -138,6 +146,7 @@ class EntityStore:
 
         """
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Deleting Entity: %s from EntityStore...', eid)
 
         api.call(
             method='DELETE',

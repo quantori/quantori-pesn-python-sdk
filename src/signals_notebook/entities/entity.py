@@ -1,4 +1,5 @@
 import json
+import logging
 from datetime import datetime
 from typing import Any, cast, ClassVar, Dict, Generator, Optional, Type, TypeVar
 
@@ -17,6 +18,8 @@ from signals_notebook.common_types import (
 from signals_notebook.jinja_env import env
 
 ChildClass = TypeVar('ChildClass', bound='Entity')
+
+log = logging.getLogger(__name__)
 
 
 class Entity(BaseModel):
@@ -47,6 +50,7 @@ class Entity(BaseModel):
         Returns:
             One of the Entity subclasses
         """
+        log.debug('Get subclasses for: %s', cls.__name__)
         for subclass in cls.__subclasses__():
             yield from subclass.get_subclasses()
             yield subclass
@@ -61,7 +65,9 @@ class Entity(BaseModel):
         Returns:
 
         """
+        log.debug('Setting new template for: %s...', cls.__name__)
         cls._template_name = template_name
+        log.debug('New template (%s) for %s was set', template_name, cls.__name__)
 
     @classmethod
     def get_template_name(cls) -> str:
@@ -97,10 +103,12 @@ class Entity(BaseModel):
         from signals_notebook.entities.entity_store import EntityStore
 
         EntityStore.delete(self.eid)
+        log.debug('Entity: %s was deleted from EntityStore', self.eid)
 
     @classmethod
     def _create(cls, *, digest: str = None, force: bool = True, request: EntityCreationRequestPayload) -> EntityClass:
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Create Entity: %s...', cls.__name__)
 
         response = api.call(
             method='POST',
@@ -111,6 +119,7 @@ class Entity(BaseModel):
             },
             json=request.dict(exclude_none=True),
         )
+        log.debug('Entity: %s was created.', cls.__name__)
 
         result = Response[cls](**response.json())  # type: ignore
 
@@ -136,6 +145,7 @@ class Entity(BaseModel):
 
         """
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Save Entity: %s...', self.eid)
 
         request_body = []
         for field in self.__fields__.values():
@@ -155,6 +165,7 @@ class Entity(BaseModel):
                 'data': request_body,
             },
         )
+        log.debug('Entity: %s was saved.', self.eid)
 
     @property
     def short_description(self) -> EntityShortDescription:
@@ -173,5 +184,6 @@ class Entity(BaseModel):
         """
         data = {'name': self.name, 'edited_at': self.edited_at, 'type': self.type, 'description': self.description}
         template = env.get_template(self._template_name)
+        log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)

@@ -1,9 +1,12 @@
+import logging
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import EntityCreationRequestPayload, EntityType
 from signals_notebook.entities.container import Container
+
+log = logging.getLogger(__name__)
 
 
 class _Attributes(BaseModel):
@@ -58,6 +61,7 @@ class Notebook(Container):
             )
         )
 
+        log.debug('Creating Notebook for: %s', cls.__name__)
         return super()._create(
             digest=digest,
             force=force,

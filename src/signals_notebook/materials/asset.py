@@ -1,3 +1,4 @@
+import logging
 from typing import Any, cast, Generator, Literal
 
 from pydantic import Field
@@ -7,6 +8,8 @@ from signals_notebook.common_types import MaterialType, Response, ResponseData
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.field import FieldContainer
 from signals_notebook.materials.material import Material
+
+log = logging.getLogger(__name__)
 
 
 class BatchesListResponse(Response[Batch]):
@@ -30,6 +33,7 @@ class Asset(Material):
             Asset batches
         """
         api = SignalsNotebookApi.get_default_api()
+        log.debug('Get Batches for Asset: %s', self.eid)
 
         response = api.call(
             method='GET',
