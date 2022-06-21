@@ -84,7 +84,7 @@ class Stoichiometry(BaseModel, abc.ABC):
         Accepted entity types: experiment, chemicalDrawing.
 
         Args:
-            entity_eid (Entity ID): Unique entity identifier
+            entity_eid: Unique entity identifier
 
         Returns:
             Stoichiometry object or list of Stoichiometry objects

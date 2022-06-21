@@ -43,10 +43,10 @@ class Rows(GenericModel, Generic[RowClass]):
     _template_name: str = 'data_grid.html'
 
     def __init__(self, **data: Any):
-        """
+        """Stoichiometry Row
 
         Args:
-            **data: data to initialize Rows class
+            data: data to initialize Rows class
         """
         super(Rows, self).__init__(**data)
 
