@@ -27,6 +27,10 @@ jobs:
           pip install -r ./requirements/tests.txt
 
       - name: Update documentation
+        run: |
+          pdoc -f --html -o docs src/signals_notebook
+
+      - name: Update branch and PR
         uses: peter-evans/create-pull-request@v4
 
       - name: Test
