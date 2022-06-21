@@ -66,8 +66,8 @@ class Experiment(Container):
             description: description of experiment
             template: experiment template
             notebook: notebook where create experiment
-            digest: Indicate digest of entity.
-            force: Force to post attachment
+            digest: Indicate digest
+            force: Force to create without doing digest check
 
         Returns:
             Experiment
