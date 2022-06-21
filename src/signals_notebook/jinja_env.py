@@ -10,7 +10,7 @@ class TemplateLocationWrapper:
 
     """
     def get_template(self, template_name: str):
-        """
+        """Get template
 
         Args:
             template_name: Full path to the template
