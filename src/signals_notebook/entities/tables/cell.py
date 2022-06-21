@@ -150,7 +150,7 @@ class Cell(GenericModel, Generic[CellContentType]):
 
     @property
     def display(self) -> str:
-        """Get display field on content
+        """Get display field of content
 
         Returns:
             str
