@@ -33,7 +33,7 @@ class SignalsNotebookApi:
 
     @classmethod
     def init(cls, api_host: str, api_key: str) -> 'SignalsNotebookApi':
-        """
+        """Initialize SignalsNotebookApi with api host and api key
 
         Args:
             api_host: api host for signals notebook api
@@ -138,14 +138,6 @@ class SignalsNotebookApi:
 
     @classmethod
     def _prepare_path(cls, path: Union[str, Sequence[str]]) -> str:
-        """
-
-        Args:
-            path: path that will be used as url
-
-        Returns:
-            path
-        """
         if not isinstance(path, str):
             return '/'.join((cls._api_host, cls.BASE_PATH, cls.API_VERSION, *path))
 
