@@ -1,0 +1,1 @@
+include src/signals_notebook/templates/*.html
