@@ -22,14 +22,15 @@ jobs:
 
       - name: Test
         run: |
-          - pip install -r requirements/tests.txt
+          - python -m pip install --upgrade pip
+          - pip install -r ./requirements/tests.txt
           - pytest -v tests/* --junitxml=test-reports/report.xml
       - name: Lint code
         run: |
-          - pip install -r requirements/lint.txt
+          - pip install -r ./requirements/lint.txt
           - flake8 .
       - name: Static types checking
         run: |
-          - pip install -r requirements/mypy.txt
+          - pip install -r ./requirements/mypy.txt
           - cd src
           - mypy .
