@@ -26,6 +26,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ./requirements/tests.txt
 
+      - name: Update documentation
+        uses: peter-evans/create-pull-request@v4
+
       - name: Test
         run: |
           pytest -v tests --junitxml=test-reports/report.xml
