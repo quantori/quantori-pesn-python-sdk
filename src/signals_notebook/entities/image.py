@@ -29,6 +29,18 @@ class Image(ContentfulEntity):
         file_extension: str = '',
         force: bool = True,
     ) -> Entity:
+        """Create Image Entity
+
+        Args:
+            container: Container where create new Image
+            name: file name
+            content: Image content
+            file_extension: Image extension
+            force: Force to post attachment
+
+        Returns:
+            Image
+        """
         file_extension = file_extension.replace('.', '')
         content_type = mimetypes.types_map.get(f'.{file_extension}', 'application/octet-stream')
         return container.add_child(
@@ -39,6 +51,14 @@ class Image(ContentfulEntity):
         )
 
     def get_content(self, base64: bool = False) -> File:
+        """Get Image content
+
+        Args:
+            base64: parameter that allows to encode binary data
+
+        Returns:
+            File
+        """
         file = super()._get_content()
         if base64:
             file.content = b64.b64encode(file.content)
@@ -46,6 +66,11 @@ class Image(ContentfulEntity):
         return file
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        """
         data = {'name': self.name}
         file = self.get_content()
         data['image'] = 'data:{};base64,{}'.format(file.content_type, file.base64.decode('ascii'))

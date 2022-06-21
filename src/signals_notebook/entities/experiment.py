@@ -70,7 +70,7 @@ class Experiment(Container):
             force: Force to post attachment
 
         Returns:
-            Notebook
+            Experiment
         """
 
         relationships = None
