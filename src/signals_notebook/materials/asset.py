@@ -24,7 +24,7 @@ class Asset(Material):
         self._material_fields = FieldContainer(self, self.library.asset_config.fields, **fields)
 
     def get_batches(self) -> Generator[Batch, None, None]:
-        """etch batches of a specified Asset.
+        """Fetch batches of a specified Asset.
 
         Returns:
             Asset batches
