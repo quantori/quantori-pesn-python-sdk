@@ -22,9 +22,9 @@ class Text(ContentfulEntity):
         """Create Text entity
 
         Args:
-            container: Container where create new Excel
+            container: Container where create new Text
             name: file name
-            content: Excel content
+            content: Text content
             force: Force to post attachment
 
         Returns:
