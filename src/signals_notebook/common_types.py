@@ -54,8 +54,9 @@ class MaterialType(str, Enum):
 
 
 class EID(str):
-    """Entity ID"""
+    """Entity ID
 
+    """
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -65,13 +66,12 @@ class EID(str):
     def __get_validators__(cls):
         yield cls.validate
 
-    # TODO: add docstring
     @classmethod
     def validate(cls, v: Any):
-        """
+        """Validate Entity ID
 
         Args:
-            v:
+            v: Entity ID
 
         Returns:
 
@@ -102,7 +102,7 @@ class EID(str):
 
     @property
     def id(self) -> UUID:
-        """Get uuid
+        """Get UUID
 
         Returns:
             UUID
@@ -112,7 +112,9 @@ class EID(str):
 
 
 class MID(str):
-    """Material ID"""
+    """Material ID
+
+    """
 
     _id_pattern = re.compile('[0-9a-f]+', flags=re.IGNORECASE)
 
@@ -125,13 +127,12 @@ class MID(str):
     def __get_validators__(cls):
         yield cls.validate
 
-    # TODO: add docstring
     @classmethod
     def validate(cls, v: Any):
-        """
+        """Validate Material ID
 
         Args:
-            v:
+            v: Material ID
 
         Returns:
 
@@ -172,6 +173,9 @@ class MID(str):
 
 
 class AttrID(str):
+    """Attribute ID
+
+    """
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -181,9 +185,16 @@ class AttrID(str):
     def __get_validators__(cls):
         yield cls.validate
 
-    # TODO: add docstring
     @classmethod
     def validate(cls, v: Any):
+        """Validate Attribute ID
+
+        Args:
+            v: Attribute ID
+
+        Returns:
+
+        """
         if not isinstance(v, str):
             raise EIDError(value=v)
 
@@ -227,6 +238,14 @@ class Links(BaseModel):
 
     @validator('*', pre=True)
     def escape_spaces(cls, v: Optional[str]) -> Optional[str]:
+        """Replace all spaces
+
+        Args:
+            v: value
+
+        Returns:
+            value with replaced spaces
+        """
         if v is not None:
             return v.replace(' ', '%20')
 
@@ -323,7 +342,7 @@ class File(BaseModel):
             return cls(f)
 
     def save(self, path: str) -> None:
-        """Add content to file
+        """Save content in file
 
         Args:
             path: path to the file
