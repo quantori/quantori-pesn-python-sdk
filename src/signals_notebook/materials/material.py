@@ -30,6 +30,11 @@ class Material(BaseMaterialEntity):
 
     @property
     def library(self) -> 'Library':
+        """Fetch material library.
+
+        Returns:
+            Library
+        """
         if not self._library:
             from signals_notebook.materials.material_store import MaterialStore
 
@@ -39,6 +44,14 @@ class Material(BaseMaterialEntity):
         return self._library
 
     def get_chemical_drawing(self, format: Optional[ChemicalDrawingFormat] = None) -> File:
+        """Export chemical drawing or image of a specified material.
+
+        Args:
+            format: Output type of chemical drawing.
+
+        Returns:
+            File
+        """
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -57,6 +70,11 @@ class Material(BaseMaterialEntity):
         )
 
     def get_image(self) -> File:
+        """Export image of a specified material except Compounds/Reagents (SNB).
+
+        Returns:
+            File
+        """
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -72,6 +90,11 @@ class Material(BaseMaterialEntity):
         )
 
     def get_bio_sequence(self) -> File:
+        """Export biological sequence file of a specified material with type is DNA or Protein."
+
+        Returns:
+            File
+        """
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -87,6 +110,14 @@ class Material(BaseMaterialEntity):
         )
 
     def get_attachment(self, field_id: str) -> File:
+        """Export an attachment for a specified field of the specific material.
+
+        Args:
+            field_id: Unique material field identifier.
+
+        Returns:
+            File
+        """
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -102,6 +133,14 @@ class Material(BaseMaterialEntity):
         )
 
     def save(self, force: bool = True) -> None:
+        """Update properties of a specified material.
+
+        Args:
+            force: Force to update properties without digest check.
+
+        Returns:
+
+        """
         request_body = []
 
         for field_name, field in self._material_fields.items():
