@@ -26,6 +26,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ./requirements/tests.txt
 
+      - name: Update documentation
+        run: |
+          pdoc -f --html -o docs src/signals_notebook
+
+      - name: Commit changes
+        uses: EndBug/add-and-commit@v9
+
       - name: Test
         run: |
           pytest -v tests --junitxml=test-reports/report.xml
