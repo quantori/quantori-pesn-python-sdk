@@ -12,3 +12,4 @@ from signals_notebook.entities.excel import Excel  # noqa
 from signals_notebook.entities.biological_sequence import BiologicalSequence # noqa
 from signals_notebook.entities.samples.sample import Sample, SampleProperty  # noqa
 from signals_notebook.entities.samples.samples_container import SamplesContainer  # noqa
+from signals_notebook.entities.power_point import PowerPoint  # noqa

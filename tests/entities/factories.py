@@ -9,6 +9,7 @@ from signals_notebook.entities import (
     Experiment,
     Image,
     Notebook,
+    PowerPoint,
     Text,
     Word,
 )
@@ -95,3 +96,10 @@ class BiologicalSequenceFactory(EntityFactory):
         model = BiologicalSequence
 
     type = EntityType.BIO_SEQUENCE
+
+
+class PowerPointFactory(EntityFactory):
+    class Meta:
+        model = PowerPoint
+
+    type = EntityType.POWER_POINT
