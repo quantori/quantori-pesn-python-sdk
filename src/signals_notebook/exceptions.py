@@ -17,6 +17,11 @@ class ErrorResponse(BaseModel):
 
 class SignalsNotebookError(Exception):
     def __init__(self, response: requests.Response):
+        """Handle Signals Notebook API errors
+
+        Args:
+            response: Response object, which contains a server's response to an HTTP request.
+        """
         self.parsed_response = parse_obj_as(ErrorResponse, response.json())
 
     def __str__(self) -> str:

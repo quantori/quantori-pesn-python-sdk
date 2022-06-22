@@ -45,6 +45,11 @@ class Entity(BaseModel):
 
     @classmethod
     def get_subclasses(cls) -> Generator[Type['Entity'], None, None]:
+        """Get all Entity subclasses
+
+        Returns:
+            One of the Entity subclasses
+        """
         log.debug('Get subclasses for: %s', cls.__name__)
         for subclass in cls.__subclasses__():
             yield from subclass.get_subclasses()
@@ -52,12 +57,25 @@ class Entity(BaseModel):
 
     @classmethod
     def set_template_name(cls, template_name: str) -> None:
+        """Set name of the template
+
+        Args:
+            template_name: template name
+
+        Returns:
+
+        """
         log.debug('Setting new template for: %s...', cls.__name__)
         cls._template_name = template_name
         log.debug('New template (%s) for %s was set', template_name, cls.__name__)
 
     @classmethod
     def get_template_name(cls) -> str:
+        """Get Entity template name
+
+        Returns:
+            Template name
+        """
         return cls._template_name
 
     @classmethod
@@ -72,6 +90,11 @@ class Entity(BaseModel):
 
     @classmethod
     def get_list(cls) -> Generator['Entity', None, None]:
+        """Get all entities
+
+        Returns:
+            list of entities
+        """
         from signals_notebook.entities.entity_store import EntityStore
 
         return EntityStore.get_list(**cls._get_list_params())
@@ -103,11 +126,24 @@ class Entity(BaseModel):
         return cast(ResponseData, result.data).body
 
     def refresh(self) -> None:
+        """Refresh entity with new changes values
+
+        Returns:
+
+        """
         from signals_notebook.entities import EntityStore
 
         EntityStore.refresh(self)
 
     def save(self, force: bool = True) -> None:
+        """Update properties of a specified entity.
+
+        Args:
+            force: Force to update properties without doing digest check.
+
+        Returns:
+
+        """
         api = SignalsNotebookApi.get_default_api()
         log.debug('Save Entity: %s...', self.eid)
 
@@ -133,9 +169,19 @@ class Entity(BaseModel):
 
     @property
     def short_description(self) -> EntityShortDescription:
+        """Return EntityShortDescription of Entity
+
+        Returns:
+            EntityShortDescription
+        """
         return EntityShortDescription(type=self.type, id=self.eid)
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered HTML in string format
+        """
         data = {'name': self.name, 'edited_at': self.edited_at, 'type': self.type, 'description': self.description}
         template = env.get_template(self._template_name)
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)

@@ -39,6 +39,17 @@ class Notebook(Container):
         digest: str = None,
         force: bool = True,
     ) -> 'Notebook':
+        """Create Notebook in Signals Notebooks
+
+        Args:
+            name: Notebook name
+            description: Notebook description
+            digest: Indicate digest
+            force: Force to create without doing digest check
+
+        Returns:
+
+        """
 
         request = _RequestPayload(
             data=_RequestBody(

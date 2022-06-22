@@ -60,8 +60,9 @@ class MaterialType(str, Enum):
 
 
 class EID(str):
-    """Entity ID"""
+    """Entity ID
 
+    """
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -73,6 +74,14 @@ class EID(str):
 
     @classmethod
     def validate(cls, v: Any):
+        """Validate Entity ID
+
+        Args:
+            v: Entity ID
+
+        Returns:
+
+        """
         if not isinstance(v, str):
             log.error('%s is not instance of str', v)
             raise EIDError(value=v)
@@ -88,6 +97,11 @@ class EID(str):
 
     @property
     def type(self) -> Union[EntityType, str]:
+        """Get entity type
+
+        Returns:
+            One of the entity types
+        """
         _type, _ = self.split(':')
         try:
             return EntityType(_type)
@@ -97,12 +111,19 @@ class EID(str):
 
     @property
     def id(self) -> UUID:
+        """Get UUID
+
+        Returns:
+            UUID
+        """
         _, _id = self.split(':')
         return UUID(_id)
 
 
 class MID(str):
-    """Material ID"""
+    """Material ID
+
+    """
 
     _id_pattern = re.compile('[0-9a-f]+', flags=re.IGNORECASE)
 
@@ -117,6 +138,14 @@ class MID(str):
 
     @classmethod
     def validate(cls, v: Any):
+        """Validate Material ID
+
+        Args:
+            v: Material ID
+
+        Returns:
+
+        """
         if not isinstance(v, str):
             log.error('%s is not instance of str', v)
             raise EIDError(value=v)
@@ -136,16 +165,29 @@ class MID(str):
 
     @property
     def type(self) -> MaterialType:
+        """Get one of the material types
+
+        Returns:
+            MaterialType
+        """
         _type, _ = self.split(':')
         return MaterialType(_type)
 
     @property
     def id(self) -> str:
+        """Get id of material type
+
+        Returns:
+            str id
+        """
         _, _id = self.split(':')
         return _id
 
 
 class AttrID(str):
+    """Attribute ID
+
+    """
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -157,6 +199,14 @@ class AttrID(str):
 
     @classmethod
     def validate(cls, v: Any):
+        """Validate Attribute ID
+
+        Args:
+            v: Attribute ID
+
+        Returns:
+
+        """
         if not isinstance(v, str):
             log.error('%s is not instance of str', v)
             raise EIDError(value=v)
@@ -176,11 +226,21 @@ class AttrID(str):
 
     @property
     def type(self) -> ObjectType:
+        """Get one of the object types
+
+        Returns:
+            ObjectType
+        """
         _type, _ = self.split(':')
         return ObjectType(_type)
 
     @property
     def id(self) -> int:
+        """Get id of object type
+
+        Returns:
+            int id
+        """
         _, _id = self.split(':')
         return int(_id)
 
@@ -193,6 +253,14 @@ class Links(BaseModel):
 
     @validator('*', pre=True)
     def escape_spaces(cls, v: Optional[str]) -> Optional[str]:
+        """Replace all spaces
+
+        Args:
+            v: value
+
+        Returns:
+            value with replaced spaces
+        """
         if v is not None:
             return v.replace(' ', '%20')
 
@@ -276,10 +344,27 @@ class File(BaseModel):
 
     @classmethod
     def read(cls, file_name: str, mode='rb') -> 'File':
+        """Read content of the file
+
+        Args:
+            file_name: file name in string format
+            mode: specifies the mode in which the file is opened
+
+        Returns:
+            File
+        """
         with open(file_name, mode) as f:
             return cls(f)
 
     def save(self, path: str) -> None:
+        """Save content in file
+
+        Args:
+            path: path to the file
+
+        Returns:
+
+        """
         _path = path
         if os.path.isdir(path):
             _path = os.path.join(path, self.name)

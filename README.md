@@ -60,6 +60,11 @@ EntityStore.delete("journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e")
 ```
 Jupyter Notebooks with examples see in examples folder
 
+
+### To update documentation
+```shell
+pdoc -f --html -o docs src/signals_notebook
+```
 ## Build instructions
 Please read [DEVNOTES.md](DEVNOTES.md) for details.
 

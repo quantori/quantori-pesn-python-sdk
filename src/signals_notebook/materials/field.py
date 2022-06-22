@@ -105,9 +105,27 @@ class AttachedFileFieldDefinition(BaseFieldDefinition):
     )
 
     def to_representation(self, value: Any, material: 'Material', **kwargs) -> Any:
+        """Get Material field attachment
+
+        Args:
+            value: field value
+            material: material
+            **kwargs:
+
+        Returns:
+            One of the Materials
+        """
         return material.get_attachment(self.id)
 
     def to_internal_value(self, value: Any) -> Any:
+        """Get field value as dictionary
+
+        Args:
+            value: field value
+
+        Returns:
+            field value as dictionary
+        """
         if not isinstance(value, File):
             log.exception('File expected')
             raise TypeError('File expected')
@@ -127,6 +145,16 @@ class LinkFieldDefinition(BaseFieldDefinition):
     data_type: Literal[MaterialFieldType.LINK] = Field(alias='dataType', default=MaterialFieldType.LINK)
 
     def to_representation(self, value: Any, material: 'Material', **kwargs) -> Any:
+        """Get Entity by value id
+
+        Args:
+            value: field value
+            material: material
+            **kwargs:
+
+        Returns:
+            One of the Entities
+        """
         if not value:
             return None
 
@@ -135,6 +163,14 @@ class LinkFieldDefinition(BaseFieldDefinition):
         return EntityStore.get(value['eid'])
 
     def to_internal_value(self, value: Any) -> Any:
+        """Get field value as dictionary
+
+        Args:
+            value: field value
+
+        Returns:
+            field value as dictionary
+        """
         from signals_notebook.entities.entity import Entity
 
         if not isinstance(value, Entity):
@@ -151,6 +187,11 @@ class AttributeFieldDefinition(BaseFieldDefinition):
 
     @property
     def attribute(self) -> Attribute:
+        """Get Attribute object by id
+
+        Returns:
+            Attribute
+        """
         return Attribute.get(self.attribute_id)
 
 
@@ -225,6 +266,11 @@ class FieldContainer:
             )
 
     def items(self):
+        """Get data items
+
+        Returns:
+            A view object that displays a list of data's (key, value) tuple pair.
+        """
         return self._data.items()
 
     def __getitem__(self, key: str) -> Any:

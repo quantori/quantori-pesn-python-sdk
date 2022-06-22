@@ -22,6 +22,17 @@ class Text(ContentfulEntity):
 
     @classmethod
     def create(cls, *, container: Container, name: str, content: str = '', force: bool = True) -> Entity:
+        """Create Text entity
+
+        Args:
+            container: Container where create new Text
+            name: file name
+            content: Text content
+            force: Force to post attachment
+
+        Returns:
+            Text
+        """
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -31,9 +42,19 @@ class Text(ContentfulEntity):
         )
 
     def get_content(self) -> File:
+        """Get Text content
+
+        Returns:
+            File
+        """
         return super()._get_content()
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        """
         file = self._get_content()
         data = {'name': self.name, 'content': file.content.decode('utf-8')}
         template = env.get_template(self._template_name)

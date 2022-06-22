@@ -32,6 +32,15 @@ class EntityStore:
 
     @classmethod
     def get(cls, eid: EID) -> Entity:
+        """Get Entity by ID
+
+        Args:
+            eid: Entity ID
+
+        Returns:
+            Entity
+        """
+
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get Entity: %s from EntityStore...', eid)
 
@@ -55,6 +64,20 @@ class EntityStore:
         modified_after: datetime = None,
         modified_before: datetime = None,
     ) -> Generator[Entity, None, None]:
+        """Get all entities
+
+        Args:
+            include_types: Included entity types, separated by comma ','.
+                For example, 'experiment, journal, ado'.
+                The default include types are experiment, request and journal.
+            exclude_types: Excluded entity types, separated by comma ','. For example, 'experiment, journal'.
+            include_options: Flags of entities, separated by comma ','.
+            modified_after: Return the entities which are modified after start time.
+            modified_before: Return the entities which are modified before end time.
+
+        Returns:
+            Entity
+        """
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get List of Entities from EntityStore...')
 
@@ -94,6 +117,14 @@ class EntityStore:
 
     @classmethod
     def refresh(cls, entity: Entity) -> None:
+        """Refresh Entity with new values
+
+        Args:
+            entity: Entity
+
+        Returns:
+
+        """
         refreshed_entity = cls.get(entity.eid)
         for field in entity.__fields__.values():
             if field.field_info.allow_mutation:
@@ -102,6 +133,18 @@ class EntityStore:
 
     @classmethod
     def delete(cls, eid: EID, digest: str = None, force: bool = True) -> None:
+        """Delete Entity by ID
+
+        Args:
+            eid: Entity ID
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+                If the parameter 'force' is true, this parameter is optional.
+                If the parameter 'force' is false, this parameter is required.
+            force: Force to delete without doing digest check.
+
+        Returns:
+
+        """
         api = SignalsNotebookApi.get_default_api()
         log.debug('Deleting Entity: %s from EntityStore...', eid)
 

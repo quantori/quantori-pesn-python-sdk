@@ -1,0 +1,2898 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>signals_notebook.entities.tables.cell API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>signals_notebook.entities.tables.cell</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from datetime import datetime
+from enum import Enum
+from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
+from uuid import UUID
+
+from pydantic import BaseModel, Field, PrivateAttr
+from pydantic.generics import GenericModel
+
+from signals_notebook.common_types import EID, EntityType, MID, ObjectType
+from signals_notebook.entities import Entity
+from signals_notebook.entities.entity_store import EntityStore
+from signals_notebook.exceptions import EIDError
+from signals_notebook.materials import MaterialStore
+from signals_notebook.materials.material import Material
+
+CellContentType = TypeVar(&#39;CellContentType&#39;)
+
+
+class ColumnDataType(str, Enum):
+    NUMBER = &#39;number&#39;
+    INTEGER = &#39;integer&#39;
+    DATE_TIME = &#39;datetime&#39;
+    TEXT = &#39;text&#39;
+    LIST = &#39;list&#39;
+    MULTI_SELECT = &#39;multiSelect&#39;
+    ATTRIBUTE_LIST = &#39;attributeList&#39;
+    AUTOTEXT_LIST = &#39;autotextList&#39;
+    BOOLEAN = &#39;boolean&#39;
+    UNIT = &#39;unit&#39;
+    LINK = &#39;link&#39;
+    EXTERNAL_LINK = &#39;externalLink&#39;
+
+
+class ColumnDefinition(BaseModel):
+    key: UUID
+    title: str
+    type: ColumnDataType
+    is_external_key: Optional[bool] = Field(alias=&#39;isExternalKey&#39;, default=None)
+    is_user_defined: Optional[bool] = Field(alias=&#39;isUserDefined&#39;, default=None)
+    saved: Optional[bool] = Field(default=None)
+    read_only: bool = Field(default=True, alias=&#39;readOnly&#39;)
+
+    class Config:
+        frozen = True
+
+
+class AttributeListColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.ATTRIBUTE_LIST]
+    options: List[str]
+    attribute_list_eid: EID = Field(alias=&#39;attributeListEid&#39;)
+    multi_select: bool = Field(alias=&#39;multiSelect&#39;)
+
+
+class AutotextListColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.AUTOTEXT_LIST]
+    options: List[str]
+    autotext_list_eid: EID = Field(alias=&#39;autotextListEid&#39;)
+
+
+class ListColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.LIST]
+    options: List[str]
+
+
+class MultiSelectColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.MULTI_SELECT]
+    options: List[str]
+
+
+class UnitColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.UNIT]
+    measure: str
+    default_unit: str = Field(alias=&#39;defaultUnit&#39;)
+
+
+GenericColumnDefinition = Union[
+    AttributeListColumnDefinition,
+    AutotextListColumnDefinition,
+    ListColumnDefinition,
+    MultiSelectColumnDefinition,
+    UnitColumnDefinition,
+    ColumnDefinition,  # must be the last
+]
+
+
+class ColumnDefinitions(BaseModel):
+    id: EID
+    type: Literal[ObjectType.COLUMN_DEFINITIONS]
+    columns: List[GenericColumnDefinition]
+
+    class Config:
+        frozen = True
+
+
+class CellContent(GenericModel, Generic[CellContentType]):
+    value: CellContentType
+    values: Optional[List[CellContentType]] = None
+    type: Optional[EntityType] = None
+    display: Optional[str] = None
+
+    class Config:
+        validate_assignment = True
+
+
+class CellContentDict(TypedDict):
+    value: Any
+    values: Optional[List[Any]]
+    type: Optional[EntityType]
+    display: Optional[str]
+
+
+class UpdateCellRequest(GenericModel, Generic[CellContentType]):
+    key: UUID
+    content: CellContent[CellContentType]
+
+
+class Cell(GenericModel, Generic[CellContentType]):
+    id: UUID = Field(allow_mutation=False, alias=&#39;key&#39;)
+    type: ColumnDataType = Field(allow_mutation=False)
+    name: str = Field(allow_mutation=False)
+    content: CellContent[CellContentType]
+    _changed: bool = PrivateAttr(default=False)
+
+    class Config:
+        validate_assignment = True
+
+    @property
+    def value(self) -&gt; Union[CellContentType, List[CellContentType]]:
+        &#34;&#34;&#34;Get content value
+
+        Returns:
+            Union[CellContentType, List[CellContentType]]
+        &#34;&#34;&#34;
+        return self.content.values or self.content.value
+
+    def _set_value(self, new_value: CellContentType, display: Optional[str] = None) -&gt; None:
+        self.content.value = new_value
+        self.content.display = display
+
+        self._changed = True
+
+    @property
+    def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Get is_changed value
+
+        Returns:
+            bool: True/False
+        &#34;&#34;&#34;
+        return self._changed
+
+    @property
+    def display(self) -&gt; str:
+        &#34;&#34;&#34;Get display field of content
+
+        Returns:
+            str
+        &#34;&#34;&#34;
+        return self.content.display or &#39;&#39;
+
+    @property
+    def update_request(self) -&gt; UpdateCellRequest[CellContentType]:
+        &#34;&#34;&#34;Get UpdateCellRequest
+
+        Returns:
+            UpdateCellRequest
+        &#34;&#34;&#34;
+        return UpdateCellRequest[CellContentType](key=self.id, content=self.content)
+
+
+class TextCell(Cell[str]):
+    type: Literal[ColumnDataType.TEXT] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to TextCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)
+
+
+class NumberCell(Cell[float]):
+    type: Literal[ColumnDataType.NUMBER] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: float, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to NumberCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)
+
+
+class IntegerCell(Cell[int]):
+    type: Literal[ColumnDataType.INTEGER] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: int, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to IntegerCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)
+
+
+class BooleanCell(Cell[bool]):
+    type: Literal[ColumnDataType.BOOLEAN] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: bool, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to BooleanCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)
+
+
+class DateTimeCell(Cell[datetime]):
+    type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: datetime, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to DateTimeCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)
+
+
+class ExternalLink(Cell[str]):
+    type: Literal[ColumnDataType.EXTERNAL_LINK] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to ExternalLink
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)
+
+
+class LinkCell(Cell[Union[EID, MID]]):
+    type: Literal[ColumnDataType.LINK] = Field(allow_mutation=False)
+
+    @property
+    def object(self) -&gt; Union[Entity, Material]:
+        &#34;&#34;&#34;Get Material or Entity
+
+        Returns:
+
+        &#34;&#34;&#34;
+        object_id = self.content.value
+        try:
+            return MaterialStore.get(MID(object_id))
+        except EIDError:
+            pass
+
+        return EntityStore.get(EID(object_id))
+
+    def set_value(self, new_value: Union[EID, MID], display: str) -&gt; None:
+        &#34;&#34;&#34;Set new value to LinkCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)
+
+
+class UnitCell(Cell[float]):
+    type: Literal[ColumnDataType.UNIT] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: float, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to UnitCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)
+
+
+class MultiSelectCell(Cell[str]):
+    type: Literal[ColumnDataType.MULTI_SELECT] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to MultiSelectCell
+
+        Args:
+            new_value: new value or list of values of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if isinstance(new_value, List):
+            value = &#39;, &#39;.join(new_value)
+            self.content.values = new_value
+        else:
+            value = new_value
+            self.content.values = [new_value]
+
+        super()._set_value(value, display)
+
+
+class AttributeListCell(Cell[str]):
+    type: Literal[ColumnDataType.ATTRIBUTE_LIST] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to AttributeListCell
+
+        Args:
+            new_value: new value or list of values of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+
+        if isinstance(new_value, List):
+            value = &#39;, &#39;.join(new_value)
+            self.content.values = new_value
+        else:
+            value = new_value
+            self.content.values = [new_value]
+
+        super()._set_value(value, display)
+
+
+class ListCell(Cell[str]):
+    type: Literal[ColumnDataType.LIST] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to ListCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)
+
+
+class AutotextListCell(Cell[str]):
+    type: Literal[ColumnDataType.AUTOTEXT_LIST] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to ListCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)
+
+
+GenericCell = Annotated[
+    Union[
+        AttributeListCell,
+        AutotextListCell,
+        BooleanCell,
+        DateTimeCell,
+        ExternalLink,
+        IntegerCell,
+        LinkCell,
+        ListCell,
+        MultiSelectCell,
+        NumberCell,
+        TextCell,
+        UnitCell,
+    ],
+    Field(discriminator=&#39;type&#39;),
+]</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.AttributeListCell"><code class="flex name class">
+<span>class <span class="ident">AttributeListCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AttributeListCell(Cell[str]):
+    type: Literal[ColumnDataType.ATTRIBUTE_LIST] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to AttributeListCell
+
+        Args:
+            new_value: new value or list of values of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+
+        if isinstance(new_value, List):
+            value = &#39;, &#39;.join(new_value)
+            self.content.values = new_value
+        else:
+            value = new_value
+            self.content.values = [new_value]
+
+        super()._set_value(value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.AttributeListCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.ATTRIBUTE_LIST" href="#signals_notebook.entities.tables.cell.ColumnDataType.ATTRIBUTE_LIST">ColumnDataType.ATTRIBUTE_LIST</a>: 'attributeList'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.AttributeListCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: Union[str, List[str]], display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to AttributeListCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value or list of values of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to AttributeListCell
+
+    Args:
+        new_value: new value or list of values of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+
+    if isinstance(new_value, List):
+        value = &#39;, &#39;.join(new_value)
+        self.content.values = new_value
+    else:
+        value = new_value
+        self.content.values = [new_value]
+
+    super()._set_value(value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.AttributeListColumnDefinition"><code class="flex name class">
+<span>class <span class="ident">AttributeListColumnDefinition</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AttributeListColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.ATTRIBUTE_LIST]
+    options: List[str]
+    attribute_list_eid: EID = Field(alias=&#39;attributeListEid&#39;)
+    multi_select: bool = Field(alias=&#39;multiSelect&#39;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.ColumnDefinition" href="#signals_notebook.entities.tables.cell.ColumnDefinition">ColumnDefinition</a></li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.AttributeListColumnDefinition.attribute_list_eid"><code class="name">var <span class="ident">attribute_list_eid</span> : <a title="signals_notebook.common_types.EID" href="../../common_types.html#signals_notebook.common_types.EID">EID</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.AttributeListColumnDefinition.multi_select"><code class="name">var <span class="ident">multi_select</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.AttributeListColumnDefinition.options"><code class="name">var <span class="ident">options</span> : List[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.AttributeListColumnDefinition.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.ATTRIBUTE_LIST" href="#signals_notebook.entities.tables.cell.ColumnDataType.ATTRIBUTE_LIST">ColumnDataType.ATTRIBUTE_LIST</a>: 'attributeList'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.AutotextListCell"><code class="flex name class">
+<span>class <span class="ident">AutotextListCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AutotextListCell(Cell[str]):
+    type: Literal[ColumnDataType.AUTOTEXT_LIST] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to ListCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.AutotextListCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.AUTOTEXT_LIST" href="#signals_notebook.entities.tables.cell.ColumnDataType.AUTOTEXT_LIST">ColumnDataType.AUTOTEXT_LIST</a>: 'autotextList'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.AutotextListCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: str, display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to ListCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to ListCell
+
+    Args:
+        new_value: new value of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super()._set_value(new_value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.AutotextListColumnDefinition"><code class="flex name class">
+<span>class <span class="ident">AutotextListColumnDefinition</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AutotextListColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.AUTOTEXT_LIST]
+    options: List[str]
+    autotext_list_eid: EID = Field(alias=&#39;autotextListEid&#39;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.ColumnDefinition" href="#signals_notebook.entities.tables.cell.ColumnDefinition">ColumnDefinition</a></li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.AutotextListColumnDefinition.autotext_list_eid"><code class="name">var <span class="ident">autotext_list_eid</span> : <a title="signals_notebook.common_types.EID" href="../../common_types.html#signals_notebook.common_types.EID">EID</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.AutotextListColumnDefinition.options"><code class="name">var <span class="ident">options</span> : List[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.AutotextListColumnDefinition.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.AUTOTEXT_LIST" href="#signals_notebook.entities.tables.cell.ColumnDataType.AUTOTEXT_LIST">ColumnDataType.AUTOTEXT_LIST</a>: 'autotextList'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.BooleanCell"><code class="flex name class">
+<span>class <span class="ident">BooleanCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BooleanCell(Cell[bool]):
+    type: Literal[ColumnDataType.BOOLEAN] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: bool, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to BooleanCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[bool]" href="#signals_notebook.entities.tables.cell.Cell[bool]">Cell[bool]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.BooleanCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.BOOLEAN" href="#signals_notebook.entities.tables.cell.ColumnDataType.BOOLEAN">ColumnDataType.BOOLEAN</a>: 'boolean'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.BooleanCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: bool, display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to BooleanCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: bool, display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to BooleanCell
+
+    Args:
+        new_value: new value of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super()._set_value(new_value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[bool]" href="#signals_notebook.entities.tables.cell.Cell[bool]">Cell[bool]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell"><code class="flex name class">
+<span>class <span class="ident">Cell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Cell(GenericModel, Generic[CellContentType]):
+    id: UUID = Field(allow_mutation=False, alias=&#39;key&#39;)
+    type: ColumnDataType = Field(allow_mutation=False)
+    name: str = Field(allow_mutation=False)
+    content: CellContent[CellContentType]
+    _changed: bool = PrivateAttr(default=False)
+
+    class Config:
+        validate_assignment = True
+
+    @property
+    def value(self) -&gt; Union[CellContentType, List[CellContentType]]:
+        &#34;&#34;&#34;Get content value
+
+        Returns:
+            Union[CellContentType, List[CellContentType]]
+        &#34;&#34;&#34;
+        return self.content.values or self.content.value
+
+    def _set_value(self, new_value: CellContentType, display: Optional[str] = None) -&gt; None:
+        self.content.value = new_value
+        self.content.display = display
+
+        self._changed = True
+
+    @property
+    def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Get is_changed value
+
+        Returns:
+            bool: True/False
+        &#34;&#34;&#34;
+        return self._changed
+
+    @property
+    def display(self) -&gt; str:
+        &#34;&#34;&#34;Get display field of content
+
+        Returns:
+            str
+        &#34;&#34;&#34;
+        return self.content.display or &#39;&#39;
+
+    @property
+    def update_request(self) -&gt; UpdateCellRequest[CellContentType]:
+        &#34;&#34;&#34;Get UpdateCellRequest
+
+        Returns:
+            UpdateCellRequest
+        &#34;&#34;&#34;
+        return UpdateCellRequest[CellContentType](key=self.id, content=self.content)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]">Cell[Union[EID, MID]]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell[bool]" href="#signals_notebook.entities.tables.cell.Cell[bool]">Cell[bool]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell[datetime]" href="#signals_notebook.entities.tables.cell.Cell[datetime]">Cell[datetime]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell[float]" href="#signals_notebook.entities.tables.cell.Cell[float]">Cell[float]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell[int]" href="#signals_notebook.entities.tables.cell.Cell[int]">Cell[int]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.Cell.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell.content"><code class="name">var <span class="ident">content</span> : <a title="signals_notebook.entities.tables.cell.CellContent" href="#signals_notebook.entities.tables.cell.CellContent">CellContent</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell.id"><code class="name">var <span class="ident">id</span> : uuid.UUID</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell.type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.Cell.display"><code class="name">var <span class="ident">display</span> : str</code></dt>
+<dd>
+<div class="desc"><p>Get display field of content</p>
+<h2 id="returns">Returns</h2>
+<p>str</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def display(self) -&gt; str:
+    &#34;&#34;&#34;Get display field of content
+
+    Returns:
+        str
+    &#34;&#34;&#34;
+    return self.content.display or &#39;&#39;</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>Get is_changed value</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True/False</dd>
+</dl></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_changed(self) -&gt; bool:
+    &#34;&#34;&#34;Get is_changed value
+
+    Returns:
+        bool: True/False
+    &#34;&#34;&#34;
+    return self._changed</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell.update_request"><code class="name">var <span class="ident">update_request</span> : <a title="signals_notebook.entities.tables.cell.UpdateCellRequest" href="#signals_notebook.entities.tables.cell.UpdateCellRequest">UpdateCellRequest</a></code></dt>
+<dd>
+<div class="desc"><p>Get UpdateCellRequest</p>
+<h2 id="returns">Returns</h2>
+<p>UpdateCellRequest</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def update_request(self) -&gt; UpdateCellRequest[CellContentType]:
+    &#34;&#34;&#34;Get UpdateCellRequest
+
+    Returns:
+        UpdateCellRequest
+    &#34;&#34;&#34;
+    return UpdateCellRequest[CellContentType](key=self.id, content=self.content)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell.value"><code class="name">var <span class="ident">value</span> : Union[~CellContentType, List[~CellContentType]]</code></dt>
+<dd>
+<div class="desc"><p>Get content value</p>
+<h2 id="returns">Returns</h2>
+<p>Union[CellContentType, List[CellContentType]]</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def value(self) -&gt; Union[CellContentType, List[CellContentType]]:
+    &#34;&#34;&#34;Get content value
+
+    Returns:
+        Union[CellContentType, List[CellContentType]]
+    &#34;&#34;&#34;
+    return self.content.values or self.content.value</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.CellContent"><code class="flex name class">
+<span>class <span class="ident">CellContent</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CellContent(GenericModel, Generic[CellContentType]):
+    value: CellContentType
+    values: Optional[List[CellContentType]] = None
+    type: Optional[EntityType] = None
+    display: Optional[str] = None
+
+    class Config:
+        validate_assignment = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li>pydantic.generics.CellContent[Union[EID, MID]]</li>
+<li>pydantic.generics.CellContent[bool]</li>
+<li>pydantic.generics.CellContent[datetime]</li>
+<li>pydantic.generics.CellContent[float]</li>
+<li>pydantic.generics.CellContent[int]</li>
+<li>pydantic.generics.CellContent[str]</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.CellContent.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.CellContent.display"><code class="name">var <span class="ident">display</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.CellContent.type"><code class="name">var <span class="ident">type</span> : Optional[<a title="signals_notebook.common_types.EntityType" href="../../common_types.html#signals_notebook.common_types.EntityType">EntityType</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.CellContent.value"><code class="name">var <span class="ident">value</span> : ~CellContentType</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.CellContent.values"><code class="name">var <span class="ident">values</span> : Optional[List[~CellContentType]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.CellContentDict"><code class="flex name class">
+<span>class <span class="ident">CellContentDict</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>dict() -&gt; new empty dictionary
+dict(mapping) -&gt; new dictionary initialized from a mapping object's
+(key, value) pairs
+dict(iterable) -&gt; new dictionary initialized as if via:
+d = {}
+for k, v in iterable:
+d[k] = v
+dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
+in the keyword argument list.
+For example:
+dict(one=1, two=2)</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class CellContentDict(TypedDict):
+    value: Any
+    values: Optional[List[Any]]
+    type: Optional[EntityType]
+    display: Optional[str]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.dict</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.CellContentDict.display"><code class="name">var <span class="ident">display</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.CellContentDict.type"><code class="name">var <span class="ident">type</span> : Optional[<a title="signals_notebook.common_types.EntityType" href="../../common_types.html#signals_notebook.common_types.EntityType">EntityType</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.CellContentDict.value"><code class="name">var <span class="ident">value</span> : Any</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.CellContentDict.values"><code class="name flex">
+<span>def <span class="ident">values</span></span>(<span>...) ‑> Optional[List[Any]]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>D.values() -&gt; an object providing a view on D's values</p></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]"><code class="flex name class">
+<span>class <span class="ident">Cell[Union[EID, MID]]</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.LinkCell" href="#signals_notebook.entities.tables.cell.LinkCell">LinkCell</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].content"><code class="name">var <span class="ident">content</span> : pydantic.generics.CellContent[Union[EID, MID]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].id"><code class="name">var <span class="ident">id</span> : uuid.UUID</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[bool]"><code class="flex name class">
+<span>class <span class="ident">Cell[bool]</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.BooleanCell" href="#signals_notebook.entities.tables.cell.BooleanCell">BooleanCell</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.Cell[bool].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[bool].content"><code class="name">var <span class="ident">content</span> : pydantic.generics.CellContent[bool]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[bool].id"><code class="name">var <span class="ident">id</span> : uuid.UUID</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[bool].name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[bool].type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[datetime]"><code class="flex name class">
+<span>class <span class="ident">Cell[datetime]</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.DateTimeCell" href="#signals_notebook.entities.tables.cell.DateTimeCell">DateTimeCell</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.Cell[datetime].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[datetime].content"><code class="name">var <span class="ident">content</span> : pydantic.generics.CellContent[datetime]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[datetime].id"><code class="name">var <span class="ident">id</span> : uuid.UUID</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[datetime].name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[datetime].type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[float]"><code class="flex name class">
+<span>class <span class="ident">Cell[float]</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.NumberCell" href="#signals_notebook.entities.tables.cell.NumberCell">NumberCell</a></li>
+<li><a title="signals_notebook.entities.tables.cell.UnitCell" href="#signals_notebook.entities.tables.cell.UnitCell">UnitCell</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.Cell[float].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[float].content"><code class="name">var <span class="ident">content</span> : pydantic.generics.CellContent[float]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[float].id"><code class="name">var <span class="ident">id</span> : uuid.UUID</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[float].name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[float].type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[int]"><code class="flex name class">
+<span>class <span class="ident">Cell[int]</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.IntegerCell" href="#signals_notebook.entities.tables.cell.IntegerCell">IntegerCell</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.Cell[int].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[int].content"><code class="name">var <span class="ident">content</span> : pydantic.generics.CellContent[int]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[int].id"><code class="name">var <span class="ident">id</span> : uuid.UUID</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[int].name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[int].type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[str]"><code class="flex name class">
+<span>class <span class="ident">Cell[str]</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.AttributeListCell" href="#signals_notebook.entities.tables.cell.AttributeListCell">AttributeListCell</a></li>
+<li><a title="signals_notebook.entities.tables.cell.AutotextListCell" href="#signals_notebook.entities.tables.cell.AutotextListCell">AutotextListCell</a></li>
+<li><a title="signals_notebook.entities.tables.cell.ExternalLink" href="#signals_notebook.entities.tables.cell.ExternalLink">ExternalLink</a></li>
+<li><a title="signals_notebook.entities.tables.cell.ListCell" href="#signals_notebook.entities.tables.cell.ListCell">ListCell</a></li>
+<li><a title="signals_notebook.entities.tables.cell.MultiSelectCell" href="#signals_notebook.entities.tables.cell.MultiSelectCell">MultiSelectCell</a></li>
+<li><a title="signals_notebook.entities.tables.cell.TextCell" href="#signals_notebook.entities.tables.cell.TextCell">TextCell</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.Cell[str].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[str].content"><code class="name">var <span class="ident">content</span> : pydantic.generics.CellContent[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[str].id"><code class="name">var <span class="ident">id</span> : uuid.UUID</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[str].name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[str].type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType"><code class="flex name class">
+<span>class <span class="ident">ColumnDataType</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ColumnDataType(str, Enum):
+    NUMBER = &#39;number&#39;
+    INTEGER = &#39;integer&#39;
+    DATE_TIME = &#39;datetime&#39;
+    TEXT = &#39;text&#39;
+    LIST = &#39;list&#39;
+    MULTI_SELECT = &#39;multiSelect&#39;
+    ATTRIBUTE_LIST = &#39;attributeList&#39;
+    AUTOTEXT_LIST = &#39;autotextList&#39;
+    BOOLEAN = &#39;boolean&#39;
+    UNIT = &#39;unit&#39;
+    LINK = &#39;link&#39;
+    EXTERNAL_LINK = &#39;externalLink&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.str</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.ATTRIBUTE_LIST"><code class="name">var <span class="ident">ATTRIBUTE_LIST</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.AUTOTEXT_LIST"><code class="name">var <span class="ident">AUTOTEXT_LIST</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.BOOLEAN"><code class="name">var <span class="ident">BOOLEAN</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.DATE_TIME"><code class="name">var <span class="ident">DATE_TIME</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.EXTERNAL_LINK"><code class="name">var <span class="ident">EXTERNAL_LINK</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.INTEGER"><code class="name">var <span class="ident">INTEGER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.LINK"><code class="name">var <span class="ident">LINK</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.LIST"><code class="name">var <span class="ident">LIST</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.MULTI_SELECT"><code class="name">var <span class="ident">MULTI_SELECT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.NUMBER"><code class="name">var <span class="ident">NUMBER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.TEXT"><code class="name">var <span class="ident">TEXT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDataType.UNIT"><code class="name">var <span class="ident">UNIT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinition"><code class="flex name class">
+<span>class <span class="ident">ColumnDefinition</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ColumnDefinition(BaseModel):
+    key: UUID
+    title: str
+    type: ColumnDataType
+    is_external_key: Optional[bool] = Field(alias=&#39;isExternalKey&#39;, default=None)
+    is_user_defined: Optional[bool] = Field(alias=&#39;isUserDefined&#39;, default=None)
+    saved: Optional[bool] = Field(default=None)
+    read_only: bool = Field(default=True, alias=&#39;readOnly&#39;)
+
+    class Config:
+        frozen = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.AttributeListColumnDefinition" href="#signals_notebook.entities.tables.cell.AttributeListColumnDefinition">AttributeListColumnDefinition</a></li>
+<li><a title="signals_notebook.entities.tables.cell.AutotextListColumnDefinition" href="#signals_notebook.entities.tables.cell.AutotextListColumnDefinition">AutotextListColumnDefinition</a></li>
+<li><a title="signals_notebook.entities.tables.cell.ListColumnDefinition" href="#signals_notebook.entities.tables.cell.ListColumnDefinition">ListColumnDefinition</a></li>
+<li><a title="signals_notebook.entities.tables.cell.MultiSelectColumnDefinition" href="#signals_notebook.entities.tables.cell.MultiSelectColumnDefinition">MultiSelectColumnDefinition</a></li>
+<li><a title="signals_notebook.entities.tables.cell.UnitColumnDefinition" href="#signals_notebook.entities.tables.cell.UnitColumnDefinition">UnitColumnDefinition</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinition.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinition.is_external_key"><code class="name">var <span class="ident">is_external_key</span> : Optional[bool]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinition.is_user_defined"><code class="name">var <span class="ident">is_user_defined</span> : Optional[bool]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinition.key"><code class="name">var <span class="ident">key</span> : uuid.UUID</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinition.read_only"><code class="name">var <span class="ident">read_only</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinition.saved"><code class="name">var <span class="ident">saved</span> : Optional[bool]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinition.title"><code class="name">var <span class="ident">title</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinition.type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinitions"><code class="flex name class">
+<span>class <span class="ident">ColumnDefinitions</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ColumnDefinitions(BaseModel):
+    id: EID
+    type: Literal[ObjectType.COLUMN_DEFINITIONS]
+    columns: List[GenericColumnDefinition]
+
+    class Config:
+        frozen = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinitions.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinitions.columns"><code class="name">var <span class="ident">columns</span> : List[Union[<a title="signals_notebook.entities.tables.cell.AttributeListColumnDefinition" href="#signals_notebook.entities.tables.cell.AttributeListColumnDefinition">AttributeListColumnDefinition</a>, <a title="signals_notebook.entities.tables.cell.AutotextListColumnDefinition" href="#signals_notebook.entities.tables.cell.AutotextListColumnDefinition">AutotextListColumnDefinition</a>, <a title="signals_notebook.entities.tables.cell.ListColumnDefinition" href="#signals_notebook.entities.tables.cell.ListColumnDefinition">ListColumnDefinition</a>, <a title="signals_notebook.entities.tables.cell.MultiSelectColumnDefinition" href="#signals_notebook.entities.tables.cell.MultiSelectColumnDefinition">MultiSelectColumnDefinition</a>, <a title="signals_notebook.entities.tables.cell.UnitColumnDefinition" href="#signals_notebook.entities.tables.cell.UnitColumnDefinition">UnitColumnDefinition</a>, <a title="signals_notebook.entities.tables.cell.ColumnDefinition" href="#signals_notebook.entities.tables.cell.ColumnDefinition">ColumnDefinition</a>]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinitions.id"><code class="name">var <span class="ident">id</span> : <a title="signals_notebook.common_types.EID" href="../../common_types.html#signals_notebook.common_types.EID">EID</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ColumnDefinitions.type"><code class="name">var <span class="ident">type</span> : Literal[<ObjectType.COLUMN_DEFINITIONS: 'columnDefinitions'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.DateTimeCell"><code class="flex name class">
+<span>class <span class="ident">DateTimeCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DateTimeCell(Cell[datetime]):
+    type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: datetime, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to DateTimeCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[datetime]" href="#signals_notebook.entities.tables.cell.Cell[datetime]">Cell[datetime]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.DateTimeCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.DATE_TIME" href="#signals_notebook.entities.tables.cell.ColumnDataType.DATE_TIME">ColumnDataType.DATE_TIME</a>: 'datetime'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.DateTimeCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: datetime.datetime, display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to DateTimeCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: datetime, display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to DateTimeCell
+
+    Args:
+        new_value: new value of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super()._set_value(new_value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[datetime]" href="#signals_notebook.entities.tables.cell.Cell[datetime]">Cell[datetime]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ExternalLink"><code class="flex name class">
+<span>class <span class="ident">ExternalLink</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ExternalLink(Cell[str]):
+    type: Literal[ColumnDataType.EXTERNAL_LINK] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to ExternalLink
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.ExternalLink.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.EXTERNAL_LINK" href="#signals_notebook.entities.tables.cell.ColumnDataType.EXTERNAL_LINK">ColumnDataType.EXTERNAL_LINK</a>: 'externalLink'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.ExternalLink.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: str, display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to ExternalLink</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to ExternalLink
+
+    Args:
+        new_value: new value of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super()._set_value(new_value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.IntegerCell"><code class="flex name class">
+<span>class <span class="ident">IntegerCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class IntegerCell(Cell[int]):
+    type: Literal[ColumnDataType.INTEGER] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: int, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to IntegerCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[int]" href="#signals_notebook.entities.tables.cell.Cell[int]">Cell[int]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.IntegerCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.INTEGER" href="#signals_notebook.entities.tables.cell.ColumnDataType.INTEGER">ColumnDataType.INTEGER</a>: 'integer'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.IntegerCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: int, display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to IntegerCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: int, display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to IntegerCell
+
+    Args:
+        new_value: new value of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super()._set_value(new_value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[int]" href="#signals_notebook.entities.tables.cell.Cell[int]">Cell[int]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[int].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[int].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[int].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[int].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.LinkCell"><code class="flex name class">
+<span>class <span class="ident">LinkCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LinkCell(Cell[Union[EID, MID]]):
+    type: Literal[ColumnDataType.LINK] = Field(allow_mutation=False)
+
+    @property
+    def object(self) -&gt; Union[Entity, Material]:
+        &#34;&#34;&#34;Get Material or Entity
+
+        Returns:
+
+        &#34;&#34;&#34;
+        object_id = self.content.value
+        try:
+            return MaterialStore.get(MID(object_id))
+        except EIDError:
+            pass
+
+        return EntityStore.get(EID(object_id))
+
+    def set_value(self, new_value: Union[EID, MID], display: str) -&gt; None:
+        &#34;&#34;&#34;Set new value to LinkCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]">Cell[Union[EID, MID]]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.LinkCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.LINK" href="#signals_notebook.entities.tables.cell.ColumnDataType.LINK">ColumnDataType.LINK</a>: 'link'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.LinkCell.object"><code class="name">var <span class="ident">object</span> : Union[<a title="signals_notebook.entities.entity.Entity" href="../entity.html#signals_notebook.entities.entity.Entity">Entity</a>, <a title="signals_notebook.materials.material.Material" href="../../materials/material.html#signals_notebook.materials.material.Material">Material</a>]</code></dt>
+<dd>
+<div class="desc"><p>Get Material or Entity</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def object(self) -&gt; Union[Entity, Material]:
+    &#34;&#34;&#34;Get Material or Entity
+
+    Returns:
+
+    &#34;&#34;&#34;
+    object_id = self.content.value
+    try:
+        return MaterialStore.get(MID(object_id))
+    except EIDError:
+        pass
+
+    return EntityStore.get(EID(object_id))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.LinkCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: Union[<a title="signals_notebook.common_types.EID" href="../../common_types.html#signals_notebook.common_types.EID">EID</a>, <a title="signals_notebook.common_types.MID" href="../../common_types.html#signals_notebook.common_types.MID">MID</a>], display: str) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to LinkCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: Union[EID, MID], display: str) -&gt; None:
+    &#34;&#34;&#34;Set new value to LinkCell
+
+    Args:
+        new_value: new value of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super()._set_value(new_value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]">Cell[Union[EID, MID]]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ListCell"><code class="flex name class">
+<span>class <span class="ident">ListCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ListCell(Cell[str]):
+    type: Literal[ColumnDataType.LIST] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to ListCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.ListCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.LIST" href="#signals_notebook.entities.tables.cell.ColumnDataType.LIST">ColumnDataType.LIST</a>: 'list'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.ListCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: str, display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to ListCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to ListCell
+
+    Args:
+        new_value: new value of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super()._set_value(new_value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ListColumnDefinition"><code class="flex name class">
+<span>class <span class="ident">ListColumnDefinition</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ListColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.LIST]
+    options: List[str]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.ColumnDefinition" href="#signals_notebook.entities.tables.cell.ColumnDefinition">ColumnDefinition</a></li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.ListColumnDefinition.options"><code class="name">var <span class="ident">options</span> : List[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.ListColumnDefinition.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.LIST" href="#signals_notebook.entities.tables.cell.ColumnDataType.LIST">ColumnDataType.LIST</a>: 'list'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.MultiSelectCell"><code class="flex name class">
+<span>class <span class="ident">MultiSelectCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MultiSelectCell(Cell[str]):
+    type: Literal[ColumnDataType.MULTI_SELECT] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to MultiSelectCell
+
+        Args:
+            new_value: new value or list of values of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if isinstance(new_value, List):
+            value = &#39;, &#39;.join(new_value)
+            self.content.values = new_value
+        else:
+            value = new_value
+            self.content.values = [new_value]
+
+        super()._set_value(value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.MultiSelectCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.MULTI_SELECT" href="#signals_notebook.entities.tables.cell.ColumnDataType.MULTI_SELECT">ColumnDataType.MULTI_SELECT</a>: 'multiSelect'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.MultiSelectCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: Union[str, List[str]], display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to MultiSelectCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value or list of values of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to MultiSelectCell
+
+    Args:
+        new_value: new value or list of values of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    if isinstance(new_value, List):
+        value = &#39;, &#39;.join(new_value)
+        self.content.values = new_value
+    else:
+        value = new_value
+        self.content.values = [new_value]
+
+    super()._set_value(value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.MultiSelectColumnDefinition"><code class="flex name class">
+<span>class <span class="ident">MultiSelectColumnDefinition</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MultiSelectColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.MULTI_SELECT]
+    options: List[str]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.ColumnDefinition" href="#signals_notebook.entities.tables.cell.ColumnDefinition">ColumnDefinition</a></li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.MultiSelectColumnDefinition.options"><code class="name">var <span class="ident">options</span> : List[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.MultiSelectColumnDefinition.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.MULTI_SELECT" href="#signals_notebook.entities.tables.cell.ColumnDataType.MULTI_SELECT">ColumnDataType.MULTI_SELECT</a>: 'multiSelect'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.NumberCell"><code class="flex name class">
+<span>class <span class="ident">NumberCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class NumberCell(Cell[float]):
+    type: Literal[ColumnDataType.NUMBER] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: float, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to NumberCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[float]" href="#signals_notebook.entities.tables.cell.Cell[float]">Cell[float]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.NumberCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.NUMBER" href="#signals_notebook.entities.tables.cell.ColumnDataType.NUMBER">ColumnDataType.NUMBER</a>: 'number'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.NumberCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: float, display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to NumberCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: float, display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to NumberCell
+
+    Args:
+        new_value: new value of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super()._set_value(new_value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[float]" href="#signals_notebook.entities.tables.cell.Cell[float]">Cell[float]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.TextCell"><code class="flex name class">
+<span>class <span class="ident">TextCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TextCell(Cell[str]):
+    type: Literal[ColumnDataType.TEXT] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to TextCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.TextCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.TEXT" href="#signals_notebook.entities.tables.cell.ColumnDataType.TEXT">ColumnDataType.TEXT</a>: 'text'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.TextCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: str, display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to TextCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: str, display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to TextCell
+
+    Args:
+        new_value: new value of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super()._set_value(new_value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.UnitCell"><code class="flex name class">
+<span>class <span class="ident">UnitCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UnitCell(Cell[float]):
+    type: Literal[ColumnDataType.UNIT] = Field(allow_mutation=False)
+
+    def set_value(self, new_value: float, display: Optional[str] = None) -&gt; None:
+        &#34;&#34;&#34;Set new value to UnitCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super()._set_value(new_value, display)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[float]" href="#signals_notebook.entities.tables.cell.Cell[float]">Cell[float]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.UnitCell.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.UNIT" href="#signals_notebook.entities.tables.cell.ColumnDataType.UNIT">ColumnDataType.UNIT</a>: 'unit'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.UnitCell.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: float, display: Optional[str] = None) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value to UnitCell</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of content value field</dd>
+<dt><strong><code>display</code></strong></dt>
+<dd>new value of content display field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: float, display: Optional[str] = None) -&gt; None:
+    &#34;&#34;&#34;Set new value to UnitCell
+
+    Args:
+        new_value: new value of content value field
+        display: new value of content display field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super()._set_value(new_value, display)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[float]" href="#signals_notebook.entities.tables.cell.Cell[float]">Cell[float]</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.UnitColumnDefinition"><code class="flex name class">
+<span>class <span class="ident">UnitColumnDefinition</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UnitColumnDefinition(ColumnDefinition):
+    type: Literal[ColumnDataType.UNIT]
+    measure: str
+    default_unit: str = Field(alias=&#39;defaultUnit&#39;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.ColumnDefinition" href="#signals_notebook.entities.tables.cell.ColumnDefinition">ColumnDefinition</a></li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.UnitColumnDefinition.default_unit"><code class="name">var <span class="ident">default_unit</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.UnitColumnDefinition.measure"><code class="name">var <span class="ident">measure</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.UnitColumnDefinition.type"><code class="name">var <span class="ident">type</span> : Literal[<<a title="signals_notebook.entities.tables.cell.ColumnDataType.UNIT" href="#signals_notebook.entities.tables.cell.ColumnDataType.UNIT">ColumnDataType.UNIT</a>: 'unit'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.UpdateCellRequest"><code class="flex name class">
+<span>class <span class="ident">UpdateCellRequest</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UpdateCellRequest(GenericModel, Generic[CellContentType]):
+    key: UUID
+    content: CellContent[CellContentType]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.UpdateCellRequest.content"><code class="name">var <span class="ident">content</span> : <a title="signals_notebook.entities.tables.cell.CellContent" href="#signals_notebook.entities.tables.cell.CellContent">CellContent</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.UpdateCellRequest.key"><code class="name">var <span class="ident">key</span> : uuid.UUID</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="signals_notebook.entities.tables" href="index.html">signals_notebook.entities.tables</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.AttributeListCell" href="#signals_notebook.entities.tables.cell.AttributeListCell">AttributeListCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.AttributeListCell.set_value" href="#signals_notebook.entities.tables.cell.AttributeListCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.AttributeListCell.type" href="#signals_notebook.entities.tables.cell.AttributeListCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.AttributeListColumnDefinition" href="#signals_notebook.entities.tables.cell.AttributeListColumnDefinition">AttributeListColumnDefinition</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.AttributeListColumnDefinition.attribute_list_eid" href="#signals_notebook.entities.tables.cell.AttributeListColumnDefinition.attribute_list_eid">attribute_list_eid</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.AttributeListColumnDefinition.multi_select" href="#signals_notebook.entities.tables.cell.AttributeListColumnDefinition.multi_select">multi_select</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.AttributeListColumnDefinition.options" href="#signals_notebook.entities.tables.cell.AttributeListColumnDefinition.options">options</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.AttributeListColumnDefinition.type" href="#signals_notebook.entities.tables.cell.AttributeListColumnDefinition.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.AutotextListCell" href="#signals_notebook.entities.tables.cell.AutotextListCell">AutotextListCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.AutotextListCell.set_value" href="#signals_notebook.entities.tables.cell.AutotextListCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.AutotextListCell.type" href="#signals_notebook.entities.tables.cell.AutotextListCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.AutotextListColumnDefinition" href="#signals_notebook.entities.tables.cell.AutotextListColumnDefinition">AutotextListColumnDefinition</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.AutotextListColumnDefinition.autotext_list_eid" href="#signals_notebook.entities.tables.cell.AutotextListColumnDefinition.autotext_list_eid">autotext_list_eid</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.AutotextListColumnDefinition.options" href="#signals_notebook.entities.tables.cell.AutotextListColumnDefinition.options">options</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.AutotextListColumnDefinition.type" href="#signals_notebook.entities.tables.cell.AutotextListColumnDefinition.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.BooleanCell" href="#signals_notebook.entities.tables.cell.BooleanCell">BooleanCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.BooleanCell.set_value" href="#signals_notebook.entities.tables.cell.BooleanCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.BooleanCell.type" href="#signals_notebook.entities.tables.cell.BooleanCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.Config" href="#signals_notebook.entities.tables.cell.Cell.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.content" href="#signals_notebook.entities.tables.cell.Cell.content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.id" href="#signals_notebook.entities.tables.cell.Cell.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.name" href="#signals_notebook.entities.tables.cell.Cell.name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.type" href="#signals_notebook.entities.tables.cell.Cell.type">type</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.CellContent" href="#signals_notebook.entities.tables.cell.CellContent">CellContent</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.CellContent.Config" href="#signals_notebook.entities.tables.cell.CellContent.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.CellContent.display" href="#signals_notebook.entities.tables.cell.CellContent.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.CellContent.type" href="#signals_notebook.entities.tables.cell.CellContent.type">type</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.CellContent.value" href="#signals_notebook.entities.tables.cell.CellContent.value">value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.CellContent.values" href="#signals_notebook.entities.tables.cell.CellContent.values">values</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.CellContentDict" href="#signals_notebook.entities.tables.cell.CellContentDict">CellContentDict</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.CellContentDict.display" href="#signals_notebook.entities.tables.cell.CellContentDict.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.CellContentDict.type" href="#signals_notebook.entities.tables.cell.CellContentDict.type">type</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.CellContentDict.value" href="#signals_notebook.entities.tables.cell.CellContentDict.value">value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.CellContentDict.values" href="#signals_notebook.entities.tables.cell.CellContentDict.values">values</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]">Cell[Union[EID, MID]]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].Config" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].content" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].id" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].name" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].type" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.Cell[bool]" href="#signals_notebook.entities.tables.cell.Cell[bool]">Cell[bool]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].Config" href="#signals_notebook.entities.tables.cell.Cell[bool].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].content" href="#signals_notebook.entities.tables.cell.Cell[bool].content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].id" href="#signals_notebook.entities.tables.cell.Cell[bool].id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].name" href="#signals_notebook.entities.tables.cell.Cell[bool].name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].type" href="#signals_notebook.entities.tables.cell.Cell[bool].type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.Cell[datetime]" href="#signals_notebook.entities.tables.cell.Cell[datetime]">Cell[datetime]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].Config" href="#signals_notebook.entities.tables.cell.Cell[datetime].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].content" href="#signals_notebook.entities.tables.cell.Cell[datetime].content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].id" href="#signals_notebook.entities.tables.cell.Cell[datetime].id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].name" href="#signals_notebook.entities.tables.cell.Cell[datetime].name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].type" href="#signals_notebook.entities.tables.cell.Cell[datetime].type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.Cell[float]" href="#signals_notebook.entities.tables.cell.Cell[float]">Cell[float]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].Config" href="#signals_notebook.entities.tables.cell.Cell[float].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].content" href="#signals_notebook.entities.tables.cell.Cell[float].content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].id" href="#signals_notebook.entities.tables.cell.Cell[float].id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].name" href="#signals_notebook.entities.tables.cell.Cell[float].name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[float].type" href="#signals_notebook.entities.tables.cell.Cell[float].type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.Cell[int]" href="#signals_notebook.entities.tables.cell.Cell[int]">Cell[int]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[int].Config" href="#signals_notebook.entities.tables.cell.Cell[int].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[int].content" href="#signals_notebook.entities.tables.cell.Cell[int].content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[int].id" href="#signals_notebook.entities.tables.cell.Cell[int].id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[int].name" href="#signals_notebook.entities.tables.cell.Cell[int].name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[int].type" href="#signals_notebook.entities.tables.cell.Cell[int].type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].Config" href="#signals_notebook.entities.tables.cell.Cell[str].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].content" href="#signals_notebook.entities.tables.cell.Cell[str].content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].id" href="#signals_notebook.entities.tables.cell.Cell[str].id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].name" href="#signals_notebook.entities.tables.cell.Cell[str].name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[str].type" href="#signals_notebook.entities.tables.cell.Cell[str].type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.ATTRIBUTE_LIST" href="#signals_notebook.entities.tables.cell.ColumnDataType.ATTRIBUTE_LIST">ATTRIBUTE_LIST</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.AUTOTEXT_LIST" href="#signals_notebook.entities.tables.cell.ColumnDataType.AUTOTEXT_LIST">AUTOTEXT_LIST</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.BOOLEAN" href="#signals_notebook.entities.tables.cell.ColumnDataType.BOOLEAN">BOOLEAN</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.DATE_TIME" href="#signals_notebook.entities.tables.cell.ColumnDataType.DATE_TIME">DATE_TIME</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.EXTERNAL_LINK" href="#signals_notebook.entities.tables.cell.ColumnDataType.EXTERNAL_LINK">EXTERNAL_LINK</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.INTEGER" href="#signals_notebook.entities.tables.cell.ColumnDataType.INTEGER">INTEGER</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.LINK" href="#signals_notebook.entities.tables.cell.ColumnDataType.LINK">LINK</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.LIST" href="#signals_notebook.entities.tables.cell.ColumnDataType.LIST">LIST</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.MULTI_SELECT" href="#signals_notebook.entities.tables.cell.ColumnDataType.MULTI_SELECT">MULTI_SELECT</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.NUMBER" href="#signals_notebook.entities.tables.cell.ColumnDataType.NUMBER">NUMBER</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.TEXT" href="#signals_notebook.entities.tables.cell.ColumnDataType.TEXT">TEXT</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDataType.UNIT" href="#signals_notebook.entities.tables.cell.ColumnDataType.UNIT">UNIT</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.ColumnDefinition" href="#signals_notebook.entities.tables.cell.ColumnDefinition">ColumnDefinition</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinition.Config" href="#signals_notebook.entities.tables.cell.ColumnDefinition.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinition.is_external_key" href="#signals_notebook.entities.tables.cell.ColumnDefinition.is_external_key">is_external_key</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinition.is_user_defined" href="#signals_notebook.entities.tables.cell.ColumnDefinition.is_user_defined">is_user_defined</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinition.key" href="#signals_notebook.entities.tables.cell.ColumnDefinition.key">key</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinition.read_only" href="#signals_notebook.entities.tables.cell.ColumnDefinition.read_only">read_only</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinition.saved" href="#signals_notebook.entities.tables.cell.ColumnDefinition.saved">saved</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinition.title" href="#signals_notebook.entities.tables.cell.ColumnDefinition.title">title</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinition.type" href="#signals_notebook.entities.tables.cell.ColumnDefinition.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.ColumnDefinitions" href="#signals_notebook.entities.tables.cell.ColumnDefinitions">ColumnDefinitions</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinitions.Config" href="#signals_notebook.entities.tables.cell.ColumnDefinitions.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinitions.columns" href="#signals_notebook.entities.tables.cell.ColumnDefinitions.columns">columns</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinitions.id" href="#signals_notebook.entities.tables.cell.ColumnDefinitions.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinitions.type" href="#signals_notebook.entities.tables.cell.ColumnDefinitions.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.DateTimeCell" href="#signals_notebook.entities.tables.cell.DateTimeCell">DateTimeCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.DateTimeCell.set_value" href="#signals_notebook.entities.tables.cell.DateTimeCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.DateTimeCell.type" href="#signals_notebook.entities.tables.cell.DateTimeCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.ExternalLink" href="#signals_notebook.entities.tables.cell.ExternalLink">ExternalLink</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.ExternalLink.set_value" href="#signals_notebook.entities.tables.cell.ExternalLink.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ExternalLink.type" href="#signals_notebook.entities.tables.cell.ExternalLink.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.IntegerCell" href="#signals_notebook.entities.tables.cell.IntegerCell">IntegerCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.IntegerCell.set_value" href="#signals_notebook.entities.tables.cell.IntegerCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.IntegerCell.type" href="#signals_notebook.entities.tables.cell.IntegerCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.LinkCell" href="#signals_notebook.entities.tables.cell.LinkCell">LinkCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.LinkCell.object" href="#signals_notebook.entities.tables.cell.LinkCell.object">object</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.LinkCell.set_value" href="#signals_notebook.entities.tables.cell.LinkCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.LinkCell.type" href="#signals_notebook.entities.tables.cell.LinkCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.ListCell" href="#signals_notebook.entities.tables.cell.ListCell">ListCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.ListCell.set_value" href="#signals_notebook.entities.tables.cell.ListCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ListCell.type" href="#signals_notebook.entities.tables.cell.ListCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.ListColumnDefinition" href="#signals_notebook.entities.tables.cell.ListColumnDefinition">ListColumnDefinition</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.ListColumnDefinition.options" href="#signals_notebook.entities.tables.cell.ListColumnDefinition.options">options</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.ListColumnDefinition.type" href="#signals_notebook.entities.tables.cell.ListColumnDefinition.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.MultiSelectCell" href="#signals_notebook.entities.tables.cell.MultiSelectCell">MultiSelectCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.MultiSelectCell.set_value" href="#signals_notebook.entities.tables.cell.MultiSelectCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.MultiSelectCell.type" href="#signals_notebook.entities.tables.cell.MultiSelectCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.MultiSelectColumnDefinition" href="#signals_notebook.entities.tables.cell.MultiSelectColumnDefinition">MultiSelectColumnDefinition</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.MultiSelectColumnDefinition.options" href="#signals_notebook.entities.tables.cell.MultiSelectColumnDefinition.options">options</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.MultiSelectColumnDefinition.type" href="#signals_notebook.entities.tables.cell.MultiSelectColumnDefinition.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.NumberCell" href="#signals_notebook.entities.tables.cell.NumberCell">NumberCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.NumberCell.set_value" href="#signals_notebook.entities.tables.cell.NumberCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.NumberCell.type" href="#signals_notebook.entities.tables.cell.NumberCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.TextCell" href="#signals_notebook.entities.tables.cell.TextCell">TextCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.TextCell.set_value" href="#signals_notebook.entities.tables.cell.TextCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.TextCell.type" href="#signals_notebook.entities.tables.cell.TextCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.UnitCell" href="#signals_notebook.entities.tables.cell.UnitCell">UnitCell</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.UnitCell.set_value" href="#signals_notebook.entities.tables.cell.UnitCell.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.UnitCell.type" href="#signals_notebook.entities.tables.cell.UnitCell.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.UnitColumnDefinition" href="#signals_notebook.entities.tables.cell.UnitColumnDefinition">UnitColumnDefinition</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.UnitColumnDefinition.default_unit" href="#signals_notebook.entities.tables.cell.UnitColumnDefinition.default_unit">default_unit</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.UnitColumnDefinition.measure" href="#signals_notebook.entities.tables.cell.UnitColumnDefinition.measure">measure</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.UnitColumnDefinition.type" href="#signals_notebook.entities.tables.cell.UnitColumnDefinition.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.tables.cell.UpdateCellRequest" href="#signals_notebook.entities.tables.cell.UpdateCellRequest">UpdateCellRequest</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.UpdateCellRequest.content" href="#signals_notebook.entities.tables.cell.UpdateCellRequest.content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.UpdateCellRequest.key" href="#signals_notebook.entities.tables.cell.UpdateCellRequest.key">key</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

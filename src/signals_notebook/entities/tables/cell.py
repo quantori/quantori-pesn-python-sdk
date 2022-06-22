@@ -126,6 +126,11 @@ class Cell(GenericModel, Generic[CellContentType]):
 
     @property
     def value(self) -> Union[CellContentType, List[CellContentType]]:
+        """Get content value
+
+        Returns:
+            Union[CellContentType, List[CellContentType]]
+        """
         return self.content.values or self.content.value
 
     def _set_value(self, new_value: CellContentType, display: Optional[str] = None) -> None:
@@ -136,14 +141,29 @@ class Cell(GenericModel, Generic[CellContentType]):
 
     @property
     def is_changed(self) -> bool:
+        """Get is_changed value
+
+        Returns:
+            bool: True/False
+        """
         return self._changed
 
     @property
     def display(self) -> str:
+        """Get display field of content
+
+        Returns:
+            str
+        """
         return self.content.display or ''
 
     @property
     def update_request(self) -> UpdateCellRequest[CellContentType]:
+        """Get UpdateCellRequest
+
+        Returns:
+            UpdateCellRequest
+        """
         return UpdateCellRequest[CellContentType](key=self.id, content=self.content)
 
 
@@ -151,6 +171,15 @@ class TextCell(Cell[str]):
     type: Literal[ColumnDataType.TEXT] = Field(allow_mutation=False)
 
     def set_value(self, new_value: str, display: Optional[str] = None) -> None:
+        """Set new value to TextCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         super()._set_value(new_value, display)
 
 
@@ -158,6 +187,15 @@ class NumberCell(Cell[float]):
     type: Literal[ColumnDataType.NUMBER] = Field(allow_mutation=False)
 
     def set_value(self, new_value: float, display: Optional[str] = None) -> None:
+        """Set new value to NumberCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         super()._set_value(new_value, display)
 
 
@@ -165,6 +203,15 @@ class IntegerCell(Cell[int]):
     type: Literal[ColumnDataType.INTEGER] = Field(allow_mutation=False)
 
     def set_value(self, new_value: int, display: Optional[str] = None) -> None:
+        """Set new value to IntegerCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         super()._set_value(new_value, display)
 
 
@@ -172,6 +219,15 @@ class BooleanCell(Cell[bool]):
     type: Literal[ColumnDataType.BOOLEAN] = Field(allow_mutation=False)
 
     def set_value(self, new_value: bool, display: Optional[str] = None) -> None:
+        """Set new value to BooleanCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         super()._set_value(new_value, display)
 
 
@@ -179,6 +235,15 @@ class DateTimeCell(Cell[datetime]):
     type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
 
     def set_value(self, new_value: datetime, display: Optional[str] = None) -> None:
+        """Set new value to DateTimeCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         super()._set_value(new_value, display)
 
 
@@ -186,6 +251,15 @@ class ExternalLink(Cell[str]):
     type: Literal[ColumnDataType.EXTERNAL_LINK] = Field(allow_mutation=False)
 
     def set_value(self, new_value: str, display: Optional[str] = None) -> None:
+        """Set new value to ExternalLink
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         super()._set_value(new_value, display)
 
 
@@ -194,6 +268,11 @@ class LinkCell(Cell[Union[EID, MID]]):
 
     @property
     def object(self) -> Union[Entity, Material]:
+        """Get Material or Entity
+
+        Returns:
+
+        """
         object_id = self.content.value
         try:
             return MaterialStore.get(MID(object_id))
@@ -203,6 +282,15 @@ class LinkCell(Cell[Union[EID, MID]]):
         return EntityStore.get(EID(object_id))
 
     def set_value(self, new_value: Union[EID, MID], display: str) -> None:
+        """Set new value to LinkCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         super()._set_value(new_value, display)
 
 
@@ -210,6 +298,15 @@ class UnitCell(Cell[float]):
     type: Literal[ColumnDataType.UNIT] = Field(allow_mutation=False)
 
     def set_value(self, new_value: float, display: Optional[str] = None) -> None:
+        """Set new value to UnitCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         super()._set_value(new_value, display)
 
 
@@ -217,6 +314,15 @@ class MultiSelectCell(Cell[str]):
     type: Literal[ColumnDataType.MULTI_SELECT] = Field(allow_mutation=False)
 
     def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -> None:
+        """Set new value to MultiSelectCell
+
+        Args:
+            new_value: new value or list of values of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         if isinstance(new_value, List):
             value = ', '.join(new_value)
             self.content.values = new_value
@@ -231,6 +337,16 @@ class AttributeListCell(Cell[str]):
     type: Literal[ColumnDataType.ATTRIBUTE_LIST] = Field(allow_mutation=False)
 
     def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -> None:
+        """Set new value to AttributeListCell
+
+        Args:
+            new_value: new value or list of values of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
+
         if isinstance(new_value, List):
             value = ', '.join(new_value)
             self.content.values = new_value
@@ -245,6 +361,15 @@ class ListCell(Cell[str]):
     type: Literal[ColumnDataType.LIST] = Field(allow_mutation=False)
 
     def set_value(self, new_value: str, display: Optional[str] = None) -> None:
+        """Set new value to ListCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         super()._set_value(new_value, display)
 
 
@@ -252,6 +377,15 @@ class AutotextListCell(Cell[str]):
     type: Literal[ColumnDataType.AUTOTEXT_LIST] = Field(allow_mutation=False)
 
     def set_value(self, new_value: str, display: Optional[str] = None) -> None:
+        """Set new value to ListCell
+
+        Args:
+            new_value: new value of content value field
+            display: new value of content display field
+
+        Returns:
+
+        """
         super()._set_value(new_value, display)
 
 

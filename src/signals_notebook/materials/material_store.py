@@ -23,6 +23,14 @@ class MaterialStore:
 
     @classmethod
     def get(cls, eid: MID) -> Material:
+        """Fetch material by entity ID.
+
+        Args:
+            eid: Unique material identifier
+
+        Returns:
+            Material
+        """
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get Material Store for %s', eid)
 
