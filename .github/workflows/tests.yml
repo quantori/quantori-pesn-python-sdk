@@ -35,7 +35,6 @@ jobs:
         with:
           add: 'docs'
 
-
       - name: Test
         run: |
           pytest -v tests --junitxml=test-reports/report.xml
