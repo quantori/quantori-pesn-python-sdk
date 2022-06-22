@@ -62,6 +62,19 @@ class Experiment(Container):
         digest: str = None,
         force: bool = True,
     ) -> 'Notebook':
+        """Create new Experiment in Signals Notebook
+
+        Args:
+            name: name of experiment
+            description: description of experiment
+            template: experiment template
+            notebook: notebook where create experiment
+            digest: Indicate digest
+            force: Force to create without doing digest check
+
+        Returns:
+            Experiment
+        """
 
         relationships = None
         if template or notebook:
@@ -90,10 +103,20 @@ class Experiment(Container):
 
     @cached_property
     def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
+        """"Fetch stoichiometry data of experiment
+
+        Returns:
+            Stoichiometry object or list of Stoichiometry objects
+        """
         log.debug('Fetching data in Stoichiometry for: %s', self.eid)
         return Stoichiometry.fetch_data(self.eid)
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        """
         data = {
             'title': self.name,
             'description': self.description,

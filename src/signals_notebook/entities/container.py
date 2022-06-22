@@ -24,6 +24,17 @@ class Container(Entity, abc.ABC):
         content_type: str,
         force: bool = True,
     ) -> Entity:
+        """Upload a file to an entity as a child.
+
+        Args:
+            name: file name
+            content: entity content
+            content_type: entity type
+            force: Force to post attachment
+
+        Returns:
+
+        """
         api = SignalsNotebookApi.get_default_api()
 
         extension = mimetypes.guess_extension(content_type)
@@ -49,6 +60,11 @@ class Container(Entity, abc.ABC):
         return cast(ResponseData, result.data).body
 
     def get_children(self) -> Generator[Entity, None, None]:
+        """Get children of a specified entity.
+
+        Returns:
+            list of Entities
+        """
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get children for: %s', self.eid)
 

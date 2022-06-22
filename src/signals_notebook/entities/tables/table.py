@@ -67,6 +67,11 @@ class Table(ContentfulEntity):
         log.debug('Data in Table: %s were reloaded', self.eid)
 
     def get_column_definitions_list(self) -> List[GenericColumnDefinition]:
+        """Fetch column definitions
+
+        Returns:
+            List[GenericColumnDefinition]
+        """
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(method='GET', path=(self._get_adt_endpoint(), self.eid, '_column'))
@@ -76,6 +81,11 @@ class Table(ContentfulEntity):
         return cast(ResponseData, result.data).body.columns
 
     def get_column_definitions_map(self) -> Dict[str, GenericColumnDefinition]:
+        """Get column definitions as a dictionary
+
+        Returns:
+            Dict[str, GenericColumnDefinition]
+        """
         column_definitions = self.get_column_definitions_list()
         column_definitions_map: Dict[str, GenericColumnDefinition] = {}
 
@@ -86,6 +96,14 @@ class Table(ContentfulEntity):
         return column_definitions_map
 
     def as_dataframe(self, use_labels: bool = True) -> pd.DataFrame:
+        """Get as data table
+
+        Args:
+            use_labels: use cels names
+
+        Returns:
+            pd.DataFrame
+        """
         if not self._rows:
             self._reload_data()
 
@@ -98,6 +116,14 @@ class Table(ContentfulEntity):
         return pd.DataFrame(data=data, index=index)
 
     def as_raw_data(self, use_labels: bool = True) -> List[Dict[str, Any]]:
+        """Get as a list of dictionaries
+
+        Args:
+            use_labels: use cels names
+
+        Returns:
+
+        """
         if not self._rows:
             self._reload_data()
 
@@ -130,6 +156,18 @@ class Table(ContentfulEntity):
         return self._rows.__iter__()
 
     def delete_row_by_id(self, row_id: Union[str, UUID], digest: str = None, force: bool = True) -> None:
+        """
+
+        Args:
+            row_id: id of the row
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+            If the parameter 'force' is true, this parameter is optional.
+            If the parameter 'force' is false, this parameter is required.
+            force: Force to update properties without digest check.
+
+        Returns:
+
+        """
         if isinstance(row_id, UUID):
             _row_id = row_id.hex
         else:
@@ -150,6 +188,14 @@ class Table(ContentfulEntity):
         self._reload_data()
 
     def add_row(self, data: Dict[str, CellContentDict]) -> None:
+        """Add row in the table
+
+        Args:
+            data: Cells to add in the row
+
+        Returns:
+
+        """
         column_definitions_map = self.get_column_definitions_map()
 
         prepared_data: List[Dict[str, Any]] = []
@@ -172,6 +218,14 @@ class Table(ContentfulEntity):
         log.debug('Row: %s was added to Table', row)
 
     def save(self, force: bool = True) -> None:
+        """Save all changes in the table
+
+        Args:
+            force: Force to update properties without digest check.
+
+        Returns:
+
+        """
         super().save(force)
 
         row_requests: List[ChangeRowRequest] = []
@@ -199,6 +253,15 @@ class Table(ContentfulEntity):
         self._reload_data()
 
     def get(self, value: Union[str, UUID], default: Any = None) -> Union[Row, Any]:
+        """Get Row
+
+        Args:
+            value: name of id of Row
+            default: default value if it doens't exist
+
+        Returns:
+            Union[Row, Any]
+        """
         try:
             return self[value]
         except KeyError:
@@ -206,6 +269,12 @@ class Table(ContentfulEntity):
             return default
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        """
+
         rows = []
         column_definitions = self.get_column_definitions_list()
 

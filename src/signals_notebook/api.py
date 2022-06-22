@@ -16,16 +16,35 @@ class SignalsNotebookApi:
     _api_host = ''
 
     API_VERSION = 'v1.0'
+    """api version. Default = "v1.0" (str)
+    """
     BASE_PATH = 'api/rest'
+    """api base path (str)
+    """
     HTTP_DEFAULT_HEADERS = {
         'Content-Type': 'application/vnd.api+json',
     }
+    """ headers that are used in api (dict)
+    """
 
     def __init__(self, session: requests.Session):
+        """
+        Args:
+            session: A Requests session
+        """
         self._session = session
 
     @classmethod
     def init(cls, api_host: str, api_key: str) -> 'SignalsNotebookApi':
+        """Initialize SignalsNotebookApi with api host and api key
+
+        Args:
+            api_host: api host for signals notebook api
+            api_key: api key for signals notebook api
+
+        Returns:
+            SignalsNotebookApi
+        """
         cls._api_host = api_host
 
         log.info('Initialize session for api...')
@@ -46,10 +65,23 @@ class SignalsNotebookApi:
 
     @classmethod
     def set_default_api(cls, api: 'SignalsNotebookApi') -> None:
+        """Set default api
+
+        Args:
+            api: default api
+
+        Returns:
+
+        """
         cls._default_api_instance = api
 
     @classmethod
     def get_default_api(cls) -> 'SignalsNotebookApi':
+        """Get initialized API
+
+        Returns:
+            SignalsNotebookApi: Initialized API
+        """
         if not cls._default_api_instance:
             log.error('You must initialize API before using')
             raise AttributeError('You must initialize API before using')
@@ -64,21 +96,23 @@ class SignalsNotebookApi:
         json: Dict[str, Any] = None,
         headers: Dict[str, str] = None,
     ) -> requests.Response:
-        """
-        Makes an API call
-        :param method: The HTTP method name (e.g. 'GET').
-        :param path: an absolute API path
-        :param params: (optional) A mapping of request parameters where a key
+        """Makes an API call
+
+        Args:
+            method: The HTTP method name (e.g. 'GET').
+            path: an absolute API path
+            params: (optional) A mapping of request parameters where a key
                 is the parameter name and its value is a string or an object
                 which can be JSON-encoded.
-        :param json: (optional) A request body
-        :param data: (optional) Dictionary, list of tuples, bytes, or file-like
-            object to send in the body of the :class:`Request`.
-        :param headers: (optional) A mapping of request headers where a key is the
+            data: (optional) Dictionary, list of tuples, bytes, or file-like
+                object to send in the body of the :class:`Request`.
+            json:  (optional) A request body
+            headers: (optional) A mapping of request headers where a key is the
                 header name and its value is the header value.
-        :return: a response object
-        """
 
+        Returns:
+            Response object
+        """
         if not params:
             params = {}
         if not headers:

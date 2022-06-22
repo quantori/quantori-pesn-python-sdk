@@ -38,6 +38,11 @@ class ContentfulEntity(Entity, abc.ABC):
         )
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        """
         file = self._get_content()
         data = {
             'name': self.name,

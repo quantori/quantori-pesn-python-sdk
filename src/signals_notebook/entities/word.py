@@ -21,6 +21,17 @@ class Word(ContentfulEntity):
 
     @classmethod
     def create(cls, *, container: Container, name: str, content: str = '', force: bool = True) -> Entity:
+        """Create Word Entity
+
+        Args:
+            container: Container where create new Word
+            name: file name
+            content: Word content
+            force: Force to post attachment
+
+        Returns:
+
+        """
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -30,4 +41,9 @@ class Word(ContentfulEntity):
         )
 
     def get_content(self) -> File:
+        """Get Word content
+
+        Returns:
+            File
+        """
         return super()._get_content()

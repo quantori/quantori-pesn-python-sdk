@@ -27,6 +27,11 @@ class Asset(Material):
         self._material_fields = FieldContainer(self, self.library.asset_config.fields, **fields)
 
     def get_batches(self) -> Generator[Batch, None, None]:
+        """Fetch batches of a specified Asset.
+
+        Returns:
+            Asset batches
+        """
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get Batches for Asset: %s', self.eid)
 
