@@ -1,6 +1,6 @@
 Quantori Python SDK for PerkinElmer Signals Notebook
 Copyright (C) 2022 Quantori
-This product uses software developed at PerkinElmer Inc - an external API of the Signals Notebook (https://<signals notebook instance>/rest/api/v1)
+This product uses software developed at PerkinElmer Inc - an external API of the Signals Notebook (https://<your signals notebook instance>/rest/api/v1)
 
 
 In addition, this product contains dependencies on files licensed under:
