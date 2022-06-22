@@ -1,4 +1,4 @@
-# PerkinElmer Signals Notebook Python SDK
+# Quantori Python SDK for PerkinElmer Signals Notebook
 Copyright (c) 2022 Quantori.
 
 ## Installation
@@ -59,3 +59,9 @@ Deletion can be performed without retrieving the whole object if you know an id
 EntityStore.delete("journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e")
 ```
 Jupyter Notebooks with examples see in examples folder
+
+## Build instructions
+Please read [DEVNOTES.md](DEVNOTES.md) for details.
+
+## License
+Quantori Python SDK for PerkinElmer Signals Notebook is released under [Apache License, Version 2.0](LICENSE)
