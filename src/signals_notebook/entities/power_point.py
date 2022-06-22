@@ -21,6 +21,17 @@ class PowerPoint(ContentfulEntity):
 
     @classmethod
     def create(cls, *, container: Container, name: str, content: str = '', force: bool = True) -> Entity:
+        """Create PowerPoint Entity
+
+        Args:
+            container: Container where create new PowerPoint
+            name: file name
+            content: PowerPoint content
+            force: Force to post attachment
+
+        Returns:
+            PowerPoint
+        """
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -30,4 +41,9 @@ class PowerPoint(ContentfulEntity):
         )
 
     def get_content(self) -> File:
+        """Get PowerPoint content
+
+        Returns:
+            File
+        """
         return super()._get_content()
