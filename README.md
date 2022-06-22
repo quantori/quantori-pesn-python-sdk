@@ -1,4 +1,5 @@
 # PerkinElmer Signals Notebook Python SDK
+Copyright (c) 2022 Quantori.
 
 ## Installation
 There are two ways to install the library: by https and ssh
