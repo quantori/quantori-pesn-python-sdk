@@ -51,6 +51,7 @@ class EntityType(str, Enum):
     EXCEL = 'excel'
     SAMPLE = 'sample'
     SAMPLES_CONTAINER = 'samplesContainer'
+    POWER_POINT = 'presentation'
 
 
 class MaterialType(str, Enum):
