@@ -1,18 +1,19 @@
-# PerkinElmer Signals Notebook Python SDK
+# Quantori Python SDK for PerkinElmer Signals Notebook
+Copyright (c) 2022 Quantori.
 
 ## Installation
 There are two ways to install the library: by https and ssh
 
 ### By https
 ```shell
-pip install git+https://bitbucket.org/quantori/pesn-python-sdk
+pip install git+https://github.com/quantori/quantori-pesn-python-sdk.git
 ```
 You will be asked for the username and password.
 
 ### By ssh
 You need to register your ssh key [here](https://bitbucket.org/account/settings/ssh-keys/) before using this way.
 ```shell
-pip install git+ssh://git@bitbucket.org/quantori/pesn-python-sdk.git
+pip install git+ssh://git@github.com:quantori/quantori-pesn-python-sdk.git
 ```
 
 ## Usage
@@ -58,3 +59,9 @@ Deletion can be performed without retrieving the whole object if you know an id
 EntityStore.delete("journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e")
 ```
 Jupyter Notebooks with examples see in examples folder
+
+## Build instructions
+Please read [DEVNOTES.md](DEVNOTES.md) for details.
+
+## License
+Quantori Python SDK for PerkinElmer Signals Notebook is released under [Apache License, Version 2.0](LICENSE)
