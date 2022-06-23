@@ -1,5 +1,5 @@
 import cgi
-from io import StringIO
+import time
 import logging
 from datetime import datetime
 from typing import Any, cast, List, Literal, Optional, Union
@@ -346,39 +346,49 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def _check_export_status(self, api, report_id):
+    def _check_export_status(self, report_id):
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
+
         return api.call(
             method='GET',
             path=(self._get_endpoint(), 'bulkExport', 'reports', report_id),
         )
 
-    def _download_file(self, api, file_id):
+    def _download_file(self, file_id):
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Get file content for: %s| %s', self.__class__.__name__, self.eid)
+
         return api.call(
             method='GET',
             path=(self._get_endpoint(), 'bulkExport', 'download', file_id),
         )
 
-    def _get_content(self, name: str = None):
+    def _get_content(self) -> File:
         api = SignalsNotebookApi.get_default_api()
-        # log.debug('Get content for: %s| %s', self.__class__.__name__, self.eid)
-        import time
-        start_job_response = api.call(
+        log.debug('Get content for: %s| %s', self.__class__.__name__, self.eid)
+
+        bulk_export_response = api.call(
             method='POST',
-            path=(self._get_endpoint(), name, 'bulkExport'),
+            path=(self._get_endpoint(), self.name, 'bulkExport'),
         )
 
-        file_id, report_id = start_job_response.json()['data']['attributes'].values()
+        file_id, report_id = bulk_export_response.json()['data']['attributes'].values()
 
-        check_job_response = api.call(
+        check_status_response = api.call(
             method='GET',
             path=(self._get_endpoint(), 'bulkExport', 'reports', report_id),
         )
         while True:
-            if check_job_response.status_code==200 and self._check_export_status(api, report_id).json()['data']['attributes']['status']=='COMPLETED':
-                response = self._download_file(api, file_id)
+            if (
+                check_status_response.status_code == 200
+                and self._check_export_status(report_id).json()['data']['attributes']['status'] == 'COMPLETED'
+            ):
+                response = self._download_file(file_id)
                 break
             else:
                 time.sleep(5)
+
         content_disposition = response.headers.get('content-disposition', '')
         _, params = cgi.parse_header(content_disposition)
 
