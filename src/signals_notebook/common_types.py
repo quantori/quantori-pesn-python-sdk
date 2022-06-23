@@ -51,6 +51,8 @@ class EntityType(str, Enum):
     EXCEL = 'excel'
     SAMPLE = 'sample'
     SAMPLES_CONTAINER = 'samplesContainer'
+    TODO_LIST = 'linkedTaskContainer'
+    TASK = 'task'
 
 
 class MaterialType(str, Enum):
