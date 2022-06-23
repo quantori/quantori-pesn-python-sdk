@@ -60,7 +60,7 @@ Jupyter Notebooks with examples see in examples folder
 
 ## Additional information
  - [Examples of usage](examples)
- - [API Reference](docs)
+ - [API Reference](https://quantori.github.io/quantori-pesn-python-sdk/signals_notebook/)
  - [Developers notes](DEVNOTES.md)
 
 ## License
