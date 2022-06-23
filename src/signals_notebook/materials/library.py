@@ -1,6 +1,6 @@
 import cgi
-import time
 import logging
+import time
 from datetime import datetime
 from typing import Any, cast, List, Literal, Optional, Union
 
@@ -364,7 +364,7 @@ class Library(BaseMaterialEntity):
             path=(self._get_endpoint(), 'bulkExport', 'download', file_id),
         )
 
-    def _get_content(self) -> File:
+    def get_content(self) -> File:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get content for: %s| %s', self.__class__.__name__, self.eid)
 
