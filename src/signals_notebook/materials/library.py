@@ -1,3 +1,5 @@
+import cgi
+from io import StringIO
 import logging
 from datetime import datetime
 from typing import Any, cast, List, Literal, Optional, Union
@@ -5,7 +7,7 @@ from typing import Any, cast, List, Literal, Optional, Union
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import Links, MaterialType, MID, Response, ResponseData
+from signals_notebook.common_types import File, Links, MaterialType, MID, Response, ResponseData
 from signals_notebook.materials.asset import Asset
 from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
@@ -343,3 +345,43 @@ class Library(BaseMaterialEntity):
         result = AssetResponse(_context={'_library': self}, **response.json())
 
         return cast(ResponseData, result.data).body
+
+    def _check_export_status(self, api, report_id):
+        return api.call(
+            method='GET',
+            path=(self._get_endpoint(), 'bulkExport', 'reports', report_id),
+        )
+
+    def _download_file(self, api, file_id):
+        return api.call(
+            method='GET',
+            path=(self._get_endpoint(), 'bulkExport', 'download', file_id),
+        )
+
+    def _get_content(self, name: str = None):
+        api = SignalsNotebookApi.get_default_api()
+        # log.debug('Get content for: %s| %s', self.__class__.__name__, self.eid)
+        import time
+        start_job_response = api.call(
+            method='POST',
+            path=(self._get_endpoint(), name, 'bulkExport'),
+        )
+
+        file_id, report_id = start_job_response.json()['data']['attributes'].values()
+
+        check_job_response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), 'bulkExport', 'reports', report_id),
+        )
+        while True:
+            if check_job_response.status_code==200 and self._check_export_status(api, report_id).json()['data']['attributes']['status']=='COMPLETED':
+                response = self._download_file(api, file_id)
+                break
+            else:
+                time.sleep(5)
+        content_disposition = response.headers.get('content-disposition', '')
+        _, params = cgi.parse_header(content_disposition)
+
+        return File(
+            name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
+        )
