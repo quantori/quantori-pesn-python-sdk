@@ -4,7 +4,7 @@ from typing import cast, Dict, List, Literal, Union
 
 from pydantic import Field, PrivateAttr
 
-from signals_notebook.common_types import EID, EntityType, File, Response
+from signals_notebook.common_types import EID, EntityType, File
 from signals_notebook.entities import EntityStore, Task
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
