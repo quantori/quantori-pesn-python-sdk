@@ -14,7 +14,7 @@ class TaskProperty:
     pass
 
 
-# class SamplePropertiesResponse(Response[TaskProperty]):
+# class TaskPropertiesResponse(Response[TaskProperty]):
 #     pass
 
 
