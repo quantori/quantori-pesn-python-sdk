@@ -365,6 +365,11 @@ class Library(BaseMaterialEntity):
         )
 
     def get_content(self) -> File:
+        """Get library content
+
+        Returns:
+            File
+        """
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get content for: %s| %s', self.__class__.__name__, self.eid)
 
