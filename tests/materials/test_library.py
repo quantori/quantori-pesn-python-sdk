@@ -1,6 +1,7 @@
 import arrow
+import pytest
 
-from signals_notebook.common_types import MaterialType, ObjectType
+from signals_notebook.common_types import MaterialType, ObjectType, File
 from signals_notebook.materials import Asset, Batch, Library
 from signals_notebook.materials.library import (
     AssetRelationship,
@@ -504,3 +505,82 @@ def test_create_asset_with_batches(api_mock, mid_factory, library_factory):
     assert result.digest == response['data']['attributes']['digest']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+
+
+@pytest.fixture()
+def get_response(mocker):
+    def _f(response):
+        mock = mocker.Mock()
+        mock.status_code = 200
+        mock.json.return_value = response
+        return mock
+
+    return _f
+
+
+def test_get_content(library_factory, api_mock, mocker, get_response):
+    library = library_factory()
+    content = b'Content'
+    content_type = 'text/csv'
+
+    response1 = {
+        "data": {
+            "type": "bulkExportReport",
+            "id": "6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9",
+            "attributes": {"fileId": "6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9", "reportId": "62b58331d8bb040577c1850d"},
+        }
+    }
+
+    response2 = {
+        "data": {
+            "type": "materialBulkExportReport",
+            "id": "62b58331d8bb040577c1850d",
+            "attributes": {
+                "id": "62b58331d8bb040577c1850d",
+                "libraryName": library.name,
+                "createdAt": "2022-06-24T09:26:09.723014517Z",
+                "startedAt": "2022-06-24T09:26:09.724814132Z",
+                "completedAt": "2022-06-24T09:26:10.786280759Z",
+                "modifiedAtSecsSinceEpoch": 0,
+                "status": "COMPLETED",
+                "fileId": "6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9",
+                "count": 5,
+                "total": 5,
+            }
+        }
+    }
+    file_id, report_id = response1['data']['attributes'].values()
+
+    content_response = get_response({})
+    content_response.content = content
+    content_response.headers = {
+        'content-type': 'text/csv',
+        'content-disposition': f'attachment; filename={library.name}',
+    }
+
+    api_mock.call.side_effect = [get_response(response1), get_response(response2), content_response]
+
+    result = library.get_content()
+
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(
+                method='POST',
+                path=('materials', library.name, 'bulkExport'),
+            ),
+            mocker.call(
+                method='GET',
+                path=('materials', 'bulkExport', 'reports', report_id),
+            ),
+            mocker.call(
+                method='GET',
+                path=('materials', 'bulkExport', 'download', file_id),
+            ),
+        ],
+        any_order=False,
+    )
+
+    assert isinstance(result, File)
+    assert result.name == library.name
+    assert result.content == content
+    assert result.content_type == content_type
