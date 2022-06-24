@@ -346,16 +346,17 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def _check_export_status(self, report_id):
+    def _is_file_ready(self, report_id: str):
         api = SignalsNotebookApi.get_default_api()
         log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
 
-        return api.call(
+        response = api.call(
             method='GET',
             path=(self._get_endpoint(), 'bulkExport', 'reports', report_id),
         )
+        return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
 
-    def _download_file(self, file_id):
+    def _download_file(self, file_id: str):
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get file content for: %s| %s', self.__class__.__name__, self.eid)
 
@@ -365,7 +366,8 @@ class Library(BaseMaterialEntity):
         )
 
     def get_content(self) -> File:
-        """Get library content
+        """Get library content.
+        Compounds/Reagents (SNB) will be exported to SD file, others will be exported to CSV file.
 
         Returns:
             File
@@ -380,15 +382,8 @@ class Library(BaseMaterialEntity):
 
         file_id, report_id = bulk_export_response.json()['data']['attributes'].values()
 
-        check_status_response = api.call(
-            method='GET',
-            path=(self._get_endpoint(), 'bulkExport', 'reports', report_id),
-        )
         while True:
-            if (
-                check_status_response.status_code == 200
-                and self._check_export_status(report_id).json()['data']['attributes']['status'] == 'COMPLETED'
-            ):
+            if self._is_file_ready(report_id):
                 response = self._download_file(file_id)
                 break
             else:
