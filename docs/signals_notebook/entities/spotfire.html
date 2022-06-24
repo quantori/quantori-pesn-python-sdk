@@ -48,7 +48,7 @@ class Spotfire(ContentfulEntity):
         return EntityType.SPOTFIRE
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+    def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -95,7 +95,7 @@ class Spotfire(ContentfulEntity):
         return EntityType.SPOTFIRE
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+    def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -130,7 +130,7 @@ class Spotfire(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.spotfire.Spotfire.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: str = '', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -139,7 +139,7 @@ class Spotfire(ContentfulEntity):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
     log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
     return container.add_child(
         name=name,
