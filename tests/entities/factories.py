@@ -10,6 +10,7 @@ from signals_notebook.entities import (
     Image,
     Notebook,
     PowerPoint,
+    Spotfire,
     Text,
     Word,
 )
@@ -103,3 +104,10 @@ class PowerPointFactory(EntityFactory):
         model = PowerPoint
 
     type = EntityType.POWER_POINT
+
+
+class SpotfireFactory(EntityFactory):
+    class Meta:
+        model = Spotfire
+
+    type = EntityType.SPOTFIRE
