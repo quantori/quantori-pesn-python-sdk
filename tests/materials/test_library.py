@@ -1,7 +1,7 @@
 import arrow
 import pytest
 
-from signals_notebook.common_types import MaterialType, ObjectType, File
+from signals_notebook.common_types import File, MaterialType, ObjectType
 from signals_notebook.materials import Asset, Batch, Library
 from signals_notebook.materials.library import (
     AssetRelationship,
@@ -524,29 +524,29 @@ def test_get_content(library_factory, api_mock, mocker, get_response):
     content_type = 'text/csv'
 
     response1 = {
-        "data": {
-            "type": "bulkExportReport",
-            "id": "6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9",
-            "attributes": {"fileId": "6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9", "reportId": "62b58331d8bb040577c1850d"},
+        'data': {
+            'type': 'bulkExportReport',
+            'id': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9',
+            'attributes': {'fileId': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9', 'reportId': '62b58331d8bb040577c1850d'},
         }
     }
 
     response2 = {
-        "data": {
-            "type": "materialBulkExportReport",
-            "id": "62b58331d8bb040577c1850d",
-            "attributes": {
-                "id": "62b58331d8bb040577c1850d",
-                "libraryName": library.name,
-                "createdAt": "2022-06-24T09:26:09.723014517Z",
-                "startedAt": "2022-06-24T09:26:09.724814132Z",
-                "completedAt": "2022-06-24T09:26:10.786280759Z",
-                "modifiedAtSecsSinceEpoch": 0,
-                "status": "COMPLETED",
-                "fileId": "6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9",
-                "count": 5,
-                "total": 5,
-            }
+        'data': {
+            'type': 'materialBulkExportReport',
+            'id': '62b58331d8bb040577c1850d',
+            'attributes': {
+                'id': '62b58331d8bb040577c1850d',
+                'libraryName': library.name,
+                'createdAt': '2022-06-24T09:26:09.723014517Z',
+                'startedAt': '2022-06-24T09:26:09.724814132Z',
+                'completedAt': '2022-06-24T09:26:10.786280759Z',
+                'modifiedAtSecsSinceEpoch': 0,
+                'status': 'COMPLETED',
+                'fileId': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9',
+                'count': 5,
+                'total': 5,
+            },
         }
     }
     file_id, report_id = response1['data']['attributes'].values()
