@@ -26,14 +26,16 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import logging
+<pre><code class="python">import cgi
+import logging
+import time
 from datetime import datetime
 from typing import Any, cast, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import Links, MaterialType, MID, Response, ResponseData
+from signals_notebook.common_types import File, Links, MaterialType, MID, Response, ResponseData
 from signals_notebook.materials.asset import Asset
 from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
@@ -370,7 +372,62 @@ class Library(BaseMaterialEntity):
 
         result = AssetResponse(_context={&#39;_library&#39;: self}, **response.json())
 
-        return cast(ResponseData, result.data).body</code></pre>
+        return cast(ResponseData, result.data).body
+
+    def _check_export_status(self, report_id):
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Check job status for: %s| %s&#39;, self.__class__.__name__, self.eid)
+
+        return api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;reports&#39;, report_id),
+        )
+
+    def _download_file(self, file_id):
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Get file content for: %s| %s&#39;, self.__class__.__name__, self.eid)
+
+        return api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;download&#39;, file_id),
+        )
+
+    def get_content(self) -&gt; File:
+        &#34;&#34;&#34;Get library content
+
+        Returns:
+            File
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Get content for: %s| %s&#39;, self.__class__.__name__, self.eid)
+
+        bulk_export_response = api.call(
+            method=&#39;POST&#39;,
+            path=(self._get_endpoint(), self.name, &#39;bulkExport&#39;),
+        )
+
+        file_id, report_id = bulk_export_response.json()[&#39;data&#39;][&#39;attributes&#39;].values()
+
+        check_status_response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;reports&#39;, report_id),
+        )
+        while True:
+            if (
+                check_status_response.status_code == 200
+                and self._check_export_status(report_id).json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
+            ):
+                response = self._download_file(file_id)
+                break
+            else:
+                time.sleep(5)
+
+        content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
+        _, params = cgi.parse_header(content_disposition)
+
+        return File(
+            name=params[&#39;filename&#39;], content=response.content, content_type=response.headers.get(&#39;content-type&#39;)
+        )</code></pre>
 </details>
 </section>
 <section>
@@ -976,7 +1033,62 @@ Adds ability to use properties with setters</p>
 
         result = AssetResponse(_context={&#39;_library&#39;: self}, **response.json())
 
-        return cast(ResponseData, result.data).body</code></pre>
+        return cast(ResponseData, result.data).body
+
+    def _check_export_status(self, report_id):
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Check job status for: %s| %s&#39;, self.__class__.__name__, self.eid)
+
+        return api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;reports&#39;, report_id),
+        )
+
+    def _download_file(self, file_id):
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Get file content for: %s| %s&#39;, self.__class__.__name__, self.eid)
+
+        return api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;download&#39;, file_id),
+        )
+
+    def get_content(self) -&gt; File:
+        &#34;&#34;&#34;Get library content
+
+        Returns:
+            File
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Get content for: %s| %s&#39;, self.__class__.__name__, self.eid)
+
+        bulk_export_response = api.call(
+            method=&#39;POST&#39;,
+            path=(self._get_endpoint(), self.name, &#39;bulkExport&#39;),
+        )
+
+        file_id, report_id = bulk_export_response.json()[&#39;data&#39;][&#39;attributes&#39;].values()
+
+        check_status_response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;reports&#39;, report_id),
+        )
+        while True:
+            if (
+                check_status_response.status_code == 200
+                and self._check_export_status(report_id).json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
+            ):
+                response = self._download_file(file_id)
+                break
+            else:
+                time.sleep(5)
+
+        content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
+        _, params = cgi.parse_header(content_disposition)
+
+        return File(
+            name=params[&#39;filename&#39;], content=response.content, content_type=response.headers.get(&#39;content-type&#39;)
+        )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1331,6 +1443,55 @@ def batch_config(self) -&gt; BatchConfig:
     return cast(ResponseData, result.data).body</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.materials.library.Library.get_content"><code class="name flex">
+<span>def <span class="ident">get_content</span></span>(<span>self) ‑> <a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get library content</p>
+<h2 id="returns">Returns</h2>
+<p>File</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_content(self) -&gt; File:
+    &#34;&#34;&#34;Get library content
+
+    Returns:
+        File
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    log.debug(&#39;Get content for: %s| %s&#39;, self.__class__.__name__, self.eid)
+
+    bulk_export_response = api.call(
+        method=&#39;POST&#39;,
+        path=(self._get_endpoint(), self.name, &#39;bulkExport&#39;),
+    )
+
+    file_id, report_id = bulk_export_response.json()[&#39;data&#39;][&#39;attributes&#39;].values()
+
+    check_status_response = api.call(
+        method=&#39;GET&#39;,
+        path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;reports&#39;, report_id),
+    )
+    while True:
+        if (
+            check_status_response.status_code == 200
+            and self._check_export_status(report_id).json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
+        ):
+            response = self._download_file(file_id)
+            break
+        else:
+            time.sleep(5)
+
+    content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
+    _, params = cgi.parse_header(content_disposition)
+
+    return File(
+        name=params[&#39;filename&#39;], content=response.content, content_type=response.headers.get(&#39;content-type&#39;)
+    )</code></pre>
+</details>
+</dd>
 </dl>
 </dd>
 <dt id="signals_notebook.materials.library.LibraryListResponse"><code class="flex name class">
@@ -1533,6 +1694,7 @@ def batch_config(self) -&gt; BatchConfig:
 <li><code><a title="signals_notebook.materials.library.Library.get_asset" href="#signals_notebook.materials.library.Library.get_asset">get_asset</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_asset_batches" href="#signals_notebook.materials.library.Library.get_asset_batches">get_asset_batches</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_batch" href="#signals_notebook.materials.library.Library.get_batch">get_batch</a></code></li>
+<li><code><a title="signals_notebook.materials.library.Library.get_content" href="#signals_notebook.materials.library.Library.get_content">get_content</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_list" href="#signals_notebook.materials.library.Library.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.type" href="#signals_notebook.materials.library.Library.type">type</a></code></li>
 </ul>
