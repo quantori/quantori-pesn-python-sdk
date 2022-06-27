@@ -1,10 +1,10 @@
 import cgi
 import logging
-import requests
 import time
 from datetime import datetime
 from typing import Any, cast, List, Literal, Optional, Union
 
+import requests
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
@@ -366,9 +366,12 @@ class Library(BaseMaterialEntity):
             path=(self._get_endpoint(), 'bulkExport', 'download', file_id),
         )
 
-    def get_content(self) -> File:
+    def get_content(self, timeout: int = 30) -> File:
         """Get library content.
         Compounds/Reagents (SNB) will be exported to SD file, others will be exported to CSV file.
+
+        Args:
+            timeout: max available time(seconds) to get file
 
         Returns:
             File
@@ -383,12 +386,19 @@ class Library(BaseMaterialEntity):
 
         file_id, report_id = bulk_export_response.json()['data']['attributes'].values()
 
-        while True:
+        initial_time = datetime.now()
+
+        response = None
+
+        while datetime.now().second - initial_time.second < timeout:
             if self._is_file_ready(report_id):
                 response = self._download_file(file_id)
                 break
             else:
                 time.sleep(5)
+
+        if not response:
+            raise TimeoutError('Time is over to get file')
 
         content_disposition = response.headers.get('content-disposition', '')
         _, params = cgi.parse_header(content_disposition)
