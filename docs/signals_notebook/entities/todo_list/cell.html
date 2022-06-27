@@ -45,7 +45,7 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new value
 
         Args:
             new_value: new value of Property value field
@@ -57,7 +57,7 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
         self._changed = True
 
     def set_values(self, new_values: List[CellValueType]) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new values
 
         Args:
             new_values: new list of values of Property values field
@@ -69,7 +69,7 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
         self._changed = True
 
     def set_name(self, new_name: str) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new name
 
         Args:
             new_name: new name of Property name field
@@ -106,7 +106,7 @@ class TaskProperty(BaseModel):
     content: CellPropertyContent = Field(default=CellPropertyContent())
 
     def set_content_value(self, new_value: CellValueType) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new content value
 
         Args:
             new_value: new value of Property value field
@@ -117,7 +117,7 @@ class TaskProperty(BaseModel):
         self.content.set_value(new_value)
 
     def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new content values
 
         Args:
             new_values: new list of values of Property values field
@@ -128,7 +128,7 @@ class TaskProperty(BaseModel):
         self.content.set_values(new_values)
 
     def set_content_name(self, new_name: str) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new content name
 
         Args:
             new_name: new name of content name field
@@ -212,7 +212,7 @@ class TaskProperty(BaseModel):
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new value
 
         Args:
             new_value: new value of Property value field
@@ -224,7 +224,7 @@ class TaskProperty(BaseModel):
         self._changed = True
 
     def set_values(self, new_values: List[CellValueType]) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new values
 
         Args:
             new_values: new list of values of Property values field
@@ -236,7 +236,7 @@ class TaskProperty(BaseModel):
         self._changed = True
 
     def set_name(self, new_name: str) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new name
 
         Args:
             new_name: new name of Property name field
@@ -310,7 +310,7 @@ def is_changed(self) -&gt; bool:
 <span>def <span class="ident">set_name</span></span>(<span>self, new_name: str) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get content value</p>
+<div class="desc"><p>Set new name</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>new_name</code></strong></dt>
@@ -322,7 +322,7 @@ def is_changed(self) -&gt; bool:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_name(self, new_name: str) -&gt; None:
-    &#34;&#34;&#34;Get content value
+    &#34;&#34;&#34;Set new name
 
     Args:
         new_name: new name of Property name field
@@ -338,7 +338,7 @@ def is_changed(self) -&gt; bool:
 <span>def <span class="ident">set_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get content value</p>
+<div class="desc"><p>Set new value</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>new_value</code></strong></dt>
@@ -350,7 +350,7 @@ def is_changed(self) -&gt; bool:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_value(self, new_value: CellValueType) -&gt; None:
-    &#34;&#34;&#34;Get content value
+    &#34;&#34;&#34;Set new value
 
     Args:
         new_value: new value of Property value field
@@ -366,7 +366,7 @@ def is_changed(self) -&gt; bool:
 <span>def <span class="ident">set_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get content value</p>
+<div class="desc"><p>Set new values</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>new_values</code></strong></dt>
@@ -378,7 +378,7 @@ def is_changed(self) -&gt; bool:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_values(self, new_values: List[CellValueType]) -&gt; None:
-    &#34;&#34;&#34;Get content value
+    &#34;&#34;&#34;Set new values
 
     Args:
         new_values: new list of values of Property values field
@@ -436,7 +436,7 @@ def is_changed(self) -&gt; bool:
     content: CellPropertyContent = Field(default=CellPropertyContent())
 
     def set_content_value(self, new_value: CellValueType) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new content value
 
         Args:
             new_value: new value of Property value field
@@ -447,7 +447,7 @@ def is_changed(self) -&gt; bool:
         self.content.set_value(new_value)
 
     def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new content values
 
         Args:
             new_values: new list of values of Property values field
@@ -458,7 +458,7 @@ def is_changed(self) -&gt; bool:
         self.content.set_values(new_values)
 
     def set_content_name(self, new_name: str) -&gt; None:
-        &#34;&#34;&#34;Get content value
+        &#34;&#34;&#34;Set new content name
 
         Args:
             new_name: new name of content name field
@@ -637,7 +637,7 @@ def representation_for_update(self) -&gt; TaskPropertyBody:
 <span>def <span class="ident">set_content_name</span></span>(<span>self, new_name: str) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get content value</p>
+<div class="desc"><p>Set new content name</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>new_name</code></strong></dt>
@@ -649,7 +649,7 @@ def representation_for_update(self) -&gt; TaskPropertyBody:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_content_name(self, new_name: str) -&gt; None:
-    &#34;&#34;&#34;Get content value
+    &#34;&#34;&#34;Set new content name
 
     Args:
         new_name: new name of content name field
@@ -664,7 +664,7 @@ def representation_for_update(self) -&gt; TaskPropertyBody:
 <span>def <span class="ident">set_content_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get content value</p>
+<div class="desc"><p>Set new content value</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>new_value</code></strong></dt>
@@ -676,7 +676,7 @@ def representation_for_update(self) -&gt; TaskPropertyBody:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_content_value(self, new_value: CellValueType) -&gt; None:
-    &#34;&#34;&#34;Get content value
+    &#34;&#34;&#34;Set new content value
 
     Args:
         new_value: new value of Property value field
@@ -691,7 +691,7 @@ def representation_for_update(self) -&gt; TaskPropertyBody:
 <span>def <span class="ident">set_content_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get content value</p>
+<div class="desc"><p>Set new content values</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>new_values</code></strong></dt>
@@ -703,7 +703,7 @@ def representation_for_update(self) -&gt; TaskPropertyBody:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
-    &#34;&#34;&#34;Get content value
+    &#34;&#34;&#34;Set new content values
 
     Args:
         new_values: new list of values of Property values field
