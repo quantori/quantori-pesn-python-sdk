@@ -49,6 +49,17 @@ class Spotfire(ContentfulEntity):
 
     @classmethod
     def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
+        &#34;&#34;&#34;Create Spotfiredxp Entity
+
+        Args:
+            container: Container where create new Excel
+            name: file name
+            content: Excel content
+            force: Force to post attachment
+
+        Returns:
+            Spotfiredxp
+        &#34;&#34;&#34;
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -96,6 +107,17 @@ class Spotfire(ContentfulEntity):
 
     @classmethod
     def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
+        &#34;&#34;&#34;Create Spotfiredxp Entity
+
+        Args:
+            container: Container where create new Excel
+            name: file name
+            content: Excel content
+            force: Force to post attachment
+
+        Returns:
+            Spotfiredxp
+        &#34;&#34;&#34;
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -133,13 +155,37 @@ class Spotfire(ContentfulEntity):
 <span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Create Spotfiredxp Entity</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>container</code></strong></dt>
+<dd>Container where create new Excel</dd>
+<dt><strong><code>name</code></strong></dt>
+<dd>file name</dd>
+<dt><strong><code>content</code></strong></dt>
+<dd>Excel content</dd>
+<dt><strong><code>force</code></strong></dt>
+<dd>Force to post attachment</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Spotfiredxp</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
 def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
+    &#34;&#34;&#34;Create Spotfiredxp Entity
+
+    Args:
+        container: Container where create new Excel
+        name: file name
+        content: Excel content
+        force: Force to post attachment
+
+    Returns:
+        Spotfiredxp
+    &#34;&#34;&#34;
     log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
     return container.add_child(
         name=name,
