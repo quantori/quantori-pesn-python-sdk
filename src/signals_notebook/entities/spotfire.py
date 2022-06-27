@@ -21,6 +21,17 @@ class Spotfire(ContentfulEntity):
 
     @classmethod
     def create(cls, *, container: Container, name: str, content: bytes = b'', force: bool = True) -> Entity:
+        """Create Spotfiredxp Entity
+
+        Args:
+            container: Container where create new Excel
+            name: file name
+            content: Excel content
+            force: Force to post attachment
+
+        Returns:
+            Spotfiredxp
+        """
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
