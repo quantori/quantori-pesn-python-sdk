@@ -43,6 +43,7 @@ class TodoList(ContentfulEntity):
         return EntityType.TODO_LIST
 
     def _reload_tasks(self) -> None:
+        log.debug('Reloading data in TodoList: %s...', self.eid)
         self._tasks = []
         self._tasks_by_id = {}
         file = self.get_content()
@@ -55,20 +56,45 @@ class TodoList(ContentfulEntity):
 
             self._tasks.append(task)
             self._tasks_by_id[task.eid] = task
+        log.debug('Data in TodoList: %s were reloaded', self.eid)
 
     def save(self, force: bool = True) -> None:
+        """Save all changes in the TodoList
+
+        Args:
+            force: Force to update properties without digest check.
+
+        Returns:
+
+        """
+
+        log.debug('Saving TodoList: %s...', self.eid)
         for item in self._tasks:
             item.save(force=force)
         self._reload_tasks()
+        log.debug('TodoList: %s was saved successfully', self.eid)
 
     def get_content(self) -> File:
+        """Get TodoList content
+
+        Returns:
+            File
+        """
         return super()._get_content()
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        """
+
         file = self.get_content()
         content = file.content.decode('utf-8')
         dict_content = json.loads(content)
         table_head = dict_content['cols']
         rows = dict_content['rows']
         template = env.get_template(self._template_name)
+        log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
+
         return template.render(name=self.name, table_head=table_head, rows=rows)
