@@ -32,6 +32,7 @@ import time
 from datetime import datetime
 from typing import Any, cast, List, Literal, Optional, Union
 
+import requests
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
@@ -374,7 +375,7 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def _is_file_ready(self, report_id: str):
+    def _is_file_ready(self, report_id: str) -&gt; bool:
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Check job status for: %s| %s&#39;, self.__class__.__name__, self.eid)
 
@@ -384,7 +385,7 @@ class Library(BaseMaterialEntity):
         )
         return response.status_code == 200 and response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
 
-    def _download_file(self, file_id: str):
+    def _download_file(self, file_id: str) -&gt; requests.Response:
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Get file content for: %s| %s&#39;, self.__class__.__name__, self.eid)
 
@@ -393,9 +394,12 @@ class Library(BaseMaterialEntity):
             path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;download&#39;, file_id),
         )
 
-    def get_content(self) -&gt; File:
+    def get_content(self, timeout: int = 30) -&gt; File:
         &#34;&#34;&#34;Get library content.
         Compounds/Reagents (SNB) will be exported to SD file, others will be exported to CSV file.
+
+        Args:
+            timeout: max available time(seconds) to get file
 
         Returns:
             File
@@ -410,12 +414,19 @@ class Library(BaseMaterialEntity):
 
         file_id, report_id = bulk_export_response.json()[&#39;data&#39;][&#39;attributes&#39;].values()
 
-        while True:
+        initial_time = datetime.now()
+
+        response = None
+
+        while datetime.now().second - initial_time.second &lt; timeout:
             if self._is_file_ready(report_id):
                 response = self._download_file(file_id)
                 break
             else:
                 time.sleep(5)
+
+        if not response:
+            raise TimeoutError(&#39;Time is over to get file&#39;)
 
         content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
         _, params = cgi.parse_header(content_disposition)
@@ -1030,7 +1041,7 @@ Adds ability to use properties with setters</p>
 
         return cast(ResponseData, result.data).body
 
-    def _is_file_ready(self, report_id: str):
+    def _is_file_ready(self, report_id: str) -&gt; bool:
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Check job status for: %s| %s&#39;, self.__class__.__name__, self.eid)
 
@@ -1040,7 +1051,7 @@ Adds ability to use properties with setters</p>
         )
         return response.status_code == 200 and response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
 
-    def _download_file(self, file_id: str):
+    def _download_file(self, file_id: str) -&gt; requests.Response:
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Get file content for: %s| %s&#39;, self.__class__.__name__, self.eid)
 
@@ -1049,9 +1060,12 @@ Adds ability to use properties with setters</p>
             path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;download&#39;, file_id),
         )
 
-    def get_content(self) -&gt; File:
+    def get_content(self, timeout: int = 30) -&gt; File:
         &#34;&#34;&#34;Get library content.
         Compounds/Reagents (SNB) will be exported to SD file, others will be exported to CSV file.
+
+        Args:
+            timeout: max available time(seconds) to get file
 
         Returns:
             File
@@ -1066,12 +1080,19 @@ Adds ability to use properties with setters</p>
 
         file_id, report_id = bulk_export_response.json()[&#39;data&#39;][&#39;attributes&#39;].values()
 
-        while True:
+        initial_time = datetime.now()
+
+        response = None
+
+        while datetime.now().second - initial_time.second &lt; timeout:
             if self._is_file_ready(report_id):
                 response = self._download_file(file_id)
                 break
             else:
                 time.sleep(5)
+
+        if not response:
+            raise TimeoutError(&#39;Time is over to get file&#39;)
 
         content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
         _, params = cgi.parse_header(content_disposition)
@@ -1434,20 +1455,28 @@ def batch_config(self) -&gt; BatchConfig:
 </details>
 </dd>
 <dt id="signals_notebook.materials.library.Library.get_content"><code class="name flex">
-<span>def <span class="ident">get_content</span></span>(<span>self) ‑> <a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a></span>
+<span>def <span class="ident">get_content</span></span>(<span>self, timeout: int = 30) ‑> <a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get library content.
 Compounds/Reagents (SNB) will be exported to SD file, others will be exported to CSV file.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>timeout</code></strong></dt>
+<dd>max available time(seconds) to get file</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>File</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_content(self) -&gt; File:
+<pre><code class="python">def get_content(self, timeout: int = 30) -&gt; File:
     &#34;&#34;&#34;Get library content.
     Compounds/Reagents (SNB) will be exported to SD file, others will be exported to CSV file.
+
+    Args:
+        timeout: max available time(seconds) to get file
 
     Returns:
         File
@@ -1462,12 +1491,19 @@ Compounds/Reagents (SNB) will be exported to SD file, others will be exported to
 
     file_id, report_id = bulk_export_response.json()[&#39;data&#39;][&#39;attributes&#39;].values()
 
-    while True:
+    initial_time = datetime.now()
+
+    response = None
+
+    while datetime.now().second - initial_time.second &lt; timeout:
         if self._is_file_ready(report_id):
             response = self._download_file(file_id)
             break
         else:
             time.sleep(5)
+
+    if not response:
+        raise TimeoutError(&#39;Time is over to get file&#39;)
 
     content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
     _, params = cgi.parse_header(content_disposition)
