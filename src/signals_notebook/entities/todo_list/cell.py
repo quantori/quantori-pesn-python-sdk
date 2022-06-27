@@ -17,7 +17,7 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -> None:
-        """Get content value
+        """Set new value
 
         Args:
             new_value: new value of Property value field
@@ -29,7 +29,7 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
         self._changed = True
 
     def set_values(self, new_values: List[CellValueType]) -> None:
-        """Get content value
+        """Set new values
 
         Args:
             new_values: new list of values of Property values field
@@ -41,7 +41,7 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
         self._changed = True
 
     def set_name(self, new_name: str) -> None:
-        """Get content value
+        """Set new name
 
         Args:
             new_name: new name of Property name field
@@ -78,7 +78,7 @@ class TaskProperty(BaseModel):
     content: CellPropertyContent = Field(default=CellPropertyContent())
 
     def set_content_value(self, new_value: CellValueType) -> None:
-        """Get content value
+        """Set new content value
 
         Args:
             new_value: new value of Property value field
@@ -89,7 +89,7 @@ class TaskProperty(BaseModel):
         self.content.set_value(new_value)
 
     def set_content_values(self, new_values: List[CellValueType]) -> None:
-        """Get content value
+        """Set new content values
 
         Args:
             new_values: new list of values of Property values field
@@ -100,7 +100,7 @@ class TaskProperty(BaseModel):
         self.content.set_values(new_values)
 
     def set_content_name(self, new_name: str) -> None:
-        """Get content value
+        """Set new content name
 
         Args:
             new_name: new name of content name field
