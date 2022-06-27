@@ -584,3 +584,49 @@ def test_get_content(library_factory, api_mock, mocker, get_response):
     assert result.name == library.name
     assert result.content == content
     assert result.content_type == content_type
+
+
+def test_get_content_timeout(library_factory, api_mock, get_response):
+    library = library_factory()
+    content = b'Content'
+
+    response1 = {
+        'data': {
+            'type': 'bulkExportReport',
+            'id': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9',
+            'attributes': {'fileId': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9', 'reportId': '62b58331d8bb040577c1850d'},
+        }
+    }
+
+    response2 = {
+        'data': {
+            'type': 'materialBulkExportReport',
+            'id': '62b58331d8bb040577c1850d',
+            'attributes': {
+                'id': '62b58331d8bb040577c1850d',
+                'libraryName': library.name,
+                'createdAt': '2022-06-24T09:26:09.723014517Z',
+                'startedAt': '2022-06-24T09:26:09.724814132Z',
+                'completedAt': '2022-06-24T09:26:10.786280759Z',
+                'modifiedAtSecsSinceEpoch': 0,
+                'status': 'FAILED',
+                'fileId': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9',
+                'count': 5,
+                'total': 5,
+            },
+        }
+    }
+
+    content_response = get_response({})
+    content_response.content = content
+    content_response.headers = {
+        'content-type': 'text/csv',
+        'content-disposition': f'attachment; filename={library.name}',
+    }
+
+    api_mock.call.side_effect = [get_response(response1), get_response(response2), content_response]
+
+    with pytest.raises(TimeoutError) as e:
+        library.get_content(timeout=1)
+
+    assert str(e.value) == 'Time is over to get file'
