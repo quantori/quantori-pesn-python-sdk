@@ -1,7 +1,18 @@
 import pytest
 
-from signals_notebook.common_types import File, EID
+from signals_notebook.common_types import EID, File
 from signals_notebook.entities import Task, TaskProperty
+
+
+@pytest.fixture()
+def get_response(mocker):
+    def _f(response):
+        mock = mocker.Mock()
+        mock.status_code = 200
+        mock.json.return_value = response
+        return mock
+
+    return _f
 
 
 @pytest.fixture()
@@ -20,15 +31,11 @@ def todo_list_content():
 @pytest.fixture()
 def get_task():
     return {
-        'links': {
-            'self': 'https://example.com/api/rest/v1.0/entities/task:58ebedd9-c158-4bf3-b737-b45aea636a61'
-        },
+        'links': {'self': 'https://example.com/api/rest/v1.0/entities/task:58ebedd9-c158-4bf3-b737-b45aea636a61'},
         'data': {
             'type': 'entity',
             'id': 'task:58ebedd9-c158-4bf3-b737-b45aea636a61',
-            'links': {
-                'self': 'https://example.com/api/rest/v1.0/entities/task:58ebedd9-c158-4bf3-b737-b45aea636a61'
-            },
+            'links': {'self': 'https://example.com/api/rest/v1.0/entities/task:58ebedd9-c158-4bf3-b737-b45aea636a61'},
             'attributes': {
                 'id': 'task:58ebedd9-c158-4bf3-b737-b45aea636a61',
                 'eid': 'task:58ebedd9-c158-4bf3-b737-b45aea636a61',
@@ -109,7 +116,7 @@ def test_reload_tasks(api_mock, todo_list_factory, task_properties, todo_list_co
     api_mock.call.return_value.content = content
     api_mock.call.return_value.json.return_value = get_task
 
-    task_ids = []
+    task_id = get_task['data']['id']
 
     for task in todo_list:
         assert isinstance(task, Task)
@@ -123,36 +130,123 @@ def test_reload_tasks(api_mock, todo_list_factory, task_properties, todo_list_co
     assert todo_list._tasks != []
     assert todo_list._tasks_by_id != {}
 
-    api_mock.assert_has_calls(
-        [
-            mocker.call.call(
-                method='GET',
-                path=('entities', item.eid),
-                params={
-                    'value': 'normalized',
-                },
-            )
-            for item in task_ids
-        ],
-        any_order=True,
-    )
-    api_mock.assert_has_calls(
+    api_mock.call.assert_has_calls(
         [
             mocker.call(
                 method='GET',
-                path=('tasks', item.eid, 'properties'),
+                path=('entities', task_id),
+            ),
+            mocker.call(
+                method='GET',
+                path=('entities', todo_list.eid, 'export'),
+                params={'format': None},
+            ),
+            mocker.call(
+                method='GET',
+                path=(
+                    'tasks',
+                    task_id,
+                    'properties',
+                ),
                 params={
                     'value': 'normalized',
                 },
-            )
-            for item in task_ids
+            ),
         ],
         any_order=True,
     )
 
 
-def test_save(api_mock, todo_list_factory, task_properties):
-    pass
+def test_save(api_mock, todo_list_factory, task_properties, todo_list_content, get_task, get_response, mocker):
+    todo_list = todo_list_factory()
+
+    assert todo_list._tasks == []
+    assert todo_list._tasks_by_id == {}
+
+    file_name = 'Test.txt'
+    content = todo_list_content
+    content_type = 'text/txt'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+    api_mock.call.return_value.json.return_value = get_task
+
+    task_id = get_task['data']['id']
+
+    patch_calls = []
+    api_calls = []
+    for task in todo_list:
+        request_body = []
+
+        assert isinstance(task, Task)
+        api_mock.call.return_value.json.return_value = task_properties
+
+        for item in task:
+            if item.id == '4':
+                item.content.set_value('5545')
+
+        api_calls.append(get_response({}))
+        api_calls.append(get_response(task_properties))
+
+        for item in task:
+            if item.is_changed:
+                request_body.append(item.representation_for_update.dict(exclude_none=True))
+
+        patch_calls.append(
+            mocker.call(
+                method='PATCH',
+                path=('tasks', task_id, 'properties'),
+                params={
+                    'force': 'true',
+                    'value': 'normalized',
+                },
+                json={
+                    'data': {'attributes': {'data': request_body}},
+                },
+            )
+        )
+
+    assert todo_list._tasks != []
+    assert todo_list._tasks_by_id != {}
+
+    content_response = get_response({})
+    content_response.content = content
+    content_response.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.side_effect = [*api_calls, content_response, get_response(get_task)]
+    todo_list.save()
+
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(
+                method='GET',
+                path=('entities', task_id),
+            ),
+            mocker.call(
+                method='GET',
+                path=('entities', todo_list.eid, 'export'),
+                params={'format': None},
+            ),
+            mocker.call(
+                method='GET',
+                path=(
+                    'tasks',
+                    task_id,
+                    'properties',
+                ),
+                params={
+                    'value': 'normalized',
+                },
+            ),
+            *patch_calls,
+        ],
+        any_order=True,
+    )
 
 
 @pytest.mark.parametrize(
