@@ -366,12 +366,13 @@ class Library(BaseMaterialEntity):
             path=(self._get_endpoint(), 'bulkExport', 'download', file_id),
         )
 
-    def get_content(self, timeout: int = 30) -> File:
+    def get_content(self, timeout: int = 30, period: int = 5) -> File:
         """Get library content.
         Compounds/Reagents (SNB) will be exported to SD file, others will be exported to CSV file.
 
         Args:
             timeout: max available time(seconds) to get file
+            period: each n seconds(default value=5) api call
 
         Returns:
             File
@@ -386,16 +387,16 @@ class Library(BaseMaterialEntity):
 
         file_id, report_id = bulk_export_response.json()['data']['attributes'].values()
 
-        initial_time = datetime.now()
+        initial_time = time.time()
 
         response = None
 
-        while datetime.now().second - initial_time.second < timeout:
+        while time.time() - initial_time < timeout:
             if self._is_file_ready(report_id):
                 response = self._download_file(file_id)
                 break
             else:
-                time.sleep(5)
+                time.sleep(period)
 
         if not response:
             raise TimeoutError('Time is over to get file')

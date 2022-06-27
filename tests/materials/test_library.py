@@ -589,6 +589,7 @@ def test_get_content(library_factory, api_mock, mocker, get_response):
 def test_get_content_timeout(library_factory, api_mock, get_response):
     library = library_factory()
     content = b'Content'
+    content_type = 'text/csv'
 
     response1 = {
         'data': {
@@ -616,7 +617,6 @@ def test_get_content_timeout(library_factory, api_mock, get_response):
             },
         }
     }
-
     content_response = get_response({})
     content_response.content = content
     content_response.headers = {
