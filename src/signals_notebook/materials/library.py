@@ -1,5 +1,6 @@
 import cgi
 import logging
+import requests
 import time
 from datetime import datetime
 from typing import Any, cast, List, Literal, Optional, Union
@@ -346,7 +347,7 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def _is_file_ready(self, report_id: str):
+    def _is_file_ready(self, report_id: str) -> bool:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
 
@@ -356,7 +357,7 @@ class Library(BaseMaterialEntity):
         )
         return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
 
-    def _download_file(self, file_id: str):
+    def _download_file(self, file_id: str) -> requests.Response:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get file content for: %s| %s', self.__class__.__name__, self.eid)
 
