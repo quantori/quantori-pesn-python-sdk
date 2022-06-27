@@ -1,19 +1,20 @@
 # Quantori Python SDK for PerkinElmer Signals Notebook
 Copyright (c) 2022 Quantori.
 
+`pesn-sdk` is a Python package that provides an interface between your Python application and PerkinElmer's external API of Signals Notebook.
+
+## Pre-requisites
+
+We assume, that you have already contacted with PerkinElmer and have a working instance of Signals Notebook.
+
+### Obtain an API key
+
+Visit the page `https://<your signals notebook instance>/snconfig/settings/apikey` and generate an API Key
+
 ## Installation
-There are two ways to install the library: by https and ssh
 
-### By https
 ```shell
-pip install git+https://github.com/quantori/quantori-pesn-python-sdk.git
-```
-You will be asked for the username and password.
-
-### By ssh
-You need to register your ssh key [here](https://bitbucket.org/account/settings/ssh-keys/) before using this way.
-```shell
-pip install git+ssh://git@github.com:quantori/quantori-pesn-python-sdk.git
+pip install pesn-sdk
 ```
 
 ## Usage
@@ -22,10 +23,7 @@ Import and initialize the API instance with your Signals Notebook host and API-t
 ```python
 from signals_notebook.api import SignalsNotebookApi
 
-SignalsNotebookApi.init(
-    "https://signalsnotebook.perkinelmer.cloud",
-    "uA0nIQMT1tMc5iGvjawju3MYsmPDFc==",
-)
+SignalsNotebookApi.init('https://signalsnotebook.perkinelmer.cloud', '<your api key>')
 ```
 Then you can perform CRUD operations with such entities as Notebook, Experiment, etc.
 
@@ -60,13 +58,10 @@ EntityStore.delete("journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e")
 ```
 Jupyter Notebooks with examples see in examples folder
 
-
-### To update documentation
-```shell
-pdoc -f --html -o docs src/signals_notebook
-```
-## Build instructions
-Please read [DEVNOTES.md](DEVNOTES.md) for details.
+## Additional information
+ - [Examples of usage](examples)
+ - [API Reference](https://quantori.github.io/quantori-pesn-python-sdk/signals_notebook/)
+ - [Developers notes](DEVNOTES.md)
 
 ## License
 Quantori Python SDK for PerkinElmer Signals Notebook is released under [Apache License, Version 2.0](LICENSE)

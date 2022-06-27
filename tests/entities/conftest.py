@@ -10,6 +10,7 @@ from tests.entities.factories import (
     ExperimentFactory,
     ImageFactory,
     NotebookFactory,
+    PowerPointFactory,
     TextFactory,
     WordFactory,
 )
@@ -38,6 +39,7 @@ register(BiologicalSequenceFactory)
 register(SamplesContainerFactory)
 register(SampleFactory)
 register(SamplePropertyFactory)
+register(PowerPointFactory)
 register(TodoListFactory)
 register(TaskFactory)
 register(TaskPropertyFactory)

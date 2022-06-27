@@ -1,0 +1,11 @@
+Quantori Python SDK for PerkinElmer Signals Notebook
+Copyright (C) 2022 Quantori
+This product uses software developed at PerkinElmer Inc - an external API of the Signals Notebook (https://<your signals notebook instance>/rest/api/v1)
+
+
+In addition, this product contains dependencies on files licensed under:
+
+Apache License, Version 2.0 http://www.apache.org/licenses/LICENSE-2.0
+The MIT License https://opensource.org/licenses/MIT
+The 3-Clause BSD License https://opensource.org/licenses/BSD-3-Clause
+GNU Affero General Public License v3.0 https://www.gnu.org/licenses/agpl-3.0.en.html
