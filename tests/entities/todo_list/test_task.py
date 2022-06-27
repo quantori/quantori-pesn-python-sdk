@@ -69,10 +69,6 @@ def test_save(api_mock, task_factory, task_properties, mocker):
     )
 
 
-def test_create():
-    pass
-
-
 @pytest.mark.parametrize(
     'index', [1, '3']
 )
