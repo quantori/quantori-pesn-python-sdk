@@ -43,7 +43,7 @@ class TodoList(ContentfulEntity):
         return EntityType.TODO_LIST
 
     def _reload_tasks(self) -> None:
-        log.debug('Reloading data in TodoList: %s...', self.eid)
+        log.debug('Reloading tasks in TodoList: %s...', self.eid)
         self._tasks = []
         self._tasks_by_id = {}
         file = self.get_content()
@@ -56,7 +56,7 @@ class TodoList(ContentfulEntity):
 
             self._tasks.append(task)
             self._tasks_by_id[task.eid] = task
-        log.debug('Data in TodoList: %s were reloaded', self.eid)
+        log.debug('Tasks in TodoList: %s were reloaded', self.eid)
 
     def save(self, force: bool = True) -> None:
         """Save all changes in the TodoList

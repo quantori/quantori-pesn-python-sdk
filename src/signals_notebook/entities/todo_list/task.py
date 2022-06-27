@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import cast, Dict, List, Literal, Union
 from uuid import UUID
 
@@ -12,6 +13,8 @@ from signals_notebook.common_types import (
 )
 from signals_notebook.entities import Entity
 from signals_notebook.entities.todo_list.cell import TaskProperty
+
+log = logging.getLogger(__name__)
 
 
 class TaskPropertiesResponse(Response[TaskProperty]):
@@ -55,6 +58,7 @@ class Task(Entity):
         return 'tasks'
 
     def _reload_properties(self) -> None:
+        log.debug('Reloading properties in Task: %s...', self.eid)
         self._properties = []
         self._properties_by_id = {}
 
@@ -75,8 +79,18 @@ class Task(Entity):
 
             self._properties.append(task_property)
             self._properties_by_id[task_property.id] = task_property
+        log.debug('Properties in Task: %s were reloaded', self.eid)
 
     def save(self, force: bool = True) -> None:
+        """Save all changes in the Task
+
+        Args:
+            force: Force to update properties without digest check.
+
+        Returns:
+
+        """
+        log.debug('Saving Task: %s...', self.eid)
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
@@ -99,3 +113,4 @@ class Task(Entity):
             },
         )
         self._reload_properties()
+        log.debug('Task: %s was saved successfully', self.eid)
