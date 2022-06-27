@@ -13,3 +13,4 @@ from signals_notebook.entities.biological_sequence import BiologicalSequence # n
 from signals_notebook.entities.samples.sample import Sample, SampleProperty  # noqa
 from signals_notebook.entities.samples.samples_container import SamplesContainer  # noqa
 from signals_notebook.entities.power_point import PowerPoint  # noqa
+from signals_notebook.entities.spotfire import Spotfire  # noqa

@@ -80,6 +80,7 @@ class EntityType(str, Enum):
     SAMPLE = &#39;sample&#39;
     SAMPLES_CONTAINER = &#39;samplesContainer&#39;
     POWER_POINT = &#39;presentation&#39;
+    SPOTFIRE = &#39;spotfiredxp&#39;
 
 
 class MaterialType(str, Enum):
@@ -1041,7 +1042,8 @@ def type(self) -&gt; Union[EntityType, str]:
     EXCEL = &#39;excel&#39;
     SAMPLE = &#39;sample&#39;
     SAMPLES_CONTAINER = &#39;samplesContainer&#39;
-    POWER_POINT = &#39;presentation&#39;</code></pre>
+    POWER_POINT = &#39;presentation&#39;
+    SPOTFIRE = &#39;spotfiredxp&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1091,6 +1093,10 @@ def type(self) -&gt; Union[EntityType, str]:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.EntityType.SAMPLES_CONTAINER"><code class="name">var <span class="ident">SAMPLES_CONTAINER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.EntityType.SPOTFIRE"><code class="name">var <span class="ident">SPOTFIRE</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1886,6 +1892,7 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.EntityType.POWER_POINT" href="#signals_notebook.common_types.EntityType.POWER_POINT">POWER_POINT</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLE" href="#signals_notebook.common_types.EntityType.SAMPLE">SAMPLE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLES_CONTAINER" href="#signals_notebook.common_types.EntityType.SAMPLES_CONTAINER">SAMPLES_CONTAINER</a></code></li>
+<li><code><a title="signals_notebook.common_types.EntityType.SPOTFIRE" href="#signals_notebook.common_types.EntityType.SPOTFIRE">SPOTFIRE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.TEXT" href="#signals_notebook.common_types.EntityType.TEXT">TEXT</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.UPLOADED_RESOURCE" href="#signals_notebook.common_types.EntityType.UPLOADED_RESOURCE">UPLOADED_RESOURCE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.WORD" href="#signals_notebook.common_types.EntityType.WORD">WORD</a></code></li>
