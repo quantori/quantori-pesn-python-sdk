@@ -1,11 +1,14 @@
+import cgi
 import logging
+import time
 from datetime import datetime
 from typing import Any, cast, List, Literal, Optional, Union
 
+import requests
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import Links, MaterialType, MID, Response, ResponseData
+from signals_notebook.common_types import File, Links, MaterialType, MID, Response, ResponseData
 from signals_notebook.materials.asset import Asset
 from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
@@ -343,3 +346,64 @@ class Library(BaseMaterialEntity):
         result = AssetResponse(_context={'_library': self}, **response.json())
 
         return cast(ResponseData, result.data).body
+
+    def _is_file_ready(self, report_id: str) -> bool:
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), 'bulkExport', 'reports', report_id),
+        )
+        return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
+
+    def _download_file(self, file_id: str) -> requests.Response:
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Get file content for: %s| %s', self.__class__.__name__, self.eid)
+
+        return api.call(
+            method='GET',
+            path=(self._get_endpoint(), 'bulkExport', 'download', file_id),
+        )
+
+    def get_content(self, timeout: int = 30, period: int = 5) -> File:
+        """Get library content.
+        Compounds/Reagents (SNB) will be exported to SD file, others will be exported to CSV file.
+
+        Args:
+            timeout: max available time(seconds) to get file
+            period: each n seconds(default value=5) api call
+
+        Returns:
+            File
+        """
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Get content for: %s| %s', self.__class__.__name__, self.eid)
+
+        bulk_export_response = api.call(
+            method='POST',
+            path=(self._get_endpoint(), self.name, 'bulkExport'),
+        )
+
+        file_id, report_id = bulk_export_response.json()['data']['attributes'].values()
+
+        initial_time = time.time()
+
+        response = None
+
+        while time.time() - initial_time < timeout:
+            if self._is_file_ready(report_id):
+                response = self._download_file(file_id)
+                break
+            else:
+                time.sleep(period)
+
+        if not response:
+            raise TimeoutError('Time is over to get file')
+
+        content_disposition = response.headers.get('content-disposition', '')
+        _, params = cgi.parse_header(content_disposition)
+
+        return File(
+            name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
+        )
