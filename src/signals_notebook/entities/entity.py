@@ -1,9 +1,10 @@
 import json
 import logging
 from datetime import datetime
-from typing import Any, cast, ClassVar, Dict, Generator, Optional, Type, TypeVar
+from typing import Any, cast, ClassVar, Dict, Generator, Optional, Type, TypeVar, Union, List
+from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import (
@@ -18,8 +19,39 @@ from signals_notebook.common_types import (
 from signals_notebook.jinja_env import env
 
 ChildClass = TypeVar('ChildClass', bound='Entity')
+CellValueType = TypeVar('CellValueType')
 
 log = logging.getLogger(__name__)
+
+
+class Property(BaseModel):
+    id: Optional[Union[UUID, str]]
+    type: Optional[str]
+    name: Optional[str]
+    description: Optional[str]
+    value: Optional[CellValueType]
+    values: Optional[List[CellValueType]]
+    _changed: bool = PrivateAttr(default=False)
+
+    def set_value(self, new_value: CellValueType) -> None:
+        self.value = new_value
+        self._changed = True
+
+    def set_values(self, new_values: List[CellValueType]) -> None:
+        self.values = new_values
+        self._changed = True
+
+    def set_name(self, new_name: str) -> None:
+        self.name = new_name
+        self._changed = True
+
+    @property
+    def is_changed(self) -> bool:
+        return self._changed
+
+    @property
+    def representation_for_update(self) -> dict[str, dict]:
+        return {'attributes': self.dict(include={'name', 'value', 'values'})}
 
 
 class Entity(BaseModel):
@@ -31,6 +63,7 @@ class Entity(BaseModel):
     created_at: datetime = Field(alias='createdAt', allow_mutation=False)
     edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
     _template_name: ClassVar = 'entity.html'
+    _properties: List[Property] = PrivateAttr(default=[])
 
     class Config:
         validate_assignment = True
@@ -38,6 +71,9 @@ class Entity(BaseModel):
 
     def __str__(self) -> str:
         return f'<{self.__class__.__name__} eid={self.eid}>'
+
+    def __getitem__(self, item):
+        pass
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -88,6 +124,44 @@ class Entity(BaseModel):
             'include_types': [cls._get_entity_type()],
         }
 
+    def _reload_properties(self):
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'properties'),
+        )
+        result = PropertiesResponse(**response.json())
+        self._properties = [cast(ResponseData, item).body for item in result.data]
+
+    @property
+    def properties(self) -> List[Property]:
+        """Get Entity's properties
+
+        Returns:
+            List[Property]
+        """
+        if not self._properties:
+            self._reload_properties()
+        return self._properties
+
+    def update_properties(self, force: bool = True) -> None:
+        """Update Entity's properties
+
+        Args:
+            force: Force to update properties without doing digest check.
+
+        Returns:
+            None
+        """
+        if not self._properties:
+            return
+
+        request_body = [item.representation_for_update for item in self._properties if item.is_changed]
+
+        self._patch_properties(request_body=request_body, force=force)
+        self._reload_properties()
+
     @classmethod
     def get_list(cls) -> Generator['Entity', None, None]:
         """Get all entities
@@ -135,25 +209,8 @@ class Entity(BaseModel):
 
         EntityStore.refresh(self)
 
-    def save(self, force: bool = True) -> None:
-        """Update properties of a specified entity.
-
-        Args:
-            force: Force to update properties without doing digest check.
-
-        Returns:
-
-        """
+    def _patch_properties(self, request_body, force: bool) -> None:
         api = SignalsNotebookApi.get_default_api()
-        log.debug('Save Entity: %s...', self.eid)
-
-        request_body = []
-        for field in self.__fields__.values():
-            if field.field_info.allow_mutation:
-                request_body.append(
-                    {'attributes': {'name': field.field_info.title, 'value': getattr(self, field.name)}}
-                )
-
         api.call(
             method='PATCH',
             path=(self._get_endpoint(), self.eid, 'properties'),
@@ -165,6 +222,27 @@ class Entity(BaseModel):
                 'data': request_body,
             },
         )
+
+    def save(self, force: bool = True) -> None:
+        """Update properties of a specified entity.
+
+        Args:
+            force: Force to update properties without doing digest check.
+
+        Returns:
+
+        """
+        log.debug('Save Entity: %s...', self.eid)
+
+        request_body = []
+        for field in self.__fields__.values():
+            if field.field_info.allow_mutation:
+                request_body.append(
+                    {'attributes': {'name': field.field_info.title, 'value': getattr(self, field.name)}}
+                )
+
+        self._patch_properties(request_body=request_body, force=force)
+
         log.debug('Entity: %s was saved.', self.eid)
 
     @property
@@ -187,3 +265,7 @@ class Entity(BaseModel):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)
+
+
+class PropertiesResponse(Response[Property]):
+    pass
