@@ -64,6 +64,7 @@ class Entity(BaseModel):
     edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
     _template_name: ClassVar = 'entity.html'
     _properties: List[Property] = PrivateAttr(default=[])
+    _properties_by_id: Dict[Union[str, UUID], Property] = PrivateAttr(default={})
 
     class Config:
         validate_assignment = True
@@ -72,8 +73,28 @@ class Entity(BaseModel):
     def __str__(self) -> str:
         return f'<{self.__class__.__name__} eid={self.eid}>'
 
-    def __getitem__(self, item):
-        pass
+    def __getitem__(self, index: Union[int, str, UUID]) -> Property:
+        if not self._properties:
+            self._reload_properties()
+
+        if isinstance(index, int):
+            return self._properties[index]
+
+        if isinstance(index, str):
+            try:
+                return self._properties_by_id[UUID(index)]
+            except ValueError:
+                return self._properties_by_id[index]
+
+        if isinstance(index, UUID):
+            return self._properties_by_id[index]
+
+        raise IndexError('Invalid index')
+
+    def __iter__(self):
+        if not self._properties:
+            self._reload_properties()
+        return self._properties.__iter__()
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -125,6 +146,9 @@ class Entity(BaseModel):
         }
 
     def _reload_properties(self):
+        self._properties = []
+        self._properties_by_id = {}
+
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -132,7 +156,14 @@ class Entity(BaseModel):
             path=(self._get_endpoint(), self.eid, 'properties'),
         )
         result = PropertiesResponse(**response.json())
-        self._properties = [cast(ResponseData, item).body for item in result.data]
+        properties = [cast(ResponseData, item).body for item in result.data]
+
+        for item in properties:
+            sample_property = cast(Property, item)
+            assert sample_property.id
+
+            self._properties.append(sample_property)
+            self._properties_by_id[sample_property.id] = sample_property
 
     @property
     def properties(self) -> List[Property]:

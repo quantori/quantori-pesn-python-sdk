@@ -2,12 +2,79 @@
 This file contains common tests for all entity types.
 """
 import datetime
+from uuid import UUID
 
 import arrow
 import pytest
 
 from signals_notebook.common_types import EID, EntityType, ObjectType
+from signals_notebook.entities.entity import Property
 from signals_notebook.entities.notebook import Notebook
+
+
+@pytest.fixture()
+def properties():
+    return {
+        "links": {
+            "self": "https://example.com/api/rest/v1.0/entities/journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e/properties"
+        },
+        "data": [
+            {
+                "type": "property",
+                "id": "3103",
+                "meta": {
+                    "definition": {
+                        "type": "text",
+                        "attribute": {"id": "1", "name": "Text", "type": "text", "counts": {"templates": {}}},
+                    }
+                },
+                "attributes": {
+                    "id": "3103",
+                    "name": "Name",
+                    "value": "Test creation by SDK",
+                    "values": ["Test creation by SDK"],
+                },
+            },
+            {
+                "type": "property",
+                "id": "3102",
+                "meta": {
+                    "definition": {
+                        "type": "text",
+                        "attribute": {"id": "1", "name": "Text", "type": "text", "counts": {"templates": {}}},
+                    }
+                },
+                "attributes": {
+                    "id": "3102",
+                    "name": "Description",
+                    "value": "Created by Eugene Pokidov",
+                    "values": ["Created by Eugene Pokidov"],
+                },
+            },
+            {
+                "type": "property",
+                "id": "3101",
+                "meta": {
+                    "definition": {
+                        "type": "date",
+                        "attribute": {"id": "2", "name": "Date", "type": "date", "counts": {"templates": {}}},
+                    }
+                },
+                "attributes": {"id": "3101", "name": "My Notebook Field 1 (SK)", "value": "", "values": []},
+            },
+            {
+                "type": "property",
+                "id": "3100",
+                "meta": {
+                    "definition": {
+                        "type": "text",
+                        "attribute": {"id": "1", "name": "Text", "type": "text", "counts": {"templates": {}}},
+                    }
+                },
+                "attributes": {"id": "3100", "name": "My Notebook Field 2 (SK)", "value": "", "values": []},
+            },
+        ],
+    }
 
 
 @pytest.fixture()
@@ -138,3 +205,91 @@ def test_get_html(entity_factory, snapshot):
     entity_html = entity.get_html()
 
     snapshot.assert_match(entity_html)
+
+
+def test_update_properties(entity_factory, api_mock, properties, mocker):
+    entity = entity_factory()
+
+    assert entity._properties == []
+
+    api_mock.call.return_value.json.return_value = properties
+
+    for item in entity:
+        if item.id == '3100':
+            item.set_value('555')
+
+    api_mock.call.return_value.json.return_value = {}
+    api_mock.call.return_value.json.return_value = properties
+
+    assert entity._properties != []
+
+    request_body = [item.representation_for_update for item in entity._properties if item.is_changed]
+
+    entity.update_properties()
+
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(
+                method='GET',
+                path=(entity._get_endpoint(), entity.eid, 'properties'),
+            ),
+            mocker.call(
+                method='PATCH',
+                path=(entity._get_endpoint(), entity.eid, 'properties'),
+                params={
+                    'digest': None,
+                    'force': 'true',
+                },
+                json={
+                    'data': request_body,
+                },
+            ),
+        ],
+        any_order=True,
+    )
+
+
+def test_reload_properties(entity_factory, api_mock, properties):
+    entity = entity_factory()
+
+    assert entity._properties == []
+
+    api_mock.call.return_value.json.return_value = properties
+
+    for item in entity:
+        assert isinstance(item, Property)
+
+    assert entity._properties != []
+
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=(entity._get_endpoint(), entity.eid, 'properties'),
+    )
+
+
+@pytest.mark.parametrize('index', [1, '3100', '3101'])
+def test_getitem(api_mock, entity_factory, properties, index):
+    entity = entity_factory()
+
+    assert entity._properties == []
+
+    api_mock.call.return_value.json.return_value = properties
+
+    for item in entity:
+        assert isinstance(item, Property)
+
+    assert isinstance(entity[index], Property)
+    assert entity._properties != []
+
+
+def test_iter(api_mock, entity_factory, properties):
+    entity = entity_factory()
+
+    assert entity._properties == []
+
+    api_mock.call.return_value.json.return_value = properties
+
+    for item in entity:
+        assert isinstance(item, Property)
+
+    assert entity._properties != []
