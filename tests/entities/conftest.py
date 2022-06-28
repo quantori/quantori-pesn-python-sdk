@@ -22,6 +22,7 @@ from tests.entities.samples.factories import (
 )
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
+from tests.entities.todo_list.factories import TaskFactory, TaskPropertyFactory, TodoListFactory
 
 
 register(EIDFactory)
@@ -41,6 +42,9 @@ register(SampleFactory)
 register(SamplePropertyFactory)
 register(PowerPointFactory)
 register(SpotfireFactory)
+register(TodoListFactory)
+register(TaskFactory)
+register(TaskPropertyFactory)
 
 
 @pytest.fixture()

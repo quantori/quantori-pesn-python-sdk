@@ -81,6 +81,8 @@ class EntityType(str, Enum):
     SAMPLES_CONTAINER = &#39;samplesContainer&#39;
     POWER_POINT = &#39;presentation&#39;
     SPOTFIRE = &#39;spotfiredxp&#39;
+    TODO_LIST = &#39;linkedTaskContainer&#39;
+    TASK = &#39;task&#39;
 
 
 class MaterialType(str, Enum):
@@ -1043,7 +1045,9 @@ def type(self) -&gt; Union[EntityType, str]:
     SAMPLE = &#39;sample&#39;
     SAMPLES_CONTAINER = &#39;samplesContainer&#39;
     POWER_POINT = &#39;presentation&#39;
-    SPOTFIRE = &#39;spotfiredxp&#39;</code></pre>
+    SPOTFIRE = &#39;spotfiredxp&#39;
+    TODO_LIST = &#39;linkedTaskContainer&#39;
+    TASK = &#39;task&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1100,7 +1104,15 @@ def type(self) -&gt; Union[EntityType, str]:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.common_types.EntityType.TASK"><code class="name">var <span class="ident">TASK</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.EntityType.TEXT"><code class="name">var <span class="ident">TEXT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.EntityType.TODO_LIST"><code class="name">var <span class="ident">TODO_LIST</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1678,6 +1690,7 @@ def type(self) -&gt; MaterialType:
 <li><a title="signals_notebook.entities.stoichiometry.stoichiometry.Response[DataGrids]" href="entities/stoichiometry/stoichiometry.html#signals_notebook.entities.stoichiometry.stoichiometry.Response[DataGrids]">Response[DataGrids]</a></li>
 <li><a title="signals_notebook.entities.tables.table.Response[ColumnDefinitions]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[ColumnDefinitions]">Response[ColumnDefinitions]</a></li>
 <li><a title="signals_notebook.entities.tables.table.Response[Row]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[Row]">Response[Row]</a></li>
+<li><a title="signals_notebook.entities.todo_list.task.Response[TaskProperty]" href="entities/todo_list/task.html#signals_notebook.entities.todo_list.task.Response[TaskProperty]">Response[TaskProperty]</a></li>
 <li><a title="signals_notebook.materials.asset.Response[Batch]" href="materials/asset.html#signals_notebook.materials.asset.Response[Batch]">Response[Batch]</a></li>
 <li><a title="signals_notebook.materials.library.Response[Asset]" href="materials/library.html#signals_notebook.materials.library.Response[Asset]">Response[Asset]</a></li>
 <li><a title="signals_notebook.materials.library.Response[_LibraryListData]" href="materials/library.html#signals_notebook.materials.library.Response[_LibraryListData]">Response[_LibraryListData]</a></li>
@@ -1737,6 +1750,7 @@ def type(self) -&gt; MaterialType:
 <li>pydantic.generics.ResponseData[Row]</li>
 <li>pydantic.generics.ResponseData[SampleProperty]</li>
 <li>pydantic.generics.ResponseData[Sample]</li>
+<li>pydantic.generics.ResponseData[TaskProperty]</li>
 <li>pydantic.generics.ResponseData[Union[Library, Asset, Batch]]</li>
 <li>pydantic.generics.ResponseData[_LibraryListData]</li>
 </ul>
@@ -1893,7 +1907,9 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLE" href="#signals_notebook.common_types.EntityType.SAMPLE">SAMPLE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLES_CONTAINER" href="#signals_notebook.common_types.EntityType.SAMPLES_CONTAINER">SAMPLES_CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SPOTFIRE" href="#signals_notebook.common_types.EntityType.SPOTFIRE">SPOTFIRE</a></code></li>
+<li><code><a title="signals_notebook.common_types.EntityType.TASK" href="#signals_notebook.common_types.EntityType.TASK">TASK</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.TEXT" href="#signals_notebook.common_types.EntityType.TEXT">TEXT</a></code></li>
+<li><code><a title="signals_notebook.common_types.EntityType.TODO_LIST" href="#signals_notebook.common_types.EntityType.TODO_LIST">TODO_LIST</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.UPLOADED_RESOURCE" href="#signals_notebook.common_types.EntityType.UPLOADED_RESOURCE">UPLOADED_RESOURCE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.WORD" href="#signals_notebook.common_types.EntityType.WORD">WORD</a></code></li>
 </ul>
