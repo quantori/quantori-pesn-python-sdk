@@ -11,6 +11,7 @@ from tests.entities.factories import (
     ImageFactory,
     NotebookFactory,
     PowerPointFactory,
+    SpotfireFactory,
     TextFactory,
     WordFactory,
 )
@@ -40,6 +41,7 @@ register(SamplesContainerFactory)
 register(SampleFactory)
 register(SamplePropertyFactory)
 register(PowerPointFactory)
+register(SpotfireFactory)
 register(TodoListFactory)
 register(TaskFactory)
 register(TaskPropertyFactory)

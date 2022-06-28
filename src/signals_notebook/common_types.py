@@ -52,6 +52,7 @@ class EntityType(str, Enum):
     SAMPLE = 'sample'
     SAMPLES_CONTAINER = 'samplesContainer'
     POWER_POINT = 'presentation'
+    SPOTFIRE = 'spotfiredxp'
     TODO_LIST = 'linkedTaskContainer'
     TASK = 'task'
 
