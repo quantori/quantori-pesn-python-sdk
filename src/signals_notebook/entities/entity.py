@@ -165,17 +165,6 @@ class Entity(BaseModel):
             self._properties.append(sample_property)
             self._properties_by_id[sample_property.id] = sample_property
 
-    @property
-    def properties(self) -> List[Property]:
-        """Get Entity's properties
-
-        Returns:
-            List[Property]
-        """
-        if not self._properties:
-            self._reload_properties()
-        return self._properties
-
     def update_properties(self, force: bool = True) -> None:
         """Update Entity's properties
 
