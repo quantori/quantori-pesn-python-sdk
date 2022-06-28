@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import Any, cast, ClassVar, Dict, Generator, Optional, Type, TypeVar, Union, List
+from typing import Any, cast, ClassVar, Dict, Generator, List, Optional, Type, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr

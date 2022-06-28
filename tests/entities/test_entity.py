@@ -2,7 +2,6 @@
 This file contains common tests for all entity types.
 """
 import datetime
-from uuid import UUID
 
 import arrow
 import pytest
@@ -15,63 +14,63 @@ from signals_notebook.entities.notebook import Notebook
 @pytest.fixture()
 def properties():
     return {
-        "links": {
-            "self": "https://example.com/api/rest/v1.0/entities/journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e/properties"
+        'links': {
+            'self': 'https://example.com/api/rest/v1.0/entities/journal:111a8a0d-2772-47b0-b5b8-2e4faf04119e/properties'
         },
-        "data": [
+        'data': [
             {
-                "type": "property",
-                "id": "3103",
-                "meta": {
-                    "definition": {
-                        "type": "text",
-                        "attribute": {"id": "1", "name": "Text", "type": "text", "counts": {"templates": {}}},
+                'type': 'property',
+                'id': '3103',
+                'meta': {
+                    'definition': {
+                        'type': 'text',
+                        'attribute': {'id': '1', 'name': 'Text', 'type': 'text', 'counts': {'templates': {}}},
                     }
                 },
-                "attributes": {
-                    "id": "3103",
-                    "name": "Name",
-                    "value": "Test creation by SDK",
-                    "values": ["Test creation by SDK"],
+                'attributes': {
+                    'id': '3103',
+                    'name': 'Name',
+                    'value': 'Test creation by SDK',
+                    'values': ['Test creation by SDK'],
                 },
             },
             {
-                "type": "property",
-                "id": "3102",
-                "meta": {
-                    "definition": {
-                        "type": "text",
-                        "attribute": {"id": "1", "name": "Text", "type": "text", "counts": {"templates": {}}},
+                'type': 'property',
+                'id': '3102',
+                'meta': {
+                    'definition': {
+                        'type': 'text',
+                        'attribute': {'id': '1', 'name': 'Text', 'type': 'text', 'counts': {'templates': {}}},
                     }
                 },
-                "attributes": {
-                    "id": "3102",
-                    "name": "Description",
-                    "value": "Created by Eugene Pokidov",
-                    "values": ["Created by Eugene Pokidov"],
+                'attributes': {
+                    'id': '3102',
+                    'name': 'Description',
+                    'value': 'Created by Eugene Pokidov',
+                    'values': ['Created by Eugene Pokidov'],
                 },
             },
             {
-                "type": "property",
-                "id": "3101",
-                "meta": {
-                    "definition": {
-                        "type": "date",
-                        "attribute": {"id": "2", "name": "Date", "type": "date", "counts": {"templates": {}}},
+                'type': 'property',
+                'id': '3101',
+                'meta': {
+                    'definition': {
+                        'type': 'date',
+                        'attribute': {'id': '2', 'name': 'Date', 'type': 'date', 'counts': {'templates': {}}},
                     }
                 },
-                "attributes": {"id": "3101", "name": "My Notebook Field 1 (SK)", "value": "", "values": []},
+                'attributes': {'id': '3101', 'name': 'My Notebook Field 1 (SK)', 'value': '', 'values': []},
             },
             {
-                "type": "property",
-                "id": "3100",
-                "meta": {
-                    "definition": {
-                        "type": "text",
-                        "attribute": {"id": "1", "name": "Text", "type": "text", "counts": {"templates": {}}},
+                'type': 'property',
+                'id': '3100',
+                'meta': {
+                    'definition': {
+                        'type': 'text',
+                        'attribute': {'id': '1', 'name': 'Text', 'type': 'text', 'counts': {'templates': {}}},
                     }
                 },
-                "attributes": {"id": "3100", "name": "My Notebook Field 2 (SK)", "value": "", "values": []},
+                'attributes': {'id': '3100', 'name': 'My Notebook Field 2 (SK)', 'value': '', 'values': []},
             },
         ],
     }
