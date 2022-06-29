@@ -193,11 +193,11 @@ class Entity(BaseModel):
         properties = [cast(ResponseData, item).body for item in result.data]
 
         for item in properties:
-            sample_property = cast(Property, item)
-            assert sample_property.id
+            entity_property = cast(Property, item)
+            assert entity_property.id
 
-            self._properties.append(sample_property)
-            self._properties_by_id[sample_property.id] = sample_property
+            self._properties.append(entity_property)
+            self._properties_by_id[entity_property.id] = entity_property
         log.debug(&#39;Properties in Entity: %s were reloaded&#39;, self.eid)
 
     def update_properties(self, force: bool = True) -&gt; None:
@@ -450,11 +450,11 @@ class Entity(BaseModel):
         properties = [cast(ResponseData, item).body for item in result.data]
 
         for item in properties:
-            sample_property = cast(Property, item)
-            assert sample_property.id
+            entity_property = cast(Property, item)
+            assert entity_property.id
 
-            self._properties.append(sample_property)
-            self._properties_by_id[sample_property.id] = sample_property
+            self._properties.append(entity_property)
+            self._properties_by_id[entity_property.id] = entity_property
         log.debug(&#39;Properties in Entity: %s were reloaded&#39;, self.eid)
 
     def update_properties(self, force: bool = True) -&gt; None:
