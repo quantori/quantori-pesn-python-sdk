@@ -23,6 +23,7 @@ ChildClass = TypeVar('ChildClass', bound='Entity')
 CellValueType = TypeVar('CellValueType')
 
 log = logging.getLogger(__name__)
+MAIN_PROPERTIES = ['Name', 'Description', 'createdAt', 'editedAt']
 
 
 class Property(GenericModel, Generic[CellValueType]):
@@ -166,30 +167,13 @@ class Entity(BaseModel):
 
         for item in properties:
             entity_property = cast(Property, item)
+            if entity_property.name in MAIN_PROPERTIES:
+                continue
             assert entity_property.id
 
             self._properties.append(entity_property)
             self._properties_by_id[entity_property.id] = entity_property
         log.debug('Properties in Entity: %s were reloaded', self.eid)
-
-    def update_properties(self, force: bool = True) -> None:
-        """Update Entity's properties
-
-        Args:
-            force: Force to update properties without doing digest check.
-
-        Returns:
-            None
-        """
-        log.debug('Updating properties in Entity: %s...', self.eid)
-        if not self._properties:
-            return
-
-        request_body = [item.representation_for_update for item in self._properties if item.is_changed]
-
-        self._patch_properties(request_body=request_body, force=force)
-        self._reload_properties()
-        log.debug('Properties in Entity: %s were updated successfully', self.eid)
 
     @classmethod
     def get_list(cls) -> Generator['Entity', None, None]:
@@ -253,10 +237,10 @@ class Entity(BaseModel):
         )
 
     def save(self, force: bool = True) -> None:
-        """Update properties of a specified entity.
+        """Update attributes and properties of a specified entity.
 
         Args:
-            force: Force to update properties without doing digest check.
+            force: Force to update attributes and properties without doing digest check.
 
         Returns:
 
@@ -272,6 +256,16 @@ class Entity(BaseModel):
 
         self._patch_properties(request_body=request_body, force=force)
 
+        log.debug('Updating properties in Entity: %s...', self.eid)
+        if not self._properties:
+            return
+
+        properties = [item.representation_for_update for item in self._properties if item.is_changed]
+
+        self._patch_properties(request_body=properties, force=force)
+        self._reload_properties()
+
+        log.debug('Properties in Entity: %s were updated successfully', self.eid)
         log.debug('Entity: %s was saved.', self.eid)
 
     @property
