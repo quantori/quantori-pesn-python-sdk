@@ -51,6 +51,7 @@ ChildClass = TypeVar(&#39;ChildClass&#39;, bound=&#39;Entity&#39;)
 CellValueType = TypeVar(&#39;CellValueType&#39;)
 
 log = logging.getLogger(__name__)
+MAIN_PROPERTIES = [&#39;Name&#39;, &#39;Description&#39;, &#39;createdAt&#39;, &#39;editedAt&#39;]
 
 
 class Property(GenericModel, Generic[CellValueType]):
@@ -194,30 +195,13 @@ class Entity(BaseModel):
 
         for item in properties:
             entity_property = cast(Property, item)
+            if entity_property.name in MAIN_PROPERTIES:
+                continue
             assert entity_property.id
 
             self._properties.append(entity_property)
             self._properties_by_id[entity_property.id] = entity_property
         log.debug(&#39;Properties in Entity: %s were reloaded&#39;, self.eid)
-
-    def update_properties(self, force: bool = True) -&gt; None:
-        &#34;&#34;&#34;Update Entity&#39;s properties
-
-        Args:
-            force: Force to update properties without doing digest check.
-
-        Returns:
-            None
-        &#34;&#34;&#34;
-        log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
-        if not self._properties:
-            return
-
-        request_body = [item.representation_for_update for item in self._properties if item.is_changed]
-
-        self._patch_properties(request_body=request_body, force=force)
-        self._reload_properties()
-        log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
 
     @classmethod
     def get_list(cls) -&gt; Generator[&#39;Entity&#39;, None, None]:
@@ -281,10 +265,10 @@ class Entity(BaseModel):
         )
 
     def save(self, force: bool = True) -&gt; None:
-        &#34;&#34;&#34;Update properties of a specified entity.
+        &#34;&#34;&#34;Update attributes and properties of a specified entity.
 
         Args:
-            force: Force to update properties without doing digest check.
+            force: Force to update attributes and properties without doing digest check.
 
         Returns:
 
@@ -300,6 +284,16 @@ class Entity(BaseModel):
 
         self._patch_properties(request_body=request_body, force=force)
 
+        log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
+        if not self._properties:
+            return
+
+        properties = [item.representation_for_update for item in self._properties if item.is_changed]
+
+        self._patch_properties(request_body=properties, force=force)
+        self._reload_properties()
+
+        log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
         log.debug(&#39;Entity: %s was saved.&#39;, self.eid)
 
     @property
@@ -451,30 +445,13 @@ class Entity(BaseModel):
 
         for item in properties:
             entity_property = cast(Property, item)
+            if entity_property.name in MAIN_PROPERTIES:
+                continue
             assert entity_property.id
 
             self._properties.append(entity_property)
             self._properties_by_id[entity_property.id] = entity_property
         log.debug(&#39;Properties in Entity: %s were reloaded&#39;, self.eid)
-
-    def update_properties(self, force: bool = True) -&gt; None:
-        &#34;&#34;&#34;Update Entity&#39;s properties
-
-        Args:
-            force: Force to update properties without doing digest check.
-
-        Returns:
-            None
-        &#34;&#34;&#34;
-        log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
-        if not self._properties:
-            return
-
-        request_body = [item.representation_for_update for item in self._properties if item.is_changed]
-
-        self._patch_properties(request_body=request_body, force=force)
-        self._reload_properties()
-        log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
 
     @classmethod
     def get_list(cls) -&gt; Generator[&#39;Entity&#39;, None, None]:
@@ -538,10 +515,10 @@ class Entity(BaseModel):
         )
 
     def save(self, force: bool = True) -&gt; None:
-        &#34;&#34;&#34;Update properties of a specified entity.
+        &#34;&#34;&#34;Update attributes and properties of a specified entity.
 
         Args:
-            force: Force to update properties without doing digest check.
+            force: Force to update attributes and properties without doing digest check.
 
         Returns:
 
@@ -557,6 +534,16 @@ class Entity(BaseModel):
 
         self._patch_properties(request_body=request_body, force=force)
 
+        log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
+        if not self._properties:
+            return
+
+        properties = [item.representation_for_update for item in self._properties if item.is_changed]
+
+        self._patch_properties(request_body=properties, force=force)
+        self._reload_properties()
+
+        log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
         log.debug(&#39;Entity: %s was saved.&#39;, self.eid)
 
     @property
@@ -817,11 +804,11 @@ def short_description(self) -&gt; EntityShortDescription:
 <span>def <span class="ident">save</span></span>(<span>self, force: bool = True) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Update properties of a specified entity.</p>
+<div class="desc"><p>Update attributes and properties of a specified entity.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>force</code></strong></dt>
-<dd>Force to update properties without doing digest check.</dd>
+<dd>Force to update attributes and properties without doing digest check.</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
@@ -829,10 +816,10 @@ def short_description(self) -&gt; EntityShortDescription:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def save(self, force: bool = True) -&gt; None:
-    &#34;&#34;&#34;Update properties of a specified entity.
+    &#34;&#34;&#34;Update attributes and properties of a specified entity.
 
     Args:
-        force: Force to update properties without doing digest check.
+        force: Force to update attributes and properties without doing digest check.
 
     Returns:
 
@@ -848,43 +835,17 @@ def short_description(self) -&gt; EntityShortDescription:
 
     self._patch_properties(request_body=request_body, force=force)
 
-    log.debug(&#39;Entity: %s was saved.&#39;, self.eid)</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.entity.Entity.update_properties"><code class="name flex">
-<span>def <span class="ident">update_properties</span></span>(<span>self, force: bool = True) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Update Entity's properties</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>force</code></strong></dt>
-<dd>Force to update properties without doing digest check.</dd>
-</dl>
-<h2 id="returns">Returns</h2>
-<p>None</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def update_properties(self, force: bool = True) -&gt; None:
-    &#34;&#34;&#34;Update Entity&#39;s properties
-
-    Args:
-        force: Force to update properties without doing digest check.
-
-    Returns:
-        None
-    &#34;&#34;&#34;
     log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
     if not self._properties:
         return
 
-    request_body = [item.representation_for_update for item in self._properties if item.is_changed]
+    properties = [item.representation_for_update for item in self._properties if item.is_changed]
 
-    self._patch_properties(request_body=request_body, force=force)
+    self._patch_properties(request_body=properties, force=force)
     self._reload_properties()
-    log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)</code></pre>
+
+    log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
+    log.debug(&#39;Entity: %s was saved.&#39;, self.eid)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1142,7 +1103,6 @@ def representation_for_update(self) -&gt; dict[str, dict]:
 <li><code><a title="signals_notebook.entities.entity.Entity.set_template_name" href="#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.short_description" href="#signals_notebook.entities.entity.Entity.short_description">short_description</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.type" href="#signals_notebook.entities.entity.Entity.type">type</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.update_properties" href="#signals_notebook.entities.entity.Entity.update_properties">update_properties</a></code></li>
 </ul>
 </li>
 <li>
