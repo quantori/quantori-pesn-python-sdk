@@ -159,11 +159,12 @@ def test_delete(notebook_factory, api_mock):
 
 
 @pytest.mark.parametrize('force', [True, False])
-def test_update(api_mock, notebook_factory, force):
+def test_save_attributes(api_mock, notebook_factory, force):
     notebook = notebook_factory()
 
     notebook.name = 'My notebook'
     notebook.description = 'New description'
+
     notebook.save(force=force)
 
     api_mock.call.assert_called_once_with(
@@ -206,10 +207,18 @@ def test_get_html(entity_factory, snapshot):
     snapshot.assert_match(entity_html)
 
 
-def test_update_properties(entity_factory, api_mock, properties, mocker):
+@pytest.mark.parametrize('force', [True, False])
+def test_save_all(entity_factory, api_mock, properties, mocker, force):
     entity = entity_factory()
+    new_entity_name = 'NEW_NAME'
+    new_description = 'A:FKDALFKDALFNLAKDF'
 
     assert entity._properties == []
+    assert entity.name != new_entity_name
+    assert entity.description != new_description
+
+    entity.name = new_entity_name
+    entity.description = new_description
 
     api_mock.call.return_value.json.return_value = properties
 
@@ -224,7 +233,10 @@ def test_update_properties(entity_factory, api_mock, properties, mocker):
 
     request_body = [item.representation_for_update for item in entity._properties if item.is_changed]
 
-    entity.update_properties()
+    entity.save(force=force)
+
+    assert entity.name == new_entity_name
+    assert entity.description == new_description
 
     api_mock.call.assert_has_calls(
         [
@@ -234,10 +246,24 @@ def test_update_properties(entity_factory, api_mock, properties, mocker):
             ),
             mocker.call(
                 method='PATCH',
+                path=('entities', entity.eid, 'properties'),
+                params={
+                    'digest': None if force else entity.digest,
+                    'force': 'true' if force else 'false',
+                },
+                json={
+                    'data': [
+                        {'attributes': {'name': 'Name', 'value': new_entity_name}},
+                        {'attributes': {'name': 'Description', 'value': new_description}},
+                    ]
+                },
+            ),
+            mocker.call(
+                method='PATCH',
                 path=(entity._get_endpoint(), entity.eid, 'properties'),
                 params={
-                    'digest': None,
-                    'force': 'true',
+                    'digest': None if force else entity.digest,
+                    'force': 'true' if force else 'false',
                 },
                 json={
                     'data': request_body,
