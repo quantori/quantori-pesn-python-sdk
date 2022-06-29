@@ -196,6 +196,7 @@ class Entity(BaseModel):
             method='GET',
             path=(self._get_endpoint(), self.eid, 'properties'),
         )
+        # breakpoint()
         result = PropertiesResponse(**response.json())
         properties = [cast(ResponseData, item).body for item in result.data]
 
@@ -293,15 +294,11 @@ class Entity(BaseModel):
                     {'attributes': {'name': field.field_info.title, 'value': getattr(self, field.name)}}
                 )
 
-        self._patch_properties(request_body=request_body, force=force)
-
         log.debug('Updating properties in Entity: %s...', self.eid)
-        if not self._properties:
-            return
+        if self._properties:
+            [request_body.append(item.representation_for_update) for item in self._properties if item.is_changed]
 
-        properties = [item.representation_for_update for item in self._properties if item.is_changed]
-
-        self._patch_properties(request_body=properties, force=force)
+        self._patch_properties(request_body=request_body, force=force)
         self._reload_properties()
 
         log.debug('Properties in Entity: %s were updated successfully', self.eid)

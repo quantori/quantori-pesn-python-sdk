@@ -158,31 +158,6 @@ def test_delete(notebook_factory, api_mock):
     )
 
 
-@pytest.mark.parametrize('force', [True, False])
-def test_save_attributes(api_mock, notebook_factory, force):
-    notebook = notebook_factory()
-
-    notebook.name = 'My notebook'
-    notebook.description = 'New description'
-
-    notebook.save(force=force)
-
-    api_mock.call.assert_called_once_with(
-        method='PATCH',
-        path=('entities', notebook.eid, 'properties'),
-        params={
-            'digest': None if force else notebook.digest,
-            'force': 'true' if force else 'false',
-        },
-        json={
-            'data': [
-                {'attributes': {'name': 'Name', 'value': 'My notebook'}},
-                {'attributes': {'name': 'Description', 'value': 'New description'}},
-            ]
-        },
-    )
-
-
 def test_refresh(notebook_factory, entity_store_mock):
     notebook = notebook_factory(name='My notebook')
 
@@ -208,7 +183,7 @@ def test_get_html(entity_factory, snapshot):
 
 
 @pytest.mark.parametrize('force', [True, False])
-def test_save_all(entity_factory, api_mock, properties, mocker, force):
+def test_save(entity_factory, api_mock, properties, mocker, force):
     entity = entity_factory()
     new_entity_name = 'NEW_NAME'
     new_description = 'A:FKDALFKDALFNLAKDF'
@@ -255,18 +230,8 @@ def test_save_all(entity_factory, api_mock, properties, mocker, force):
                     'data': [
                         {'attributes': {'name': 'Name', 'value': new_entity_name}},
                         {'attributes': {'name': 'Description', 'value': new_description}},
+                        *request_body,
                     ]
-                },
-            ),
-            mocker.call(
-                method='PATCH',
-                path=(entity._get_endpoint(), entity.eid, 'properties'),
-                params={
-                    'digest': None if force else entity.digest,
-                    'force': 'true' if force else 'false',
-                },
-                json={
-                    'data': request_body,
                 },
             ),
         ],
