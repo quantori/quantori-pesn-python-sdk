@@ -32,12 +32,12 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID
+from signals_notebook.common_types import EID, ObjectType
 
 CellValueType = TypeVar(&#39;CellValueType&#39;)
 
 
-class CellPropertyContent(GenericModel, Generic[CellValueType]):
+class SampleCellContent(GenericModel, Generic[CellValueType]):
     value: Optional[CellValueType]
     name: Optional[str]
     eid: Optional[EID]
@@ -62,19 +62,19 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
 
 
 class Content(BaseModel):
-    content: Optional[CellPropertyContent]
+    content: Optional[SampleCellContent]
 
 
-class SamplePropertyBody(BaseModel):
+class SampleCellBody(BaseModel):
     id: Optional[Union[UUID, str]]
-    type: str = &#39;property&#39;
+    type: str = ObjectType.PROPERTY
     attributes: Content
 
 
-class SampleProperty(BaseModel):
+class SampleCell(BaseModel):
     id: Optional[Union[UUID, str]]
     name: Optional[str]
-    content: CellPropertyContent = Field(default=CellPropertyContent())
+    content: SampleCellContent = Field(default=SampleCellContent())
 
     def set_content_value(self, new_value: CellValueType) -&gt; None:
         self.content.set_value(new_value)
@@ -102,8 +102,8 @@ class SampleProperty(BaseModel):
         return False if self.content is None else self.content.is_changed
 
     @property
-    def representation_for_update(self) -&gt; SamplePropertyBody:
-        return SamplePropertyBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
+    def representation_for_update(self) -&gt; SampleCellBody:
+        return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
 </details>
 </section>
 <section>
@@ -115,8 +115,8 @@ class SampleProperty(BaseModel):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="signals_notebook.entities.samples.cell.CellPropertyContent"><code class="flex name class">
-<span>class <span class="ident">CellPropertyContent</span></span>
+<dt id="signals_notebook.entities.samples.cell.Content"><code class="flex name class">
+<span>class <span class="ident">Content</span></span>
 <span>(</span><span>**data: Any)</span>
 </code></dt>
 <dd>
@@ -126,7 +126,242 @@ class SampleProperty(BaseModel):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class CellPropertyContent(GenericModel, Generic[CellValueType]):
+<pre><code class="python">class Content(BaseModel):
+    content: Optional[SampleCellContent]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.samples.cell.Content.content"><code class="name">var <span class="ident">content</span> : Optional[<a title="signals_notebook.entities.samples.cell.SampleCellContent" href="#signals_notebook.entities.samples.cell.SampleCellContent">SampleCellContent</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCell"><code class="flex name class">
+<span>class <span class="ident">SampleCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SampleCell(BaseModel):
+    id: Optional[Union[UUID, str]]
+    name: Optional[str]
+    content: SampleCellContent = Field(default=SampleCellContent())
+
+    def set_content_value(self, new_value: CellValueType) -&gt; None:
+        self.content.set_value(new_value)
+
+    def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
+        self.content.set_values(new_values)
+
+    def set_content_name(self, new_name: str) -&gt; None:
+        self.content.set_name(new_name)
+
+    @property
+    def content_value(self) -&gt; Optional[CellValueType]:
+        return self.content.value
+
+    @property
+    def content_values(self) -&gt; Optional[List[CellValueType]]:
+        return self.content.values
+
+    @property
+    def content_name(self) -&gt; Optional[str]:
+        return self.content.name
+
+    @property
+    def is_changed(self) -&gt; bool:
+        return False if self.content is None else self.content.is_changed
+
+    @property
+    def representation_for_update(self) -&gt; SampleCellBody:
+        return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.content"><code class="name">var <span class="ident">content</span> : <a title="signals_notebook.entities.samples.cell.SampleCellContent" href="#signals_notebook.entities.samples.cell.SampleCellContent">SampleCellContent</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.id"><code class="name">var <span class="ident">id</span> : Union[uuid.UUID, str, ForwardRef(None)]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.content_name"><code class="name">var <span class="ident">content_name</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def content_name(self) -&gt; Optional[str]:
+    return self.content.name</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.content_value"><code class="name">var <span class="ident">content_value</span> : Optional[~CellValueType]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def content_value(self) -&gt; Optional[CellValueType]:
+    return self.content.value</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.content_values"><code class="name">var <span class="ident">content_values</span> : Optional[List[~CellValueType]]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def content_values(self) -&gt; Optional[List[CellValueType]]:
+    return self.content.values</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_changed(self) -&gt; bool:
+    return False if self.content is None else self.content.is_changed</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.representation_for_update"><code class="name">var <span class="ident">representation_for_update</span> : <a title="signals_notebook.entities.samples.cell.SampleCellBody" href="#signals_notebook.entities.samples.cell.SampleCellBody">SampleCellBody</a></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def representation_for_update(self) -&gt; SampleCellBody:
+    return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.set_content_name"><code class="name flex">
+<span>def <span class="ident">set_content_name</span></span>(<span>self, new_name: str) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_content_name(self, new_name: str) -&gt; None:
+    self.content.set_name(new_name)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.set_content_value"><code class="name flex">
+<span>def <span class="ident">set_content_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_content_value(self, new_value: CellValueType) -&gt; None:
+    self.content.set_value(new_value)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.set_content_values"><code class="name flex">
+<span>def <span class="ident">set_content_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
+    self.content.set_values(new_values)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCellBody"><code class="flex name class">
+<span>class <span class="ident">SampleCellBody</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SampleCellBody(BaseModel):
+    id: Optional[Union[UUID, str]]
+    type: str = ObjectType.PROPERTY
+    attributes: Content</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.samples.cell.SampleCellBody.attributes"><code class="name">var <span class="ident">attributes</span> : <a title="signals_notebook.entities.samples.cell.Content" href="#signals_notebook.entities.samples.cell.Content">Content</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCellBody.id"><code class="name">var <span class="ident">id</span> : Union[uuid.UUID, str, ForwardRef(None)]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCellBody.type"><code class="name">var <span class="ident">type</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent"><code class="flex name class">
+<span>class <span class="ident">SampleCellContent</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SampleCellContent(GenericModel, Generic[CellValueType]):
     value: Optional[CellValueType]
     name: Optional[str]
     eid: Optional[EID]
@@ -158,26 +393,26 @@ class SampleProperty(BaseModel):
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.entities.samples.cell.CellPropertyContent.eid"><code class="name">var <span class="ident">eid</span> : Optional[<a title="signals_notebook.common_types.EID" href="../../common_types.html#signals_notebook.common_types.EID">EID</a>]</code></dt>
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent.eid"><code class="name">var <span class="ident">eid</span> : Optional[<a title="signals_notebook.common_types.EID" href="../../common_types.html#signals_notebook.common_types.EID">EID</a>]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.samples.cell.CellPropertyContent.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.samples.cell.CellPropertyContent.value"><code class="name">var <span class="ident">value</span> : Optional[~CellValueType]</code></dt>
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent.value"><code class="name">var <span class="ident">value</span> : Optional[~CellValueType]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.samples.cell.CellPropertyContent.values"><code class="name">var <span class="ident">values</span> : Optional[List[~CellValueType]]</code></dt>
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent.values"><code class="name">var <span class="ident">values</span> : Optional[List[~CellValueType]]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="signals_notebook.entities.samples.cell.CellPropertyContent.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -192,7 +427,7 @@ def is_changed(self) -&gt; bool:
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="signals_notebook.entities.samples.cell.CellPropertyContent.set_name"><code class="name flex">
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent.set_name"><code class="name flex">
 <span>def <span class="ident">set_name</span></span>(<span>self, new_name: str) ‑> None</span>
 </code></dt>
 <dd>
@@ -206,7 +441,7 @@ def is_changed(self) -&gt; bool:
     self._changed = True</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.entities.samples.cell.CellPropertyContent.set_value"><code class="name flex">
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent.set_value"><code class="name flex">
 <span>def <span class="ident">set_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
 </code></dt>
 <dd>
@@ -220,7 +455,7 @@ def is_changed(self) -&gt; bool:
     self._changed = True</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.entities.samples.cell.CellPropertyContent.set_values"><code class="name flex">
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent.set_values"><code class="name flex">
 <span>def <span class="ident">set_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
 </code></dt>
 <dd>
@@ -233,241 +468,6 @@ def is_changed(self) -&gt; bool:
     self.values = new_values
     self._changed = True</code></pre>
 </details>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.Content"><code class="flex name class">
-<span>class <span class="ident">Content</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Content(BaseModel):
-    content: Optional[CellPropertyContent]</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.entities.samples.cell.Content.content"><code class="name">var <span class="ident">content</span> : Optional[<a title="signals_notebook.entities.samples.cell.CellPropertyContent" href="#signals_notebook.entities.samples.cell.CellPropertyContent">CellPropertyContent</a>]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty"><code class="flex name class">
-<span>class <span class="ident">SampleProperty</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class SampleProperty(BaseModel):
-    id: Optional[Union[UUID, str]]
-    name: Optional[str]
-    content: CellPropertyContent = Field(default=CellPropertyContent())
-
-    def set_content_value(self, new_value: CellValueType) -&gt; None:
-        self.content.set_value(new_value)
-
-    def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
-        self.content.set_values(new_values)
-
-    def set_content_name(self, new_name: str) -&gt; None:
-        self.content.set_name(new_name)
-
-    @property
-    def content_value(self) -&gt; Optional[CellValueType]:
-        return self.content.value
-
-    @property
-    def content_values(self) -&gt; Optional[List[CellValueType]]:
-        return self.content.values
-
-    @property
-    def content_name(self) -&gt; Optional[str]:
-        return self.content.name
-
-    @property
-    def is_changed(self) -&gt; bool:
-        return False if self.content is None else self.content.is_changed
-
-    @property
-    def representation_for_update(self) -&gt; SamplePropertyBody:
-        return SamplePropertyBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.content"><code class="name">var <span class="ident">content</span> : <a title="signals_notebook.entities.samples.cell.CellPropertyContent" href="#signals_notebook.entities.samples.cell.CellPropertyContent">CellPropertyContent</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.id"><code class="name">var <span class="ident">id</span> : Union[uuid.UUID, str, ForwardRef(None)]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.content_name"><code class="name">var <span class="ident">content_name</span> : Optional[str]</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def content_name(self) -&gt; Optional[str]:
-    return self.content.name</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.content_value"><code class="name">var <span class="ident">content_value</span> : Optional[~CellValueType]</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def content_value(self) -&gt; Optional[CellValueType]:
-    return self.content.value</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.content_values"><code class="name">var <span class="ident">content_values</span> : Optional[List[~CellValueType]]</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def content_values(self) -&gt; Optional[List[CellValueType]]:
-    return self.content.values</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def is_changed(self) -&gt; bool:
-    return False if self.content is None else self.content.is_changed</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.representation_for_update"><code class="name">var <span class="ident">representation_for_update</span> : <a title="signals_notebook.entities.samples.cell.SamplePropertyBody" href="#signals_notebook.entities.samples.cell.SamplePropertyBody">SamplePropertyBody</a></code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def representation_for_update(self) -&gt; SamplePropertyBody:
-    return SamplePropertyBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.set_content_name"><code class="name flex">
-<span>def <span class="ident">set_content_name</span></span>(<span>self, new_name: str) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_content_name(self, new_name: str) -&gt; None:
-    self.content.set_name(new_name)</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.set_content_value"><code class="name flex">
-<span>def <span class="ident">set_content_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_content_value(self, new_value: CellValueType) -&gt; None:
-    self.content.set_value(new_value)</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleProperty.set_content_values"><code class="name flex">
-<span>def <span class="ident">set_content_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
-    self.content.set_values(new_values)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SamplePropertyBody"><code class="flex name class">
-<span>class <span class="ident">SamplePropertyBody</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class SamplePropertyBody(BaseModel):
-    id: Optional[Union[UUID, str]]
-    type: str = &#39;property&#39;
-    attributes: Content</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.entities.samples.cell.SamplePropertyBody.attributes"><code class="name">var <span class="ident">attributes</span> : <a title="signals_notebook.entities.samples.cell.Content" href="#signals_notebook.entities.samples.cell.Content">Content</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SamplePropertyBody.id"><code class="name">var <span class="ident">id</span> : Union[uuid.UUID, str, ForwardRef(None)]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SamplePropertyBody.type"><code class="name">var <span class="ident">type</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -488,46 +488,46 @@ def representation_for_update(self) -&gt; SamplePropertyBody:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="signals_notebook.entities.samples.cell.CellPropertyContent" href="#signals_notebook.entities.samples.cell.CellPropertyContent">CellPropertyContent</a></code></h4>
-<ul class="two-column">
-<li><code><a title="signals_notebook.entities.samples.cell.CellPropertyContent.eid" href="#signals_notebook.entities.samples.cell.CellPropertyContent.eid">eid</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.CellPropertyContent.is_changed" href="#signals_notebook.entities.samples.cell.CellPropertyContent.is_changed">is_changed</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.CellPropertyContent.name" href="#signals_notebook.entities.samples.cell.CellPropertyContent.name">name</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.CellPropertyContent.set_name" href="#signals_notebook.entities.samples.cell.CellPropertyContent.set_name">set_name</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.CellPropertyContent.set_value" href="#signals_notebook.entities.samples.cell.CellPropertyContent.set_value">set_value</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.CellPropertyContent.set_values" href="#signals_notebook.entities.samples.cell.CellPropertyContent.set_values">set_values</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.CellPropertyContent.value" href="#signals_notebook.entities.samples.cell.CellPropertyContent.value">value</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.CellPropertyContent.values" href="#signals_notebook.entities.samples.cell.CellPropertyContent.values">values</a></code></li>
-</ul>
-</li>
-<li>
 <h4><code><a title="signals_notebook.entities.samples.cell.Content" href="#signals_notebook.entities.samples.cell.Content">Content</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.entities.samples.cell.Content.content" href="#signals_notebook.entities.samples.cell.Content.content">content</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.entities.samples.cell.SampleProperty" href="#signals_notebook.entities.samples.cell.SampleProperty">SampleProperty</a></code></h4>
+<h4><code><a title="signals_notebook.entities.samples.cell.SampleCell" href="#signals_notebook.entities.samples.cell.SampleCell">SampleCell</a></code></h4>
 <ul class="">
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.content" href="#signals_notebook.entities.samples.cell.SampleProperty.content">content</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.content_name" href="#signals_notebook.entities.samples.cell.SampleProperty.content_name">content_name</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.content_value" href="#signals_notebook.entities.samples.cell.SampleProperty.content_value">content_value</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.content_values" href="#signals_notebook.entities.samples.cell.SampleProperty.content_values">content_values</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.id" href="#signals_notebook.entities.samples.cell.SampleProperty.id">id</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.is_changed" href="#signals_notebook.entities.samples.cell.SampleProperty.is_changed">is_changed</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.name" href="#signals_notebook.entities.samples.cell.SampleProperty.name">name</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.representation_for_update" href="#signals_notebook.entities.samples.cell.SampleProperty.representation_for_update">representation_for_update</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.set_content_name" href="#signals_notebook.entities.samples.cell.SampleProperty.set_content_name">set_content_name</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.set_content_value" href="#signals_notebook.entities.samples.cell.SampleProperty.set_content_value">set_content_value</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleProperty.set_content_values" href="#signals_notebook.entities.samples.cell.SampleProperty.set_content_values">set_content_values</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.content" href="#signals_notebook.entities.samples.cell.SampleCell.content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.content_name" href="#signals_notebook.entities.samples.cell.SampleCell.content_name">content_name</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.content_value" href="#signals_notebook.entities.samples.cell.SampleCell.content_value">content_value</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.content_values" href="#signals_notebook.entities.samples.cell.SampleCell.content_values">content_values</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.id" href="#signals_notebook.entities.samples.cell.SampleCell.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.is_changed" href="#signals_notebook.entities.samples.cell.SampleCell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.name" href="#signals_notebook.entities.samples.cell.SampleCell.name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.representation_for_update" href="#signals_notebook.entities.samples.cell.SampleCell.representation_for_update">representation_for_update</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.set_content_name" href="#signals_notebook.entities.samples.cell.SampleCell.set_content_name">set_content_name</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.set_content_value" href="#signals_notebook.entities.samples.cell.SampleCell.set_content_value">set_content_value</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.set_content_values" href="#signals_notebook.entities.samples.cell.SampleCell.set_content_values">set_content_values</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.entities.samples.cell.SamplePropertyBody" href="#signals_notebook.entities.samples.cell.SamplePropertyBody">SamplePropertyBody</a></code></h4>
+<h4><code><a title="signals_notebook.entities.samples.cell.SampleCellBody" href="#signals_notebook.entities.samples.cell.SampleCellBody">SampleCellBody</a></code></h4>
 <ul class="">
-<li><code><a title="signals_notebook.entities.samples.cell.SamplePropertyBody.attributes" href="#signals_notebook.entities.samples.cell.SamplePropertyBody.attributes">attributes</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SamplePropertyBody.id" href="#signals_notebook.entities.samples.cell.SamplePropertyBody.id">id</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SamplePropertyBody.type" href="#signals_notebook.entities.samples.cell.SamplePropertyBody.type">type</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellBody.attributes" href="#signals_notebook.entities.samples.cell.SampleCellBody.attributes">attributes</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellBody.id" href="#signals_notebook.entities.samples.cell.SampleCellBody.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellBody.type" href="#signals_notebook.entities.samples.cell.SampleCellBody.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.samples.cell.SampleCellContent" href="#signals_notebook.entities.samples.cell.SampleCellContent">SampleCellContent</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.eid" href="#signals_notebook.entities.samples.cell.SampleCellContent.eid">eid</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.is_changed" href="#signals_notebook.entities.samples.cell.SampleCellContent.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.name" href="#signals_notebook.entities.samples.cell.SampleCellContent.name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.set_name" href="#signals_notebook.entities.samples.cell.SampleCellContent.set_name">set_name</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.set_value" href="#signals_notebook.entities.samples.cell.SampleCellContent.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.set_values" href="#signals_notebook.entities.samples.cell.SampleCellContent.set_values">set_values</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.value" href="#signals_notebook.entities.samples.cell.SampleCellContent.value">value</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.values" href="#signals_notebook.entities.samples.cell.SampleCellContent.values">values</a></code></li>
 </ul>
 </li>
 </ul>

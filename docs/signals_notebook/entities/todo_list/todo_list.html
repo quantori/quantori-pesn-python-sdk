@@ -29,6 +29,7 @@
 <pre><code class="python">import json
 import logging
 from typing import cast, Dict, List, Literal, Union
+from uuid import UUID
 
 from pydantic import Field, PrivateAttr
 
@@ -46,7 +47,7 @@ class TodoList(ContentfulEntity):
     _tasks: List[Task] = PrivateAttr(default=[])
     _tasks_by_id: Dict[EID, Task] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[EID, int, str]) -&gt; Task:
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -&gt; Task:
         if not self._tasks:
             self._reload_tasks()
 
@@ -154,7 +155,7 @@ class TodoList(ContentfulEntity):
     _tasks: List[Task] = PrivateAttr(default=[])
     _tasks_by_id: Dict[EID, Task] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[EID, int, str]) -&gt; Task:
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -&gt; Task:
         if not self._tasks:
             self._reload_tasks()
 
@@ -316,6 +317,7 @@ class TodoList(ContentfulEntity):
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.refresh" href="../entity.html#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.set_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.short_description" href="../entity.html#signals_notebook.entities.entity.Entity.short_description">short_description</a></code></li>
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.update_properties" href="../entity.html#signals_notebook.entities.entity.Entity.update_properties">update_properties</a></code></li>
 </ul>
 </li>
 </ul>
