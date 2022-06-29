@@ -36,23 +36,57 @@ class Property(GenericModel, Generic[CellValueType]):
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -> None:
+        """Set new value
+
+        Args:
+            new_value: new value of Property value field
+
+        Returns:
+
+        """
         self.value = new_value
         self._changed = True
 
     def set_values(self, new_values: List[CellValueType]) -> None:
+        """Set new values
+
+        Args:
+            new_values: new list of values of Property values field
+
+        Returns:
+
+        """
         self.values = new_values
         self._changed = True
 
     def set_name(self, new_name: str) -> None:
+        """Set new name
+
+        Args:
+            new_name: new name of Property name field
+
+        Returns:
+
+        """
         self.name = new_name
         self._changed = True
 
     @property
     def is_changed(self) -> bool:
+        """Checking if content of Cell has been modified
+
+        Returns:
+            bool
+        """
         return self._changed
 
     @property
     def representation_for_update(self) -> dict[str, dict]:
+        """Get representation of body for update
+
+        Returns:
+            dict[str, dict]
+        """
         return {'attributes': self.dict(include={'name', 'value', 'values'})}
 
 
@@ -187,6 +221,11 @@ class Entity(BaseModel):
         return EntityStore.get_list(**cls._get_list_params())
 
     def delete(self) -> None:
+        """Delete entity
+
+        Returns:
+
+        """
         from signals_notebook.entities.entity_store import EntityStore
 
         EntityStore.delete(self.eid)

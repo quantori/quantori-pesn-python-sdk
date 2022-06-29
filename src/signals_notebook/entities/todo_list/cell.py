@@ -151,6 +151,6 @@ class TaskCell(BaseModel):
         """Get representation of body for update
 
         Returns:
-            TaskPropertyBody
+            TaskCellBody
         """
         return TaskCellBody(id=str(self.id), attributes=Content(content=self.content))
