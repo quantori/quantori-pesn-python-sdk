@@ -55,6 +55,10 @@ class Property(GenericModel, Generic[CellValueType]):
         return {'attributes': self.dict(include={'name', 'value', 'values'})}
 
 
+class PropertiesResponse(Response[Property]):
+    pass
+
+
 class Entity(BaseModel):
     type: str = Field(allow_mutation=False)
     eid: EID = Field(allow_mutation=False)
@@ -74,7 +78,7 @@ class Entity(BaseModel):
     def __str__(self) -> str:
         return f'<{self.__class__.__name__} eid={self.eid}>'
 
-    def __getitem__(self, index: Union[int, str, UUID]) -> Property:
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -> Any:
         if not self._properties:
             self._reload_properties()
 
@@ -147,6 +151,7 @@ class Entity(BaseModel):
         }
 
     def _reload_properties(self) -> None:
+        log.debug('Reloading properties in Entity: %s...', self.eid)
         self._properties = []
         self._properties_by_id = {}
 
@@ -165,6 +170,7 @@ class Entity(BaseModel):
 
             self._properties.append(sample_property)
             self._properties_by_id[sample_property.id] = sample_property
+        log.debug('Properties in Entity: %s were reloaded', self.eid)
 
     def update_properties(self, force: bool = True) -> None:
         """Update Entity's properties
@@ -175,6 +181,7 @@ class Entity(BaseModel):
         Returns:
             None
         """
+        log.debug('Updating properties in Entity: %s...', self.eid)
         if not self._properties:
             return
 
@@ -182,6 +189,7 @@ class Entity(BaseModel):
 
         self._patch_properties(request_body=request_body, force=force)
         self._reload_properties()
+        log.debug('Properties in Entity: %s were updated successfully', self.eid)
 
     @classmethod
     def get_list(cls) -> Generator['Entity', None, None]:
@@ -286,7 +294,3 @@ class Entity(BaseModel):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)
-
-
-class PropertiesResponse(Response[Property]):
-    pass

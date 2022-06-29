@@ -1,7 +1,7 @@
 import pytest
 
 from signals_notebook.common_types import EID, File
-from signals_notebook.entities import Task, TaskProperty
+from signals_notebook.entities import Task, TaskCell
 
 
 @pytest.fixture()
@@ -122,10 +122,10 @@ def test_reload_tasks(api_mock, todo_list_factory, task_properties, todo_list_co
         assert isinstance(task, Task)
         api_mock.call.return_value.json.return_value = task_properties
         task_property = task[0]
-        assert isinstance(task_property, TaskProperty)
+        assert isinstance(task_property, TaskCell)
 
         for item in task:
-            assert isinstance(item, TaskProperty)
+            assert isinstance(item, TaskCell)
 
     assert todo_list._tasks != []
     assert todo_list._tasks_by_id != {}
@@ -301,7 +301,7 @@ def test_iter(api_mock, todo_list_factory, todo_list_content, task_properties, g
         api_mock.call.return_value.json.return_value = task_properties
 
         for item in task:
-            assert isinstance(item, TaskProperty)
+            assert isinstance(item, TaskCell)
 
     assert todo_list._tasks != []
     assert todo_list._tasks_by_id != {}

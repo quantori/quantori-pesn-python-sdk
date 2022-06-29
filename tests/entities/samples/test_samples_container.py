@@ -3,7 +3,7 @@ import os
 import pytest
 
 from signals_notebook.common_types import EID, File
-from signals_notebook.entities.samples.sample import Sample, SampleProperty
+from signals_notebook.entities.samples.sample import Sample, SampleCell
 
 
 @pytest.fixture()
@@ -140,10 +140,10 @@ def test_reload_samples(api_mock, samples_container_factory, get_samples_respons
         assert isinstance(sample, Sample)
         api_mock.call.return_value.json.return_value = sample_properties
         sample_property = sample[0]
-        assert isinstance(sample_property, SampleProperty)
+        assert isinstance(sample_property, SampleCell)
 
         for item in sample:
-            assert isinstance(item, SampleProperty)
+            assert isinstance(item, SampleCell)
 
     assert samples_container._samples != []
 
@@ -177,7 +177,7 @@ def test_save(api_mock, samples_container_factory, get_samples_response, sample_
         request_body = []
         api_mock.call.return_value.json.return_value = sample_properties
         sample_property = sample[0]
-        assert isinstance(sample_property, SampleProperty)
+        assert isinstance(sample_property, SampleCell)
 
         for item in sample:
             if item.id == '2':
@@ -260,9 +260,9 @@ def test_iter(api_mock, samples_container_factory, get_samples_response, sample_
 
         api_mock.call.return_value.json.return_value = sample_properties
         sample_property = sample[0]
-        assert isinstance(sample_property, SampleProperty)
+        assert isinstance(sample_property, SampleCell)
 
         for item in sample:
-            assert isinstance(item, SampleProperty)
+            assert isinstance(item, SampleCell)
 
     assert samples_container._samples != []

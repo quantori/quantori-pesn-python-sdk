@@ -4,12 +4,12 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID
+from signals_notebook.common_types import EID, ObjectType
 
 CellValueType = TypeVar('CellValueType')
 
 
-class CellPropertyContent(GenericModel, Generic[CellValueType]):
+class TaskCellContent(GenericModel, Generic[CellValueType]):
     value: Optional[CellValueType]
     name: Optional[str]
     eid: Optional[EID]
@@ -63,19 +63,19 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
 
 
 class Content(BaseModel):
-    content: Optional[CellPropertyContent]
+    content: Optional[TaskCellContent]
 
 
-class TaskPropertyBody(BaseModel):
+class TaskCellBody(BaseModel):
     id: Optional[Union[UUID, str]]
-    type: str = 'property'
+    type: str = ObjectType.PROPERTY
     attributes: Content
 
 
-class TaskProperty(BaseModel):
+class TaskCell(BaseModel):
     id: Optional[Union[UUID, str]]
     name: Optional[str]
-    content: CellPropertyContent = Field(default=CellPropertyContent())
+    content: TaskCellContent = Field(default=TaskCellContent())
 
     def set_content_value(self, new_value: CellValueType) -> None:
         """Set new content value
@@ -147,10 +147,10 @@ class TaskProperty(BaseModel):
         return False if self.content is None else self.content.is_changed
 
     @property
-    def representation_for_update(self) -> TaskPropertyBody:
+    def representation_for_update(self) -> TaskCellBody:
         """Get representation of body for update
 
         Returns:
             TaskPropertyBody
         """
-        return TaskPropertyBody(id=str(self.id), attributes=Content(content=self.content))
+        return TaskCellBody(id=str(self.id), attributes=Content(content=self.content))
