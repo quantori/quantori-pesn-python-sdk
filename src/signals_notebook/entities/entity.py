@@ -47,30 +47,6 @@ class Property(GenericModel, Generic[CellValueType]):
         self.value = new_value
         self._changed = True
 
-    def set_values(self, new_values: List[CellValueType]) -> None:
-        """Set new values
-
-        Args:
-            new_values: new list of values of Property values field
-
-        Returns:
-
-        """
-        self.values = new_values
-        self._changed = True
-
-    def set_name(self, new_name: str) -> None:
-        """Set new name
-
-        Args:
-            new_name: new name of Property name field
-
-        Returns:
-
-        """
-        self.name = new_name
-        self._changed = True
-
     @property
     def is_changed(self) -> bool:
         """Checking if content of Cell has been modified
@@ -87,7 +63,7 @@ class Property(GenericModel, Generic[CellValueType]):
         Returns:
             dict[str, dict]
         """
-        return {'attributes': self.dict(include={'name', 'value', 'values'})}
+        return {'attributes': self.dict(include={'name', 'value'})}
 
 
 class PropertiesResponse(Response[Property]):
@@ -196,7 +172,6 @@ class Entity(BaseModel):
             method='GET',
             path=(self._get_endpoint(), self.eid, 'properties'),
         )
-        # breakpoint()
         result = PropertiesResponse(**response.json())
         properties = [cast(ResponseData, item).body for item in result.data]
 
@@ -297,7 +272,7 @@ class Entity(BaseModel):
         log.debug('Updating properties in Entity: %s...', self.eid)
         if self._properties:
             [request_body.append(item.representation_for_update) for item in self._properties if item.is_changed]
-
+        print(request_body)
         self._patch_properties(request_body=request_body, force=force)
         self._reload_properties()
 
