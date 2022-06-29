@@ -64,23 +64,57 @@ class Property(GenericModel, Generic[CellValueType]):
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -&gt; None:
+        &#34;&#34;&#34;Set new value
+
+        Args:
+            new_value: new value of Property value field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.value = new_value
         self._changed = True
 
     def set_values(self, new_values: List[CellValueType]) -&gt; None:
+        &#34;&#34;&#34;Set new values
+
+        Args:
+            new_values: new list of values of Property values field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.values = new_values
         self._changed = True
 
     def set_name(self, new_name: str) -&gt; None:
+        &#34;&#34;&#34;Set new name
+
+        Args:
+            new_name: new name of Property name field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.name = new_name
         self._changed = True
 
     @property
     def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if content of Cell has been modified
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         return self._changed
 
     @property
     def representation_for_update(self) -&gt; dict[str, dict]:
+        &#34;&#34;&#34;Get representation of body for update
+
+        Returns:
+            dict[str, dict]
+        &#34;&#34;&#34;
         return {&#39;attributes&#39;: self.dict(include={&#39;name&#39;, &#39;value&#39;, &#39;values&#39;})}
 
 
@@ -215,6 +249,11 @@ class Entity(BaseModel):
         return EntityStore.get_list(**cls._get_list_params())
 
     def delete(self) -&gt; None:
+        &#34;&#34;&#34;Delete entity
+
+        Returns:
+
+        &#34;&#34;&#34;
         from signals_notebook.entities.entity_store import EntityStore
 
         EntityStore.delete(self.eid)
@@ -465,6 +504,11 @@ class Entity(BaseModel):
         return EntityStore.get_list(**cls._get_list_params())
 
     def delete(self) -&gt; None:
+        &#34;&#34;&#34;Delete entity
+
+        Returns:
+
+        &#34;&#34;&#34;
         from signals_notebook.entities.entity_store import EntityStore
 
         EntityStore.delete(self.eid)
@@ -743,12 +787,18 @@ def short_description(self) -&gt; EntityShortDescription:
 <span>def <span class="ident">delete</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Delete entity</p>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete(self) -&gt; None:
+    &#34;&#34;&#34;Delete entity
+
+    Returns:
+
+    &#34;&#34;&#34;
     from signals_notebook.entities.entity_store import EntityStore
 
     EntityStore.delete(self.eid)
@@ -906,23 +956,57 @@ def short_description(self) -&gt; EntityShortDescription:
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -&gt; None:
+        &#34;&#34;&#34;Set new value
+
+        Args:
+            new_value: new value of Property value field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.value = new_value
         self._changed = True
 
     def set_values(self, new_values: List[CellValueType]) -&gt; None:
+        &#34;&#34;&#34;Set new values
+
+        Args:
+            new_values: new list of values of Property values field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.values = new_values
         self._changed = True
 
     def set_name(self, new_name: str) -&gt; None:
+        &#34;&#34;&#34;Set new name
+
+        Args:
+            new_name: new name of Property name field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.name = new_name
         self._changed = True
 
     @property
     def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if content of Cell has been modified
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         return self._changed
 
     @property
     def representation_for_update(self) -&gt; dict[str, dict]:
+        &#34;&#34;&#34;Get representation of body for update
+
+        Returns:
+            dict[str, dict]
+        &#34;&#34;&#34;
         return {&#39;attributes&#39;: self.dict(include={&#39;name&#39;, &#39;value&#39;, &#39;values&#39;})}</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -963,25 +1047,39 @@ def short_description(self) -&gt; EntityShortDescription:
 <dl>
 <dt id="signals_notebook.entities.entity.Property.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Checking if content of Cell has been modified</p>
+<h2 id="returns">Returns</h2>
+<p>bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def is_changed(self) -&gt; bool:
+    &#34;&#34;&#34;Checking if content of Cell has been modified
+
+    Returns:
+        bool
+    &#34;&#34;&#34;
     return self._changed</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.entity.Property.representation_for_update"><code class="name">var <span class="ident">representation_for_update</span> : dict</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get representation of body for update</p>
+<h2 id="returns">Returns</h2>
+<p>dict[str, dict]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def representation_for_update(self) -&gt; dict[str, dict]:
+    &#34;&#34;&#34;Get representation of body for update
+
+    Returns:
+        dict[str, dict]
+    &#34;&#34;&#34;
     return {&#39;attributes&#39;: self.dict(include={&#39;name&#39;, &#39;value&#39;, &#39;values&#39;})}</code></pre>
 </details>
 </dd>
@@ -992,12 +1090,26 @@ def representation_for_update(self) -&gt; dict[str, dict]:
 <span>def <span class="ident">set_name</span></span>(<span>self, new_name: str) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set new name</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_name</code></strong></dt>
+<dd>new name of Property name field</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_name(self, new_name: str) -&gt; None:
+    &#34;&#34;&#34;Set new name
+
+    Args:
+        new_name: new name of Property name field
+
+    Returns:
+
+    &#34;&#34;&#34;
     self.name = new_name
     self._changed = True</code></pre>
 </details>
@@ -1006,12 +1118,26 @@ def representation_for_update(self) -&gt; dict[str, dict]:
 <span>def <span class="ident">set_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set new value</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of Property value field</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_value(self, new_value: CellValueType) -&gt; None:
+    &#34;&#34;&#34;Set new value
+
+    Args:
+        new_value: new value of Property value field
+
+    Returns:
+
+    &#34;&#34;&#34;
     self.value = new_value
     self._changed = True</code></pre>
 </details>
@@ -1020,12 +1146,26 @@ def representation_for_update(self) -&gt; dict[str, dict]:
 <span>def <span class="ident">set_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set new values</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_values</code></strong></dt>
+<dd>new list of values of Property values field</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_values(self, new_values: List[CellValueType]) -&gt; None:
+    &#34;&#34;&#34;Set new values
+
+    Args:
+        new_values: new list of values of Property values field
+
+    Returns:
+
+    &#34;&#34;&#34;
     self.values = new_values
     self._changed = True</code></pre>
 </details>

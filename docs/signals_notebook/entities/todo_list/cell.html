@@ -179,7 +179,7 @@ class TaskCell(BaseModel):
         &#34;&#34;&#34;Get representation of body for update
 
         Returns:
-            TaskPropertyBody
+            TaskCellBody
         &#34;&#34;&#34;
         return TaskCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
 </details>
@@ -310,7 +310,7 @@ class TaskCell(BaseModel):
         &#34;&#34;&#34;Get representation of body for update
 
         Returns:
-            TaskPropertyBody
+            TaskCellBody
         &#34;&#34;&#34;
         return TaskCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
 </details>
@@ -416,7 +416,7 @@ def is_changed(self) -&gt; bool:
 <dd>
 <div class="desc"><p>Get representation of body for update</p>
 <h2 id="returns">Returns</h2>
-<p>TaskPropertyBody</p></div>
+<p>TaskCellBody</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -426,7 +426,7 @@ def representation_for_update(self) -&gt; TaskCellBody:
     &#34;&#34;&#34;Get representation of body for update
 
     Returns:
-        TaskPropertyBody
+        TaskCellBody
     &#34;&#34;&#34;
     return TaskCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
 </details>
