@@ -1,10 +1,11 @@
 import json
 import logging
 from datetime import datetime
-from typing import Any, cast, ClassVar, Dict, Generator, List, Optional, Type, TypeVar, Union
+from typing import Any, cast, ClassVar, Dict, Generator, Generic, List, Optional, Type, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
+from pydantic.generics import GenericModel
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import (
@@ -24,7 +25,7 @@ CellValueType = TypeVar('CellValueType')
 log = logging.getLogger(__name__)
 
 
-class Property(BaseModel):
+class Property(GenericModel, Generic[CellValueType]):
     id: Optional[Union[UUID, str]]
     type: Optional[str]
     name: Optional[str]
@@ -145,7 +146,7 @@ class Entity(BaseModel):
             'include_types': [cls._get_entity_type()],
         }
 
-    def _reload_properties(self):
+    def _reload_properties(self) -> None:
         self._properties = []
         self._properties_by_id = {}
 
