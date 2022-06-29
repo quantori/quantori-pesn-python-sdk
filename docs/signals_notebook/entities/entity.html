@@ -83,6 +83,10 @@ class Property(GenericModel, Generic[CellValueType]):
         return {&#39;attributes&#39;: self.dict(include={&#39;name&#39;, &#39;value&#39;, &#39;values&#39;})}
 
 
+class PropertiesResponse(Response[Property]):
+    pass
+
+
 class Entity(BaseModel):
     type: str = Field(allow_mutation=False)
     eid: EID = Field(allow_mutation=False)
@@ -102,7 +106,7 @@ class Entity(BaseModel):
     def __str__(self) -&gt; str:
         return f&#39;&lt;{self.__class__.__name__} eid={self.eid}&gt;&#39;
 
-    def __getitem__(self, index: Union[int, str, UUID]) -&gt; Property:
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -&gt; Any:
         if not self._properties:
             self._reload_properties()
 
@@ -175,6 +179,7 @@ class Entity(BaseModel):
         }
 
     def _reload_properties(self) -&gt; None:
+        log.debug(&#39;Reloading properties in Entity: %s...&#39;, self.eid)
         self._properties = []
         self._properties_by_id = {}
 
@@ -193,6 +198,7 @@ class Entity(BaseModel):
 
             self._properties.append(sample_property)
             self._properties_by_id[sample_property.id] = sample_property
+        log.debug(&#39;Properties in Entity: %s were reloaded&#39;, self.eid)
 
     def update_properties(self, force: bool = True) -&gt; None:
         &#34;&#34;&#34;Update Entity&#39;s properties
@@ -203,6 +209,7 @@ class Entity(BaseModel):
         Returns:
             None
         &#34;&#34;&#34;
+        log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
         if not self._properties:
             return
 
@@ -210,6 +217,7 @@ class Entity(BaseModel):
 
         self._patch_properties(request_body=request_body, force=force)
         self._reload_properties()
+        log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
 
     @classmethod
     def get_list(cls) -&gt; Generator[&#39;Entity&#39;, None, None]:
@@ -313,11 +321,7 @@ class Entity(BaseModel):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(data=data)
-
-
-class PropertiesResponse(Response[Property]):
-    pass</code></pre>
+        return template.render(data=data)</code></pre>
 </details>
 </section>
 <section>
@@ -359,7 +363,7 @@ class PropertiesResponse(Response[Property]):
     def __str__(self) -&gt; str:
         return f&#39;&lt;{self.__class__.__name__} eid={self.eid}&gt;&#39;
 
-    def __getitem__(self, index: Union[int, str, UUID]) -&gt; Property:
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -&gt; Any:
         if not self._properties:
             self._reload_properties()
 
@@ -432,6 +436,7 @@ class PropertiesResponse(Response[Property]):
         }
 
     def _reload_properties(self) -&gt; None:
+        log.debug(&#39;Reloading properties in Entity: %s...&#39;, self.eid)
         self._properties = []
         self._properties_by_id = {}
 
@@ -450,6 +455,7 @@ class PropertiesResponse(Response[Property]):
 
             self._properties.append(sample_property)
             self._properties_by_id[sample_property.id] = sample_property
+        log.debug(&#39;Properties in Entity: %s were reloaded&#39;, self.eid)
 
     def update_properties(self, force: bool = True) -&gt; None:
         &#34;&#34;&#34;Update Entity&#39;s properties
@@ -460,6 +466,7 @@ class PropertiesResponse(Response[Property]):
         Returns:
             None
         &#34;&#34;&#34;
+        log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
         if not self._properties:
             return
 
@@ -467,6 +474,7 @@ class PropertiesResponse(Response[Property]):
 
         self._patch_properties(request_body=request_body, force=force)
         self._reload_properties()
+        log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
 
     @classmethod
     def get_list(cls) -&gt; Generator[&#39;Entity&#39;, None, None]:
@@ -868,13 +876,15 @@ def short_description(self) -&gt; EntityShortDescription:
     Returns:
         None
     &#34;&#34;&#34;
+    log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
     if not self._properties:
         return
 
     request_body = [item.representation_for_update for item in self._properties if item.is_changed]
 
     self._patch_properties(request_body=request_body, force=force)
-    self._reload_properties()</code></pre>
+    self._reload_properties()
+    log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)</code></pre>
 </details>
 </dd>
 </dl>
