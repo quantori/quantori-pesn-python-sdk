@@ -271,8 +271,9 @@ class Entity(BaseModel):
 
         log.debug('Updating properties in Entity: %s...', self.eid)
         if self._properties:
-            [request_body.append(item.representation_for_update) for item in self._properties if item.is_changed]
-        print(request_body)
+            for item in self._properties:
+                if item.is_changed:
+                    request_body.append(item.representation_for_update)
         self._patch_properties(request_body=request_body, force=force)
         self._reload_properties()
 
