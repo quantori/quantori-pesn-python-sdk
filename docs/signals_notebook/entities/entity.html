@@ -224,6 +224,7 @@ class Entity(BaseModel):
             method=&#39;GET&#39;,
             path=(self._get_endpoint(), self.eid, &#39;properties&#39;),
         )
+        # breakpoint()
         result = PropertiesResponse(**response.json())
         properties = [cast(ResponseData, item).body for item in result.data]
 
@@ -321,15 +322,11 @@ class Entity(BaseModel):
                     {&#39;attributes&#39;: {&#39;name&#39;: field.field_info.title, &#39;value&#39;: getattr(self, field.name)}}
                 )
 
-        self._patch_properties(request_body=request_body, force=force)
-
         log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
-        if not self._properties:
-            return
+        if self._properties:
+            [request_body.append(item.representation_for_update) for item in self._properties if item.is_changed]
 
-        properties = [item.representation_for_update for item in self._properties if item.is_changed]
-
-        self._patch_properties(request_body=properties, force=force)
+        self._patch_properties(request_body=request_body, force=force)
         self._reload_properties()
 
         log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
@@ -479,6 +476,7 @@ class Entity(BaseModel):
             method=&#39;GET&#39;,
             path=(self._get_endpoint(), self.eid, &#39;properties&#39;),
         )
+        # breakpoint()
         result = PropertiesResponse(**response.json())
         properties = [cast(ResponseData, item).body for item in result.data]
 
@@ -576,15 +574,11 @@ class Entity(BaseModel):
                     {&#39;attributes&#39;: {&#39;name&#39;: field.field_info.title, &#39;value&#39;: getattr(self, field.name)}}
                 )
 
-        self._patch_properties(request_body=request_body, force=force)
-
         log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
-        if not self._properties:
-            return
+        if self._properties:
+            [request_body.append(item.representation_for_update) for item in self._properties if item.is_changed]
 
-        properties = [item.representation_for_update for item in self._properties if item.is_changed]
-
-        self._patch_properties(request_body=properties, force=force)
+        self._patch_properties(request_body=request_body, force=force)
         self._reload_properties()
 
         log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
@@ -883,15 +877,11 @@ def short_description(self) -&gt; EntityShortDescription:
                 {&#39;attributes&#39;: {&#39;name&#39;: field.field_info.title, &#39;value&#39;: getattr(self, field.name)}}
             )
 
-    self._patch_properties(request_body=request_body, force=force)
-
     log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
-    if not self._properties:
-        return
+    if self._properties:
+        [request_body.append(item.representation_for_update) for item in self._properties if item.is_changed]
 
-    properties = [item.representation_for_update for item in self._properties if item.is_changed]
-
-    self._patch_properties(request_body=properties, force=force)
+    self._patch_properties(request_body=request_body, force=force)
     self._reload_properties()
 
     log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
