@@ -430,19 +430,7 @@ class Library(BaseMaterialEntity):
 
         api = SignalsNotebookApi.get_default_api()
 
-        if import_type == 'json':
-            request_body = [{'data': self._process_asset_with_batch_fields(i).dict()} for i in materials]
-
-            return api.call(
-                method='POST',
-                path=(self._get_endpoint(), self.name, 'bulkImport'),
-                params={
-                    'rule': rule,
-                    'importType': import_type,
-                },
-                json=request_body,
-            )
-        else:
+        if isinstance(materials, File):
             if materials.file_size / 1024 / 1024 > 50:
                 raise ValueError('Available file size is 50Mb')
 
@@ -457,6 +445,19 @@ class Library(BaseMaterialEntity):
                     'Content-Type': 'application/octet-stream',
                 },
                 data=materials.content,
+            )
+
+        else:
+            request_body = [{'data': self._process_asset_with_batch_fields(material).dict()} for material in materials]
+
+            return api.call(
+                method='POST',
+                path=(self._get_endpoint(), self.name, 'bulkImport'),
+                params={
+                    'rule': rule,
+                    'importType': import_type,
+                },
+                json=request_body,
             )
 
     def bulk_import(
@@ -504,7 +505,6 @@ class Library(BaseMaterialEntity):
                 time.sleep(period)
             else:
                 response = True
-                break
 
         if not response:
             log.debug('Time is over to import file')
