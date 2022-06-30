@@ -331,7 +331,7 @@ class File(BaseModel):
     name: str
     content: bytes
     content_type: str
-    file_size: int
+    file_size: Optional[int]
 
     def __init__(self, f=None, **kwargs):
         if f:
