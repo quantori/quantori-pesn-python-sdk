@@ -424,7 +424,7 @@ class Library(BaseMaterialEntity):
     def _import_materials(
         self,
         materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
-        rule: Literal['NO_DUPLICATED', 'TREAT_AS_UNIQUE', 'USE_MATCHES'] = 'NO_DUPLICATED',
+        rule: Literal['NO_DUPLICATED', 'TREAT_AS_UNIQUE', 'USE_MATCHES'] = 'TREAT_AS_UNIQUE',
         import_type: Literal['json', 'zip'] = 'json',
     ) -> requests.Response:
 
@@ -505,6 +505,7 @@ class Library(BaseMaterialEntity):
 
         if not response:
             log.debug('Time is over to import file')
+
             failure_report_reponse = api.call(
                 method='GET',
                 path=(self._get_endpoint(), 'bulkImport', 'jobs', job_id, 'failures'),
