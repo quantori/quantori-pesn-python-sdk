@@ -221,6 +221,7 @@ def test_save(api_mock, todo_list_factory, task_properties, todo_list_content, g
     content_response.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
+        'content-length': 1,
     }
     api_mock.call.side_effect = [*api_calls, content_response, get_response(get_task)]
     todo_list.save()
