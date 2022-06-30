@@ -426,7 +426,8 @@ class Library(BaseMaterialEntity):
         materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
         rule: Literal['NO_DUPLICATED', 'TREAT_AS_UNIQUE', 'USE_MATCHES'] = 'NO_DUPLICATED',
         import_type: Literal['json', 'zip'] = 'json',
-    ):
+    ) -> requests.Response:
+
         api = SignalsNotebookApi.get_default_api()
 
         if import_type == 'json':
@@ -457,15 +458,37 @@ class Library(BaseMaterialEntity):
 
     def bulk_import(
         self,
-        materials_file: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
+        materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
         rule: Literal['NO_DUPLICATED', 'TREAT_AS_UNIQUE', 'USE_MATCHES'] = 'TREAT_AS_UNIQUE',
         import_type: Literal['json', 'zip'] = 'json',
         timeout: int = 30,
         period: int = 5,
     ) -> Optional[File]:
+        """Bulk import materials into a specified material library. Support import data from json or zip file.
+        Zip file should contain the sdf file or csv file and attachments. T
+        he column name in each records of sdf/csv file should be match the asset field name.
+        In sdf file, it doesn't support character '-', '.', '<', '>', '=', '%', ' ',
+        please replace them to '_' in records.
+        Max materials size: 50MB.
+
+        Rules of import:
+        'TREAT_AS_UNIQUE', each item will be treated as a new asset. Please note that this option is selected by default.
+        'USE_MATCHES', server will check the item with uniqueness check, if same will import as a batch.
+        'NO_DUPLICATED', server will check the item with uniqueness check, duplicates are skipped and not imported.
+
+        Args:
+            materials: materials in zip or json format
+            rule: rule of import
+            import_type: import type: json or zip
+            timeout: max available time(seconds) to get file
+            period: each n seconds(default value=5) api call
+
+        Returns:
+            File or None
+        """
         api = SignalsNotebookApi.get_default_api()
 
-        bulk_import_response = self._import_materials(materials_file, rule, import_type)
+        bulk_import_response = self._import_materials(materials, rule, import_type)
 
         job_id = bulk_import_response.json()['data']['id']
 
