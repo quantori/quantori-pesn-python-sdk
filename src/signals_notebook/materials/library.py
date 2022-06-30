@@ -472,7 +472,7 @@ class Library(BaseMaterialEntity):
         Max materials size: 50MB.
 
         Rules of import:
-        'TREAT_AS_UNIQUE', each item will be treated as a new asset. Please note that this option is selected by default.
+        'TREAT_AS_UNIQUE', each item will be treated as a new asset. Selected by default.
         'USE_MATCHES', server will check the item with uniqueness check, if same will import as a batch.
         'NO_DUPLICATED', server will check the item with uniqueness check, duplicates are skipped and not imported.
 
