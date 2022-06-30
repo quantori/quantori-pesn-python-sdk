@@ -443,6 +443,9 @@ class Library(BaseMaterialEntity):
                 json=request_body,
             )
         else:
+            if materials.file_size/1024/1024 > 50:
+                raise ValueError('Available file size is 50Mb')
+
             return api.call(
                 method='POST',
                 path=(self._get_endpoint(), self.name, 'bulkImport'),

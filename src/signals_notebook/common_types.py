@@ -329,14 +329,16 @@ class File(BaseModel):
     name: str
     content: bytes
     content_type: str
+    file_size: int
 
     def __init__(self, f=None, **kwargs):
         if f:
             name = os.path.basename(f.name)
             content = f.read()
             content_type, _ = mimetypes.guess_type(name)
+            file_size = os.path.getsize(f.name)
 
-            super().__init__(name=name, content=content, content_type=content_type)
+            super().__init__(name=name, content=content, content_type=content_type, file_size=file_size)
         else:
             super().__init__(**kwargs)
 
