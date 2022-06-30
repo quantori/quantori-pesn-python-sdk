@@ -359,7 +359,7 @@ class File(BaseModel):
     name: str
     content: bytes
     content_type: str
-    file_size: int
+    file_size: Optional[int]
 
     def __init__(self, f=None, **kwargs):
         if f:
@@ -1143,7 +1143,7 @@ def type(self) -&gt; Union[EntityType, str]:
     name: str
     content: bytes
     content_type: str
-    file_size: int
+    file_size: Optional[int]
 
     def __init__(self, f=None, **kwargs):
         if f:
@@ -1205,7 +1205,7 @@ def type(self) -&gt; Union[EntityType, str]:
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.common_types.File.file_size"><code class="name">var <span class="ident">file_size</span> : int</code></dt>
+<dt id="signals_notebook.common_types.File.file_size"><code class="name">var <span class="ident">file_size</span> : Optional[int]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
