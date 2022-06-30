@@ -458,19 +458,7 @@ class Library(BaseMaterialEntity):
 
         api = SignalsNotebookApi.get_default_api()
 
-        if import_type == &#39;json&#39;:
-            request_body = [{&#39;data&#39;: self._process_asset_with_batch_fields(i).dict()} for i in materials]
-
-            return api.call(
-                method=&#39;POST&#39;,
-                path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
-                params={
-                    &#39;rule&#39;: rule,
-                    &#39;importType&#39;: import_type,
-                },
-                json=request_body,
-            )
-        else:
+        if isinstance(materials, File):
             if materials.file_size / 1024 / 1024 &gt; 50:
                 raise ValueError(&#39;Available file size is 50Mb&#39;)
 
@@ -485,6 +473,19 @@ class Library(BaseMaterialEntity):
                     &#39;Content-Type&#39;: &#39;application/octet-stream&#39;,
                 },
                 data=materials.content,
+            )
+
+        else:
+            request_body = [{&#39;data&#39;: self._process_asset_with_batch_fields(material).dict()} for material in materials]
+
+            return api.call(
+                method=&#39;POST&#39;,
+                path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
+                params={
+                    &#39;rule&#39;: rule,
+                    &#39;importType&#39;: import_type,
+                },
+                json=request_body,
             )
 
     def bulk_import(
@@ -532,7 +533,6 @@ class Library(BaseMaterialEntity):
                 time.sleep(period)
             else:
                 response = True
-                break
 
         if not response:
             log.debug(&#39;Time is over to import file&#39;)
@@ -1242,19 +1242,7 @@ Adds ability to use properties with setters</p>
 
         api = SignalsNotebookApi.get_default_api()
 
-        if import_type == &#39;json&#39;:
-            request_body = [{&#39;data&#39;: self._process_asset_with_batch_fields(i).dict()} for i in materials]
-
-            return api.call(
-                method=&#39;POST&#39;,
-                path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
-                params={
-                    &#39;rule&#39;: rule,
-                    &#39;importType&#39;: import_type,
-                },
-                json=request_body,
-            )
-        else:
+        if isinstance(materials, File):
             if materials.file_size / 1024 / 1024 &gt; 50:
                 raise ValueError(&#39;Available file size is 50Mb&#39;)
 
@@ -1269,6 +1257,19 @@ Adds ability to use properties with setters</p>
                     &#39;Content-Type&#39;: &#39;application/octet-stream&#39;,
                 },
                 data=materials.content,
+            )
+
+        else:
+            request_body = [{&#39;data&#39;: self._process_asset_with_batch_fields(material).dict()} for material in materials]
+
+            return api.call(
+                method=&#39;POST&#39;,
+                path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
+                params={
+                    &#39;rule&#39;: rule,
+                    &#39;importType&#39;: import_type,
+                },
+                json=request_body,
             )
 
     def bulk_import(
@@ -1316,7 +1317,6 @@ Adds ability to use properties with setters</p>
                 time.sleep(period)
             else:
                 response = True
-                break
 
         if not response:
             log.debug(&#39;Time is over to import file&#39;)
@@ -1536,7 +1536,6 @@ Max materials size: 50MB.</p>
             time.sleep(period)
         else:
             response = True
-            break
 
     if not response:
         log.debug(&#39;Time is over to import file&#39;)
