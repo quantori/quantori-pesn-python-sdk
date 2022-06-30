@@ -16,3 +16,6 @@ from signals_notebook.entities.todo_list.task import Task, TaskProperty  # noqa
 from signals_notebook.entities.todo_list.todo_list import TodoList  # noqa
 from signals_notebook.entities.power_point import PowerPoint  # noqa
 from signals_notebook.entities.spotfire import Spotfire  # noqa
+from signals_notebook.entities.users.user import User  # noqa
+from signals_notebook.entities.users.user_store import UserStore # noqa
+from signals_notebook.entities.users.profile import Profile  # noqa

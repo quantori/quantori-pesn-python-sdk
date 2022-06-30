@@ -1,0 +1,56 @@
+from typing import cast
+
+from signals_notebook.entities.users.profile import Profile
+from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import Response, ResponseData
+from signals_notebook.entities.users.user import User
+
+
+class UserResponse(Response[User]):
+    pass
+
+
+class ProfileResponse(Response[Profile]):
+    pass
+
+
+class UserStore:
+
+    @classmethod
+    def get(cls, user_id: str):
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method='GET',
+            path=('users', user_id),
+        )
+        result = UserResponse(**response.json())
+        return cast(ResponseData, result.data).body
+
+    @classmethod
+    def get_list(cls):
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method='GET',
+            path=('users',),
+        )
+        result = UserResponse(**response.json())
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+        while result.links and result.links.next:
+            response = api.call(
+                method='GET',
+                path=result.links.next,
+            )
+
+            result = UserResponse(**response.json())  # type: ignore
+            yield from [cast(ResponseData, item).body for item in result.data]
+
+    @classmethod
+    def get_current_user(cls):
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method='GET',
+            path=('profiles', 'me'),
+        )
+        result = ProfileResponse(**response.json())
+        return cast(ResponseData, result.data).body

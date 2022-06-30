@@ -35,6 +35,8 @@ class ObjectType(str, Enum):
     ATTRIBUTE = 'attribute'
     STOICHIOMETRY = 'stoichiometry'
     PROPERTY = 'property'
+    USER = 'user'
+    PROFILE = 'profile'
 
 
 class EntityType(str, Enum):
