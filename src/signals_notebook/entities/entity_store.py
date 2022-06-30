@@ -156,3 +156,4 @@ class EntityStore:
                 'force': json.dumps(force),
             },
         )
+        log.debug('Entity: %s was deleted from EntityStore successfully', eid)

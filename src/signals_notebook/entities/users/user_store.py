@@ -1,4 +1,4 @@
-from typing import cast
+from typing import cast, List
 
 from signals_notebook.entities.users.profile import Profile
 from signals_notebook.api import SignalsNotebookApi
@@ -17,7 +17,7 @@ class ProfileResponse(Response[Profile]):
 class UserStore:
 
     @classmethod
-    def get(cls, user_id: str):
+    def get(cls, user_id: str) -> User:
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
@@ -27,7 +27,7 @@ class UserStore:
         return cast(ResponseData, result.data).body
 
     @classmethod
-    def get_list(cls):
+    def get_list(cls) -> List[User]:
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
@@ -46,7 +46,7 @@ class UserStore:
             yield from [cast(ResponseData, item).body for item in result.data]
 
     @classmethod
-    def get_current_user(cls):
+    def get_current_user(cls) -> User:
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
@@ -54,3 +54,19 @@ class UserStore:
         )
         result = ProfileResponse(**response.json())
         return cast(ResponseData, result.data).body
+
+    @classmethod
+    def refresh(cls, user: User) -> None:
+        """Refresh Entity with new values
+
+        Args:
+            user: User
+
+        Returns:
+
+        """
+        refreshed_entity = cls.get(user.id)
+        for field in user.__fields__.values():
+            if field.field_info.allow_mutation:
+                new_value = getattr(refreshed_entity, field.name)
+                setattr(user, field.name, new_value)

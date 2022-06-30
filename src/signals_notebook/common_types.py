@@ -37,6 +37,7 @@ class ObjectType(str, Enum):
     PROPERTY = 'property'
     USER = 'user'
     PROFILE = 'profile'
+    GROUP = 'group'
 
 
 class EntityType(str, Enum):
