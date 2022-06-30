@@ -14,6 +14,8 @@ from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.field import AssetConfig, BatchConfig
 
+MAX_MATERIAL_FILE_SIZE = 52428800
+
 log = logging.getLogger(__name__)
 
 
@@ -431,7 +433,7 @@ class Library(BaseMaterialEntity):
         api = SignalsNotebookApi.get_default_api()
 
         if isinstance(materials, File):
-            if materials.file_size / 1024 / 1024 > 50:
+            if materials.file_size > MAX_MATERIAL_FILE_SIZE:
                 raise ValueError('Available file size is 50Mb')
 
             return api.call(

@@ -331,7 +331,6 @@ class File(BaseModel):
     name: str
     content: bytes
     content_type: str
-    file_size: int
 
     def __init__(self, f=None, **kwargs):
         if f:
@@ -343,6 +342,14 @@ class File(BaseModel):
             super().__init__(name=name, content=content, content_type=content_type, file_size=file_size)
         else:
             super().__init__(**kwargs)
+
+    @property
+    def file_size(self):
+        return len(self.content)
+
+    @file_size.setter
+    def file_size(self, value):
+        self.file_size = value
 
     @property
     def base64(self) -> bytes:
