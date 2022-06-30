@@ -77,6 +77,7 @@ def test_get_content(chemical_drawing_factory, api_mock):
     api_mock.call.return_value.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
+        'content-length': 1,
     }
     api_mock.call.return_value.content = content
 
