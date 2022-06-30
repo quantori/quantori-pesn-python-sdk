@@ -443,7 +443,7 @@ class Library(BaseMaterialEntity):
                 json=request_body,
             )
         else:
-            if materials.file_size/1024/1024 > 50:
+            if materials.file_size / 1024 / 1024 > 50:
                 raise ValueError('Available file size is 50Mb')
 
             return api.call(
