@@ -488,7 +488,7 @@ class Library(BaseMaterialEntity):
                 json=request_body,
             )
 
-    def bulk_import(
+    def bulk_import(  # type: ignore
         self,
         materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
         rule: Literal[&#39;NO_DUPLICATED&#39;, &#39;TREAT_AS_UNIQUE&#39;, &#39;USE_MATCHES&#39;] = &#39;TREAT_AS_UNIQUE&#39;,
@@ -533,6 +533,7 @@ class Library(BaseMaterialEntity):
                 time.sleep(period)
             else:
                 response = True
+                break
 
         if not response:
             log.debug(&#39;Time is over to import file&#39;)
@@ -1272,7 +1273,7 @@ Adds ability to use properties with setters</p>
                 json=request_body,
             )
 
-    def bulk_import(
+    def bulk_import(  # type: ignore
         self,
         materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
         rule: Literal[&#39;NO_DUPLICATED&#39;, &#39;TREAT_AS_UNIQUE&#39;, &#39;USE_MATCHES&#39;] = &#39;TREAT_AS_UNIQUE&#39;,
@@ -1317,6 +1318,7 @@ Adds ability to use properties with setters</p>
                 time.sleep(period)
             else:
                 response = True
+                break
 
         if not response:
             log.debug(&#39;Time is over to import file&#39;)
@@ -1491,7 +1493,7 @@ Max materials size: 50MB.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def bulk_import(
+<pre><code class="python">def bulk_import(  # type: ignore
     self,
     materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
     rule: Literal[&#39;NO_DUPLICATED&#39;, &#39;TREAT_AS_UNIQUE&#39;, &#39;USE_MATCHES&#39;] = &#39;TREAT_AS_UNIQUE&#39;,
@@ -1536,6 +1538,7 @@ Max materials size: 50MB.</p>
             time.sleep(period)
         else:
             response = True
+            break
 
     if not response:
         log.debug(&#39;Time is over to import file&#39;)
