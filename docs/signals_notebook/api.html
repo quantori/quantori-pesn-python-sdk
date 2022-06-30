@@ -121,7 +121,7 @@ class SignalsNotebookApi:
         path: Union[str, Sequence[str]],
         params: Dict[str, Any] = None,
         data: _Data = None,
-        json: Dict[str, Any] = None,
+        json: Union[list, Dict[str, Any]] = None,
         headers: Dict[str, str] = None,
     ) -&gt; requests.Response:
         &#34;&#34;&#34;Makes an API call
@@ -296,7 +296,7 @@ class SignalsNotebookApi:
         path: Union[str, Sequence[str]],
         params: Dict[str, Any] = None,
         data: _Data = None,
-        json: Dict[str, Any] = None,
+        json: Union[list, Dict[str, Any]] = None,
         headers: Dict[str, str] = None,
     ) -&gt; requests.Response:
         &#34;&#34;&#34;Makes an API call
@@ -488,7 +488,7 @@ def set_default_api(cls, api: &#39;SignalsNotebookApi&#39;) -&gt; None:
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.api.SignalsNotebookApi.call"><code class="name flex">
-<span>def <span class="ident">call</span></span>(<span>self, method: str, path: Union[str, Sequence[str]], params: Dict[str, Any] = None, data: Union[ForwardRef(None), str, bytes, Mapping[str, Any], Iterable[Tuple[str, Optional[str]]], IO[Any]] = None, json: Dict[str, Any] = None, headers: Dict[str, str] = None) ‑> requests.models.Response</span>
+<span>def <span class="ident">call</span></span>(<span>self, method: str, path: Union[str, Sequence[str]], params: Dict[str, Any] = None, data: Union[ForwardRef(None), str, bytes, Mapping[str, Any], Iterable[Tuple[str, Optional[str]]], IO[Any]] = None, json: Union[list, Dict[str, Any]] = None, headers: Dict[str, str] = None) ‑> requests.models.Response</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Makes an API call</p>
@@ -523,7 +523,7 @@ header name and its value is the header value.</dd>
     path: Union[str, Sequence[str]],
     params: Dict[str, Any] = None,
     data: _Data = None,
-    json: Dict[str, Any] = None,
+    json: Union[list, Dict[str, Any]] = None,
     headers: Dict[str, str] = None,
 ) -&gt; requests.Response:
     &#34;&#34;&#34;Makes an API call
