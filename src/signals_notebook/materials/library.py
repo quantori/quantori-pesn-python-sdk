@@ -294,20 +294,9 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def create_asset_with_batches(
+    def _process_asset_with_batch_fields(
         self, asset_with_batch_fields: dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]
-    ) -> Asset:
-        """Create new asset with batches
-
-        Args:
-            asset_with_batch_fields: dictionary of asset and batch fields
-
-        Returns:
-            Asset
-        """
-        api = SignalsNotebookApi.get_default_api()
-        log.debug('Create Asset with existing Batches for %s', self.eid)
-
+    ) -> AssetRequestData:
         request_fields = {}
 
         for material_instance in asset_with_batch_fields:
@@ -326,7 +315,7 @@ class Library(BaseMaterialEntity):
 
             request_fields[material_instance] = request_instance_fields
 
-        request_data = AssetRequestData(
+        return AssetRequestData(
             type=MaterialType.ASSET,
             attributes=BatchAssetAttribute(fields=request_fields[MaterialType.ASSET]),
             relationships=AssetRelationship(
@@ -338,6 +327,22 @@ class Library(BaseMaterialEntity):
                 )
             ),
         )
+
+    def create_asset_with_batches(
+        self, asset_with_batch_fields: dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]
+    ) -> Asset:
+        """Create new asset with batches
+
+        Args:
+            asset_with_batch_fields: dictionary of asset and batch fields
+
+        Returns:
+            Asset
+        """
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Create Asset with existing Batches for %s', self.eid)
+
+        request_data = self._process_asset_with_batch_fields(asset_with_batch_fields)
 
         response = api.call(
             method='POST', path=(self._get_endpoint(), self.library_name, 'assets'), json={'data': request_data.dict()}
@@ -407,3 +412,88 @@ class Library(BaseMaterialEntity):
         return File(
             name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
         )
+
+    def _is_import_job_completed(self, job_id: str) -> bool:
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
+
+        response = api.call(method='GET', path=(self._get_endpoint(), 'bulkImport', 'jobs', job_id))
+
+        return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
+
+    def _import_materials(
+        self,
+        materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
+        rule: Literal['NO_DUPLICATED', 'TREAT_AS_UNIQUE', 'USE_MATCHES'] = 'NO_DUPLICATED',
+        import_type: Literal['json', 'zip'] = 'json',
+    ):
+        api = SignalsNotebookApi.get_default_api()
+
+        if import_type == 'json':
+            request_body = [{'data': self._process_asset_with_batch_fields(i).dict()} for i in materials]
+
+            return api.call(
+                method='POST',
+                path=(self._get_endpoint(), self.name, 'bulkImport'),
+                params={
+                    'rule': rule,
+                    'importType': import_type,
+                },
+                json=request_body,
+            )
+        else:
+            return api.call(
+                method='POST',
+                path=(self._get_endpoint(), self.name, 'bulkImport'),
+                params={
+                    'rule': rule,
+                    'importType': import_type,
+                },
+                headers={
+                    'Content-Type': 'application/octet-stream',
+                },
+                data=materials.content,
+            )
+
+    def bulk_import(
+        self,
+        materials_file: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
+        rule: Literal['NO_DUPLICATED', 'TREAT_AS_UNIQUE', 'USE_MATCHES'] = 'TREAT_AS_UNIQUE',
+        import_type: Literal['json', 'zip'] = 'json',
+        timeout: int = 30,
+        period: int = 5,
+    ) -> Optional[File]:
+        api = SignalsNotebookApi.get_default_api()
+
+        bulk_import_response = self._import_materials(materials_file, rule, import_type)
+
+        job_id = bulk_import_response.json()['data']['id']
+
+        initial_time = time.time()
+
+        response = False
+
+        while time.time() - initial_time < timeout:
+            if not self._is_import_job_completed(job_id):
+                time.sleep(period)
+            else:
+                response = True
+                break
+
+        if not response:
+            log.debug('Time is over to import file')
+            failure_report_reponse = api.call(
+                method='GET',
+                path=(self._get_endpoint(), 'bulkImport', 'jobs', job_id, 'failures'),
+                params={
+                    'filename': f'{self.name}_failure_report',
+                },
+            )
+            content_disposition = failure_report_reponse.headers.get('content-disposition', '')
+            _, params = cgi.parse_header(content_disposition)
+
+            return File(
+                name=params['filename'],
+                content=failure_report_reponse.content,
+                content_type=failure_report_reponse.headers.get('content-type'),
+            )
