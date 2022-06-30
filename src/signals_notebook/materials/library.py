@@ -460,7 +460,7 @@ class Library(BaseMaterialEntity):
                 json=request_body,
             )
 
-    def bulk_import(
+    def bulk_import(  # type: ignore
         self,
         materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
         rule: Literal['NO_DUPLICATED', 'TREAT_AS_UNIQUE', 'USE_MATCHES'] = 'TREAT_AS_UNIQUE',
@@ -505,6 +505,7 @@ class Library(BaseMaterialEntity):
                 time.sleep(period)
             else:
                 response = True
+                break
 
         if not response:
             log.debug('Time is over to import file')
