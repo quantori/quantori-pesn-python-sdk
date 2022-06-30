@@ -53,6 +53,8 @@ class EntityType(str, Enum):
     SAMPLES_CONTAINER = 'samplesContainer'
     POWER_POINT = 'presentation'
     SPOTFIRE = 'spotfiredxp'
+    TODO_LIST = 'linkedTaskContainer'
+    TASK = 'task'
 
 
 class MaterialType(str, Enum):
