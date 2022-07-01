@@ -484,18 +484,17 @@ class Library(BaseMaterialEntity):
                 data=materials.content,
             )
 
-        else:
-            request_body = [{&#39;data&#39;: self._process_asset_with_batch_fields(material).dict()} for material in materials]
+        request_body = [{&#39;data&#39;: self._process_asset_with_batch_fields(material).dict()} for material in materials]
 
-            return api.call(
-                method=&#39;POST&#39;,
-                path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
-                params={
-                    &#39;rule&#39;: rule,
-                    &#39;importType&#39;: import_type,
-                },
-                json=request_body,
-            )
+        return api.call(
+            method=&#39;POST&#39;,
+            path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
+            params={
+                &#39;rule&#39;: rule,
+                &#39;importType&#39;: import_type,
+            },
+            json=request_body,
+        )
 
     def bulk_import(  # type: ignore
         self,
@@ -1269,18 +1268,17 @@ Adds ability to use properties with setters</p>
                 data=materials.content,
             )
 
-        else:
-            request_body = [{&#39;data&#39;: self._process_asset_with_batch_fields(material).dict()} for material in materials]
+        request_body = [{&#39;data&#39;: self._process_asset_with_batch_fields(material).dict()} for material in materials]
 
-            return api.call(
-                method=&#39;POST&#39;,
-                path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
-                params={
-                    &#39;rule&#39;: rule,
-                    &#39;importType&#39;: import_type,
-                },
-                json=request_body,
-            )
+        return api.call(
+            method=&#39;POST&#39;,
+            path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
+            params={
+                &#39;rule&#39;: rule,
+                &#39;importType&#39;: import_type,
+            },
+            json=request_body,
+        )
 
     def bulk_import(  # type: ignore
         self,
