@@ -12,7 +12,6 @@ log = logging.getLogger(__name__)
 
 
 class ContentfulEntity(Entity, abc.ABC):
-
     @classmethod
     @abc.abstractmethod
     def _get_entity_type(cls) -> EntityType:
@@ -34,7 +33,9 @@ class ContentfulEntity(Entity, abc.ABC):
         _, params = cgi.parse_header(content_disposition)
 
         return File(
-            name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
+            name=params['filename'],
+            content=response.content,
+            content_type=response.headers.get('content-type'),
         )
 
     def get_html(self) -> str:

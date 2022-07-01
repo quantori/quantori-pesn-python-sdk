@@ -32,12 +32,12 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID
+from signals_notebook.common_types import EID, ObjectType
 
 CellValueType = TypeVar(&#39;CellValueType&#39;)
 
 
-class CellPropertyContent(GenericModel, Generic[CellValueType]):
+class TaskCellContent(GenericModel, Generic[CellValueType]):
     value: Optional[CellValueType]
     name: Optional[str]
     eid: Optional[EID]
@@ -91,19 +91,19 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
 
 
 class Content(BaseModel):
-    content: Optional[CellPropertyContent]
+    content: Optional[TaskCellContent]
 
 
-class TaskPropertyBody(BaseModel):
+class TaskCellBody(BaseModel):
     id: Optional[Union[UUID, str]]
-    type: str = &#39;property&#39;
+    type: str = ObjectType.PROPERTY
     attributes: Content
 
 
-class TaskProperty(BaseModel):
+class TaskCell(BaseModel):
     id: Optional[Union[UUID, str]]
     name: Optional[str]
-    content: CellPropertyContent = Field(default=CellPropertyContent())
+    content: TaskCellContent = Field(default=TaskCellContent())
 
     def set_content_value(self, new_value: CellValueType) -&gt; None:
         &#34;&#34;&#34;Set new content value
@@ -175,13 +175,13 @@ class TaskProperty(BaseModel):
         return False if self.content is None else self.content.is_changed
 
     @property
-    def representation_for_update(self) -&gt; TaskPropertyBody:
+    def representation_for_update(self) -&gt; TaskCellBody:
         &#34;&#34;&#34;Get representation of body for update
 
         Returns:
-            TaskPropertyBody
+            TaskCellBody
         &#34;&#34;&#34;
-        return TaskPropertyBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
+        return TaskCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
 </details>
 </section>
 <section>
@@ -193,8 +193,8 @@ class TaskProperty(BaseModel):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="signals_notebook.entities.todo_list.cell.CellPropertyContent"><code class="flex name class">
-<span>class <span class="ident">CellPropertyContent</span></span>
+<dt id="signals_notebook.entities.todo_list.cell.Content"><code class="flex name class">
+<span>class <span class="ident">Content</span></span>
 <span>(</span><span>**data: Any)</span>
 </code></dt>
 <dd>
@@ -204,7 +204,368 @@ class TaskProperty(BaseModel):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class CellPropertyContent(GenericModel, Generic[CellValueType]):
+<pre><code class="python">class Content(BaseModel):
+    content: Optional[TaskCellContent]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.todo_list.cell.Content.content"><code class="name">var <span class="ident">content</span> : Optional[<a title="signals_notebook.entities.todo_list.cell.TaskCellContent" href="#signals_notebook.entities.todo_list.cell.TaskCellContent">TaskCellContent</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell"><code class="flex name class">
+<span>class <span class="ident">TaskCell</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TaskCell(BaseModel):
+    id: Optional[Union[UUID, str]]
+    name: Optional[str]
+    content: TaskCellContent = Field(default=TaskCellContent())
+
+    def set_content_value(self, new_value: CellValueType) -&gt; None:
+        &#34;&#34;&#34;Set new content value
+
+        Args:
+            new_value: new value of Property value field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self.content.set_value(new_value)
+
+    def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
+        &#34;&#34;&#34;Set new content values
+
+        Args:
+            new_values: new list of values of Property values field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self.content.set_values(new_values)
+
+    def set_content_name(self, new_name: str) -&gt; None:
+        &#34;&#34;&#34;Set new content name
+
+        Args:
+            new_name: new name of content name field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self.content.set_name(new_name)
+
+    @property
+    def content_value(self) -&gt; Optional[CellValueType]:
+        &#34;&#34;&#34;Get content value
+
+        Returns:
+            Optional[CellValueType]
+        &#34;&#34;&#34;
+        return self.content.value
+
+    @property
+    def content_values(self) -&gt; Optional[List[CellValueType]]:
+        &#34;&#34;&#34;Get content values
+
+        Returns:
+            Optional[List[CellValueType]]
+        &#34;&#34;&#34;
+        return self.content.values
+
+    @property
+    def content_name(self) -&gt; Optional[str]:
+        &#34;&#34;&#34;Get content name
+
+        Returns:
+            Optional[str]
+        &#34;&#34;&#34;
+        return self.content.name
+
+    @property
+    def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if Property has been modified
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
+        return False if self.content is None else self.content.is_changed
+
+    @property
+    def representation_for_update(self) -&gt; TaskCellBody:
+        &#34;&#34;&#34;Get representation of body for update
+
+        Returns:
+            TaskCellBody
+        &#34;&#34;&#34;
+        return TaskCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.content"><code class="name">var <span class="ident">content</span> : <a title="signals_notebook.entities.todo_list.cell.TaskCellContent" href="#signals_notebook.entities.todo_list.cell.TaskCellContent">TaskCellContent</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.id"><code class="name">var <span class="ident">id</span> : Union[uuid.UUID, str, ForwardRef(None)]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.content_name"><code class="name">var <span class="ident">content_name</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"><p>Get content name</p>
+<h2 id="returns">Returns</h2>
+<p>Optional[str]</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def content_name(self) -&gt; Optional[str]:
+    &#34;&#34;&#34;Get content name
+
+    Returns:
+        Optional[str]
+    &#34;&#34;&#34;
+    return self.content.name</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.content_value"><code class="name">var <span class="ident">content_value</span> : Optional[~CellValueType]</code></dt>
+<dd>
+<div class="desc"><p>Get content value</p>
+<h2 id="returns">Returns</h2>
+<p>Optional[CellValueType]</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def content_value(self) -&gt; Optional[CellValueType]:
+    &#34;&#34;&#34;Get content value
+
+    Returns:
+        Optional[CellValueType]
+    &#34;&#34;&#34;
+    return self.content.value</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.content_values"><code class="name">var <span class="ident">content_values</span> : Optional[List[~CellValueType]]</code></dt>
+<dd>
+<div class="desc"><p>Get content values</p>
+<h2 id="returns">Returns</h2>
+<p>Optional[List[CellValueType]]</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def content_values(self) -&gt; Optional[List[CellValueType]]:
+    &#34;&#34;&#34;Get content values
+
+    Returns:
+        Optional[List[CellValueType]]
+    &#34;&#34;&#34;
+    return self.content.values</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>Checking if Property has been modified</p>
+<h2 id="returns">Returns</h2>
+<p>bool</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_changed(self) -&gt; bool:
+    &#34;&#34;&#34;Checking if Property has been modified
+
+    Returns:
+        bool
+    &#34;&#34;&#34;
+    return False if self.content is None else self.content.is_changed</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.representation_for_update"><code class="name">var <span class="ident">representation_for_update</span> : <a title="signals_notebook.entities.todo_list.cell.TaskCellBody" href="#signals_notebook.entities.todo_list.cell.TaskCellBody">TaskCellBody</a></code></dt>
+<dd>
+<div class="desc"><p>Get representation of body for update</p>
+<h2 id="returns">Returns</h2>
+<p>TaskCellBody</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def representation_for_update(self) -&gt; TaskCellBody:
+    &#34;&#34;&#34;Get representation of body for update
+
+    Returns:
+        TaskCellBody
+    &#34;&#34;&#34;
+    return TaskCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.set_content_name"><code class="name flex">
+<span>def <span class="ident">set_content_name</span></span>(<span>self, new_name: str) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new content name</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_name</code></strong></dt>
+<dd>new name of content name field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_content_name(self, new_name: str) -&gt; None:
+    &#34;&#34;&#34;Set new content name
+
+    Args:
+        new_name: new name of content name field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    self.content.set_name(new_name)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.set_content_value"><code class="name flex">
+<span>def <span class="ident">set_content_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new content value</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of Property value field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_content_value(self, new_value: CellValueType) -&gt; None:
+    &#34;&#34;&#34;Set new content value
+
+    Args:
+        new_value: new value of Property value field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    self.content.set_value(new_value)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCell.set_content_values"><code class="name flex">
+<span>def <span class="ident">set_content_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new content values</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_values</code></strong></dt>
+<dd>new list of values of Property values field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
+    &#34;&#34;&#34;Set new content values
+
+    Args:
+        new_values: new list of values of Property values field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    self.content.set_values(new_values)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellBody"><code class="flex name class">
+<span>class <span class="ident">TaskCellBody</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TaskCellBody(BaseModel):
+    id: Optional[Union[UUID, str]]
+    type: str = ObjectType.PROPERTY
+    attributes: Content</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellBody.attributes"><code class="name">var <span class="ident">attributes</span> : <a title="signals_notebook.entities.todo_list.cell.Content" href="#signals_notebook.entities.todo_list.cell.Content">Content</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellBody.id"><code class="name">var <span class="ident">id</span> : Union[uuid.UUID, str, ForwardRef(None)]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellBody.type"><code class="name">var <span class="ident">type</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellContent"><code class="flex name class">
+<span>class <span class="ident">TaskCellContent</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TaskCellContent(GenericModel, Generic[CellValueType]):
     value: Optional[CellValueType]
     name: Optional[str]
     eid: Optional[EID]
@@ -265,26 +626,26 @@ class TaskProperty(BaseModel):
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.entities.todo_list.cell.CellPropertyContent.eid"><code class="name">var <span class="ident">eid</span> : Optional[<a title="signals_notebook.common_types.EID" href="../../common_types.html#signals_notebook.common_types.EID">EID</a>]</code></dt>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellContent.eid"><code class="name">var <span class="ident">eid</span> : Optional[<a title="signals_notebook.common_types.EID" href="../../common_types.html#signals_notebook.common_types.EID">EID</a>]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.todo_list.cell.CellPropertyContent.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellContent.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.todo_list.cell.CellPropertyContent.value"><code class="name">var <span class="ident">value</span> : Optional[~CellValueType]</code></dt>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellContent.value"><code class="name">var <span class="ident">value</span> : Optional[~CellValueType]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.todo_list.cell.CellPropertyContent.values"><code class="name">var <span class="ident">values</span> : Optional[List[~CellValueType]]</code></dt>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellContent.values"><code class="name">var <span class="ident">values</span> : Optional[List[~CellValueType]]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="signals_notebook.entities.todo_list.cell.CellPropertyContent.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellContent.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
 <dd>
 <div class="desc"><p>Checking if content of Cell has been modified</p>
 <h2 id="returns">Returns</h2>
@@ -306,7 +667,7 @@ def is_changed(self) -&gt; bool:
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="signals_notebook.entities.todo_list.cell.CellPropertyContent.set_name"><code class="name flex">
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellContent.set_name"><code class="name flex">
 <span>def <span class="ident">set_name</span></span>(<span>self, new_name: str) ‑> None</span>
 </code></dt>
 <dd>
@@ -334,7 +695,7 @@ def is_changed(self) -&gt; bool:
     self._changed = True</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.entities.todo_list.cell.CellPropertyContent.set_value"><code class="name flex">
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellContent.set_value"><code class="name flex">
 <span>def <span class="ident">set_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
 </code></dt>
 <dd>
@@ -362,7 +723,7 @@ def is_changed(self) -&gt; bool:
     self._changed = True</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.entities.todo_list.cell.CellPropertyContent.set_values"><code class="name flex">
+<dt id="signals_notebook.entities.todo_list.cell.TaskCellContent.set_values"><code class="name flex">
 <span>def <span class="ident">set_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
 </code></dt>
 <dd>
@@ -392,367 +753,6 @@ def is_changed(self) -&gt; bool:
 </dd>
 </dl>
 </dd>
-<dt id="signals_notebook.entities.todo_list.cell.Content"><code class="flex name class">
-<span>class <span class="ident">Content</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class Content(BaseModel):
-    content: Optional[CellPropertyContent]</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.entities.todo_list.cell.Content.content"><code class="name">var <span class="ident">content</span> : Optional[<a title="signals_notebook.entities.todo_list.cell.CellPropertyContent" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent">CellPropertyContent</a>]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty"><code class="flex name class">
-<span>class <span class="ident">TaskProperty</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class TaskProperty(BaseModel):
-    id: Optional[Union[UUID, str]]
-    name: Optional[str]
-    content: CellPropertyContent = Field(default=CellPropertyContent())
-
-    def set_content_value(self, new_value: CellValueType) -&gt; None:
-        &#34;&#34;&#34;Set new content value
-
-        Args:
-            new_value: new value of Property value field
-
-        Returns:
-
-        &#34;&#34;&#34;
-        self.content.set_value(new_value)
-
-    def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
-        &#34;&#34;&#34;Set new content values
-
-        Args:
-            new_values: new list of values of Property values field
-
-        Returns:
-
-        &#34;&#34;&#34;
-        self.content.set_values(new_values)
-
-    def set_content_name(self, new_name: str) -&gt; None:
-        &#34;&#34;&#34;Set new content name
-
-        Args:
-            new_name: new name of content name field
-
-        Returns:
-
-        &#34;&#34;&#34;
-        self.content.set_name(new_name)
-
-    @property
-    def content_value(self) -&gt; Optional[CellValueType]:
-        &#34;&#34;&#34;Get content value
-
-        Returns:
-            Optional[CellValueType]
-        &#34;&#34;&#34;
-        return self.content.value
-
-    @property
-    def content_values(self) -&gt; Optional[List[CellValueType]]:
-        &#34;&#34;&#34;Get content values
-
-        Returns:
-            Optional[List[CellValueType]]
-        &#34;&#34;&#34;
-        return self.content.values
-
-    @property
-    def content_name(self) -&gt; Optional[str]:
-        &#34;&#34;&#34;Get content name
-
-        Returns:
-            Optional[str]
-        &#34;&#34;&#34;
-        return self.content.name
-
-    @property
-    def is_changed(self) -&gt; bool:
-        &#34;&#34;&#34;Checking if Property has been modified
-
-        Returns:
-            bool
-        &#34;&#34;&#34;
-        return False if self.content is None else self.content.is_changed
-
-    @property
-    def representation_for_update(self) -&gt; TaskPropertyBody:
-        &#34;&#34;&#34;Get representation of body for update
-
-        Returns:
-            TaskPropertyBody
-        &#34;&#34;&#34;
-        return TaskPropertyBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.content"><code class="name">var <span class="ident">content</span> : <a title="signals_notebook.entities.todo_list.cell.CellPropertyContent" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent">CellPropertyContent</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.id"><code class="name">var <span class="ident">id</span> : Union[uuid.UUID, str, ForwardRef(None)]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-<h3>Instance variables</h3>
-<dl>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.content_name"><code class="name">var <span class="ident">content_name</span> : Optional[str]</code></dt>
-<dd>
-<div class="desc"><p>Get content name</p>
-<h2 id="returns">Returns</h2>
-<p>Optional[str]</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def content_name(self) -&gt; Optional[str]:
-    &#34;&#34;&#34;Get content name
-
-    Returns:
-        Optional[str]
-    &#34;&#34;&#34;
-    return self.content.name</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.content_value"><code class="name">var <span class="ident">content_value</span> : Optional[~CellValueType]</code></dt>
-<dd>
-<div class="desc"><p>Get content value</p>
-<h2 id="returns">Returns</h2>
-<p>Optional[CellValueType]</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def content_value(self) -&gt; Optional[CellValueType]:
-    &#34;&#34;&#34;Get content value
-
-    Returns:
-        Optional[CellValueType]
-    &#34;&#34;&#34;
-    return self.content.value</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.content_values"><code class="name">var <span class="ident">content_values</span> : Optional[List[~CellValueType]]</code></dt>
-<dd>
-<div class="desc"><p>Get content values</p>
-<h2 id="returns">Returns</h2>
-<p>Optional[List[CellValueType]]</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def content_values(self) -&gt; Optional[List[CellValueType]]:
-    &#34;&#34;&#34;Get content values
-
-    Returns:
-        Optional[List[CellValueType]]
-    &#34;&#34;&#34;
-    return self.content.values</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
-<dd>
-<div class="desc"><p>Checking if Property has been modified</p>
-<h2 id="returns">Returns</h2>
-<p>bool</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def is_changed(self) -&gt; bool:
-    &#34;&#34;&#34;Checking if Property has been modified
-
-    Returns:
-        bool
-    &#34;&#34;&#34;
-    return False if self.content is None else self.content.is_changed</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.representation_for_update"><code class="name">var <span class="ident">representation_for_update</span> : <a title="signals_notebook.entities.todo_list.cell.TaskPropertyBody" href="#signals_notebook.entities.todo_list.cell.TaskPropertyBody">TaskPropertyBody</a></code></dt>
-<dd>
-<div class="desc"><p>Get representation of body for update</p>
-<h2 id="returns">Returns</h2>
-<p>TaskPropertyBody</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@property
-def representation_for_update(self) -&gt; TaskPropertyBody:
-    &#34;&#34;&#34;Get representation of body for update
-
-    Returns:
-        TaskPropertyBody
-    &#34;&#34;&#34;
-    return TaskPropertyBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
-</details>
-</dd>
-</dl>
-<h3>Methods</h3>
-<dl>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.set_content_name"><code class="name flex">
-<span>def <span class="ident">set_content_name</span></span>(<span>self, new_name: str) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Set new content name</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>new_name</code></strong></dt>
-<dd>new name of content name field</dd>
-</dl>
-<p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_content_name(self, new_name: str) -&gt; None:
-    &#34;&#34;&#34;Set new content name
-
-    Args:
-        new_name: new name of content name field
-
-    Returns:
-
-    &#34;&#34;&#34;
-    self.content.set_name(new_name)</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.set_content_value"><code class="name flex">
-<span>def <span class="ident">set_content_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Set new content value</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>new_value</code></strong></dt>
-<dd>new value of Property value field</dd>
-</dl>
-<p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_content_value(self, new_value: CellValueType) -&gt; None:
-    &#34;&#34;&#34;Set new content value
-
-    Args:
-        new_value: new value of Property value field
-
-    Returns:
-
-    &#34;&#34;&#34;
-    self.content.set_value(new_value)</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskProperty.set_content_values"><code class="name flex">
-<span>def <span class="ident">set_content_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Set new content values</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>new_values</code></strong></dt>
-<dd>new list of values of Property values field</dd>
-</dl>
-<p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
-    &#34;&#34;&#34;Set new content values
-
-    Args:
-        new_values: new list of values of Property values field
-
-    Returns:
-
-    &#34;&#34;&#34;
-    self.content.set_values(new_values)</code></pre>
-</details>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskPropertyBody"><code class="flex name class">
-<span>class <span class="ident">TaskPropertyBody</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class TaskPropertyBody(BaseModel):
-    id: Optional[Union[UUID, str]]
-    type: str = &#39;property&#39;
-    attributes: Content</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.entities.todo_list.cell.TaskPropertyBody.attributes"><code class="name">var <span class="ident">attributes</span> : <a title="signals_notebook.entities.todo_list.cell.Content" href="#signals_notebook.entities.todo_list.cell.Content">Content</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskPropertyBody.id"><code class="name">var <span class="ident">id</span> : Union[uuid.UUID, str, ForwardRef(None)]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.todo_list.cell.TaskPropertyBody.type"><code class="name">var <span class="ident">type</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
 </dl>
 </section>
 </article>
@@ -770,46 +770,46 @@ def representation_for_update(self) -&gt; TaskPropertyBody:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="signals_notebook.entities.todo_list.cell.CellPropertyContent" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent">CellPropertyContent</a></code></h4>
-<ul class="two-column">
-<li><code><a title="signals_notebook.entities.todo_list.cell.CellPropertyContent.eid" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent.eid">eid</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.CellPropertyContent.is_changed" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent.is_changed">is_changed</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.CellPropertyContent.name" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent.name">name</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.CellPropertyContent.set_name" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent.set_name">set_name</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.CellPropertyContent.set_value" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent.set_value">set_value</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.CellPropertyContent.set_values" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent.set_values">set_values</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.CellPropertyContent.value" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent.value">value</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.CellPropertyContent.values" href="#signals_notebook.entities.todo_list.cell.CellPropertyContent.values">values</a></code></li>
-</ul>
-</li>
-<li>
 <h4><code><a title="signals_notebook.entities.todo_list.cell.Content" href="#signals_notebook.entities.todo_list.cell.Content">Content</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.entities.todo_list.cell.Content.content" href="#signals_notebook.entities.todo_list.cell.Content.content">content</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty" href="#signals_notebook.entities.todo_list.cell.TaskProperty">TaskProperty</a></code></h4>
+<h4><code><a title="signals_notebook.entities.todo_list.cell.TaskCell" href="#signals_notebook.entities.todo_list.cell.TaskCell">TaskCell</a></code></h4>
 <ul class="">
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.content" href="#signals_notebook.entities.todo_list.cell.TaskProperty.content">content</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.content_name" href="#signals_notebook.entities.todo_list.cell.TaskProperty.content_name">content_name</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.content_value" href="#signals_notebook.entities.todo_list.cell.TaskProperty.content_value">content_value</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.content_values" href="#signals_notebook.entities.todo_list.cell.TaskProperty.content_values">content_values</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.id" href="#signals_notebook.entities.todo_list.cell.TaskProperty.id">id</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.is_changed" href="#signals_notebook.entities.todo_list.cell.TaskProperty.is_changed">is_changed</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.name" href="#signals_notebook.entities.todo_list.cell.TaskProperty.name">name</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.representation_for_update" href="#signals_notebook.entities.todo_list.cell.TaskProperty.representation_for_update">representation_for_update</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.set_content_name" href="#signals_notebook.entities.todo_list.cell.TaskProperty.set_content_name">set_content_name</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.set_content_value" href="#signals_notebook.entities.todo_list.cell.TaskProperty.set_content_value">set_content_value</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskProperty.set_content_values" href="#signals_notebook.entities.todo_list.cell.TaskProperty.set_content_values">set_content_values</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.content" href="#signals_notebook.entities.todo_list.cell.TaskCell.content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.content_name" href="#signals_notebook.entities.todo_list.cell.TaskCell.content_name">content_name</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.content_value" href="#signals_notebook.entities.todo_list.cell.TaskCell.content_value">content_value</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.content_values" href="#signals_notebook.entities.todo_list.cell.TaskCell.content_values">content_values</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.id" href="#signals_notebook.entities.todo_list.cell.TaskCell.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.is_changed" href="#signals_notebook.entities.todo_list.cell.TaskCell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.name" href="#signals_notebook.entities.todo_list.cell.TaskCell.name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.representation_for_update" href="#signals_notebook.entities.todo_list.cell.TaskCell.representation_for_update">representation_for_update</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.set_content_name" href="#signals_notebook.entities.todo_list.cell.TaskCell.set_content_name">set_content_name</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.set_content_value" href="#signals_notebook.entities.todo_list.cell.TaskCell.set_content_value">set_content_value</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCell.set_content_values" href="#signals_notebook.entities.todo_list.cell.TaskCell.set_content_values">set_content_values</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.entities.todo_list.cell.TaskPropertyBody" href="#signals_notebook.entities.todo_list.cell.TaskPropertyBody">TaskPropertyBody</a></code></h4>
+<h4><code><a title="signals_notebook.entities.todo_list.cell.TaskCellBody" href="#signals_notebook.entities.todo_list.cell.TaskCellBody">TaskCellBody</a></code></h4>
 <ul class="">
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskPropertyBody.attributes" href="#signals_notebook.entities.todo_list.cell.TaskPropertyBody.attributes">attributes</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskPropertyBody.id" href="#signals_notebook.entities.todo_list.cell.TaskPropertyBody.id">id</a></code></li>
-<li><code><a title="signals_notebook.entities.todo_list.cell.TaskPropertyBody.type" href="#signals_notebook.entities.todo_list.cell.TaskPropertyBody.type">type</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellBody.attributes" href="#signals_notebook.entities.todo_list.cell.TaskCellBody.attributes">attributes</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellBody.id" href="#signals_notebook.entities.todo_list.cell.TaskCellBody.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellBody.type" href="#signals_notebook.entities.todo_list.cell.TaskCellBody.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.todo_list.cell.TaskCellContent" href="#signals_notebook.entities.todo_list.cell.TaskCellContent">TaskCellContent</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellContent.eid" href="#signals_notebook.entities.todo_list.cell.TaskCellContent.eid">eid</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellContent.is_changed" href="#signals_notebook.entities.todo_list.cell.TaskCellContent.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellContent.name" href="#signals_notebook.entities.todo_list.cell.TaskCellContent.name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellContent.set_name" href="#signals_notebook.entities.todo_list.cell.TaskCellContent.set_name">set_name</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellContent.set_value" href="#signals_notebook.entities.todo_list.cell.TaskCellContent.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellContent.set_values" href="#signals_notebook.entities.todo_list.cell.TaskCellContent.set_values">set_values</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellContent.value" href="#signals_notebook.entities.todo_list.cell.TaskCellContent.value">value</a></code></li>
+<li><code><a title="signals_notebook.entities.todo_list.cell.TaskCellContent.values" href="#signals_notebook.entities.todo_list.cell.TaskCellContent.values">values</a></code></li>
 </ul>
 </li>
 </ul>

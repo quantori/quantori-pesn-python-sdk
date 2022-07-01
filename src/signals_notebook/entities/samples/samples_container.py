@@ -1,6 +1,7 @@
 import csv
 from io import StringIO
 from typing import cast, ClassVar, Dict, Generator, List, Literal, Union
+from uuid import UUID
 
 from pydantic import Field, PrivateAttr
 
@@ -21,7 +22,7 @@ class SamplesContainer(ContentfulEntity):
     _samples: List[Sample] = PrivateAttr(default=[])
     _samples_by_id: Dict[EID, Sample] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[EID, int, str]) -> Sample:
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -> Sample:
         if not self._samples:
             self._reload_samples()
 

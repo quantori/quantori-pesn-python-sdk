@@ -346,6 +346,15 @@ class File(BaseModel):
             super().__init__(**kwargs)
 
     @property
+    def size(self) -> int:
+        """Get file size
+
+        Returns:
+            file size
+        """
+        return len(self.content)
+
+    @property
     def base64(self) -> bytes:
         return b64encode(self.content)
 

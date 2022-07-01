@@ -60,7 +60,7 @@ def test_get_content(word_factory, api_mock):
 
     api_mock.call.return_value.headers = {
         'content-type': content_type,
-        'content-disposition': f'attachment; filename={file_name}'
+        'content-disposition': f'attachment; filename={file_name}',
     }
     api_mock.call.return_value.content = content
 
@@ -88,7 +88,7 @@ def test_get_html(word_factory, snapshot, api_mock):
 
     api_mock.call.return_value.headers = {
         'content-type': content_type,
-        'content-disposition': f'attachment; filename={file_name}'
+        'content-disposition': f'attachment; filename={file_name}',
     }
     api_mock.call.return_value.content = content
 

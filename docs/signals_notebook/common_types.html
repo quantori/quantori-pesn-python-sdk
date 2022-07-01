@@ -371,6 +371,15 @@ class File(BaseModel):
             super().__init__(**kwargs)
 
     @property
+    def size(self) -&gt; int:
+        &#34;&#34;&#34;Get file size
+
+        Returns:
+            file size
+        &#34;&#34;&#34;
+        return len(self.content)
+
+    @property
     def base64(self) -&gt; bytes:
         return b64encode(self.content)
 
@@ -1153,6 +1162,15 @@ def type(self) -&gt; Union[EntityType, str]:
             super().__init__(**kwargs)
 
     @property
+    def size(self) -&gt; int:
+        &#34;&#34;&#34;Get file size
+
+        Returns:
+            file size
+        &#34;&#34;&#34;
+        return len(self.content)
+
+    @property
     def base64(self) -&gt; bytes:
         return b64encode(self.content)
 
@@ -1254,6 +1272,25 @@ def read(cls, file_name: str, mode=&#39;rb&#39;) -&gt; &#39;File&#39;:
 <pre><code class="python">@property
 def base64(self) -&gt; bytes:
     return b64encode(self.content)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.common_types.File.size"><code class="name">var <span class="ident">size</span> : int</code></dt>
+<dd>
+<div class="desc"><p>Get file size</p>
+<h2 id="returns">Returns</h2>
+<p>file size</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def size(self) -&gt; int:
+    &#34;&#34;&#34;Get file size
+
+    Returns:
+        file size
+    &#34;&#34;&#34;
+    return len(self.content)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1684,13 +1721,14 @@ def type(self) -&gt; MaterialType:
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="signals_notebook.entities.samples.sample.Response[SampleProperty]" href="entities/samples/sample.html#signals_notebook.entities.samples.sample.Response[SampleProperty]">Response[SampleProperty]</a></li>
+<li><a title="signals_notebook.entities.entity.Response[Property]" href="entities/entity.html#signals_notebook.entities.entity.Response[Property]">Response[Property]</a></li>
+<li><a title="signals_notebook.entities.samples.sample.Response[SampleCell]" href="entities/samples/sample.html#signals_notebook.entities.samples.sample.Response[SampleCell]">Response[SampleCell]</a></li>
 <li><a title="signals_notebook.entities.samples.samples_container.Response[Sample]" href="entities/samples/samples_container.html#signals_notebook.entities.samples.samples_container.Response[Sample]">Response[Sample]</a></li>
 <li><a title="signals_notebook.entities.stoichiometry.stoichiometry.Response[ColumnDefinitions]" href="entities/stoichiometry/stoichiometry.html#signals_notebook.entities.stoichiometry.stoichiometry.Response[ColumnDefinitions]">Response[ColumnDefinitions]</a></li>
 <li><a title="signals_notebook.entities.stoichiometry.stoichiometry.Response[DataGrids]" href="entities/stoichiometry/stoichiometry.html#signals_notebook.entities.stoichiometry.stoichiometry.Response[DataGrids]">Response[DataGrids]</a></li>
 <li><a title="signals_notebook.entities.tables.table.Response[ColumnDefinitions]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[ColumnDefinitions]">Response[ColumnDefinitions]</a></li>
 <li><a title="signals_notebook.entities.tables.table.Response[Row]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[Row]">Response[Row]</a></li>
-<li><a title="signals_notebook.entities.todo_list.task.Response[TaskProperty]" href="entities/todo_list/task.html#signals_notebook.entities.todo_list.task.Response[TaskProperty]">Response[TaskProperty]</a></li>
+<li><a title="signals_notebook.entities.todo_list.task.Response[TaskCell]" href="entities/todo_list/task.html#signals_notebook.entities.todo_list.task.Response[TaskCell]">Response[TaskCell]</a></li>
 <li><a title="signals_notebook.materials.asset.Response[Batch]" href="materials/asset.html#signals_notebook.materials.asset.Response[Batch]">Response[Batch]</a></li>
 <li><a title="signals_notebook.materials.library.Response[Asset]" href="materials/library.html#signals_notebook.materials.library.Response[Asset]">Response[Asset]</a></li>
 <li><a title="signals_notebook.materials.library.Response[_LibraryListData]" href="materials/library.html#signals_notebook.materials.library.Response[_LibraryListData]">Response[_LibraryListData]</a></li>
@@ -1747,10 +1785,11 @@ def type(self) -&gt; MaterialType:
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
 <li>pydantic.generics.ResponseData[DataGrids]</li>
+<li>pydantic.generics.ResponseData[Property]</li>
 <li>pydantic.generics.ResponseData[Row]</li>
-<li>pydantic.generics.ResponseData[SampleProperty]</li>
+<li>pydantic.generics.ResponseData[SampleCell]</li>
 <li>pydantic.generics.ResponseData[Sample]</li>
-<li>pydantic.generics.ResponseData[TaskProperty]</li>
+<li>pydantic.generics.ResponseData[TaskCell]</li>
 <li>pydantic.generics.ResponseData[Union[Library, Asset, Batch]]</li>
 <li>pydantic.generics.ResponseData[_LibraryListData]</li>
 </ul>
@@ -1923,6 +1962,7 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.File.name" href="#signals_notebook.common_types.File.name">name</a></code></li>
 <li><code><a title="signals_notebook.common_types.File.read" href="#signals_notebook.common_types.File.read">read</a></code></li>
 <li><code><a title="signals_notebook.common_types.File.save" href="#signals_notebook.common_types.File.save">save</a></code></li>
+<li><code><a title="signals_notebook.common_types.File.size" href="#signals_notebook.common_types.File.size">size</a></code></li>
 </ul>
 </li>
 <li>

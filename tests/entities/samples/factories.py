@@ -1,8 +1,8 @@
 import factory
 
-from signals_notebook.common_types import EntityType
+from signals_notebook.common_types import EntityType, ObjectType
 from signals_notebook.entities import Sample, SamplesContainer
-from signals_notebook.entities.samples.sample import SampleProperty
+from signals_notebook.entities.samples.sample import SampleCell
 from tests.entities.factories import EntityFactory
 
 
@@ -20,10 +20,10 @@ class SampleFactory(EntityFactory):
     type = EntityType.SAMPLE
 
 
-class SamplePropertyFactory(factory.Factory):
+class SampleCellFactory(factory.Factory):
     id = factory.Faker('word')
-    type = 'property'
+    type = ObjectType.PROPERTY
     content = factory.Dict({'value': 4})
 
     class Meta:
-        model = SampleProperty
+        model = SampleCell
