@@ -30,6 +30,7 @@
 import logging
 import time
 from datetime import datetime
+from enum import Enum
 from typing import Any, cast, List, Literal, Optional, Union
 
 import requests
@@ -42,7 +43,15 @@ from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.field import AssetConfig, BatchConfig
 
+MAX_MATERIAL_FILE_SIZE = 52428800
+
 log = logging.getLogger(__name__)
+
+
+class MaterialImportRule(str, Enum):
+    NO_DUPLICATED = &#39;NO_DUPLICATED&#39;
+    TREAT_AS_UNIQUE = &#39;TREAT_AS_UNIQUE&#39;
+    USE_MATCHES = &#39;USE_MATCHES&#39;
 
 
 class ChangeBlameRecord(BaseModel):
@@ -322,20 +331,9 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def create_asset_with_batches(
+    def _process_asset_with_batch_fields(
         self, asset_with_batch_fields: dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]
-    ) -&gt; Asset:
-        &#34;&#34;&#34;Create new asset with batches
-
-        Args:
-            asset_with_batch_fields: dictionary of asset and batch fields
-
-        Returns:
-            Asset
-        &#34;&#34;&#34;
-        api = SignalsNotebookApi.get_default_api()
-        log.debug(&#39;Create Asset with existing Batches for %s&#39;, self.eid)
-
+    ) -&gt; AssetRequestData:
         request_fields = {}
 
         for material_instance in asset_with_batch_fields:
@@ -354,7 +352,7 @@ class Library(BaseMaterialEntity):
 
             request_fields[material_instance] = request_instance_fields
 
-        request_data = AssetRequestData(
+        return AssetRequestData(
             type=MaterialType.ASSET,
             attributes=BatchAssetAttribute(fields=request_fields[MaterialType.ASSET]),
             relationships=AssetRelationship(
@@ -366,6 +364,22 @@ class Library(BaseMaterialEntity):
                 )
             ),
         )
+
+    def create_asset_with_batches(
+        self, asset_with_batch_fields: dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]
+    ) -&gt; Asset:
+        &#34;&#34;&#34;Create new asset with batches
+
+        Args:
+            asset_with_batch_fields: dictionary of asset and batch fields
+
+        Returns:
+            Asset
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Create Asset with existing Batches for %s&#39;, self.eid)
+
+        request_data = self._process_asset_with_batch_fields(asset_with_batch_fields)
 
         response = api.call(
             method=&#39;POST&#39;, path=(self._get_endpoint(), self.library_name, &#39;assets&#39;), json={&#39;data&#39;: request_data.dict()}
@@ -434,7 +448,119 @@ class Library(BaseMaterialEntity):
 
         return File(
             name=params[&#39;filename&#39;], content=response.content, content_type=response.headers.get(&#39;content-type&#39;)
-        )</code></pre>
+        )
+
+    def _is_import_job_completed(self, job_id: str) -&gt; bool:
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Check job status for: %s| %s&#39;, self.__class__.__name__, self.eid)
+
+        response = api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), &#39;bulkImport&#39;, &#39;jobs&#39;, job_id))
+
+        return response.status_code == 200 and response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
+
+    def _import_materials(
+        self,
+        materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
+        rule: MaterialImportRule = MaterialImportRule.TREAT_AS_UNIQUE,
+        import_type: Literal[&#39;json&#39;, &#39;zip&#39;] = &#39;json&#39;,
+    ) -&gt; requests.Response:
+
+        api = SignalsNotebookApi.get_default_api()
+
+        if isinstance(materials, File):
+            if materials.size &gt; MAX_MATERIAL_FILE_SIZE:
+                raise ValueError(&#39;Available file size is 50Mb&#39;)
+
+            return api.call(
+                method=&#39;POST&#39;,
+                path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
+                params={
+                    &#39;rule&#39;: rule,
+                    &#39;importType&#39;: import_type,
+                },
+                headers={
+                    &#39;Content-Type&#39;: &#39;application/octet-stream&#39;,
+                },
+                data=materials.content,
+            )
+
+        request_body = [{&#39;data&#39;: self._process_asset_with_batch_fields(material).dict()} for material in materials]
+
+        return api.call(
+            method=&#39;POST&#39;,
+            path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
+            params={
+                &#39;rule&#39;: rule,
+                &#39;importType&#39;: import_type,
+            },
+            json=request_body,
+        )
+
+    def bulk_import(  # type: ignore
+        self,
+        materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
+        rule: MaterialImportRule = MaterialImportRule.TREAT_AS_UNIQUE,
+        import_type: Literal[&#39;json&#39;, &#39;zip&#39;] = &#39;json&#39;,
+        timeout: int = 30,
+        period: int = 5,
+    ) -&gt; Optional[File]:
+        &#34;&#34;&#34;Bulk import materials into a specified material library. Support import data from json or zip file.
+        Zip file should contain the sdf file or csv file and attachments. T
+        he column name in each records of sdf/csv file should be match the asset field name.
+        In sdf file, it doesn&#39;t support character &#39;-&#39;, &#39;.&#39;, &#39;&lt;&#39;, &#39;&gt;&#39;, &#39;=&#39;, &#39;%&#39;, &#39; &#39;,
+        please replace them to &#39;_&#39; in records.
+        Max materials size: 50MB.
+
+        Rules of import:
+        &#39;TREAT_AS_UNIQUE&#39;, each item will be treated as a new asset. Selected by default.
+        &#39;USE_MATCHES&#39;, server will check the item with uniqueness check, if same will import as a batch.
+        &#39;NO_DUPLICATED&#39;, server will check the item with uniqueness check, duplicates are skipped and not imported.
+
+        Args:
+            materials: materials in zip or json format
+            rule: rule of import
+            import_type: import type: json or zip
+            timeout: max available time(seconds) to get file
+            period: each n seconds(default value=5) api call
+
+        Returns:
+            File or None
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+
+        bulk_import_response = self._import_materials(materials, rule, import_type)
+
+        job_id = bulk_import_response.json()[&#39;data&#39;][&#39;id&#39;]
+
+        initial_time = time.time()
+
+        response = False
+
+        while time.time() - initial_time &lt; timeout:
+            if not self._is_import_job_completed(job_id):
+                time.sleep(period)
+            else:
+                response = True
+                break
+
+        if not response:
+            log.debug(&#39;Time is over to import file&#39;)
+
+            failure_report_reponse = api.call(
+                method=&#39;GET&#39;,
+                path=(self._get_endpoint(), &#39;bulkImport&#39;, &#39;jobs&#39;, job_id, &#39;failures&#39;),
+                params={
+                    &#39;filename&#39;: f&#39;{self.name}_failure_report&#39;,
+                },
+            )
+            content_disposition = failure_report_reponse.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
+            _, params = cgi.parse_header(content_disposition)
+
+            return File(
+                name=params[&#39;filename&#39;],
+                content=failure_report_reponse.content,
+                content_type=failure_report_reponse.headers.get(&#39;content-type&#39;),
+            )</code></pre>
 </details>
 </section>
 <section>
@@ -989,20 +1115,9 @@ Adds ability to use properties with setters</p>
 
         return cast(ResponseData, result.data).body
 
-    def create_asset_with_batches(
+    def _process_asset_with_batch_fields(
         self, asset_with_batch_fields: dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]
-    ) -&gt; Asset:
-        &#34;&#34;&#34;Create new asset with batches
-
-        Args:
-            asset_with_batch_fields: dictionary of asset and batch fields
-
-        Returns:
-            Asset
-        &#34;&#34;&#34;
-        api = SignalsNotebookApi.get_default_api()
-        log.debug(&#39;Create Asset with existing Batches for %s&#39;, self.eid)
-
+    ) -&gt; AssetRequestData:
         request_fields = {}
 
         for material_instance in asset_with_batch_fields:
@@ -1021,7 +1136,7 @@ Adds ability to use properties with setters</p>
 
             request_fields[material_instance] = request_instance_fields
 
-        request_data = AssetRequestData(
+        return AssetRequestData(
             type=MaterialType.ASSET,
             attributes=BatchAssetAttribute(fields=request_fields[MaterialType.ASSET]),
             relationships=AssetRelationship(
@@ -1033,6 +1148,22 @@ Adds ability to use properties with setters</p>
                 )
             ),
         )
+
+    def create_asset_with_batches(
+        self, asset_with_batch_fields: dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]
+    ) -&gt; Asset:
+        &#34;&#34;&#34;Create new asset with batches
+
+        Args:
+            asset_with_batch_fields: dictionary of asset and batch fields
+
+        Returns:
+            Asset
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Create Asset with existing Batches for %s&#39;, self.eid)
+
+        request_data = self._process_asset_with_batch_fields(asset_with_batch_fields)
 
         response = api.call(
             method=&#39;POST&#39;, path=(self._get_endpoint(), self.library_name, &#39;assets&#39;), json={&#39;data&#39;: request_data.dict()}
@@ -1101,7 +1232,119 @@ Adds ability to use properties with setters</p>
 
         return File(
             name=params[&#39;filename&#39;], content=response.content, content_type=response.headers.get(&#39;content-type&#39;)
-        )</code></pre>
+        )
+
+    def _is_import_job_completed(self, job_id: str) -&gt; bool:
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Check job status for: %s| %s&#39;, self.__class__.__name__, self.eid)
+
+        response = api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), &#39;bulkImport&#39;, &#39;jobs&#39;, job_id))
+
+        return response.status_code == 200 and response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
+
+    def _import_materials(
+        self,
+        materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
+        rule: MaterialImportRule = MaterialImportRule.TREAT_AS_UNIQUE,
+        import_type: Literal[&#39;json&#39;, &#39;zip&#39;] = &#39;json&#39;,
+    ) -&gt; requests.Response:
+
+        api = SignalsNotebookApi.get_default_api()
+
+        if isinstance(materials, File):
+            if materials.size &gt; MAX_MATERIAL_FILE_SIZE:
+                raise ValueError(&#39;Available file size is 50Mb&#39;)
+
+            return api.call(
+                method=&#39;POST&#39;,
+                path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
+                params={
+                    &#39;rule&#39;: rule,
+                    &#39;importType&#39;: import_type,
+                },
+                headers={
+                    &#39;Content-Type&#39;: &#39;application/octet-stream&#39;,
+                },
+                data=materials.content,
+            )
+
+        request_body = [{&#39;data&#39;: self._process_asset_with_batch_fields(material).dict()} for material in materials]
+
+        return api.call(
+            method=&#39;POST&#39;,
+            path=(self._get_endpoint(), self.name, &#39;bulkImport&#39;),
+            params={
+                &#39;rule&#39;: rule,
+                &#39;importType&#39;: import_type,
+            },
+            json=request_body,
+        )
+
+    def bulk_import(  # type: ignore
+        self,
+        materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
+        rule: MaterialImportRule = MaterialImportRule.TREAT_AS_UNIQUE,
+        import_type: Literal[&#39;json&#39;, &#39;zip&#39;] = &#39;json&#39;,
+        timeout: int = 30,
+        period: int = 5,
+    ) -&gt; Optional[File]:
+        &#34;&#34;&#34;Bulk import materials into a specified material library. Support import data from json or zip file.
+        Zip file should contain the sdf file or csv file and attachments. T
+        he column name in each records of sdf/csv file should be match the asset field name.
+        In sdf file, it doesn&#39;t support character &#39;-&#39;, &#39;.&#39;, &#39;&lt;&#39;, &#39;&gt;&#39;, &#39;=&#39;, &#39;%&#39;, &#39; &#39;,
+        please replace them to &#39;_&#39; in records.
+        Max materials size: 50MB.
+
+        Rules of import:
+        &#39;TREAT_AS_UNIQUE&#39;, each item will be treated as a new asset. Selected by default.
+        &#39;USE_MATCHES&#39;, server will check the item with uniqueness check, if same will import as a batch.
+        &#39;NO_DUPLICATED&#39;, server will check the item with uniqueness check, duplicates are skipped and not imported.
+
+        Args:
+            materials: materials in zip or json format
+            rule: rule of import
+            import_type: import type: json or zip
+            timeout: max available time(seconds) to get file
+            period: each n seconds(default value=5) api call
+
+        Returns:
+            File or None
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+
+        bulk_import_response = self._import_materials(materials, rule, import_type)
+
+        job_id = bulk_import_response.json()[&#39;data&#39;][&#39;id&#39;]
+
+        initial_time = time.time()
+
+        response = False
+
+        while time.time() - initial_time &lt; timeout:
+            if not self._is_import_job_completed(job_id):
+                time.sleep(period)
+            else:
+                response = True
+                break
+
+        if not response:
+            log.debug(&#39;Time is over to import file&#39;)
+
+            failure_report_reponse = api.call(
+                method=&#39;GET&#39;,
+                path=(self._get_endpoint(), &#39;bulkImport&#39;, &#39;jobs&#39;, job_id, &#39;failures&#39;),
+                params={
+                    &#39;filename&#39;: f&#39;{self.name}_failure_report&#39;,
+                },
+            )
+            content_disposition = failure_report_reponse.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
+            _, params = cgi.parse_header(content_disposition)
+
+            return File(
+                name=params[&#39;filename&#39;],
+                content=failure_report_reponse.content,
+                content_type=failure_report_reponse.headers.get(&#39;content-type&#39;),
+            )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1224,6 +1467,106 @@ def batch_config(self) -&gt; BatchConfig:
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="signals_notebook.materials.library.Library.bulk_import"><code class="name flex">
+<span>def <span class="ident">bulk_import</span></span>(<span>self, materials: Union[<a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a>, list], rule: <a title="signals_notebook.materials.library.MaterialImportRule" href="#signals_notebook.materials.library.MaterialImportRule">MaterialImportRule</a> = MaterialImportRule.TREAT_AS_UNIQUE, import_type: Literal['json', 'zip'] = 'json', timeout: int = 30, period: int = 5) ‑> Optional[<a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a>]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Bulk import materials into a specified material library. Support import data from json or zip file.
+Zip file should contain the sdf file or csv file and attachments. T
+he column name in each records of sdf/csv file should be match the asset field name.
+In sdf file, it doesn't support character '-', '.', '&lt;', '&gt;', '=', '%', ' ',
+please replace them to '_' in records.
+Max materials size: 50MB.</p>
+<p>Rules of import:
+'TREAT_AS_UNIQUE', each item will be treated as a new asset. Selected by default.
+'USE_MATCHES', server will check the item with uniqueness check, if same will import as a batch.
+'NO_DUPLICATED', server will check the item with uniqueness check, duplicates are skipped and not imported.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>materials</code></strong></dt>
+<dd>materials in zip or json format</dd>
+<dt><strong><code>rule</code></strong></dt>
+<dd>rule of import</dd>
+<dt><strong><code>import_type</code></strong></dt>
+<dd>import type: json or zip</dd>
+<dt><strong><code>timeout</code></strong></dt>
+<dd>max available time(seconds) to get file</dd>
+<dt><strong><code>period</code></strong></dt>
+<dd>each n seconds(default value=5) api call</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>File or None</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bulk_import(  # type: ignore
+    self,
+    materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
+    rule: MaterialImportRule = MaterialImportRule.TREAT_AS_UNIQUE,
+    import_type: Literal[&#39;json&#39;, &#39;zip&#39;] = &#39;json&#39;,
+    timeout: int = 30,
+    period: int = 5,
+) -&gt; Optional[File]:
+    &#34;&#34;&#34;Bulk import materials into a specified material library. Support import data from json or zip file.
+    Zip file should contain the sdf file or csv file and attachments. T
+    he column name in each records of sdf/csv file should be match the asset field name.
+    In sdf file, it doesn&#39;t support character &#39;-&#39;, &#39;.&#39;, &#39;&lt;&#39;, &#39;&gt;&#39;, &#39;=&#39;, &#39;%&#39;, &#39; &#39;,
+    please replace them to &#39;_&#39; in records.
+    Max materials size: 50MB.
+
+    Rules of import:
+    &#39;TREAT_AS_UNIQUE&#39;, each item will be treated as a new asset. Selected by default.
+    &#39;USE_MATCHES&#39;, server will check the item with uniqueness check, if same will import as a batch.
+    &#39;NO_DUPLICATED&#39;, server will check the item with uniqueness check, duplicates are skipped and not imported.
+
+    Args:
+        materials: materials in zip or json format
+        rule: rule of import
+        import_type: import type: json or zip
+        timeout: max available time(seconds) to get file
+        period: each n seconds(default value=5) api call
+
+    Returns:
+        File or None
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+
+    bulk_import_response = self._import_materials(materials, rule, import_type)
+
+    job_id = bulk_import_response.json()[&#39;data&#39;][&#39;id&#39;]
+
+    initial_time = time.time()
+
+    response = False
+
+    while time.time() - initial_time &lt; timeout:
+        if not self._is_import_job_completed(job_id):
+            time.sleep(period)
+        else:
+            response = True
+            break
+
+    if not response:
+        log.debug(&#39;Time is over to import file&#39;)
+
+        failure_report_reponse = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), &#39;bulkImport&#39;, &#39;jobs&#39;, job_id, &#39;failures&#39;),
+            params={
+                &#39;filename&#39;: f&#39;{self.name}_failure_report&#39;,
+            },
+        )
+        content_disposition = failure_report_reponse.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
+        _, params = cgi.parse_header(content_disposition)
+
+        return File(
+            name=params[&#39;filename&#39;],
+            content=failure_report_reponse.content,
+            content_type=failure_report_reponse.headers.get(&#39;content-type&#39;),
+        )</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.materials.library.Library.create_asset_with_batches"><code class="name flex">
 <span>def <span class="ident">create_asset_with_batches</span></span>(<span>self, asset_with_batch_fields: dict) ‑> <a title="signals_notebook.materials.asset.Asset" href="asset.html#signals_notebook.materials.asset.Asset">Asset</a></span>
 </code></dt>
@@ -1254,36 +1597,7 @@ def batch_config(self) -&gt; BatchConfig:
     api = SignalsNotebookApi.get_default_api()
     log.debug(&#39;Create Asset with existing Batches for %s&#39;, self.eid)
 
-    request_fields = {}
-
-    for material_instance in asset_with_batch_fields:
-        request_instance_fields = []
-        config: Union[AssetConfig, BatchConfig] = self.asset_config
-        if material_instance == MaterialType.BATCH:
-            config = self.batch_config
-        for field in config.fields:
-            if field.name in asset_with_batch_fields[material_instance]:
-                request_instance_fields.append(
-                    {
-                        &#39;id&#39;: field.id,
-                        &#39;value&#39;: field.to_internal_value(asset_with_batch_fields[material_instance][field.name]),
-                    }
-                )
-
-        request_fields[material_instance] = request_instance_fields
-
-    request_data = AssetRequestData(
-        type=MaterialType.ASSET,
-        attributes=BatchAssetAttribute(fields=request_fields[MaterialType.ASSET]),
-        relationships=AssetRelationship(
-            batch=DataRelationship(
-                data=BatchRequestData(
-                    type=MaterialType.BATCH,
-                    attributes=BatchAssetAttribute(fields=request_fields[MaterialType.BATCH]),
-                )
-            )
-        ),
-    )
+    request_data = self._process_asset_with_batch_fields(asset_with_batch_fields)
 
     response = api.call(
         method=&#39;POST&#39;, path=(self._get_endpoint(), self.library_name, &#39;assets&#39;), json={&#39;data&#39;: request_data.dict()}
@@ -1555,6 +1869,42 @@ Compounds/Reagents (SNB) will be exported to SD file, others will be exported to
 </dd>
 </dl>
 </dd>
+<dt id="signals_notebook.materials.library.MaterialImportRule"><code class="flex name class">
+<span>class <span class="ident">MaterialImportRule</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class MaterialImportRule(str, Enum):
+    NO_DUPLICATED = &#39;NO_DUPLICATED&#39;
+    TREAT_AS_UNIQUE = &#39;TREAT_AS_UNIQUE&#39;
+    USE_MATCHES = &#39;USE_MATCHES&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.str</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.materials.library.MaterialImportRule.NO_DUPLICATED"><code class="name">var <span class="ident">NO_DUPLICATED</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.materials.library.MaterialImportRule.TREAT_AS_UNIQUE"><code class="name">var <span class="ident">TREAT_AS_UNIQUE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.materials.library.MaterialImportRule.USE_MATCHES"><code class="name">var <span class="ident">USE_MATCHES</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
 <dt id="signals_notebook.materials.library.Response[Asset]"><code class="flex name class">
 <span>class <span class="ident">Response[Asset]</span></span>
 <span>(</span><span>**kwargs)</span>
@@ -1715,6 +2065,7 @@ Compounds/Reagents (SNB) will be exported to SD file, others will be exported to
 <li><code><a title="signals_notebook.materials.library.Library.Config" href="#signals_notebook.materials.library.Library.Config">Config</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.asset_config" href="#signals_notebook.materials.library.Library.asset_config">asset_config</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.batch_config" href="#signals_notebook.materials.library.Library.batch_config">batch_config</a></code></li>
+<li><code><a title="signals_notebook.materials.library.Library.bulk_import" href="#signals_notebook.materials.library.Library.bulk_import">bulk_import</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.create_asset_with_batches" href="#signals_notebook.materials.library.Library.create_asset_with_batches">create_asset_with_batches</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.create_batch" href="#signals_notebook.materials.library.Library.create_batch">create_batch</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_asset" href="#signals_notebook.materials.library.Library.get_asset">get_asset</a></code></li>
@@ -1730,6 +2081,14 @@ Compounds/Reagents (SNB) will be exported to SD file, others will be exported to
 <ul class="">
 <li><code><a title="signals_notebook.materials.library.LibraryListResponse.data" href="#signals_notebook.materials.library.LibraryListResponse.data">data</a></code></li>
 <li><code><a title="signals_notebook.materials.library.LibraryListResponse.links" href="#signals_notebook.materials.library.LibraryListResponse.links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.materials.library.MaterialImportRule" href="#signals_notebook.materials.library.MaterialImportRule">MaterialImportRule</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.materials.library.MaterialImportRule.NO_DUPLICATED" href="#signals_notebook.materials.library.MaterialImportRule.NO_DUPLICATED">NO_DUPLICATED</a></code></li>
+<li><code><a title="signals_notebook.materials.library.MaterialImportRule.TREAT_AS_UNIQUE" href="#signals_notebook.materials.library.MaterialImportRule.TREAT_AS_UNIQUE">TREAT_AS_UNIQUE</a></code></li>
+<li><code><a title="signals_notebook.materials.library.MaterialImportRule.USE_MATCHES" href="#signals_notebook.materials.library.MaterialImportRule.USE_MATCHES">USE_MATCHES</a></code></li>
 </ul>
 </li>
 <li>
