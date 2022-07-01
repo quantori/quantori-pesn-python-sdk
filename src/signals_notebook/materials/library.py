@@ -456,18 +456,17 @@ class Library(BaseMaterialEntity):
                 data=materials.content,
             )
 
-        else:
-            request_body = [{'data': self._process_asset_with_batch_fields(material).dict()} for material in materials]
+        request_body = [{'data': self._process_asset_with_batch_fields(material).dict()} for material in materials]
 
-            return api.call(
-                method='POST',
-                path=(self._get_endpoint(), self.name, 'bulkImport'),
-                params={
-                    'rule': rule,
-                    'importType': import_type,
-                },
-                json=request_body,
-            )
+        return api.call(
+            method='POST',
+            path=(self._get_endpoint(), self.name, 'bulkImport'),
+            params={
+                'rule': rule,
+                'importType': import_type,
+            },
+            json=request_body,
+        )
 
     def bulk_import(  # type: ignore
         self,
