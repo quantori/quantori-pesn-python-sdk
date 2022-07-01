@@ -71,12 +71,6 @@ class User(BaseModel):
 
         """
         api = SignalsNotebookApi.get_default_api()
-
-        request_body = []
-        for field in self.__fields__.values():
-            if field.field_info.allow_mutation:
-                request_body.append({'attributes': {field.field_info.alias: getattr(self, field.name)}})
-
         api.call(
             method='PATCH',
             path=(
@@ -84,7 +78,18 @@ class User(BaseModel):
                 self.id,
             ),
             json={
-                'data': request_body,
+                'data': {
+                    'attributes': self.dict(
+                        by_alias=True,
+                        include={
+                            'alias',
+                            'country',
+                            'first_name',
+                            'last_name',
+                            'organization',
+                        },
+                    )
+                },
             },
         )
 
