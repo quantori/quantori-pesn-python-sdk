@@ -2,6 +2,7 @@ import cgi
 import logging
 import time
 from datetime import datetime
+from enum import Enum
 from typing import Any, cast, List, Literal, Optional, Union
 
 import requests
@@ -17,6 +18,12 @@ from signals_notebook.materials.field import AssetConfig, BatchConfig
 MAX_MATERIAL_FILE_SIZE = 52428800
 
 log = logging.getLogger(__name__)
+
+
+class MaterialImportRule(str, Enum):
+    NO_DUPLICATED = 'NO_DUPLICATED'
+    TREAT_AS_UNIQUE = 'TREAT_AS_UNIQUE'
+    USE_MATCHES = 'USE_MATCHES'
 
 
 class ChangeBlameRecord(BaseModel):
@@ -426,7 +433,7 @@ class Library(BaseMaterialEntity):
     def _import_materials(
         self,
         materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
-        rule: Literal['NO_DUPLICATED', 'TREAT_AS_UNIQUE', 'USE_MATCHES'] = 'TREAT_AS_UNIQUE',
+        rule: MaterialImportRule = MaterialImportRule.TREAT_AS_UNIQUE,
         import_type: Literal['json', 'zip'] = 'json',
     ) -> requests.Response:
 
@@ -465,7 +472,7 @@ class Library(BaseMaterialEntity):
     def bulk_import(  # type: ignore
         self,
         materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
-        rule: Literal['NO_DUPLICATED', 'TREAT_AS_UNIQUE', 'USE_MATCHES'] = 'TREAT_AS_UNIQUE',
+        rule: MaterialImportRule = MaterialImportRule.TREAT_AS_UNIQUE,
         import_type: Literal['json', 'zip'] = 'json',
         timeout: int = 30,
         period: int = 5,
