@@ -372,11 +372,24 @@ class File(BaseModel):
             super().__init__(**kwargs)
 
     @property
-    def file_size(self):
+    def file_size(self) -&gt; int:
+        &#34;&#34;&#34;Get file size
+
+        Returns:
+            file size
+        &#34;&#34;&#34;
         return len(self.content)
 
     @file_size.setter
-    def file_size(self, value):
+    def file_size(self, value: int) -&gt; None:
+        &#34;&#34;&#34;Set new value to file size
+
+        Args:
+            value: new file size
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.file_size = value
 
     @property
@@ -1163,11 +1176,24 @@ def type(self) -&gt; Union[EntityType, str]:
             super().__init__(**kwargs)
 
     @property
-    def file_size(self):
+    def file_size(self) -&gt; int:
+        &#34;&#34;&#34;Get file size
+
+        Returns:
+            file size
+        &#34;&#34;&#34;
         return len(self.content)
 
     @file_size.setter
-    def file_size(self, value):
+    def file_size(self, value: int) -&gt; None:
+        &#34;&#34;&#34;Set new value to file size
+
+        Args:
+            value: new file size
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.file_size = value
 
     @property
@@ -1274,15 +1300,22 @@ def base64(self) -&gt; bytes:
     return b64encode(self.content)</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.common_types.File.file_size"><code class="name">var <span class="ident">file_size</span></code></dt>
+<dt id="signals_notebook.common_types.File.file_size"><code class="name">var <span class="ident">file_size</span> : int</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get file size</p>
+<h2 id="returns">Returns</h2>
+<p>file size</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def file_size(self):
+def file_size(self) -&gt; int:
+    &#34;&#34;&#34;Get file size
+
+    Returns:
+        file size
+    &#34;&#34;&#34;
     return len(self.content)</code></pre>
 </details>
 </dd>
