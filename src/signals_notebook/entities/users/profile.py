@@ -3,8 +3,7 @@ from typing import List, Literal, Union
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.common_types import EntityType, Response
-from signals_notebook.entities import Entity
+from signals_notebook.common_types import ObjectType, Response
 
 
 class Role(BaseModel):
@@ -32,16 +31,28 @@ class Profile(BaseModel):
     roles: List[Role]
     licenses: List[Licence]
 
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
 
-class Group(Entity):
-    type: Literal[EntityType.GROUP] = Field(allow_mutation=False)
+
+class ProfileResponse(Response[Profile]):
+    pass
+
+
+class Group(BaseModel):
+    type: Literal[ObjectType.GROUP] = Field(allow_mutation=False)
     eid: str
     id: str
     is_system: bool = Field(alias='isSystem', allow_mutation=False)
 
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
     @classmethod
-    def _get_entity_type(cls) -> EntityType:
-        return EntityType.GROUP
+    def _get_entity_type(cls) -> ObjectType:
+        return ObjectType.GROUP
 
 
 class GroupResponse(Response[Group]):

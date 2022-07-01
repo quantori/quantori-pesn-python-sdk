@@ -37,6 +37,7 @@ class ObjectType(str, Enum):
     PROPERTY = 'property'
     USER = 'user'
     PROFILE = 'profile'
+    GROUP = 'group'
 
 
 class EntityType(str, Enum):
@@ -57,7 +58,6 @@ class EntityType(str, Enum):
     SPOTFIRE = 'spotfiredxp'
     TODO_LIST = 'linkedTaskContainer'
     TASK = 'task'
-    GROUP = 'group'
 
 
 class MaterialType(str, Enum):

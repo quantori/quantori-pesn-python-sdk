@@ -6,9 +6,8 @@ from typing import cast, Optional
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import File, ResponseData
+from signals_notebook.common_types import File, Response, ResponseData
 from signals_notebook.entities.users.profile import GroupResponse
-from signals_notebook.entities.users.user_store import UserResponse
 
 log = logging.getLogger(__name__)
 
@@ -18,15 +17,18 @@ class User(BaseModel):
     id: str = Field(alias='userId', allow_mutation=False)
     username: str = Field(alias='userName', allow_mutation=False)
     email: str = Field(allow_mutation=False)
-    alias: str = Field(alias='alias')
+    alias: Optional[str] = Field(alias='alias')
     first_name: str = Field(alias='firstName')
     last_name: str = Field(alias='lastName')
     country: str = Field(alias='country')
     organization: str = Field(alias='organization')
     created_at: datetime = Field(alias='createdAt', allow_mutation=False)
-    last_login_at: datetime = Field(alias='lastLoginAt', allow_mutation=False)
-
+    last_login_at: Optional[datetime] = Field(alias='lastLoginAt', allow_mutation=False)
     _picture: Optional[File] = PrivateAttr(default=None)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
 
     @classmethod
     def _get_endpoint(cls) -> str:
@@ -129,3 +131,7 @@ class User(BaseModel):
         )
         result = GroupResponse(**response.json())
         return [cast(ResponseData, item).body for item in result.data]
+
+
+class UserResponse(Response[User]):
+    pass
