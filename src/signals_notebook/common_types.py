@@ -337,7 +337,6 @@ class File(BaseModel):
             name = os.path.basename(f.name)
             content = f.read()
             content_type, _ = mimetypes.guess_type(name)
-            file_size = os.path.getsize(f.name)
 
             super().__init__(name=name, content=content, content_type=content_type)
         else:

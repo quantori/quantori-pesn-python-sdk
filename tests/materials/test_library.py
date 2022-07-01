@@ -645,53 +645,53 @@ def test_bulk_import_json_format(library_factory, api_mock, mocker, get_response
     import_type = 'json'
 
     response1 = {
-        "data": {
-            "type": "assetBulkImportReport",
-            "id": "62be94847f79d37108f6df6c",
-            "attributes": {
-                "id": "62be94847f79d37108f6df6c",
-                "assetType": {
-                    "id": "619656d40669900007d69414",
-                    "name": library.name,
-                    "type": "CUSTOM",
+        'data': {
+            'type': 'assetBulkImportReport',
+            'id': '62be94847f79d37108f6df6c',
+            'attributes': {
+                'id': '62be94847f79d37108f6df6c',
+                'assetType': {
+                    'id': '619656d40669900007d69414',
+                    'name': library.name,
+                    'type': 'CUSTOM',
                 },
-                "createdAt": "2022-07-01T06:30:28.33667103Z",
-                "report": {
-                    "filename": "file-to-import.zip",
-                    "succeeded": 0,
-                    "duplicated": 0,
-                    "failed": 0,
+                'createdAt': '2022-07-01T06:30:28.33667103Z',
+                'report': {
+                    'filename': 'file-to-import.zip',
+                    'succeeded': 0,
+                    'duplicated': 0,
+                    'failed': 0,
                 },
-                "status": "IMPORTING",
-                "rule": "TREAT_AS_UNIQUE",
-                "zoneId": "Etc/UTC",
+                'status': 'IMPORTING',
+                'rule': 'TREAT_AS_UNIQUE',
+                'zoneId': 'Etc/UTC',
             },
         }
     }
 
     response2 = {
-        "data": {
-            "type": "assetBulkImportReport",
-            "id": "62be94847f79d37108f6df6c",
-            "attributes": {
-                "id": "62be94847f79d37108f6df6c",
-                "assetType": {
-                    "id": "619656d40669900007d69414",
-                    "name": library.name,
-                    "type": "CUSTOM",
+        'data': {
+            'type': 'assetBulkImportReport',
+            'id': '62be94847f79d37108f6df6c',
+            'attributes': {
+                'id': '62be94847f79d37108f6df6c',
+                'assetType': {
+                    'id': '619656d40669900007d69414',
+                    'name': library.name,
+                    'type': 'CUSTOM',
                 },
-                "createdAt": "2022-07-01T06:30:28.33667103Z",
-                "startedAt": "2022-07-01T06:30:28.588380919Z",
-                "completedAt": "2022-07-01T06:30:34.032774548Z",
-                "report": {
-                    "filename": "file-to-import.zip",
-                    "succeeded": 3,
-                    "duplicated": 0,
-                    "failed": 0,
+                'createdAt': '2022-07-01T06:30:28.33667103Z',
+                'startedAt': '2022-07-01T06:30:28.588380919Z',
+                'completedAt': '2022-07-01T06:30:34.032774548Z',
+                'report': {
+                    'filename': 'file-to-import.zip',
+                    'succeeded': 3,
+                    'duplicated': 0,
+                    'failed': 0,
                 },
-                "status": "COMPLETED",
-                "rule": "TREAT_AS_UNIQUE",
-                "zoneId": "Etc/UTC",
+                'status': 'COMPLETED',
+                'rule': rule,
+                'zoneId': 'Etc/UTC',
             },
         }
     }
@@ -766,53 +766,53 @@ def test_bulk_import_zip_format(library_factory, file_factory, api_mock, mocker,
     import_type = 'zip'
 
     response1 = {
-        "data": {
-            "type": "assetBulkImportReport",
-            "id": "62be94847f79d37108f6df6c",
-            "attributes": {
-                "id": "62be94847f79d37108f6df6c",
-                "assetType": {
-                    "id": "619656d40669900007d69414",
-                    "name": library.name,
-                    "type": "CUSTOM",
+        'data': {
+            'type': 'assetBulkImportReport',
+            'id': '62be94847f79d37108f6df6c',
+            'attributes': {
+                'id': '62be94847f79d37108f6df6c',
+                'assetType': {
+                    'id': '619656d40669900007d69414',
+                    'name': library.name,
+                    'type': 'CUSTOM',
                 },
-                "createdAt": "2022-07-01T06:30:28.33667103Z",
-                "report": {
-                    "filename": "file-to-import.zip",
-                    "succeeded": 0,
-                    "duplicated": 0,
-                    "failed": 0,
+                'createdAt': '2022-07-01T06:30:28.33667103Z',
+                'report': {
+                    'filename': 'file-to-import.zip',
+                    'succeeded': 0,
+                    'duplicated': 0,
+                    'failed': 0,
                 },
-                "status": "IMPORTING",
-                "rule": "TREAT_AS_UNIQUE",
-                "zoneId": "Etc/UTC",
+                'status': 'IMPORTING',
+                'rule': 'TREAT_AS_UNIQUE',
+                'zoneId': 'Etc/UTC',
             },
         }
     }
 
     response2 = {
-        "data": {
-            "type": "assetBulkImportReport",
-            "id": "62be94847f79d37108f6df6c",
-            "attributes": {
-                "id": "62be94847f79d37108f6df6c",
-                "assetType": {
-                    "id": "619656d40669900007d69414",
-                    "name": library.name,
-                    "type": "CUSTOM",
+        'data': {
+            'type': 'assetBulkImportReport',
+            'id': '62be94847f79d37108f6df6c',
+            'attributes': {
+                'id': '62be94847f79d37108f6df6c',
+                'assetType': {
+                    'id': '619656d40669900007d69414',
+                    'name': library.name,
+                    'type': 'CUSTOM',
                 },
-                "createdAt": "2022-07-01T06:30:28.33667103Z",
-                "startedAt": "2022-07-01T06:30:28.588380919Z",
-                "completedAt": "2022-07-01T06:30:34.032774548Z",
-                "report": {
-                    "filename": "file-to-import.zip",
-                    "succeeded": 3,
-                    "duplicated": 0,
-                    "failed": 0,
+                'createdAt': '2022-07-01T06:30:28.33667103Z',
+                'startedAt': '2022-07-01T06:30:28.588380919Z',
+                'completedAt': '2022-07-01T06:30:34.032774548Z',
+                'report': {
+                    'filename': 'file-to-import.zip',
+                    'succeeded': 3,
+                    'duplicated': 0,
+                    'failed': 0,
                 },
-                "status": "COMPLETED",
-                "rule": "TREAT_AS_UNIQUE",
-                "zoneId": "Etc/UTC",
+                'status': 'COMPLETED',
+                'rule': rule,
+                'zoneId': 'Etc/UTC',
             },
         }
     }
@@ -864,35 +864,53 @@ def test_bulk_import_zip_format_timeout(library_factory, file_factory, api_mock,
     import_type = 'zip'
 
     response1 = {
-        "data": {
-            "type": "assetBulkImportReport",
-            "id": "62be94847f79d37108f6df6c",
-            "attributes": {
-                "id": "62be94847f79d37108f6df6c",
-                "assetType": {"id": "619656d40669900007d69414", "name": library.name, "type": "CUSTOM"},
-                "createdAt": "2022-07-01T06:30:28.33667103Z",
-                "report": {"filename": "file-to-import.zip", "succeeded": 0, "duplicated": 0, "failed": 0},
-                "status": "IMPORTING",
-                "rule": "TREAT_AS_UNIQUE",
-                "zoneId": "Etc/UTC",
+        'data': {
+            'type': 'assetBulkImportReport',
+            'id': '62be94847f79d37108f6df6c',
+            'attributes': {
+                'id': '62be94847f79d37108f6df6c',
+                'assetType': {
+                    'id': '619656d40669900007d69414',
+                    'name': library.name,
+                    'type': 'CUSTOM',
+                },
+                'createdAt': '2022-07-01T06:30:28.33667103Z',
+                'report': {
+                    'filename': 'file-to-import.zip',
+                    'succeeded': 0,
+                    'duplicated': 0,
+                    'failed': 0,
+                },
+                'status': 'IMPORTING',
+                'rule': 'TREAT_AS_UNIQUE',
+                'zoneId': 'Etc/UTC',
             },
         }
     }
 
     response2 = {
-        "data": {
-            "type": "assetBulkImportReport",
-            "id": "62be94847f79d37108f6df6c",
-            "attributes": {
-                "id": "62be94847f79d37108f6df6c",
-                "assetType": {"id": "619656d40669900007d69414", "name": library.name, "type": "CUSTOM"},
-                "createdAt": "2022-07-01T06:30:28.33667103Z",
-                "startedAt": "2022-07-01T06:30:28.588380919Z",
-                "completedAt": "2022-07-01T06:30:34.032774548Z",
-                "report": {"filename": "file-to-import.zip", "succeeded": 3, "duplicated": 0, "failed": 0},
-                "status": "FAILED",
-                "rule": "TREAT_AS_UNIQUE",
-                "zoneId": "Etc/UTC",
+        'data': {
+            'type': 'assetBulkImportReport',
+            'id': '62be94847f79d37108f6df6c',
+            'attributes': {
+                'id': '62be94847f79d37108f6df6c',
+                'assetType': {
+                    'id': '619656d40669900007d69414',
+                    'name': library.name,
+                    'type': 'CUSTOM',
+                },
+                'createdAt': '2022-07-01T06:30:28.33667103Z',
+                'startedAt': '2022-07-01T06:30:28.588380919Z',
+                'completedAt': '2022-07-01T06:30:34.032774548Z',
+                'report': {
+                    'filename': 'file-to-import.zip',
+                    'succeeded': 3,
+                    'duplicated': 0,
+                    'failed': 0,
+                },
+                'status': 'FAILED',
+                'rule': rule,
+                'zoneId': 'Etc/UTC',
             },
         }
     }
