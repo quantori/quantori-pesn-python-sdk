@@ -344,11 +344,24 @@ class File(BaseModel):
             super().__init__(**kwargs)
 
     @property
-    def file_size(self):
+    def file_size(self) -> int:
+        """Get file size
+
+        Returns:
+            file size
+        """
         return len(self.content)
 
     @file_size.setter
-    def file_size(self, value):
+    def file_size(self, value: int) -> None:
+        """Set new value to file size
+
+        Args:
+            value: new file size
+
+        Returns:
+
+        """
         self.file_size = value
 
     @property
