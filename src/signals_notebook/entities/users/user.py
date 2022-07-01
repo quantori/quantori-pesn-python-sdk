@@ -3,7 +3,7 @@ import logging
 from datetime import datetime
 from typing import cast, Optional
 
-from pydantic import BaseModel, PrivateAttr, Field
+from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, ResponseData

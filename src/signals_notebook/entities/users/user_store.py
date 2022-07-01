@@ -1,8 +1,8 @@
-from typing import cast, List
+from typing import cast, Generator
 
-from signals_notebook.entities.users.profile import Profile
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import Response, ResponseData
+from signals_notebook.entities.users.profile import Profile
 from signals_notebook.entities.users.user import User
 
 
@@ -15,9 +15,13 @@ class ProfileResponse(Response[Profile]):
 
 
 class UserStore:
-
     @classmethod
     def get(cls, user_id: str) -> User:
+        """Get user by id from the scope
+
+        Returns:
+            User
+        """
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
@@ -27,7 +31,12 @@ class UserStore:
         return cast(ResponseData, result.data).body
 
     @classmethod
-    def get_list(cls) -> List[User]:
+    def get_list(cls) -> Generator[User, None, None]:
+        """Get all users from the scope
+
+        Returns:
+            User
+        """
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
@@ -47,6 +56,11 @@ class UserStore:
 
     @classmethod
     def get_current_user(cls) -> User:
+        """Get current user for api session
+
+        Returns:
+            User
+        """
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
