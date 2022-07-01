@@ -365,9 +365,8 @@ class File(BaseModel):
             name = os.path.basename(f.name)
             content = f.read()
             content_type, _ = mimetypes.guess_type(name)
-            file_size = os.path.getsize(f.name)
 
-            super().__init__(name=name, content=content, content_type=content_type, file_size=file_size)
+            super().__init__(name=name, content=content, content_type=content_type)
         else:
             super().__init__(**kwargs)
 
@@ -379,18 +378,6 @@ class File(BaseModel):
             file size
         &#34;&#34;&#34;
         return len(self.content)
-
-    @file_size.setter
-    def file_size(self, value: int) -&gt; None:
-        &#34;&#34;&#34;Set new value to file size
-
-        Args:
-            value: new file size
-
-        Returns:
-
-        &#34;&#34;&#34;
-        self.file_size = value
 
     @property
     def base64(self) -&gt; bytes:
@@ -1169,9 +1156,8 @@ def type(self) -&gt; Union[EntityType, str]:
             name = os.path.basename(f.name)
             content = f.read()
             content_type, _ = mimetypes.guess_type(name)
-            file_size = os.path.getsize(f.name)
 
-            super().__init__(name=name, content=content, content_type=content_type, file_size=file_size)
+            super().__init__(name=name, content=content, content_type=content_type)
         else:
             super().__init__(**kwargs)
 
@@ -1183,18 +1169,6 @@ def type(self) -&gt; Union[EntityType, str]:
             file size
         &#34;&#34;&#34;
         return len(self.content)
-
-    @file_size.setter
-    def file_size(self, value: int) -&gt; None:
-        &#34;&#34;&#34;Set new value to file size
-
-        Args:
-            value: new file size
-
-        Returns:
-
-        &#34;&#34;&#34;
-        self.file_size = value
 
     @property
     def base64(self) -&gt; bytes:
