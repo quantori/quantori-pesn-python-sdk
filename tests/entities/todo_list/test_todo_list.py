@@ -64,7 +64,6 @@ def test_get_content(todo_list_factory, api_mock, todo_list_content):
     api_mock.call.return_value.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
-        'content-length': 1,
     }
     api_mock.call.return_value.content = content
 
@@ -92,7 +91,6 @@ def test_get_html(todo_list_factory, snapshot, api_mock, todo_list_content):
     api_mock.call.return_value.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
-        'content-length': 1,
     }
     api_mock.call.return_value.content = content
 
@@ -114,7 +112,6 @@ def test_reload_tasks(api_mock, todo_list_factory, task_properties, todo_list_co
     api_mock.call.return_value.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
-        'content-length': 1,
     }
     api_mock.call.return_value.content = content
     api_mock.call.return_value.json.return_value = get_task
@@ -173,7 +170,6 @@ def test_save(api_mock, todo_list_factory, task_properties, todo_list_content, g
     api_mock.call.return_value.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
-        'content-length': 1,
     }
     api_mock.call.return_value.content = content
     api_mock.call.return_value.json.return_value = get_task
@@ -221,7 +217,6 @@ def test_save(api_mock, todo_list_factory, task_properties, todo_list_content, g
     content_response.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
-        'content-length': 1,
     }
     api_mock.call.side_effect = [*api_calls, content_response, get_response(get_task)]
     todo_list.save()
@@ -270,7 +265,6 @@ def test_getitem(api_mock, todo_list_factory, todo_list_content, get_task, index
     api_mock.call.return_value.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
-        'content-length': 1,
     }
     api_mock.call.return_value.content = content
     api_mock.call.return_value.json.return_value = get_task
@@ -297,7 +291,6 @@ def test_iter(api_mock, todo_list_factory, todo_list_content, task_properties, g
     api_mock.call.return_value.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
-        'content-length': 1,
     }
     api_mock.call.return_value.content = content
     api_mock.call.return_value.json.return_value = get_task

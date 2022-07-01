@@ -69,7 +69,6 @@ def test_get_content(biological_sequence_factory, api_mock, bio_seq_content):
     api_mock.call.return_value.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
-        'content-length': 1,
     }
     api_mock.call.return_value.content = bio_seq_content
 
@@ -98,7 +97,6 @@ def test_get_html(biological_sequence_factory, snapshot, api_mock, bio_seq_conte
     api_mock.call.return_value.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
-        'content-length': 1,
     }
     api_mock.call.return_value.content = bio_seq_content
 

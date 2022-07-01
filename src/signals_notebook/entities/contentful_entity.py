@@ -36,7 +36,6 @@ class ContentfulEntity(Entity, abc.ABC):
             name=params['filename'],
             content=response.content,
             content_type=response.headers.get('content-type'),
-            file_size=response.headers.get('content-length'),
         )
 
     def get_html(self) -> str:
