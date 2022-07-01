@@ -440,7 +440,7 @@ class Library(BaseMaterialEntity):
         api = SignalsNotebookApi.get_default_api()
 
         if isinstance(materials, File):
-            if materials.file_size > MAX_MATERIAL_FILE_SIZE:
+            if materials.size > MAX_MATERIAL_FILE_SIZE:
                 raise ValueError('Available file size is 50Mb')
 
             return api.call(

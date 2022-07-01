@@ -343,7 +343,7 @@ class File(BaseModel):
             super().__init__(**kwargs)
 
     @property
-    def file_size(self) -> int:
+    def size(self) -> int:
         """Get file size
 
         Returns:
