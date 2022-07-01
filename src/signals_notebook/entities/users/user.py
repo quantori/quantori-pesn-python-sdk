@@ -1,15 +1,29 @@
 import cgi
 import logging
 from datetime import datetime
-from typing import cast, Optional
+from typing import cast, Optional, List
 
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
-from signals_notebook.entities.users.profile import GroupResponse
+from signals_notebook.entities.users.profile import GroupResponse, Role
 
 log = logging.getLogger(__name__)
+
+
+class UserCreationBody(BaseModel):
+    alias: str
+    country: str
+    email: str = Field(alias='emailAddress', allow_mutation=False)
+    first_name: str = Field(alias='firstName')
+    last_name: str = Field(alias='lastName')
+    organization: str = Field(alias='organization')
+    roles: List[Role] = Field(default=None)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
 
 
 class User(BaseModel):
@@ -35,7 +49,7 @@ class User(BaseModel):
         return 'users'
 
     @classmethod
-    def create(cls) -> 'User':
+    def create(cls, request: UserCreationBody) -> 'User':
         """Create new User
 
         Returns:
@@ -47,7 +61,11 @@ class User(BaseModel):
         response = api.call(
             method='POST',
             path=(cls._get_endpoint(),),
-            # json=request.dict(exclude_none=True),
+            json={
+                'data': {
+                    'attributes': request.dict(by_alias=True, exclude_none=True),
+                }
+            },
         )
         log.debug('User: %s was created.', cls.__name__)
 
