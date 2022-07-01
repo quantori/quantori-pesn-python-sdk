@@ -1,6 +1,6 @@
 import factory
 
-from signals_notebook.common_types import MaterialType, MID
+from signals_notebook.common_types import File, MaterialType, MID
 from signals_notebook.materials import Asset, Batch, Library
 from signals_notebook.materials.field import AssetConfig, BatchConfig, MaterialFieldType, Numbering
 
@@ -107,3 +107,10 @@ class BatchFactory(BaseMaterialEntityFactory):
 
     type = MaterialType.BATCH
     _library = factory.SubFactory(LibraryFactory)
+
+
+class FileFactory(factory.Factory):
+    class Meta:
+        model = File
+
+    name = factory.Faker('word')

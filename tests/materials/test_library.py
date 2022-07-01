@@ -629,3 +629,239 @@ def test_get_content_timeout(library_factory, api_mock, get_response):
         library.get_content(timeout=1)
 
     assert str(e.value) == 'Time is over to get file'
+
+
+@pytest.mark.parametrize(
+    'rule',
+    [
+        'NO_DUPLICATED',
+        'TREAT_AS_UNIQUE',
+        'USE_MATCHES',
+    ],
+)
+def test_bulk_import_json_format(library_factory, api_mock, mocker, get_response, rule):
+    library = library_factory()
+    text = TextFactory()
+    import_type = 'json'
+
+    response1 = {
+        "data": {
+            "type": "assetBulkImportReport",
+            "id": "62be94847f79d37108f6df6c",
+            "attributes": {
+                "id": "62be94847f79d37108f6df6c",
+                "assetType": {"id": "619656d40669900007d69414", "name": library.name, "type": "CUSTOM"},
+                "createdAt": "2022-07-01T06:30:28.33667103Z",
+                "report": {"filename": "file-to-import.zip", "succeeded": 0, "duplicated": 0, "failed": 0},
+                "status": "IMPORTING",
+                "rule": "TREAT_AS_UNIQUE",
+                "zoneId": "Etc/UTC",
+            },
+        }
+    }
+
+    response2 = {
+        "data": {
+            "type": "assetBulkImportReport",
+            "id": "62be94847f79d37108f6df6c",
+            "attributes": {
+                "id": "62be94847f79d37108f6df6c",
+                "assetType": {"id": "619656d40669900007d69414", "name": library.name, "type": "CUSTOM"},
+                "createdAt": "2022-07-01T06:30:28.33667103Z",
+                "startedAt": "2022-07-01T06:30:28.588380919Z",
+                "completedAt": "2022-07-01T06:30:34.032774548Z",
+                "report": {"filename": "file-to-import.zip", "succeeded": 3, "duplicated": 0, "failed": 0},
+                "status": "COMPLETED",
+                "rule": "TREAT_AS_UNIQUE",
+                "zoneId": "Etc/UTC",
+            },
+        }
+    }
+    request_data = AssetRequestData(
+        type='asset',
+        attributes=BatchAssetAttribute(fields=[{'id': library.asset_config.fields[0].id, 'value': 'Created'}]),
+        relationships=AssetRelationship(
+            batch=DataRelationship(
+                data=BatchRequestData(
+                    type='batch',
+                    attributes=BatchAssetAttribute(
+                        fields=[
+                            {
+                                'id': library.batch_config.fields[1].id,
+                                'value': {
+                                    'eid': text.eid,
+                                    'name': text.name,
+                                    'type': text.type,
+                                },
+                            }
+                        ]
+                    ),
+                )
+            )
+        ),
+    )
+    job_id = response1['data']['id']
+
+    api_mock.call.side_effect = [get_response(response1), get_response(response2)]
+
+    library.bulk_import(
+        materials=[{'asset': {'Name': 'Created'}, 'batch': {'Link Name': text}}], rule=rule, import_type=import_type
+    )
+
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(
+                method='POST',
+                path=('materials', library.name, 'bulkImport'),
+                params={
+                    'rule': rule,
+                    'importType': import_type,
+                },
+                json=[{'data': request_data.dict()}],
+            ),
+            mocker.call(
+                method='GET',
+                path=('materials', 'bulkImport', 'jobs', job_id),
+            ),
+        ],
+        any_order=False,
+    )
+
+
+@pytest.mark.parametrize(
+    'rule',
+    [
+        'NO_DUPLICATED',
+        'TREAT_AS_UNIQUE',
+        'USE_MATCHES',
+    ],
+)
+def test_bulk_import_zip_format(library_factory, file_factory, api_mock, mocker, get_response, rule):
+    content = b'content'
+    content_type = 'application/octet-stream'
+
+    file = file_factory(content=content, content_type=content_type)
+
+    library = library_factory()
+    import_type = 'zip'
+
+    response1 = {
+        "data": {
+            "type": "assetBulkImportReport",
+            "id": "62be94847f79d37108f6df6c",
+            "attributes": {
+                "id": "62be94847f79d37108f6df6c",
+                "assetType": {"id": "619656d40669900007d69414", "name": library.name, "type": "CUSTOM"},
+                "createdAt": "2022-07-01T06:30:28.33667103Z",
+                "report": {"filename": "file-to-import.zip", "succeeded": 0, "duplicated": 0, "failed": 0},
+                "status": "IMPORTING",
+                "rule": "TREAT_AS_UNIQUE",
+                "zoneId": "Etc/UTC",
+            },
+        }
+    }
+
+    response2 = {
+        "data": {
+            "type": "assetBulkImportReport",
+            "id": "62be94847f79d37108f6df6c",
+            "attributes": {
+                "id": "62be94847f79d37108f6df6c",
+                "assetType": {"id": "619656d40669900007d69414", "name": library.name, "type": "CUSTOM"},
+                "createdAt": "2022-07-01T06:30:28.33667103Z",
+                "startedAt": "2022-07-01T06:30:28.588380919Z",
+                "completedAt": "2022-07-01T06:30:34.032774548Z",
+                "report": {"filename": "file-to-import.zip", "succeeded": 3, "duplicated": 0, "failed": 0},
+                "status": "COMPLETED",
+                "rule": "TREAT_AS_UNIQUE",
+                "zoneId": "Etc/UTC",
+            },
+        }
+    }
+
+    job_id = response1['data']['id']
+
+    api_mock.call.side_effect = [get_response(response1), get_response(response2)]
+
+    library.bulk_import(materials=file, rule=rule, import_type=import_type)
+
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(
+                method='POST',
+                path=('materials', library.name, 'bulkImport'),
+                params={
+                    'rule': rule,
+                    'importType': import_type,
+                },
+                headers={
+                    'Content-Type': content_type,
+                },
+                data=file.content,
+            ),
+            mocker.call(
+                method='GET',
+                path=('materials', 'bulkImport', 'jobs', job_id),
+            ),
+        ],
+        any_order=False,
+    )
+
+
+# @pytest.mark.parametrize(
+#     'rule',
+#     [
+#         'NO_DUPLICATED',
+#         'TREAT_AS_UNIQUE',
+#         'USE_MATCHES',
+#     ],
+# )
+# def test_bulk_import_zip_format_timeout(library_factory, file_factory, api_mock, mocker, get_response, rule):
+#     content = b'content'
+#     content_type = 'application/octet-stream'
+#
+#     file = file_factory(content=content, content_type=content_type)
+#
+#     library = library_factory()
+#     import_type = 'zip'
+#
+#     response1 = {
+#         "data": {
+#             "type": "assetBulkImportReport",
+#             "id": "62be94847f79d37108f6df6c",
+#             "attributes": {
+#                 "id": "62be94847f79d37108f6df6c",
+#                 "assetType": {"id": "619656d40669900007d69414", "name": library.name, "type": "CUSTOM"},
+#                 "createdAt": "2022-07-01T06:30:28.33667103Z",
+#                 "report": {"filename": "file-to-import.zip", "succeeded": 0, "duplicated": 0, "failed": 0},
+#                 "status": "IMPORTING",
+#                 "rule": "TREAT_AS_UNIQUE",
+#                 "zoneId": "Etc/UTC",
+#             },
+#         }
+#     }
+#
+#     response2 = {
+#         "data": {
+#             "type": "assetBulkImportReport",
+#             "id": "62be94847f79d37108f6df6c",
+#             "attributes": {
+#                 "id": "62be94847f79d37108f6df6c",
+#                 "assetType": {"id": "619656d40669900007d69414", "name": library.name, "type": "CUSTOM"},
+#                 "createdAt": "2022-07-01T06:30:28.33667103Z",
+#                 "startedAt": "2022-07-01T06:30:28.588380919Z",
+#                 "completedAt": "2022-07-01T06:30:34.032774548Z",
+#                 "report": {"filename": "file-to-import.zip", "succeeded": 3, "duplicated": 0, "failed": 0},
+#                 "status": "COMPLETED",
+#                 "rule": "TREAT_AS_UNIQUE",
+#                 "zoneId": "Etc/UTC",
+#             },
+#         }
+#     }
+#
+#     api_mock.call.side_effect = [get_response(response1), get_response(response2)]
+#
+#     with pytest.raises(TimeoutError) as e:
+#         library.bulk_import(materials=file, rule=rule, import_type=import_type, timeout=1)
+#
+#     assert str(e.value) == 'Time is over to get file'

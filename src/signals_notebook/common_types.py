@@ -339,7 +339,7 @@ class File(BaseModel):
             content_type, _ = mimetypes.guess_type(name)
             file_size = os.path.getsize(f.name)
 
-            super().__init__(name=name, content=content, content_type=content_type, file_size=file_size)
+            super().__init__(name=name, content=content, content_type=content_type)
         else:
             super().__init__(**kwargs)
 
@@ -351,18 +351,6 @@ class File(BaseModel):
             file size
         """
         return len(self.content)
-
-    @file_size.setter
-    def file_size(self, value: int) -> None:
-        """Set new value to file size
-
-        Args:
-            value: new file size
-
-        Returns:
-
-        """
-        self.file_size = value
 
     @property
     def base64(self) -> bytes:
