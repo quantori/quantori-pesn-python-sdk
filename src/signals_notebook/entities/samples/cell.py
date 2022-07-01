@@ -4,12 +4,12 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID
+from signals_notebook.common_types import EID, ObjectType
 
 CellValueType = TypeVar('CellValueType')
 
 
-class CellPropertyContent(GenericModel, Generic[CellValueType]):
+class SampleCellContent(GenericModel, Generic[CellValueType]):
     value: Optional[CellValueType]
     name: Optional[str]
     eid: Optional[EID]
@@ -34,19 +34,19 @@ class CellPropertyContent(GenericModel, Generic[CellValueType]):
 
 
 class Content(BaseModel):
-    content: Optional[CellPropertyContent]
+    content: Optional[SampleCellContent]
 
 
-class SamplePropertyBody(BaseModel):
+class SampleCellBody(BaseModel):
     id: Optional[Union[UUID, str]]
-    type: str = 'property'
+    type: str = ObjectType.PROPERTY
     attributes: Content
 
 
-class SampleProperty(BaseModel):
+class SampleCell(BaseModel):
     id: Optional[Union[UUID, str]]
     name: Optional[str]
-    content: CellPropertyContent = Field(default=CellPropertyContent())
+    content: SampleCellContent = Field(default=SampleCellContent())
 
     def set_content_value(self, new_value: CellValueType) -> None:
         self.content.set_value(new_value)
@@ -74,5 +74,5 @@ class SampleProperty(BaseModel):
         return False if self.content is None else self.content.is_changed
 
     @property
-    def representation_for_update(self) -> SamplePropertyBody:
-        return SamplePropertyBody(id=str(self.id), attributes=Content(content=self.content))
+    def representation_for_update(self) -> SampleCellBody:
+        return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))

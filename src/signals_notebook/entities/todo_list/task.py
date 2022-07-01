@@ -12,42 +12,42 @@ from signals_notebook.common_types import (
     ResponseData,
 )
 from signals_notebook.entities import Entity
-from signals_notebook.entities.todo_list.cell import TaskProperty
+from signals_notebook.entities.todo_list.cell import TaskCell
 
 log = logging.getLogger(__name__)
 
 
-class TaskPropertiesResponse(Response[TaskProperty]):
+class TaskCellsResponse(Response[TaskCell]):
     pass
 
 
 class Task(Entity):
     type: Literal[EntityType.TASK] = Field(allow_mutation=False)
-    _properties: List[TaskProperty] = PrivateAttr(default=[])
-    _properties_by_id: Dict[Union[str, UUID], TaskProperty] = PrivateAttr(default={})
+    _cells: List[TaskCell] = PrivateAttr(default=[])
+    _cells_by_id: Dict[Union[str, UUID], TaskCell] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[int, str, UUID]) -> TaskProperty:
-        if not self._properties:
-            self._reload_properties()
+    def __getitem__(self, index: Union[int, str, UUID]) -> TaskCell:
+        if not self._cells:
+            self._reload_cells()
 
         if isinstance(index, int):
-            return self._properties[index]
+            return self._cells[index]
 
         if isinstance(index, str):
             try:
-                return self._properties_by_id[UUID(index)]
+                return self._cells_by_id[UUID(index)]
             except ValueError:
-                return self._properties_by_id[index]
+                return self._cells_by_id[index]
 
         if isinstance(index, UUID):
-            return self._properties_by_id[index]
+            return self._cells_by_id[index]
 
         raise IndexError('Invalid index')
 
     def __iter__(self):
-        if not self._properties:
-            self._reload_properties()
-        return self._properties.__iter__()
+        if not self._cells:
+            self._reload_cells()
+        return self._cells.__iter__()
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -57,10 +57,10 @@ class Task(Entity):
     def _get_tasks_endpoint(cls) -> str:
         return 'tasks'
 
-    def _reload_properties(self) -> None:
-        log.debug('Reloading properties in Task: %s...', self.eid)
-        self._properties = []
-        self._properties_by_id = {}
+    def _reload_cells(self) -> None:
+        log.debug('Reloading cells in Task: %s...', self.eid)
+        self._cells = []
+        self._cells_by_id = {}
 
         api = SignalsNotebookApi.get_default_api()
 
@@ -70,16 +70,16 @@ class Task(Entity):
             params={'value': 'normalized'},
         )
 
-        result = TaskPropertiesResponse(**response.json())
-        properties = [cast(ResponseData, item).body for item in result.data]
+        result = TaskCellsResponse(**response.json())
+        cells = [cast(ResponseData, item).body for item in result.data]
 
-        for item in properties:
-            task_property = cast(TaskProperty, item)
-            assert task_property.id
+        for item in cells:
+            task_cell = cast(TaskCell, item)
+            assert task_cell.id
 
-            self._properties.append(task_property)
-            self._properties_by_id[task_property.id] = task_property
-        log.debug('Properties in Task: %s were reloaded', self.eid)
+            self._cells.append(task_cell)
+            self._cells_by_id[task_cell.id] = task_cell
+        log.debug('Cells in Task: %s were reloaded', self.eid)
 
     def save(self, force: bool = True) -> None:
         """Save all changes in the Task
@@ -94,7 +94,7 @@ class Task(Entity):
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
-        for item in self._properties:
+        for item in self._cells:
             if item.is_changed:
                 request_body.append(item.representation_for_update.dict(exclude_none=True))
 
@@ -112,5 +112,5 @@ class Task(Entity):
                 'data': {'attributes': {'data': request_body}},
             },
         )
-        self._reload_properties()
+        self._reload_cells()
         log.debug('Task: %s was saved successfully', self.eid)

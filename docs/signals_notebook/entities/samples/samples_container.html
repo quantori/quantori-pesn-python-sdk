@@ -29,6 +29,7 @@
 <pre><code class="python">import csv
 from io import StringIO
 from typing import cast, ClassVar, Dict, Generator, List, Literal, Union
+from uuid import UUID
 
 from pydantic import Field, PrivateAttr
 
@@ -49,7 +50,7 @@ class SamplesContainer(ContentfulEntity):
     _samples: List[Sample] = PrivateAttr(default=[])
     _samples_by_id: Dict[EID, Sample] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[EID, int, str]) -&gt; Sample:
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -&gt; Sample:
         if not self._samples:
             self._reload_samples()
 
@@ -183,7 +184,7 @@ class SamplesContainer(ContentfulEntity):
     _samples: List[Sample] = PrivateAttr(default=[])
     _samples_by_id: Dict[EID, Sample] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[EID, int, str]) -&gt; Sample:
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -&gt; Sample:
         if not self._samples:
             self._reload_samples()
 
@@ -290,6 +291,7 @@ class SamplesContainer(ContentfulEntity):
 <ul class="hlist">
 <li><code><b><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></b></code>:
 <ul class="hlist">
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="../entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_list" href="../entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_subclasses" href="../entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>

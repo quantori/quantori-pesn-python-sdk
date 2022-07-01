@@ -1,6 +1,7 @@
 import json
 import logging
 from typing import cast, Dict, List, Literal, Union
+from uuid import UUID
 
 from pydantic import Field, PrivateAttr
 
@@ -18,7 +19,7 @@ class TodoList(ContentfulEntity):
     _tasks: List[Task] = PrivateAttr(default=[])
     _tasks_by_id: Dict[EID, Task] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[EID, int, str]) -> Task:
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -> Task:
         if not self._tasks:
             self._reload_tasks()
 

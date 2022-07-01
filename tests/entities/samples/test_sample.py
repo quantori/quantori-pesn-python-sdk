@@ -5,20 +5,20 @@ import arrow
 import pytest
 
 from signals_notebook.common_types import EntityType
-from signals_notebook.entities import Sample, SampleProperty
+from signals_notebook.entities import Sample, SampleCell
 
 
 def test_reload_properties(api_mock, sample_properties, sample_factory):
     sample = sample_factory()
 
-    assert sample._properties == []
+    assert sample._cells == []
 
     api_mock.call.return_value.json.return_value = sample_properties
 
     for item in sample:
-        assert isinstance(item, SampleProperty)
+        assert isinstance(item, SampleCell)
 
-    assert sample._properties != []
+    assert sample._cells != []
 
     api_mock.call.assert_called_once_with(
         method='GET',
@@ -31,7 +31,7 @@ def test_reload_properties(api_mock, sample_properties, sample_factory):
 
 def test_save(api_mock, sample_factory, sample_properties, mocker):
     sample = sample_factory()
-    assert sample._properties == []
+    assert sample._cells == []
 
     api_mock.call.return_value.json.return_value = sample_properties
 
@@ -41,7 +41,7 @@ def test_save(api_mock, sample_factory, sample_properties, mocker):
     api_mock.call.return_value.json.return_value = {}
     api_mock.call.return_value.json.return_value = sample_properties
 
-    assert sample._properties != []
+    assert sample._cells != []
 
     request_body = []
     for item in sample:
@@ -76,7 +76,7 @@ def test_save(api_mock, sample_factory, sample_properties, mocker):
 
 
 @pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
-def test_create(api_mock, experiment_factory, sample_property_factory, sample_factory, eid_factory, digest, force):
+def test_create(api_mock, experiment_factory, sample_cell_factory, sample_factory, eid_factory, digest, force):
     container = experiment_factory(digest=digest)
     sample_template = sample_factory()
     eid = eid_factory(type=EntityType.SAMPLE)
@@ -99,13 +99,13 @@ def test_create(api_mock, experiment_factory, sample_property_factory, sample_fa
             },
         },
     }
-    new_sample_property = sample_property_factory()
+    new_sample_cell = sample_cell_factory()
     request_body = {
         'data': {
             'type': 'sample',
             'attributes': {
                 'fields': [
-                    new_sample_property.dict(exclude_none=True),
+                    new_sample_cell.dict(exclude_none=True),
                 ]
             },
             'relationships': {
@@ -122,7 +122,7 @@ def test_create(api_mock, experiment_factory, sample_property_factory, sample_fa
     api_mock.call.return_value.json.return_value = response
 
     new_sample = Sample.create(
-        properties=[new_sample_property], template=sample_template, ancestors=[container], digest=digest, force=force
+        cells=[new_sample_cell], template=sample_template, ancestors=[container], digest=digest, force=force
     )
 
     api_mock.call.assert_called_once_with(
@@ -149,26 +149,26 @@ def test_create(api_mock, experiment_factory, sample_property_factory, sample_fa
 def test_getitem(api_mock, sample_properties, sample_factory, index):
     sample = sample_factory()
 
-    assert sample._properties == []
+    assert sample._cells == []
 
     api_mock.call.return_value.json.return_value = sample_properties
 
     for item in sample:
-        assert isinstance(item, SampleProperty)
+        assert isinstance(item, SampleCell)
 
-    assert isinstance(sample[index], SampleProperty)
+    assert isinstance(sample[index], SampleCell)
 
-    assert sample._properties != []
+    assert sample._cells != []
 
 
 def test_iter(api_mock, sample_properties, sample_factory):
     sample = sample_factory()
 
-    assert sample._properties == []
+    assert sample._cells == []
 
     api_mock.call.return_value.json.return_value = sample_properties
 
     for item in sample:
-        assert isinstance(item, SampleProperty)
+        assert isinstance(item, SampleCell)
 
-    assert sample._properties != []
+    assert sample._cells != []

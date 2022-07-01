@@ -43,14 +43,14 @@ from signals_notebook.common_types import (
 )
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
-from signals_notebook.entities.samples.cell import SampleProperty
+from signals_notebook.entities.samples.cell import SampleCell
 
 if TYPE_CHECKING:
     from signals_notebook.entities import SamplesContainer
 
 
 class _SampleAttributes(BaseModel):
-    fields: Optional[List[SampleProperty]] = []
+    fields: Optional[List[SampleCell]] = []
 
 
 class _SampleRelationships(BaseModel):
@@ -68,37 +68,37 @@ class _SampleRequestPayload(EntityCreationRequestPayload[_SampleRequestBody]):
     pass
 
 
-class SamplePropertiesResponse(Response[SampleProperty]):
+class SampleCellsResponse(Response[SampleCell]):
     pass
 
 
 class Sample(Entity):
     type: Literal[EntityType.SAMPLE] = Field(allow_mutation=False)
-    _properties: List[SampleProperty] = PrivateAttr(default=[])
-    _properties_by_id: Dict[Union[str, UUID], SampleProperty] = PrivateAttr(default={})
+    _cells: List[SampleCell] = PrivateAttr(default=[])
+    _cells_by_id: Dict[Union[str, UUID], SampleCell] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[int, str, UUID]) -&gt; SampleProperty:
-        if not self._properties:
-            self._reload_properties()
+    def __getitem__(self, index: Union[int, str, UUID]) -&gt; SampleCell:
+        if not self._cells:
+            self._reload_cells()
 
         if isinstance(index, int):
-            return self._properties[index]
+            return self._cells[index]
 
         if isinstance(index, str):
             try:
-                return self._properties_by_id[UUID(index)]
+                return self._cells_by_id[UUID(index)]
             except ValueError:
-                return self._properties_by_id[index]
+                return self._cells_by_id[index]
 
         if isinstance(index, UUID):
-            return self._properties_by_id[index]
+            return self._cells_by_id[index]
 
         raise IndexError(&#39;Invalid index&#39;)
 
     def __iter__(self):
-        if not self._properties:
-            self._reload_properties()
-        return self._properties.__iter__()
+        if not self._cells:
+            self._reload_cells()
+        return self._cells.__iter__()
 
     @classmethod
     def _get_entity_type(cls) -&gt; EntityType:
@@ -108,9 +108,9 @@ class Sample(Entity):
     def _get_samples_endpoint(cls) -&gt; str:
         return &#39;samples&#39;
 
-    def _reload_properties(self) -&gt; None:
-        self._properties = []
-        self._properties_by_id = {}
+    def _reload_cells(self) -&gt; None:
+        self._cells = []
+        self._cells_by_id = {}
 
         api = SignalsNotebookApi.get_default_api()
 
@@ -120,21 +120,21 @@ class Sample(Entity):
             params={&#39;value&#39;: &#39;normalized&#39;},
         )
 
-        result = SamplePropertiesResponse(**response.json())
-        properties = [cast(ResponseData, item).body for item in result.data]
+        result = SampleCellsResponse(**response.json())
+        cells = [cast(ResponseData, item).body for item in result.data]
 
-        for item in properties:
-            sample_property = cast(SampleProperty, item)
-            assert sample_property.id
+        for item in cells:
+            sample_cell = cast(SampleCell, item)
+            assert sample_cell.id
 
-            self._properties.append(sample_property)
-            self._properties_by_id[sample_property.id] = sample_property
+            self._cells.append(sample_cell)
+            self._cells_by_id[sample_cell.id] = sample_cell
 
     def save(self, force: bool = True) -&gt; None:
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
-        for item in self._properties:
+        for item in self._cells:
             if item.is_changed:
                 request_body.append(item.representation_for_update.dict(exclude_none=True))
 
@@ -152,13 +152,13 @@ class Sample(Entity):
                 &#39;data&#39;: {&#39;attributes&#39;: {&#39;data&#39;: request_body}},
             },
         )
-        self._reload_properties()
+        self._reload_cells()
 
     @classmethod
     def create(
         cls,
         *,
-        properties: Optional[List[SampleProperty]] = None,
+        cells: Optional[List[SampleCell]] = None,
         template: Optional[&#39;Sample&#39;] = None,
         ancestors: Optional[List[Union[Container, &#39;SamplesContainer&#39;]]] = None,
         digest: str = None,
@@ -174,7 +174,7 @@ class Sample(Entity):
         request = _SampleRequestPayload(
             data=_SampleRequestBody(
                 type=cls._get_entity_type(),
-                attributes=_SampleAttributes(fields=properties),
+                attributes=_SampleAttributes(fields=cells),
                 relationships=relationships,
             )
         )
@@ -228,8 +228,8 @@ class Sample(Entity):
 </dd>
 </dl>
 </dd>
-<dt id="signals_notebook.entities.samples.sample.Response[SampleProperty]"><code class="flex name class">
-<span>class <span class="ident">Response[SampleProperty]</span></span>
+<dt id="signals_notebook.entities.samples.sample.Response[SampleCell]"><code class="flex name class">
+<span>class <span class="ident">Response[SampleCell]</span></span>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
@@ -245,19 +245,19 @@ class Sample(Entity):
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="signals_notebook.entities.samples.sample.SamplePropertiesResponse" href="#signals_notebook.entities.samples.sample.SamplePropertiesResponse">SamplePropertiesResponse</a></li>
+<li><a title="signals_notebook.entities.samples.sample.SampleCellsResponse" href="#signals_notebook.entities.samples.sample.SampleCellsResponse">SampleCellsResponse</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.entities.samples.sample.Response[SampleProperty].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dt id="signals_notebook.entities.samples.sample.Response[SampleCell].Config"><code class="name">var <span class="ident">Config</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.samples.sample.Response[SampleProperty].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[SampleProperty], List[pydantic.generics.ResponseData[SampleProperty]]]</code></dt>
+<dt id="signals_notebook.entities.samples.sample.Response[SampleCell].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[SampleCell], List[pydantic.generics.ResponseData[SampleCell]]]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.samples.sample.Response[SampleProperty].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dt id="signals_notebook.entities.samples.sample.Response[SampleCell].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -276,31 +276,31 @@ class Sample(Entity):
 </summary>
 <pre><code class="python">class Sample(Entity):
     type: Literal[EntityType.SAMPLE] = Field(allow_mutation=False)
-    _properties: List[SampleProperty] = PrivateAttr(default=[])
-    _properties_by_id: Dict[Union[str, UUID], SampleProperty] = PrivateAttr(default={})
+    _cells: List[SampleCell] = PrivateAttr(default=[])
+    _cells_by_id: Dict[Union[str, UUID], SampleCell] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[int, str, UUID]) -&gt; SampleProperty:
-        if not self._properties:
-            self._reload_properties()
+    def __getitem__(self, index: Union[int, str, UUID]) -&gt; SampleCell:
+        if not self._cells:
+            self._reload_cells()
 
         if isinstance(index, int):
-            return self._properties[index]
+            return self._cells[index]
 
         if isinstance(index, str):
             try:
-                return self._properties_by_id[UUID(index)]
+                return self._cells_by_id[UUID(index)]
             except ValueError:
-                return self._properties_by_id[index]
+                return self._cells_by_id[index]
 
         if isinstance(index, UUID):
-            return self._properties_by_id[index]
+            return self._cells_by_id[index]
 
         raise IndexError(&#39;Invalid index&#39;)
 
     def __iter__(self):
-        if not self._properties:
-            self._reload_properties()
-        return self._properties.__iter__()
+        if not self._cells:
+            self._reload_cells()
+        return self._cells.__iter__()
 
     @classmethod
     def _get_entity_type(cls) -&gt; EntityType:
@@ -310,9 +310,9 @@ class Sample(Entity):
     def _get_samples_endpoint(cls) -&gt; str:
         return &#39;samples&#39;
 
-    def _reload_properties(self) -&gt; None:
-        self._properties = []
-        self._properties_by_id = {}
+    def _reload_cells(self) -&gt; None:
+        self._cells = []
+        self._cells_by_id = {}
 
         api = SignalsNotebookApi.get_default_api()
 
@@ -322,21 +322,21 @@ class Sample(Entity):
             params={&#39;value&#39;: &#39;normalized&#39;},
         )
 
-        result = SamplePropertiesResponse(**response.json())
-        properties = [cast(ResponseData, item).body for item in result.data]
+        result = SampleCellsResponse(**response.json())
+        cells = [cast(ResponseData, item).body for item in result.data]
 
-        for item in properties:
-            sample_property = cast(SampleProperty, item)
-            assert sample_property.id
+        for item in cells:
+            sample_cell = cast(SampleCell, item)
+            assert sample_cell.id
 
-            self._properties.append(sample_property)
-            self._properties_by_id[sample_property.id] = sample_property
+            self._cells.append(sample_cell)
+            self._cells_by_id[sample_cell.id] = sample_cell
 
     def save(self, force: bool = True) -&gt; None:
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
-        for item in self._properties:
+        for item in self._cells:
             if item.is_changed:
                 request_body.append(item.representation_for_update.dict(exclude_none=True))
 
@@ -354,13 +354,13 @@ class Sample(Entity):
                 &#39;data&#39;: {&#39;attributes&#39;: {&#39;data&#39;: request_body}},
             },
         )
-        self._reload_properties()
+        self._reload_cells()
 
     @classmethod
     def create(
         cls,
         *,
-        properties: Optional[List[SampleProperty]] = None,
+        cells: Optional[List[SampleCell]] = None,
         template: Optional[&#39;Sample&#39;] = None,
         ancestors: Optional[List[Union[Container, &#39;SamplesContainer&#39;]]] = None,
         digest: str = None,
@@ -376,7 +376,7 @@ class Sample(Entity):
         request = _SampleRequestPayload(
             data=_SampleRequestBody(
                 type=cls._get_entity_type(),
-                attributes=_SampleAttributes(fields=properties),
+                attributes=_SampleAttributes(fields=cells),
                 relationships=relationships,
             )
         )
@@ -403,7 +403,7 @@ class Sample(Entity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.samples.sample.Sample.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, properties: Optional[List[<a title="signals_notebook.entities.samples.cell.SampleProperty" href="cell.html#signals_notebook.entities.samples.cell.SampleProperty">SampleProperty</a>]] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a>')] = None, ancestors: Optional[List[Union[<a title="signals_notebook.entities.container.Container" href="../container.html#signals_notebook.entities.container.Container">Container</a>, ForwardRef('SamplesContainer')]]] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, cells: Optional[List[<a title="signals_notebook.entities.samples.cell.SampleCell" href="cell.html#signals_notebook.entities.samples.cell.SampleCell">SampleCell</a>]] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a>')] = None, ancestors: Optional[List[Union[<a title="signals_notebook.entities.container.Container" href="../container.html#signals_notebook.entities.container.Container">Container</a>, ForwardRef('SamplesContainer')]]] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -415,7 +415,7 @@ class Sample(Entity):
 def create(
     cls,
     *,
-    properties: Optional[List[SampleProperty]] = None,
+    cells: Optional[List[SampleCell]] = None,
     template: Optional[&#39;Sample&#39;] = None,
     ancestors: Optional[List[Union[Container, &#39;SamplesContainer&#39;]]] = None,
     digest: str = None,
@@ -431,7 +431,7 @@ def create(
     request = _SampleRequestPayload(
         data=_SampleRequestBody(
             type=cls._get_entity_type(),
-            attributes=_SampleAttributes(fields=properties),
+            attributes=_SampleAttributes(fields=cells),
             relationships=relationships,
         )
     )
@@ -448,6 +448,7 @@ def create(
 <ul class="hlist">
 <li><code><b><a title="signals_notebook.entities.entity.Entity" href="../entity.html#signals_notebook.entities.entity.Entity">Entity</a></b></code>:
 <ul class="hlist">
+<li><code><a title="signals_notebook.entities.entity.Entity.delete" href="../entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_html" href="../entity.html#signals_notebook.entities.entity.Entity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_list" href="../entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_subclasses" href="../entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
@@ -460,8 +461,8 @@ def create(
 </li>
 </ul>
 </dd>
-<dt id="signals_notebook.entities.samples.sample.SamplePropertiesResponse"><code class="flex name class">
-<span>class <span class="ident">SamplePropertiesResponse</span></span>
+<dt id="signals_notebook.entities.samples.sample.SampleCellsResponse"><code class="flex name class">
+<span>class <span class="ident">SampleCellsResponse</span></span>
 <span>(</span><span>**kwargs)</span>
 </code></dt>
 <dd>
@@ -471,12 +472,12 @@ def create(
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class SamplePropertiesResponse(Response[SampleProperty]):
+<pre><code class="python">class SampleCellsResponse(Response[SampleCell]):
     pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="signals_notebook.entities.samples.sample.Response[SampleProperty]" href="#signals_notebook.entities.samples.sample.Response[SampleProperty]">Response[SampleProperty]</a></li>
+<li><a title="signals_notebook.entities.samples.sample.Response[SampleCell]" href="#signals_notebook.entities.samples.sample.Response[SampleCell]">Response[SampleCell]</a></li>
 <li><a title="signals_notebook.common_types.Response" href="../../common_types.html#signals_notebook.common_types.Response">Response</a></li>
 <li>pydantic.generics.GenericModel</li>
 <li>pydantic.main.BaseModel</li>
@@ -485,11 +486,11 @@ def create(
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.entities.samples.sample.SamplePropertiesResponse.data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[SampleProperty], List[pydantic.generics.ResponseData[SampleProperty]]]</code></dt>
+<dt id="signals_notebook.entities.samples.sample.SampleCellsResponse.data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[SampleCell], List[pydantic.generics.ResponseData[SampleCell]]]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.samples.sample.SamplePropertiesResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dt id="signals_notebook.entities.samples.sample.SampleCellsResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -519,11 +520,11 @@ def create(
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.entities.samples.sample.Response[SampleProperty]" href="#signals_notebook.entities.samples.sample.Response[SampleProperty]">Response[SampleProperty]</a></code></h4>
+<h4><code><a title="signals_notebook.entities.samples.sample.Response[SampleCell]" href="#signals_notebook.entities.samples.sample.Response[SampleCell]">Response[SampleCell]</a></code></h4>
 <ul class="">
-<li><code><a title="signals_notebook.entities.samples.sample.Response[SampleProperty].Config" href="#signals_notebook.entities.samples.sample.Response[SampleProperty].Config">Config</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.sample.Response[SampleProperty].data" href="#signals_notebook.entities.samples.sample.Response[SampleProperty].data">data</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.sample.Response[SampleProperty].links" href="#signals_notebook.entities.samples.sample.Response[SampleProperty].links">links</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.sample.Response[SampleCell].Config" href="#signals_notebook.entities.samples.sample.Response[SampleCell].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.sample.Response[SampleCell].data" href="#signals_notebook.entities.samples.sample.Response[SampleCell].data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.sample.Response[SampleCell].links" href="#signals_notebook.entities.samples.sample.Response[SampleCell].links">links</a></code></li>
 </ul>
 </li>
 <li>
@@ -534,10 +535,10 @@ def create(
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.entities.samples.sample.SamplePropertiesResponse" href="#signals_notebook.entities.samples.sample.SamplePropertiesResponse">SamplePropertiesResponse</a></code></h4>
+<h4><code><a title="signals_notebook.entities.samples.sample.SampleCellsResponse" href="#signals_notebook.entities.samples.sample.SampleCellsResponse">SampleCellsResponse</a></code></h4>
 <ul class="">
-<li><code><a title="signals_notebook.entities.samples.sample.SamplePropertiesResponse.data" href="#signals_notebook.entities.samples.sample.SamplePropertiesResponse.data">data</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.sample.SamplePropertiesResponse.links" href="#signals_notebook.entities.samples.sample.SamplePropertiesResponse.links">links</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.sample.SampleCellsResponse.data" href="#signals_notebook.entities.samples.sample.SampleCellsResponse.data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.sample.SampleCellsResponse.links" href="#signals_notebook.entities.samples.sample.SampleCellsResponse.links">links</a></code></li>
 </ul>
 </li>
 </ul>

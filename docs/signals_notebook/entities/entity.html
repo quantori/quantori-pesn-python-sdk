@@ -29,9 +29,11 @@
 <pre><code class="python">import json
 import logging
 from datetime import datetime
-from typing import Any, cast, ClassVar, Dict, Generator, Optional, Type, TypeVar
+from typing import Any, cast, ClassVar, Dict, Generator, Generic, List, Optional, Type, TypeVar, Union
+from uuid import UUID
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, PrivateAttr
+from pydantic.generics import GenericModel
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import (
@@ -46,8 +48,54 @@ from signals_notebook.common_types import (
 from signals_notebook.jinja_env import env
 
 ChildClass = TypeVar(&#39;ChildClass&#39;, bound=&#39;Entity&#39;)
+CellValueType = TypeVar(&#39;CellValueType&#39;)
 
 log = logging.getLogger(__name__)
+MAIN_PROPERTIES = [&#39;Name&#39;, &#39;Description&#39;, &#39;createdAt&#39;, &#39;editedAt&#39;]
+
+
+class Property(GenericModel, Generic[CellValueType]):
+    id: Optional[Union[UUID, str]]
+    type: Optional[str]
+    name: Optional[str]
+    description: Optional[str]
+    value: Optional[CellValueType]
+    values: Optional[List[CellValueType]]
+    _changed: bool = PrivateAttr(default=False)
+
+    def set_value(self, new_value: CellValueType) -&gt; None:
+        &#34;&#34;&#34;Set new value
+
+        Args:
+            new_value: new value of Property value field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self.value = new_value
+        self._changed = True
+
+    @property
+    def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if content of Cell has been modified
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
+        return self._changed
+
+    @property
+    def representation_for_update(self) -&gt; dict[str, dict]:
+        &#34;&#34;&#34;Get representation of body for update
+
+        Returns:
+            dict[str, dict]
+        &#34;&#34;&#34;
+        return {&#39;attributes&#39;: self.dict(include={&#39;name&#39;, &#39;value&#39;})}
+
+
+class PropertiesResponse(Response[Property]):
+    pass
 
 
 class Entity(BaseModel):
@@ -59,6 +107,8 @@ class Entity(BaseModel):
     created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
     edited_at: datetime = Field(alias=&#39;editedAt&#39;, allow_mutation=False)
     _template_name: ClassVar = &#39;entity.html&#39;
+    _properties: List[Property] = PrivateAttr(default=[])
+    _properties_by_id: Dict[Union[str, UUID], Property] = PrivateAttr(default={})
 
     class Config:
         validate_assignment = True
@@ -66,6 +116,29 @@ class Entity(BaseModel):
 
     def __str__(self) -&gt; str:
         return f&#39;&lt;{self.__class__.__name__} eid={self.eid}&gt;&#39;
+
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -&gt; Any:
+        if not self._properties:
+            self._reload_properties()
+
+        if isinstance(index, int):
+            return self._properties[index]
+
+        if isinstance(index, str):
+            try:
+                return self._properties_by_id[UUID(index)]
+            except ValueError:
+                return self._properties_by_id[index]
+
+        if isinstance(index, UUID):
+            return self._properties_by_id[index]
+
+        raise IndexError(&#39;Invalid index&#39;)
+
+    def __iter__(self):
+        if not self._properties:
+            self._reload_properties()
+        return self._properties.__iter__()
 
     @classmethod
     def _get_entity_type(cls) -&gt; EntityType:
@@ -116,6 +189,30 @@ class Entity(BaseModel):
             &#39;include_types&#39;: [cls._get_entity_type()],
         }
 
+    def _reload_properties(self) -&gt; None:
+        log.debug(&#39;Reloading properties in Entity: %s...&#39;, self.eid)
+        self._properties = []
+        self._properties_by_id = {}
+
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), self.eid, &#39;properties&#39;),
+        )
+        result = PropertiesResponse(**response.json())
+        properties = [cast(ResponseData, item).body for item in result.data]
+
+        for item in properties:
+            entity_property = cast(Property, item)
+            if entity_property.name in MAIN_PROPERTIES:
+                continue
+            assert entity_property.id
+
+            self._properties.append(entity_property)
+            self._properties_by_id[entity_property.id] = entity_property
+        log.debug(&#39;Properties in Entity: %s were reloaded&#39;, self.eid)
+
     @classmethod
     def get_list(cls) -&gt; Generator[&#39;Entity&#39;, None, None]:
         &#34;&#34;&#34;Get all entities
@@ -128,6 +225,11 @@ class Entity(BaseModel):
         return EntityStore.get_list(**cls._get_list_params())
 
     def delete(self) -&gt; None:
+        &#34;&#34;&#34;Delete entity
+
+        Returns:
+
+        &#34;&#34;&#34;
         from signals_notebook.entities.entity_store import EntityStore
 
         EntityStore.delete(self.eid)
@@ -163,25 +265,8 @@ class Entity(BaseModel):
 
         EntityStore.refresh(self)
 
-    def save(self, force: bool = True) -&gt; None:
-        &#34;&#34;&#34;Update properties of a specified entity.
-
-        Args:
-            force: Force to update properties without doing digest check.
-
-        Returns:
-
-        &#34;&#34;&#34;
+    def _patch_properties(self, request_body, force: bool) -&gt; None:
         api = SignalsNotebookApi.get_default_api()
-        log.debug(&#39;Save Entity: %s...&#39;, self.eid)
-
-        request_body = []
-        for field in self.__fields__.values():
-            if field.field_info.allow_mutation:
-                request_body.append(
-                    {&#39;attributes&#39;: {&#39;name&#39;: field.field_info.title, &#39;value&#39;: getattr(self, field.name)}}
-                )
-
         api.call(
             method=&#39;PATCH&#39;,
             path=(self._get_endpoint(), self.eid, &#39;properties&#39;),
@@ -193,6 +278,34 @@ class Entity(BaseModel):
                 &#39;data&#39;: request_body,
             },
         )
+
+    def save(self, force: bool = True) -&gt; None:
+        &#34;&#34;&#34;Update attributes and properties of a specified entity.
+
+        Args:
+            force: Force to update attributes and properties without doing digest check.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        log.debug(&#39;Save Entity: %s...&#39;, self.eid)
+
+        request_body = []
+        for field in self.__fields__.values():
+            if field.field_info.allow_mutation:
+                request_body.append(
+                    {&#39;attributes&#39;: {&#39;name&#39;: field.field_info.title, &#39;value&#39;: getattr(self, field.name)}}
+                )
+
+        log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
+        if self._properties:
+            for item in self._properties:
+                if item.is_changed:
+                    request_body.append(item.representation_for_update)
+        self._patch_properties(request_body=request_body, force=force)
+        self._reload_properties()
+
+        log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
         log.debug(&#39;Entity: %s was saved.&#39;, self.eid)
 
     @property
@@ -246,6 +359,8 @@ class Entity(BaseModel):
     created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
     edited_at: datetime = Field(alias=&#39;editedAt&#39;, allow_mutation=False)
     _template_name: ClassVar = &#39;entity.html&#39;
+    _properties: List[Property] = PrivateAttr(default=[])
+    _properties_by_id: Dict[Union[str, UUID], Property] = PrivateAttr(default={})
 
     class Config:
         validate_assignment = True
@@ -253,6 +368,29 @@ class Entity(BaseModel):
 
     def __str__(self) -&gt; str:
         return f&#39;&lt;{self.__class__.__name__} eid={self.eid}&gt;&#39;
+
+    def __getitem__(self, index: Union[int, str, UUID, EID]) -&gt; Any:
+        if not self._properties:
+            self._reload_properties()
+
+        if isinstance(index, int):
+            return self._properties[index]
+
+        if isinstance(index, str):
+            try:
+                return self._properties_by_id[UUID(index)]
+            except ValueError:
+                return self._properties_by_id[index]
+
+        if isinstance(index, UUID):
+            return self._properties_by_id[index]
+
+        raise IndexError(&#39;Invalid index&#39;)
+
+    def __iter__(self):
+        if not self._properties:
+            self._reload_properties()
+        return self._properties.__iter__()
 
     @classmethod
     def _get_entity_type(cls) -&gt; EntityType:
@@ -303,6 +441,30 @@ class Entity(BaseModel):
             &#39;include_types&#39;: [cls._get_entity_type()],
         }
 
+    def _reload_properties(self) -&gt; None:
+        log.debug(&#39;Reloading properties in Entity: %s...&#39;, self.eid)
+        self._properties = []
+        self._properties_by_id = {}
+
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), self.eid, &#39;properties&#39;),
+        )
+        result = PropertiesResponse(**response.json())
+        properties = [cast(ResponseData, item).body for item in result.data]
+
+        for item in properties:
+            entity_property = cast(Property, item)
+            if entity_property.name in MAIN_PROPERTIES:
+                continue
+            assert entity_property.id
+
+            self._properties.append(entity_property)
+            self._properties_by_id[entity_property.id] = entity_property
+        log.debug(&#39;Properties in Entity: %s were reloaded&#39;, self.eid)
+
     @classmethod
     def get_list(cls) -&gt; Generator[&#39;Entity&#39;, None, None]:
         &#34;&#34;&#34;Get all entities
@@ -315,6 +477,11 @@ class Entity(BaseModel):
         return EntityStore.get_list(**cls._get_list_params())
 
     def delete(self) -&gt; None:
+        &#34;&#34;&#34;Delete entity
+
+        Returns:
+
+        &#34;&#34;&#34;
         from signals_notebook.entities.entity_store import EntityStore
 
         EntityStore.delete(self.eid)
@@ -350,25 +517,8 @@ class Entity(BaseModel):
 
         EntityStore.refresh(self)
 
-    def save(self, force: bool = True) -&gt; None:
-        &#34;&#34;&#34;Update properties of a specified entity.
-
-        Args:
-            force: Force to update properties without doing digest check.
-
-        Returns:
-
-        &#34;&#34;&#34;
+    def _patch_properties(self, request_body, force: bool) -&gt; None:
         api = SignalsNotebookApi.get_default_api()
-        log.debug(&#39;Save Entity: %s...&#39;, self.eid)
-
-        request_body = []
-        for field in self.__fields__.values():
-            if field.field_info.allow_mutation:
-                request_body.append(
-                    {&#39;attributes&#39;: {&#39;name&#39;: field.field_info.title, &#39;value&#39;: getattr(self, field.name)}}
-                )
-
         api.call(
             method=&#39;PATCH&#39;,
             path=(self._get_endpoint(), self.eid, &#39;properties&#39;),
@@ -380,6 +530,34 @@ class Entity(BaseModel):
                 &#39;data&#39;: request_body,
             },
         )
+
+    def save(self, force: bool = True) -&gt; None:
+        &#34;&#34;&#34;Update attributes and properties of a specified entity.
+
+        Args:
+            force: Force to update attributes and properties without doing digest check.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        log.debug(&#39;Save Entity: %s...&#39;, self.eid)
+
+        request_body = []
+        for field in self.__fields__.values():
+            if field.field_info.allow_mutation:
+                request_body.append(
+                    {&#39;attributes&#39;: {&#39;name&#39;: field.field_info.title, &#39;value&#39;: getattr(self, field.name)}}
+                )
+
+        log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
+        if self._properties:
+            for item in self._properties:
+                if item.is_changed:
+                    request_body.append(item.representation_for_update)
+        self._patch_properties(request_body=request_body, force=force)
+        self._reload_properties()
+
+        log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
         log.debug(&#39;Entity: %s was saved.&#39;, self.eid)
 
     @property
@@ -579,12 +757,18 @@ def short_description(self) -&gt; EntityShortDescription:
 <span>def <span class="ident">delete</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Delete entity</p>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete(self) -&gt; None:
+    &#34;&#34;&#34;Delete entity
+
+    Returns:
+
+    &#34;&#34;&#34;
     from signals_notebook.entities.entity_store import EntityStore
 
     EntityStore.delete(self.eid)
@@ -640,11 +824,11 @@ def short_description(self) -&gt; EntityShortDescription:
 <span>def <span class="ident">save</span></span>(<span>self, force: bool = True) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Update properties of a specified entity.</p>
+<div class="desc"><p>Update attributes and properties of a specified entity.</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>force</code></strong></dt>
-<dd>Force to update properties without doing digest check.</dd>
+<dd>Force to update attributes and properties without doing digest check.</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
@@ -652,15 +836,14 @@ def short_description(self) -&gt; EntityShortDescription:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def save(self, force: bool = True) -&gt; None:
-    &#34;&#34;&#34;Update properties of a specified entity.
+    &#34;&#34;&#34;Update attributes and properties of a specified entity.
 
     Args:
-        force: Force to update properties without doing digest check.
+        force: Force to update attributes and properties without doing digest check.
 
     Returns:
 
     &#34;&#34;&#34;
-    api = SignalsNotebookApi.get_default_api()
     log.debug(&#39;Save Entity: %s...&#39;, self.eid)
 
     request_body = []
@@ -670,19 +853,244 @@ def short_description(self) -&gt; EntityShortDescription:
                 {&#39;attributes&#39;: {&#39;name&#39;: field.field_info.title, &#39;value&#39;: getattr(self, field.name)}}
             )
 
-    api.call(
-        method=&#39;PATCH&#39;,
-        path=(self._get_endpoint(), self.eid, &#39;properties&#39;),
-        params={
-            &#39;digest&#39;: None if force else self.digest,
-            &#39;force&#39;: json.dumps(force),
-        },
-        json={
-            &#39;data&#39;: request_body,
-        },
-    )
+    log.debug(&#39;Updating properties in Entity: %s...&#39;, self.eid)
+    if self._properties:
+        for item in self._properties:
+            if item.is_changed:
+                request_body.append(item.representation_for_update)
+    self._patch_properties(request_body=request_body, force=force)
+    self._reload_properties()
+
+    log.debug(&#39;Properties in Entity: %s were updated successfully&#39;, self.eid)
     log.debug(&#39;Entity: %s was saved.&#39;, self.eid)</code></pre>
 </details>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.entity.PropertiesResponse"><code class="flex name class">
+<span>class <span class="ident">PropertiesResponse</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class PropertiesResponse(Response[Property]):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.entity.Response[Property]" href="#signals_notebook.entities.entity.Response[Property]">Response[Property]</a></li>
+<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.entity.PropertiesResponse.data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.entities.entity.Property" href="#signals_notebook.entities.entity.Property">Property</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.entities.entity.Property" href="#signals_notebook.entities.entity.Property">Property</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.entity.PropertiesResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.entity.Property"><code class="flex name class">
+<span>class <span class="ident">Property</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Property(GenericModel, Generic[CellValueType]):
+    id: Optional[Union[UUID, str]]
+    type: Optional[str]
+    name: Optional[str]
+    description: Optional[str]
+    value: Optional[CellValueType]
+    values: Optional[List[CellValueType]]
+    _changed: bool = PrivateAttr(default=False)
+
+    def set_value(self, new_value: CellValueType) -&gt; None:
+        &#34;&#34;&#34;Set new value
+
+        Args:
+            new_value: new value of Property value field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        self.value = new_value
+        self._changed = True
+
+    @property
+    def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if content of Cell has been modified
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
+        return self._changed
+
+    @property
+    def representation_for_update(self) -&gt; dict[str, dict]:
+        &#34;&#34;&#34;Get representation of body for update
+
+        Returns:
+            dict[str, dict]
+        &#34;&#34;&#34;
+        return {&#39;attributes&#39;: self.dict(include={&#39;name&#39;, &#39;value&#39;})}</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.entity.Property.description"><code class="name">var <span class="ident">description</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.entity.Property.id"><code class="name">var <span class="ident">id</span> : Union[uuid.UUID, str, ForwardRef(None)]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.entity.Property.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.entity.Property.type"><code class="name">var <span class="ident">type</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.entity.Property.value"><code class="name">var <span class="ident">value</span> : Optional[~CellValueType]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.entity.Property.values"><code class="name">var <span class="ident">values</span> : Optional[List[~CellValueType]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="signals_notebook.entities.entity.Property.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
+<dd>
+<div class="desc"><p>Checking if content of Cell has been modified</p>
+<h2 id="returns">Returns</h2>
+<p>bool</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_changed(self) -&gt; bool:
+    &#34;&#34;&#34;Checking if content of Cell has been modified
+
+    Returns:
+        bool
+    &#34;&#34;&#34;
+    return self._changed</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.entity.Property.representation_for_update"><code class="name">var <span class="ident">representation_for_update</span> : dict</code></dt>
+<dd>
+<div class="desc"><p>Get representation of body for update</p>
+<h2 id="returns">Returns</h2>
+<p>dict[str, dict]</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def representation_for_update(self) -&gt; dict[str, dict]:
+    &#34;&#34;&#34;Get representation of body for update
+
+    Returns:
+        dict[str, dict]
+    &#34;&#34;&#34;
+    return {&#39;attributes&#39;: self.dict(include={&#39;name&#39;, &#39;value&#39;})}</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.entity.Property.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Set new value</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of Property value field</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: CellValueType) -&gt; None:
+    &#34;&#34;&#34;Set new value
+
+    Args:
+        new_value: new value of Property value field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    self.value = new_value
+    self._changed = True</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.entity.Response[Property]"><code class="flex name class">
+<span>class <span class="ident">Response[Property]</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.entity.PropertiesResponse" href="#signals_notebook.entities.entity.PropertiesResponse">PropertiesResponse</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.entity.Response[Property].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.entity.Response[Property].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.entities.entity.Property" href="#signals_notebook.entities.entity.Property">Property</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.entities.entity.Property" href="#signals_notebook.entities.entity.Property">Property</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.entity.Response[Property].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -722,6 +1130,35 @@ def short_description(self) -&gt; EntityShortDescription:
 <li><code><a title="signals_notebook.entities.entity.Entity.set_template_name" href="#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.short_description" href="#signals_notebook.entities.entity.Entity.short_description">short_description</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.type" href="#signals_notebook.entities.entity.Entity.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.entity.PropertiesResponse" href="#signals_notebook.entities.entity.PropertiesResponse">PropertiesResponse</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.entity.PropertiesResponse.data" href="#signals_notebook.entities.entity.PropertiesResponse.data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.PropertiesResponse.links" href="#signals_notebook.entities.entity.PropertiesResponse.links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.entity.Property" href="#signals_notebook.entities.entity.Property">Property</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.entity.Property.description" href="#signals_notebook.entities.entity.Property.description">description</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Property.id" href="#signals_notebook.entities.entity.Property.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Property.is_changed" href="#signals_notebook.entities.entity.Property.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Property.name" href="#signals_notebook.entities.entity.Property.name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Property.representation_for_update" href="#signals_notebook.entities.entity.Property.representation_for_update">representation_for_update</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Property.set_value" href="#signals_notebook.entities.entity.Property.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Property.type" href="#signals_notebook.entities.entity.Property.type">type</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Property.value" href="#signals_notebook.entities.entity.Property.value">value</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Property.values" href="#signals_notebook.entities.entity.Property.values">values</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.entity.Response[Property]" href="#signals_notebook.entities.entity.Response[Property]">Response[Property]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.entity.Response[Property].Config" href="#signals_notebook.entities.entity.Response[Property].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Response[Property].data" href="#signals_notebook.entities.entity.Response[Property].data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Response[Property].links" href="#signals_notebook.entities.entity.Response[Property].links">links</a></code></li>
 </ul>
 </li>
 </ul>

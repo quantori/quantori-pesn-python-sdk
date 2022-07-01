@@ -16,13 +16,13 @@ from tests.entities.factories import (
     WordFactory,
 )
 from tests.entities.samples.factories import (
+    SampleCellFactory,
     SampleFactory,
-    SamplePropertyFactory,
     SamplesContainerFactory,
 )
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
-from tests.entities.todo_list.factories import TaskFactory, TaskPropertyFactory, TodoListFactory
+from tests.entities.todo_list.factories import TaskCellFactory, TaskFactory, TodoListFactory
 
 
 register(EIDFactory)
@@ -39,12 +39,12 @@ register(ExcelFactory)
 register(BiologicalSequenceFactory)
 register(SamplesContainerFactory)
 register(SampleFactory)
-register(SamplePropertyFactory)
+register(SampleCellFactory)
 register(PowerPointFactory)
 register(SpotfireFactory)
 register(TodoListFactory)
 register(TaskFactory)
-register(TaskPropertyFactory)
+register(TaskCellFactory)
 
 
 @pytest.fixture()

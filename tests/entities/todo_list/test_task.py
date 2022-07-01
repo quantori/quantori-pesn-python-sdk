@@ -1,18 +1,18 @@
 import pytest
 
-from signals_notebook.entities import TaskProperty
+from signals_notebook.entities import TaskCell
 
 
 def test_reload_properties(api_mock, task_factory, task_properties):
     task = task_factory()
 
-    assert task._properties == []
+    assert task._cells == []
 
     api_mock.call.return_value.json.return_value = task_properties
     for item in task:
-        assert isinstance(item, TaskProperty)
+        assert isinstance(item, TaskCell)
 
-    assert task._properties != []
+    assert task._cells != []
 
     api_mock.call.assert_called_once_with(
         method='GET',
@@ -26,7 +26,7 @@ def test_reload_properties(api_mock, task_factory, task_properties):
 def test_save(api_mock, task_factory, task_properties, mocker):
     task = task_factory()
 
-    assert task._properties == []
+    assert task._cells == []
 
     api_mock.call.return_value.json.return_value = task_properties
     for item in task:
@@ -35,7 +35,7 @@ def test_save(api_mock, task_factory, task_properties, mocker):
     api_mock.call.return_value.json.return_value = {}
     api_mock.call.return_value.json.return_value = task_properties
 
-    assert task._properties != []
+    assert task._cells != []
 
     request_body = []
     for item in task:
@@ -75,25 +75,25 @@ def test_save(api_mock, task_factory, task_properties, mocker):
 def test_getitem(api_mock, task_factory, task_properties, index):
     task = task_factory()
 
-    assert task._properties == []
+    assert task._cells == []
 
     api_mock.call.return_value.json.return_value = task_properties
 
     for item in task:
-        assert isinstance(item, TaskProperty)
+        assert isinstance(item, TaskCell)
 
-    assert isinstance(task[index], TaskProperty)
-    assert task._properties != []
+    assert isinstance(task[index], TaskCell)
+    assert task._cells != []
 
 
 def test_iter(api_mock, task_factory, task_properties):
     task = task_factory()
 
-    assert task._properties == []
+    assert task._cells == []
 
     api_mock.call.return_value.json.return_value = task_properties
 
     for item in task:
-        assert isinstance(item, TaskProperty)
+        assert isinstance(item, TaskCell)
 
-    assert task._properties != []
+    assert task._cells != []

@@ -1,7 +1,7 @@
 import factory
 
-from signals_notebook.common_types import EntityType
-from signals_notebook.entities import Task, TaskProperty, TodoList
+from signals_notebook.common_types import EntityType, ObjectType
+from signals_notebook.entities import Task, TaskCell, TodoList
 from tests.entities.factories import EntityFactory
 
 
@@ -19,10 +19,10 @@ class TaskFactory(EntityFactory):
     type = EntityType.TASK
 
 
-class TaskPropertyFactory(factory.Factory):
+class TaskCellFactory(factory.Factory):
     id = factory.Faker('word')
-    type = 'property'
+    type = ObjectType.PROPERTY
     content = factory.Dict({'value': 4})
 
     class Meta:
-        model = TaskProperty
+        model = TaskCell
