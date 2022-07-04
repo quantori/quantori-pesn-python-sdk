@@ -145,11 +145,11 @@ class LicenceFactory(factory.Factory):
 
     id = factory.SubFactory(EIDFactory)
     name = factory.Faker('word')
-    expiresAt = factory.Faker('date_time')
+    expires_at = factory.Faker('date_time')
     valid = factory.Faker('pybool')
-    hasServiceExpired = factory.Faker('pybool')
-    hasUserFound = factory.Faker('pybool')
-    hasUserActivated = factory.Faker('pybool')
+    has_service_expired = factory.Faker('pybool')
+    has_user_found = factory.Faker('pybool')
+    has_user_activated = factory.Faker('pybool')
 
 
 class ProfileFactory(factory.Factory):

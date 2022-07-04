@@ -1,9 +1,9 @@
 import arrow
 import pytest
 
+from signals_notebook.entities.users.profile import Profile
 from signals_notebook.entities.users.user import User
 from signals_notebook.entities.users.user_store import UserStore
-from signals_notebook.entities.users.profile import Profile
 
 
 @pytest.fixture()

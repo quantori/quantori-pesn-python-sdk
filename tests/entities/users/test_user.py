@@ -1,10 +1,5 @@
-import arrow
-import pytest
-
 from signals_notebook.common_types import File
 from signals_notebook.entities.users.user import User, UserCreationBody
-from signals_notebook.entities.users.user_store import UserStore
-from signals_notebook.entities.users.profile import Profile
 
 
 def test_create(api_mock):
