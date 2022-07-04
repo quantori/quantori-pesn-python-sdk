@@ -1,7 +1,7 @@
 import cgi
 import logging
 from datetime import datetime
-from typing import cast, Optional, List
+from typing import cast, List, Optional
 
 from pydantic import BaseModel, Field, PrivateAttr
 
