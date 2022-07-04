@@ -183,7 +183,8 @@ class EntityStore:
                 &#39;digest&#39;: digest,
                 &#39;force&#39;: json.dumps(force),
             },
-        )</code></pre>
+        )
+        log.debug(&#39;Entity: %s was deleted from EntityStore successfully&#39;, eid)</code></pre>
 </details>
 </section>
 <section>
@@ -348,7 +349,8 @@ class EntityStore:
                 &#39;digest&#39;: digest,
                 &#39;force&#39;: json.dumps(force),
             },
-        )</code></pre>
+        )
+        log.debug(&#39;Entity: %s was deleted from EntityStore successfully&#39;, eid)</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -404,7 +406,8 @@ def delete(cls, eid: EID, digest: str = None, force: bool = True) -&gt; None:
             &#39;digest&#39;: digest,
             &#39;force&#39;: json.dumps(force),
         },
-    )</code></pre>
+    )
+    log.debug(&#39;Entity: %s was deleted from EntityStore successfully&#39;, eid)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.entity_store.EntityStore.get"><code class="name flex">

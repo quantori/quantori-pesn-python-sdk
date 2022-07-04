@@ -1,0 +1,550 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>signals_notebook.entities.users.profile API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>signals_notebook.entities.users.profile</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from datetime import datetime
+from typing import List, Literal, Union
+
+from pydantic import BaseModel, Field
+
+from signals_notebook.common_types import ObjectType, Response
+
+
+class Role(BaseModel):
+    id: int
+    name: str
+
+
+class Licence(BaseModel):
+    id: Union[int, str]
+    name: str
+    expires_at: datetime = Field(alias=&#39;expiresAt&#39;)
+    valid: bool
+    has_service_expired: bool = Field(alias=&#39;hasServiceExpired&#39;)
+    has_user_found: bool = Field(alias=&#39;hasUserFound&#39;)
+    has_user_activated: bool = Field(alias=&#39;hasUserActivated&#39;)
+
+
+class Profile(BaseModel):
+    id: str = Field(alias=&#39;userId&#39;, allow_mutation=False)
+    first_name: str = Field(alias=&#39;firstName&#39;)
+    last_name: str = Field(alias=&#39;lastName&#39;)
+    email: str
+    created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
+    tenant: str
+    roles: List[Role]
+    licenses: List[Licence]
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+
+class ProfileResponse(Response[Profile]):
+    pass
+
+
+class Group(BaseModel):
+    type: Literal[ObjectType.GROUP] = Field(allow_mutation=False)
+    eid: str
+    id: str
+    is_system: bool = Field(alias=&#39;isSystem&#39;, allow_mutation=False)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+    @classmethod
+    def _get_entity_type(cls) -&gt; ObjectType:
+        return ObjectType.GROUP
+
+
+class GroupResponse(Response[Group]):
+    pass</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="signals_notebook.entities.users.profile.Group"><code class="flex name class">
+<span>class <span class="ident">Group</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Group(BaseModel):
+    type: Literal[ObjectType.GROUP] = Field(allow_mutation=False)
+    eid: str
+    id: str
+    is_system: bool = Field(alias=&#39;isSystem&#39;, allow_mutation=False)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+    @classmethod
+    def _get_entity_type(cls) -&gt; ObjectType:
+        return ObjectType.GROUP</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.profile.Group.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Group.eid"><code class="name">var <span class="ident">eid</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Group.id"><code class="name">var <span class="ident">id</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Group.is_system"><code class="name">var <span class="ident">is_system</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Group.type"><code class="name">var <span class="ident">type</span> : Literal[<ObjectType.GROUP: 'group'>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.users.profile.GroupResponse"><code class="flex name class">
+<span>class <span class="ident">GroupResponse</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class GroupResponse(Response[Group]):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.users.profile.Response[Group]" href="#signals_notebook.entities.users.profile.Response[Group]">Response[Group]</a></li>
+<li><a title="signals_notebook.common_types.Response" href="../../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.profile.GroupResponse.data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.profile.Group" href="#signals_notebook.entities.users.profile.Group">Group</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.profile.Group" href="#signals_notebook.entities.users.profile.Group">Group</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.GroupResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Licence"><code class="flex name class">
+<span>class <span class="ident">Licence</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Licence(BaseModel):
+    id: Union[int, str]
+    name: str
+    expires_at: datetime = Field(alias=&#39;expiresAt&#39;)
+    valid: bool
+    has_service_expired: bool = Field(alias=&#39;hasServiceExpired&#39;)
+    has_user_found: bool = Field(alias=&#39;hasUserFound&#39;)
+    has_user_activated: bool = Field(alias=&#39;hasUserActivated&#39;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.profile.Licence.expires_at"><code class="name">var <span class="ident">expires_at</span> : datetime.datetime</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Licence.has_service_expired"><code class="name">var <span class="ident">has_service_expired</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Licence.has_user_activated"><code class="name">var <span class="ident">has_user_activated</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Licence.has_user_found"><code class="name">var <span class="ident">has_user_found</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Licence.id"><code class="name">var <span class="ident">id</span> : Union[int, str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Licence.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Licence.valid"><code class="name">var <span class="ident">valid</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Profile"><code class="flex name class">
+<span>class <span class="ident">Profile</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Profile(BaseModel):
+    id: str = Field(alias=&#39;userId&#39;, allow_mutation=False)
+    first_name: str = Field(alias=&#39;firstName&#39;)
+    last_name: str = Field(alias=&#39;lastName&#39;)
+    email: str
+    created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
+    tenant: str
+    roles: List[Role]
+    licenses: List[Licence]
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.profile.Profile.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Profile.created_at"><code class="name">var <span class="ident">created_at</span> : datetime.datetime</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Profile.email"><code class="name">var <span class="ident">email</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Profile.first_name"><code class="name">var <span class="ident">first_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Profile.id"><code class="name">var <span class="ident">id</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Profile.last_name"><code class="name">var <span class="ident">last_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Profile.licenses"><code class="name">var <span class="ident">licenses</span> : List[<a title="signals_notebook.entities.users.profile.Licence" href="#signals_notebook.entities.users.profile.Licence">Licence</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Profile.roles"><code class="name">var <span class="ident">roles</span> : List[<a title="signals_notebook.entities.users.profile.Role" href="#signals_notebook.entities.users.profile.Role">Role</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Profile.tenant"><code class="name">var <span class="ident">tenant</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.users.profile.ProfileResponse"><code class="flex name class">
+<span>class <span class="ident">ProfileResponse</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ProfileResponse(Response[Profile]):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.users.profile.Response[Profile]" href="#signals_notebook.entities.users.profile.Response[Profile]">Response[Profile]</a></li>
+<li><a title="signals_notebook.common_types.Response" href="../../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.profile.ProfileResponse.data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.profile.Profile" href="#signals_notebook.entities.users.profile.Profile">Profile</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.profile.Profile" href="#signals_notebook.entities.users.profile.Profile">Profile</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.ProfileResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Response[Group]"><code class="flex name class">
+<span>class <span class="ident">Response[Group]</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.common_types.Response" href="../../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.users.profile.GroupResponse" href="#signals_notebook.entities.users.profile.GroupResponse">GroupResponse</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.profile.Response[Group].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Response[Group].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.profile.Group" href="#signals_notebook.entities.users.profile.Group">Group</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.profile.Group" href="#signals_notebook.entities.users.profile.Group">Group</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Response[Group].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Response[Profile]"><code class="flex name class">
+<span>class <span class="ident">Response[Profile]</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.common_types.Response" href="../../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.users.profile.ProfileResponse" href="#signals_notebook.entities.users.profile.ProfileResponse">ProfileResponse</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.profile.Response[Profile].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Response[Profile].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.profile.Profile" href="#signals_notebook.entities.users.profile.Profile">Profile</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.profile.Profile" href="#signals_notebook.entities.users.profile.Profile">Profile</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Response[Profile].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Role"><code class="flex name class">
+<span>class <span class="ident">Role</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Role(BaseModel):
+    id: int
+    name: str</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.profile.Role.id"><code class="name">var <span class="ident">id</span> : int</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.profile.Role.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="signals_notebook.entities.users" href="index.html">signals_notebook.entities.users</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="signals_notebook.entities.users.profile.Group" href="#signals_notebook.entities.users.profile.Group">Group</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.users.profile.Group.Config" href="#signals_notebook.entities.users.profile.Group.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Group.eid" href="#signals_notebook.entities.users.profile.Group.eid">eid</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Group.id" href="#signals_notebook.entities.users.profile.Group.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Group.is_system" href="#signals_notebook.entities.users.profile.Group.is_system">is_system</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Group.type" href="#signals_notebook.entities.users.profile.Group.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.users.profile.GroupResponse" href="#signals_notebook.entities.users.profile.GroupResponse">GroupResponse</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.users.profile.GroupResponse.data" href="#signals_notebook.entities.users.profile.GroupResponse.data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.GroupResponse.links" href="#signals_notebook.entities.users.profile.GroupResponse.links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.users.profile.Licence" href="#signals_notebook.entities.users.profile.Licence">Licence</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.entities.users.profile.Licence.expires_at" href="#signals_notebook.entities.users.profile.Licence.expires_at">expires_at</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Licence.has_service_expired" href="#signals_notebook.entities.users.profile.Licence.has_service_expired">has_service_expired</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Licence.has_user_activated" href="#signals_notebook.entities.users.profile.Licence.has_user_activated">has_user_activated</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Licence.has_user_found" href="#signals_notebook.entities.users.profile.Licence.has_user_found">has_user_found</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Licence.id" href="#signals_notebook.entities.users.profile.Licence.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Licence.name" href="#signals_notebook.entities.users.profile.Licence.name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Licence.valid" href="#signals_notebook.entities.users.profile.Licence.valid">valid</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.users.profile.Profile" href="#signals_notebook.entities.users.profile.Profile">Profile</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.entities.users.profile.Profile.Config" href="#signals_notebook.entities.users.profile.Profile.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Profile.created_at" href="#signals_notebook.entities.users.profile.Profile.created_at">created_at</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Profile.email" href="#signals_notebook.entities.users.profile.Profile.email">email</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Profile.first_name" href="#signals_notebook.entities.users.profile.Profile.first_name">first_name</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Profile.id" href="#signals_notebook.entities.users.profile.Profile.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Profile.last_name" href="#signals_notebook.entities.users.profile.Profile.last_name">last_name</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Profile.licenses" href="#signals_notebook.entities.users.profile.Profile.licenses">licenses</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Profile.roles" href="#signals_notebook.entities.users.profile.Profile.roles">roles</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Profile.tenant" href="#signals_notebook.entities.users.profile.Profile.tenant">tenant</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.users.profile.ProfileResponse" href="#signals_notebook.entities.users.profile.ProfileResponse">ProfileResponse</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.users.profile.ProfileResponse.data" href="#signals_notebook.entities.users.profile.ProfileResponse.data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.ProfileResponse.links" href="#signals_notebook.entities.users.profile.ProfileResponse.links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.users.profile.Response[Group]" href="#signals_notebook.entities.users.profile.Response[Group]">Response[Group]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.users.profile.Response[Group].Config" href="#signals_notebook.entities.users.profile.Response[Group].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Response[Group].data" href="#signals_notebook.entities.users.profile.Response[Group].data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Response[Group].links" href="#signals_notebook.entities.users.profile.Response[Group].links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.users.profile.Response[Profile]" href="#signals_notebook.entities.users.profile.Response[Profile]">Response[Profile]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.users.profile.Response[Profile].Config" href="#signals_notebook.entities.users.profile.Response[Profile].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Response[Profile].data" href="#signals_notebook.entities.users.profile.Response[Profile].data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Response[Profile].links" href="#signals_notebook.entities.users.profile.Response[Profile].links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.users.profile.Role" href="#signals_notebook.entities.users.profile.Role">Role</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.users.profile.Role.id" href="#signals_notebook.entities.users.profile.Role.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.users.profile.Role.name" href="#signals_notebook.entities.users.profile.Role.name">name</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>

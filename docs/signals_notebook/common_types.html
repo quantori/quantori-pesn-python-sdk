@@ -63,6 +63,9 @@ class ObjectType(str, Enum):
     ATTRIBUTE = &#39;attribute&#39;
     STOICHIOMETRY = &#39;stoichiometry&#39;
     PROPERTY = &#39;property&#39;
+    USER = &#39;user&#39;
+    PROFILE = &#39;profile&#39;
+    GROUP = &#39;group&#39;
 
 
 class EntityType(str, Enum):
@@ -1643,7 +1646,10 @@ def type(self) -&gt; MaterialType:
     ASSET_TYPE = &#39;assetType&#39;
     ATTRIBUTE = &#39;attribute&#39;
     STOICHIOMETRY = &#39;stoichiometry&#39;
-    PROPERTY = &#39;property&#39;</code></pre>
+    PROPERTY = &#39;property&#39;
+    USER = &#39;user&#39;
+    PROFILE = &#39;profile&#39;
+    GROUP = &#39;group&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1672,7 +1678,15 @@ def type(self) -&gt; MaterialType:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.common_types.ObjectType.GROUP"><code class="name">var <span class="ident">GROUP</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.ObjectType.MATERIAL"><code class="name">var <span class="ident">MATERIAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.PROFILE"><code class="name">var <span class="ident">PROFILE</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1681,6 +1695,10 @@ def type(self) -&gt; MaterialType:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.ObjectType.STOICHIOMETRY"><code class="name">var <span class="ident">STOICHIOMETRY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.USER"><code class="name">var <span class="ident">USER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1729,6 +1747,9 @@ def type(self) -&gt; MaterialType:
 <li><a title="signals_notebook.entities.tables.table.Response[ColumnDefinitions]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[ColumnDefinitions]">Response[ColumnDefinitions]</a></li>
 <li><a title="signals_notebook.entities.tables.table.Response[Row]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[Row]">Response[Row]</a></li>
 <li><a title="signals_notebook.entities.todo_list.task.Response[TaskCell]" href="entities/todo_list/task.html#signals_notebook.entities.todo_list.task.Response[TaskCell]">Response[TaskCell]</a></li>
+<li><a title="signals_notebook.entities.users.profile.Response[Group]" href="entities/users/profile.html#signals_notebook.entities.users.profile.Response[Group]">Response[Group]</a></li>
+<li><a title="signals_notebook.entities.users.profile.Response[Profile]" href="entities/users/profile.html#signals_notebook.entities.users.profile.Response[Profile]">Response[Profile]</a></li>
+<li><a title="signals_notebook.entities.users.user.Response[User]" href="entities/users/user.html#signals_notebook.entities.users.user.Response[User]">Response[User]</a></li>
 <li><a title="signals_notebook.materials.asset.Response[Batch]" href="materials/asset.html#signals_notebook.materials.asset.Response[Batch]">Response[Batch]</a></li>
 <li><a title="signals_notebook.materials.library.Response[Asset]" href="materials/library.html#signals_notebook.materials.library.Response[Asset]">Response[Asset]</a></li>
 <li><a title="signals_notebook.materials.library.Response[_LibraryListData]" href="materials/library.html#signals_notebook.materials.library.Response[_LibraryListData]">Response[_LibraryListData]</a></li>
@@ -1785,12 +1806,15 @@ def type(self) -&gt; MaterialType:
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
 <li>pydantic.generics.ResponseData[DataGrids]</li>
+<li>pydantic.generics.ResponseData[Group]</li>
+<li>pydantic.generics.ResponseData[Profile]</li>
 <li>pydantic.generics.ResponseData[Property]</li>
 <li>pydantic.generics.ResponseData[Row]</li>
 <li>pydantic.generics.ResponseData[SampleCell]</li>
 <li>pydantic.generics.ResponseData[Sample]</li>
 <li>pydantic.generics.ResponseData[TaskCell]</li>
 <li>pydantic.generics.ResponseData[Union[Library, Asset, Batch]]</li>
+<li>pydantic.generics.ResponseData[User]</li>
 <li>pydantic.generics.ResponseData[_LibraryListData]</li>
 </ul>
 <h3>Class variables</h3>
@@ -1999,9 +2023,12 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.ObjectType.ATTRIBUTE" href="#signals_notebook.common_types.ObjectType.ATTRIBUTE">ATTRIBUTE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.COLUMN_DEFINITIONS" href="#signals_notebook.common_types.ObjectType.COLUMN_DEFINITIONS">COLUMN_DEFINITIONS</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.ENTITY" href="#signals_notebook.common_types.ObjectType.ENTITY">ENTITY</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.GROUP" href="#signals_notebook.common_types.ObjectType.GROUP">GROUP</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.MATERIAL" href="#signals_notebook.common_types.ObjectType.MATERIAL">MATERIAL</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.PROFILE" href="#signals_notebook.common_types.ObjectType.PROFILE">PROFILE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROPERTY" href="#signals_notebook.common_types.ObjectType.PROPERTY">PROPERTY</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.STOICHIOMETRY" href="#signals_notebook.common_types.ObjectType.STOICHIOMETRY">STOICHIOMETRY</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.USER" href="#signals_notebook.common_types.ObjectType.USER">USER</a></code></li>
 </ul>
 </li>
 <li>
