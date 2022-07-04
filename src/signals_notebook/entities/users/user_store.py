@@ -2,7 +2,7 @@ from typing import cast, Generator
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ResponseData
-from signals_notebook.entities.users.profile import ProfileResponse
+from signals_notebook.entities.users.profile import Profile, ProfileResponse
 from signals_notebook.entities.users.user import User, UserResponse
 
 
@@ -47,7 +47,7 @@ class UserStore:
             yield from [cast(ResponseData, item).body for item in result.data]
 
     @classmethod
-    def get_current_user(cls) -> User:
+    def get_current_user(cls) -> Profile:
         """Get current user for api session
 
         Returns:

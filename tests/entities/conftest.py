@@ -9,8 +9,11 @@ from tests.entities.factories import (
     ExcelFactory,
     ExperimentFactory,
     ImageFactory,
+    LicenceFactory,
     NotebookFactory,
     PowerPointFactory,
+    ProfileFactory,
+    RoleFactory,
     SpotfireFactory,
     TextFactory,
     UserFactory,
@@ -47,6 +50,9 @@ register(TodoListFactory)
 register(TaskFactory)
 register(TaskCellFactory)
 register(UserFactory)
+register(RoleFactory)
+register(LicenceFactory)
+register(ProfileFactory)
 
 
 @pytest.fixture()

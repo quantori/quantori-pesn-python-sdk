@@ -1,6 +1,6 @@
 import factory
 
-from signals_notebook.common_types import EID, EntityType, ObjectType
+from signals_notebook.common_types import EID, EntityType
 from signals_notebook.entities import (
     BiologicalSequence,
     ChemicalDrawing,
@@ -8,8 +8,11 @@ from signals_notebook.entities import (
     Excel,
     Experiment,
     Image,
+    Licence,
     Notebook,
     PowerPoint,
+    Profile,
+    Role,
     Spotfire,
     Text,
     User,
@@ -126,3 +129,38 @@ class UserFactory(factory.Factory):
     country = factory.Faker('word')
     organization = factory.Faker('word')
     created_at = factory.Faker('date_time')
+
+
+class RoleFactory(factory.Factory):
+    class Meta:
+        model = Role
+
+    id = factory.Faker('random_int')
+    name = factory.Faker('word')
+
+
+class LicenceFactory(factory.Factory):
+    class Meta:
+        model = Licence
+
+    id = factory.SubFactory(EIDFactory)
+    name = factory.Faker('word')
+    expiresAt = factory.Faker('date_time')
+    valid = factory.Faker('pybool')
+    hasServiceExpired = factory.Faker('pybool')
+    hasUserFound = factory.Faker('pybool')
+    hasUserActivated = factory.Faker('pybool')
+
+
+class ProfileFactory(factory.Factory):
+    class Meta:
+        model = Profile
+
+    id = factory.SubFactory(EIDFactory)
+    email = factory.Faker('email')
+    first_name = factory.Faker('word')
+    last_name = factory.Faker('word')
+    tenant = factory.Faker('word')
+    created_at = factory.Faker('date_time')
+    roles = factory.List([factory.SubFactory(RoleFactory) for _ in range(1)])
+    licenses = factory.List([factory.SubFactory(LicenceFactory) for _ in range(1)])

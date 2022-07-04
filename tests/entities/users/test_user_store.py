@@ -3,6 +3,7 @@ import pytest
 
 from signals_notebook.entities.users.user import User
 from signals_notebook.entities.users.user_store import UserStore
+from signals_notebook.entities.users.profile import Profile
 
 
 @pytest.fixture()
@@ -278,3 +279,48 @@ def test_refresh(api_mock, user_factory):
     api_mock.call.assert_called_once_with(method='GET', path=('users', user.id))
     assert user.first_name == response['data']['attributes']['firstName']
     assert user.organization == response['data']['attributes']['organization']
+
+
+def test_get_current_user(api_mock, profile_factory):
+    profile = profile_factory()
+    response = {
+        'links': {'self': 'https://example.com/api/rest/v1.0/profiles/me'},
+        'data': {
+            'type': 'profile',
+            'id': profile.id,
+            'links': {'self': 'https://example.com/api/rest/v1.0/profiles/me'},
+            'attributes': {
+                'userId': profile.id,
+                'firstName': 'Test',
+                'lastName': 'Test',
+                'email': 'foo.bar@perkinelmer.com',
+                'createdAt': '2022-04-29T18:38:54.731972Z',
+                'tenant': 'tenant',
+                'alert': {},
+                'roles': [{'id': '1', 'name': 'System Admin'}, {'id': '3', 'name': 'Standard User'}],
+                'licenses': [
+                    {
+                        'id': 'SIGNALS_NOTEBOOK',
+                        'name': 'SIGNALS_NOTEBOOK',
+                        'expiresAt': '2022-10-20T00:00Z',
+                        'valid': True,
+                        'hasServiceExpired': False,
+                        'hasUserFound': False,
+                        'hasUserActivated': False,
+                    }
+                ],
+            },
+        },
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    result = UserStore.get_current_user()
+
+    api_mock.call.assert_called_once_with(method='GET', path=('profiles', 'me'))
+
+    assert isinstance(result, Profile)
+    # assert result.id == profile.id
+    # assert result.email == response['data']['attributes']['email']
+    # assert result.first_name == response['data']['attributes']['firstName']
+    # assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
+    # assert result.tenant == arrow.get(response['data']['attributes']['tenant'])
