@@ -6,9 +6,13 @@ from pydantic import BaseModel, Field
 from signals_notebook.common_types import ObjectType, Response
 
 
+class Privilege(BaseModel):
+    pass
+
 class Role(BaseModel):
     id: int
     name: str
+    description: str
 
 
 class Licence(BaseModel):
