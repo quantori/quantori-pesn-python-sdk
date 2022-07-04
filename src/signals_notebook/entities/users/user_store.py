@@ -1,3 +1,4 @@
+import json
 from typing import cast, Generator
 
 from signals_notebook.api import SignalsNotebookApi
@@ -23,8 +24,25 @@ class UserStore:
         return cast(ResponseData, result.data).body
 
     @classmethod
-    def get_list(cls) -> Generator[User, None, None]:
+    def get_list(
+        cls, q: str = '', enabled: bool = True, offset: int = 0, limit: int = 20
+    ) -> Generator[User, None, None]:
         """Get all users from the scope
+
+        Parameter 'q' is a String and it is used to filter users.
+
+        Example usage: Input 'foo' as value of 'q', will return
+        Users whose first name starts with 'foo'.
+        Users whose last name starts with 'foo'.
+        Users whose email address starts with 'foo'.
+        Users who has role name (except "Standard User") contains 'foo'.
+        All of above are case insensitive.
+
+        Args:
+            q: query string for list users
+            enabled: filter activated and deactivated users
+            offset: Number of items to skip before returning the results.
+            limit: Maximum number of items to return.
 
         Returns:
             User
@@ -33,6 +51,12 @@ class UserStore:
         response = api.call(
             method='GET',
             path=('users',),
+            params={
+                'q': q,
+                'enabled': json.dumps(enabled),
+                'offset': offset,
+                'limit': limit,
+            },
         )
         result = UserResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
