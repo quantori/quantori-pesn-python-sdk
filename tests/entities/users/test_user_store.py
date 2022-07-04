@@ -319,8 +319,8 @@ def test_get_current_user(api_mock, profile_factory):
     api_mock.call.assert_called_once_with(method='GET', path=('profiles', 'me'))
 
     assert isinstance(result, Profile)
-    # assert result.id == profile.id
-    # assert result.email == response['data']['attributes']['email']
-    # assert result.first_name == response['data']['attributes']['firstName']
-    # assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
-    # assert result.tenant == arrow.get(response['data']['attributes']['tenant'])
+    assert result.id == response['data']['id']
+    assert result.email == response['data']['attributes']['email']
+    assert result.first_name == response['data']['attributes']['firstName']
+    assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
+    assert result.tenant == response['data']['attributes']['tenant']
