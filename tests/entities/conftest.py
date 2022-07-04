@@ -13,6 +13,7 @@ from tests.entities.factories import (
     PowerPointFactory,
     SpotfireFactory,
     TextFactory,
+    UserFactory,
     WordFactory,
 )
 from tests.entities.samples.factories import (
@@ -45,6 +46,7 @@ register(SpotfireFactory)
 register(TodoListFactory)
 register(TaskFactory)
 register(TaskCellFactory)
+register(UserFactory)
 
 
 @pytest.fixture()

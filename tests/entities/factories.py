@@ -1,6 +1,6 @@
 import factory
 
-from signals_notebook.common_types import EID, EntityType
+from signals_notebook.common_types import EID, EntityType, ObjectType
 from signals_notebook.entities import (
     BiologicalSequence,
     ChemicalDrawing,
@@ -12,6 +12,7 @@ from signals_notebook.entities import (
     PowerPoint,
     Spotfire,
     Text,
+    User,
     Word,
 )
 
@@ -111,3 +112,17 @@ class SpotfireFactory(EntityFactory):
         model = Spotfire
 
     type = EntityType.SPOTFIRE
+
+
+class UserFactory(factory.Factory):
+    class Meta:
+        model = User
+
+    id = factory.SubFactory(EIDFactory)
+    username = factory.Faker('word')
+    email = factory.Faker('email')
+    first_name = factory.Faker('word')
+    last_name = factory.Faker('word')
+    country = factory.Faker('word')
+    organization = factory.Faker('word')
+    created_at = factory.Faker('date_time')
