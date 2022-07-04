@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.10.0" />
+<title>signals_notebook.entities.users.user API documentation</title>
+<meta name="description" content="" />
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
+<link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
+<link rel="stylesheet preload" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/styles/github.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.1/highlight.min.js" integrity="sha256-Uv3H6lx7dJmRfRvH8TH6kJD1TSK1aFcwgx+mdg3epi8=" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => hljs.initHighlighting())</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>signals_notebook.entities.users.user</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import cgi
+import logging
+from datetime import datetime
+from typing import cast, List, Optional
+
+from pydantic import BaseModel, Field, PrivateAttr
+
+from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import File, Response, ResponseData
+from signals_notebook.entities.users.profile import GroupResponse, Role
+
+log = logging.getLogger(__name__)
+
+
+class UserCreationBody(BaseModel):
+    alias: str
+    country: str
+    email: str = Field(alias=&#39;emailAddress&#39;, allow_mutation=False)
+    first_name: str = Field(alias=&#39;firstName&#39;)
+    last_name: str = Field(alias=&#39;lastName&#39;)
+    organization: str = Field(alias=&#39;organization&#39;)
+    roles: List[Role] = Field(default=None)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+
+class User(BaseModel):
+    is_enabled: Optional[bool] = Field(alias=&#39;isEnabled&#39;, allow_mutation=False)
+    id: str = Field(alias=&#39;userId&#39;, allow_mutation=False)
+    username: str = Field(alias=&#39;userName&#39;, allow_mutation=False)
+    email: str = Field(allow_mutation=False)
+    alias: Optional[str] = Field(alias=&#39;alias&#39;)
+    first_name: str = Field(alias=&#39;firstName&#39;)
+    last_name: str = Field(alias=&#39;lastName&#39;)
+    country: str = Field(alias=&#39;country&#39;)
+    organization: str = Field(alias=&#39;organization&#39;)
+    created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
+    last_login_at: Optional[datetime] = Field(alias=&#39;lastLoginAt&#39;, allow_mutation=False)
+    _picture: Optional[File] = PrivateAttr(default=None)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+    @classmethod
+    def _get_endpoint(cls) -&gt; str:
+        return &#39;users&#39;
+
+    @classmethod
+    def create(cls, request: UserCreationBody) -&gt; &#39;User&#39;:
+        &#34;&#34;&#34;Create new User
+
+        Returns:
+            User
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Create User: %s...&#39;, cls.__name__)
+
+        response = api.call(
+            method=&#39;POST&#39;,
+            path=(cls._get_endpoint(),),
+            json={
+                &#39;data&#39;: {
+                    &#39;attributes&#39;: request.dict(by_alias=True, exclude_none=True),
+                }
+            },
+        )
+        log.debug(&#39;User: %s was created.&#39;, cls.__name__)
+
+        result = UserResponse(**response.json())
+        return cast(ResponseData, result.data).body
+
+    def refresh(self) -&gt; None:
+        &#34;&#34;&#34;Refresh user with new changes values
+
+        Returns:
+
+        &#34;&#34;&#34;
+        from signals_notebook.entities import UserStore
+
+        UserStore.refresh(self)
+
+    def save(self) -&gt; None:
+        &#34;&#34;&#34;Update attributes of a specified user.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        api.call(
+            method=&#39;PATCH&#39;,
+            path=(
+                self._get_endpoint(),
+                self.id,
+            ),
+            json={
+                &#39;data&#39;: {
+                    &#39;attributes&#39;: self.dict(
+                        by_alias=True,
+                        include={
+                            &#39;alias&#39;,
+                            &#39;country&#39;,
+                            &#39;first_name&#39;,
+                            &#39;last_name&#39;,
+                            &#39;organization&#39;,
+                        },
+                    )
+                },
+            },
+        )
+
+    def delete(self):
+        &#34;&#34;&#34;Make specified user disabled.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Disable User: %s...&#39;, self.id)
+
+        api.call(
+            method=&#39;DELETE&#39;,
+            path=(self._get_endpoint(), self.id),
+        )
+        log.debug(&#39;User: %s was disabled successfully&#39;, self.id)
+
+    @property
+    def picture(self) -&gt; Optional[File]:
+        if self._picture:
+            return self._picture
+
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), self.id, &#39;picture&#39;),
+        )
+        if response.content == b&#39;&#39;:
+            return self._picture
+
+        content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
+        content_type = response.headers.get(&#39;content-type&#39;)
+        _, params = cgi.parse_header(content_disposition)
+        file_name = f&#39;{self.first_name}_{self.last_name}.{content_type.split(&#34;/&#34;)[-1]}&#39;
+        self._picture = File(name=file_name, content=response.content, content_type=content_type)
+        return self._picture
+
+    def get_system_groups(self):
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), self.id, &#39;systemGroups&#39;),
+        )
+        result = GroupResponse(**response.json())
+        return [cast(ResponseData, item).body for item in result.data]
+
+
+class UserResponse(Response[User]):
+    pass</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="signals_notebook.entities.users.user.Response[User]"><code class="flex name class">
+<span>class <span class="ident">Response[User]</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.common_types.Response" href="../../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.users.user.UserResponse" href="#signals_notebook.entities.users.user.UserResponse">UserResponse</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.user.Response[User].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.Response[User].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.user.User" href="#signals_notebook.entities.users.user.User">User</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.user.User" href="#signals_notebook.entities.users.user.User">User</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.Response[User].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.users.user.User"><code class="flex name class">
+<span>class <span class="ident">User</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class User(BaseModel):
+    is_enabled: Optional[bool] = Field(alias=&#39;isEnabled&#39;, allow_mutation=False)
+    id: str = Field(alias=&#39;userId&#39;, allow_mutation=False)
+    username: str = Field(alias=&#39;userName&#39;, allow_mutation=False)
+    email: str = Field(allow_mutation=False)
+    alias: Optional[str] = Field(alias=&#39;alias&#39;)
+    first_name: str = Field(alias=&#39;firstName&#39;)
+    last_name: str = Field(alias=&#39;lastName&#39;)
+    country: str = Field(alias=&#39;country&#39;)
+    organization: str = Field(alias=&#39;organization&#39;)
+    created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
+    last_login_at: Optional[datetime] = Field(alias=&#39;lastLoginAt&#39;, allow_mutation=False)
+    _picture: Optional[File] = PrivateAttr(default=None)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+    @classmethod
+    def _get_endpoint(cls) -&gt; str:
+        return &#39;users&#39;
+
+    @classmethod
+    def create(cls, request: UserCreationBody) -&gt; &#39;User&#39;:
+        &#34;&#34;&#34;Create new User
+
+        Returns:
+            User
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Create User: %s...&#39;, cls.__name__)
+
+        response = api.call(
+            method=&#39;POST&#39;,
+            path=(cls._get_endpoint(),),
+            json={
+                &#39;data&#39;: {
+                    &#39;attributes&#39;: request.dict(by_alias=True, exclude_none=True),
+                }
+            },
+        )
+        log.debug(&#39;User: %s was created.&#39;, cls.__name__)
+
+        result = UserResponse(**response.json())
+        return cast(ResponseData, result.data).body
+
+    def refresh(self) -&gt; None:
+        &#34;&#34;&#34;Refresh user with new changes values
+
+        Returns:
+
+        &#34;&#34;&#34;
+        from signals_notebook.entities import UserStore
+
+        UserStore.refresh(self)
+
+    def save(self) -&gt; None:
+        &#34;&#34;&#34;Update attributes of a specified user.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        api.call(
+            method=&#39;PATCH&#39;,
+            path=(
+                self._get_endpoint(),
+                self.id,
+            ),
+            json={
+                &#39;data&#39;: {
+                    &#39;attributes&#39;: self.dict(
+                        by_alias=True,
+                        include={
+                            &#39;alias&#39;,
+                            &#39;country&#39;,
+                            &#39;first_name&#39;,
+                            &#39;last_name&#39;,
+                            &#39;organization&#39;,
+                        },
+                    )
+                },
+            },
+        )
+
+    def delete(self):
+        &#34;&#34;&#34;Make specified user disabled.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Disable User: %s...&#39;, self.id)
+
+        api.call(
+            method=&#39;DELETE&#39;,
+            path=(self._get_endpoint(), self.id),
+        )
+        log.debug(&#39;User: %s was disabled successfully&#39;, self.id)
+
+    @property
+    def picture(self) -&gt; Optional[File]:
+        if self._picture:
+            return self._picture
+
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), self.id, &#39;picture&#39;),
+        )
+        if response.content == b&#39;&#39;:
+            return self._picture
+
+        content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
+        content_type = response.headers.get(&#39;content-type&#39;)
+        _, params = cgi.parse_header(content_disposition)
+        file_name = f&#39;{self.first_name}_{self.last_name}.{content_type.split(&#34;/&#34;)[-1]}&#39;
+        self._picture = File(name=file_name, content=response.content, content_type=content_type)
+        return self._picture
+
+    def get_system_groups(self):
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), self.id, &#39;systemGroups&#39;),
+        )
+        result = GroupResponse(**response.json())
+        return [cast(ResponseData, item).body for item in result.data]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.user.User.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.alias"><code class="name">var <span class="ident">alias</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.country"><code class="name">var <span class="ident">country</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.created_at"><code class="name">var <span class="ident">created_at</span> : datetime.datetime</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.email"><code class="name">var <span class="ident">email</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.first_name"><code class="name">var <span class="ident">first_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.id"><code class="name">var <span class="ident">id</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.is_enabled"><code class="name">var <span class="ident">is_enabled</span> : Optional[bool]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.last_login_at"><code class="name">var <span class="ident">last_login_at</span> : Optional[datetime.datetime]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.last_name"><code class="name">var <span class="ident">last_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.organization"><code class="name">var <span class="ident">organization</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.username"><code class="name">var <span class="ident">username</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="signals_notebook.entities.users.user.User.create"><code class="name flex">
+<span>def <span class="ident">create</span></span>(<span>request: <a title="signals_notebook.entities.users.user.UserCreationBody" href="#signals_notebook.entities.users.user.UserCreationBody">UserCreationBody</a>) ‑> <a title="signals_notebook.entities.users.user.User" href="#signals_notebook.entities.users.user.User">User</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create new User</p>
+<h2 id="returns">Returns</h2>
+<p>User</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def create(cls, request: UserCreationBody) -&gt; &#39;User&#39;:
+    &#34;&#34;&#34;Create new User
+
+    Returns:
+        User
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    log.debug(&#39;Create User: %s...&#39;, cls.__name__)
+
+    response = api.call(
+        method=&#39;POST&#39;,
+        path=(cls._get_endpoint(),),
+        json={
+            &#39;data&#39;: {
+                &#39;attributes&#39;: request.dict(by_alias=True, exclude_none=True),
+            }
+        },
+    )
+    log.debug(&#39;User: %s was created.&#39;, cls.__name__)
+
+    result = UserResponse(**response.json())
+    return cast(ResponseData, result.data).body</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.user.User.picture"><code class="name">var <span class="ident">picture</span> : Optional[<a title="signals_notebook.common_types.File" href="../../common_types.html#signals_notebook.common_types.File">File</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def picture(self) -&gt; Optional[File]:
+    if self._picture:
+        return self._picture
+
+    api = SignalsNotebookApi.get_default_api()
+    response = api.call(
+        method=&#39;GET&#39;,
+        path=(self._get_endpoint(), self.id, &#39;picture&#39;),
+    )
+    if response.content == b&#39;&#39;:
+        return self._picture
+
+    content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
+    content_type = response.headers.get(&#39;content-type&#39;)
+    _, params = cgi.parse_header(content_disposition)
+    file_name = f&#39;{self.first_name}_{self.last_name}.{content_type.split(&#34;/&#34;)[-1]}&#39;
+    self._picture = File(name=file_name, content=response.content, content_type=content_type)
+    return self._picture</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.users.user.User.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Make specified user disabled.</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self):
+    &#34;&#34;&#34;Make specified user disabled.
+
+    Returns:
+
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    log.debug(&#39;Disable User: %s...&#39;, self.id)
+
+    api.call(
+        method=&#39;DELETE&#39;,
+        path=(self._get_endpoint(), self.id),
+    )
+    log.debug(&#39;User: %s was disabled successfully&#39;, self.id)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.get_system_groups"><code class="name flex">
+<span>def <span class="ident">get_system_groups</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_system_groups(self):
+    api = SignalsNotebookApi.get_default_api()
+    response = api.call(
+        method=&#39;GET&#39;,
+        path=(self._get_endpoint(), self.id, &#39;systemGroups&#39;),
+    )
+    result = GroupResponse(**response.json())
+    return [cast(ResponseData, item).body for item in result.data]</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.refresh"><code class="name flex">
+<span>def <span class="ident">refresh</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Refresh user with new changes values</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def refresh(self) -&gt; None:
+    &#34;&#34;&#34;Refresh user with new changes values
+
+    Returns:
+
+    &#34;&#34;&#34;
+    from signals_notebook.entities import UserStore
+
+    UserStore.refresh(self)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.users.user.User.save"><code class="name flex">
+<span>def <span class="ident">save</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update attributes of a specified user.</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save(self) -&gt; None:
+    &#34;&#34;&#34;Update attributes of a specified user.
+
+    Returns:
+
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    api.call(
+        method=&#39;PATCH&#39;,
+        path=(
+            self._get_endpoint(),
+            self.id,
+        ),
+        json={
+            &#39;data&#39;: {
+                &#39;attributes&#39;: self.dict(
+                    by_alias=True,
+                    include={
+                        &#39;alias&#39;,
+                        &#39;country&#39;,
+                        &#39;first_name&#39;,
+                        &#39;last_name&#39;,
+                        &#39;organization&#39;,
+                    },
+                )
+            },
+        },
+    )</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.users.user.UserCreationBody"><code class="flex name class">
+<span>class <span class="ident">UserCreationBody</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UserCreationBody(BaseModel):
+    alias: str
+    country: str
+    email: str = Field(alias=&#39;emailAddress&#39;, allow_mutation=False)
+    first_name: str = Field(alias=&#39;firstName&#39;)
+    last_name: str = Field(alias=&#39;lastName&#39;)
+    organization: str = Field(alias=&#39;organization&#39;)
+    roles: List[Role] = Field(default=None)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.user.UserCreationBody.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.UserCreationBody.alias"><code class="name">var <span class="ident">alias</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.UserCreationBody.country"><code class="name">var <span class="ident">country</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.UserCreationBody.email"><code class="name">var <span class="ident">email</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.UserCreationBody.first_name"><code class="name">var <span class="ident">first_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.UserCreationBody.last_name"><code class="name">var <span class="ident">last_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.UserCreationBody.organization"><code class="name">var <span class="ident">organization</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.UserCreationBody.roles"><code class="name">var <span class="ident">roles</span> : List[<a title="signals_notebook.entities.users.profile.Role" href="profile.html#signals_notebook.entities.users.profile.Role">Role</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.users.user.UserResponse"><code class="flex name class">
+<span>class <span class="ident">UserResponse</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class UserResponse(Response[User]):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.users.user.Response[User]" href="#signals_notebook.entities.users.user.Response[User]">Response[User]</a></li>
+<li><a title="signals_notebook.common_types.Response" href="../../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.users.user.UserResponse.data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.user.User" href="#signals_notebook.entities.users.user.User">User</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.entities.users.user.User" href="#signals_notebook.entities.users.user.User">User</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.users.user.UserResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="signals_notebook.entities.users" href="index.html">signals_notebook.entities.users</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="signals_notebook.entities.users.user.Response[User]" href="#signals_notebook.entities.users.user.Response[User]">Response[User]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.users.user.Response[User].Config" href="#signals_notebook.entities.users.user.Response[User].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.Response[User].data" href="#signals_notebook.entities.users.user.Response[User].data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.Response[User].links" href="#signals_notebook.entities.users.user.Response[User].links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.users.user.User" href="#signals_notebook.entities.users.user.User">User</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.entities.users.user.User.Config" href="#signals_notebook.entities.users.user.User.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.alias" href="#signals_notebook.entities.users.user.User.alias">alias</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.country" href="#signals_notebook.entities.users.user.User.country">country</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.create" href="#signals_notebook.entities.users.user.User.create">create</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.created_at" href="#signals_notebook.entities.users.user.User.created_at">created_at</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.delete" href="#signals_notebook.entities.users.user.User.delete">delete</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.email" href="#signals_notebook.entities.users.user.User.email">email</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.first_name" href="#signals_notebook.entities.users.user.User.first_name">first_name</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.get_system_groups" href="#signals_notebook.entities.users.user.User.get_system_groups">get_system_groups</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.id" href="#signals_notebook.entities.users.user.User.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.is_enabled" href="#signals_notebook.entities.users.user.User.is_enabled">is_enabled</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.last_login_at" href="#signals_notebook.entities.users.user.User.last_login_at">last_login_at</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.last_name" href="#signals_notebook.entities.users.user.User.last_name">last_name</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.organization" href="#signals_notebook.entities.users.user.User.organization">organization</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.picture" href="#signals_notebook.entities.users.user.User.picture">picture</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.refresh" href="#signals_notebook.entities.users.user.User.refresh">refresh</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.save" href="#signals_notebook.entities.users.user.User.save">save</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.User.username" href="#signals_notebook.entities.users.user.User.username">username</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.users.user.UserCreationBody" href="#signals_notebook.entities.users.user.UserCreationBody">UserCreationBody</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.entities.users.user.UserCreationBody.Config" href="#signals_notebook.entities.users.user.UserCreationBody.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.UserCreationBody.alias" href="#signals_notebook.entities.users.user.UserCreationBody.alias">alias</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.UserCreationBody.country" href="#signals_notebook.entities.users.user.UserCreationBody.country">country</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.UserCreationBody.email" href="#signals_notebook.entities.users.user.UserCreationBody.email">email</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.UserCreationBody.first_name" href="#signals_notebook.entities.users.user.UserCreationBody.first_name">first_name</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.UserCreationBody.last_name" href="#signals_notebook.entities.users.user.UserCreationBody.last_name">last_name</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.UserCreationBody.organization" href="#signals_notebook.entities.users.user.UserCreationBody.organization">organization</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.UserCreationBody.roles" href="#signals_notebook.entities.users.user.UserCreationBody.roles">roles</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.users.user.UserResponse" href="#signals_notebook.entities.users.user.UserResponse">UserResponse</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.users.user.UserResponse.data" href="#signals_notebook.entities.users.user.UserResponse.data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.users.user.UserResponse.links" href="#signals_notebook.entities.users.user.UserResponse.links">links</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.10.0</a>.</p>
+</footer>
+</body>
+</html>
