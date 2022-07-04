@@ -15,15 +15,16 @@ def get_response_object(mocker):
     return _f
 
 
-def test_get_by_id(api_mock, eid):
+def test_get_by_id(api_mock, user_factory):
+    user = user_factory()
     response = {
-        'links': {'self': f'https://example.com/api/rest/v1.0/users/{eid}'},
+        'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}'},
         'data': {
-            'id': eid,
+            'id': user.id,
             'type': 'user',
             'attributes': {
                 'isEnabled': True,
-                'userId': eid,
+                'userId': user.id,
                 'userName': 'foo.bar@perkinelmer.com',
                 'email': 'foo.bar@perkinelmer.com',
                 'firstName': 'foo',
@@ -35,24 +36,24 @@ def test_get_by_id(api_mock, eid):
                 'createdAt': '2020-07-17T21:48:33.262Z',
             },
             'relationships': {
-                'picture': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{eid}/picture'}},
+                'picture': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/picture'}},
                 'roles': {
                     'data': [
                         {'id': '1', 'type': 'role'},
                     ]
                 },
-                'systemGroups': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{eid}/systemGroups'}},
+                'systemGroups': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/systemGroups'}},
             },
         },
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = UserStore.get(eid)
+    result = UserStore.get(user.id)
 
-    api_mock.call.assert_called_once_with(method='GET', path=('users', eid))
+    api_mock.call.assert_called_once_with(method='GET', path=('users', user.id))
 
     assert isinstance(result, User)
-    assert result.id == eid
+    assert result.id == user.id
     assert result.username == response['data']['attributes']['userName']
     assert result.email == response['data']['attributes']['email']
     assert result.first_name == response['data']['attributes']['firstName']
@@ -60,7 +61,8 @@ def test_get_by_id(api_mock, eid):
     assert result.last_login_at == arrow.get(response['data']['attributes']['lastLoginAt'])
 
 
-def test_get_list(api_mock):
+def test_get_list(api_mock, user_factory):
+    user = user_factory()
     response = {
         'links': {
             'self': 'https://example.com/api/rest/v1.0/users?enabled=true&page[offset]=0&page[limit]=20',
@@ -69,12 +71,12 @@ def test_get_list(api_mock):
         'data': [
             {
                 'type': 'user',
-                'id': '100',
-                'links': {'self': 'https://example.com/api/rest/v1.0/users/100'},
+                'id': user.id,
+                'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}'},
                 'attributes': {
                     'lastLoginAt': '2021-11-02T12:19:13.408Z',
                     'createdAt': '2021-10-22T13:35:40.214Z',
-                    'userId': '100',
+                    'userId': user.id,
                     'userName': 'foo.bar@perkinelmer.com',
                     'email': 'foo.bar@perkinelmer.com',
                     'firstName': 'Stephen',
@@ -98,7 +100,9 @@ def test_get_list(api_mock):
                             },
                         ]
                     },
-                    'systemGroups': {'links': {'self': 'https://example.com/api/rest/v1.0/users/100/systemGroups'}},
+                    'systemGroups': {
+                        'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/systemGroups'}
+                    },
                 },
             },
         ],
@@ -117,7 +121,9 @@ def test_get_list(api_mock):
         assert item.first_name == raw_item['attributes']['firstName']
 
 
-def test_get_several_pages(api_mock, mocker, get_response_object):
+def test_get_several_pages(api_mock, user_factory, mocker, get_response_object):
+    user1 = user_factory()
+    user2 = user_factory()
     response1 = {
         'links': {
             'self': 'https://example.com/entities?page[offset]=0&page[limit]=20',
@@ -126,12 +132,12 @@ def test_get_several_pages(api_mock, mocker, get_response_object):
         'data': [
             {
                 'type': 'user',
-                'id': '1',
-                'links': {'self': 'https://example.com/api/rest/v1.0/users/1'},
+                'id': user1.id,
+                'links': {'self': f'https://example.com/api/rest/v1.0/users/{user1.id}'},
                 'attributes': {
                     'lastLoginAt': '2021-11-02T12:19:13.408Z',
                     'createdAt': '2021-10-22T13:35:40.214Z',
-                    'userId': '1',
+                    'userId': user1.id,
                     'userName': 'foo.bar@perkinelmer.com',
                     'email': 'foo.bar@perkinelmer.com',
                     'firstName': 'Stephen',
@@ -168,12 +174,12 @@ def test_get_several_pages(api_mock, mocker, get_response_object):
         'data': [
             {
                 'type': 'user',
-                'id': '2',
-                'links': {'self': f'https://example.com/api/rest/v1.0/users/2'},
+                'id': user2.id,
+                'links': {'self': f'https://example.com/api/rest/v1.0/users/{user2.id}'},
                 'attributes': {
                     'lastLoginAt': '2021-11-02T12:19:13.408Z',
                     'createdAt': '2021-10-22T13:35:40.214Z',
-                    'userId': '2',
+                    'userId': user2.id,
                     'userName': 'foo.bar@perkinelmer.com',
                     'email': 'foo.bar@perkinelmer.com',
                     'firstName': 'Stephen',
@@ -226,9 +232,49 @@ def test_get_several_pages(api_mock, mocker, get_response_object):
 
     for item, raw_item in zip(result, [*response1['data'], *response2['data']]):
         assert isinstance(item, User)
-        assert item.eid == raw_item['id']
-        assert item.digest == raw_item['attributes']['digest']
-        assert item.name == raw_item['attributes']['name']
-        assert item.description == raw_item['attributes']['description']
-        assert item.created_at == arrow.get(raw_item['attributes']['createdAt'])
-        assert item.edited_at == arrow.get(raw_item['attributes']['editedAt'])
+        assert isinstance(item, User)
+        assert item.id == raw_item['id']
+        assert item.username == raw_item['attributes']['userName']
+        assert item.email == raw_item['attributes']['email']
+        assert item.first_name == raw_item['attributes']['firstName']
+
+
+def test_refresh(api_mock, user_factory):
+    user = user_factory()
+
+    response = {
+        'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}'},
+        'data': {
+            'id': user.id,
+            'type': 'user',
+            'attributes': {
+                'isEnabled': True,
+                'userId': user.id,
+                'userName': 'foo.bar@perkinelmer.com',
+                'email': 'foo.bar@perkinelmer.com',
+                'firstName': 'Updated name',
+                'lastName': 'bar',
+                'alias': 'foo.bar',
+                'country': 'USA',
+                'organization': 'updated organization',
+                'lastLoginAt': '2021-11-29T04:00:02.295Z',
+                'createdAt': '2020-07-17T21:48:33.262Z',
+            },
+            'relationships': {
+                'picture': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/picture'}},
+                'roles': {
+                    'data': [
+                        {'id': '1', 'type': 'role'},
+                    ]
+                },
+                'systemGroups': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/systemGroups'}},
+            },
+        },
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    UserStore.refresh(user)
+
+    api_mock.call.assert_called_once_with(method='GET', path=('users', user.id))
+    assert user.first_name == response['data']['attributes']['firstName']
+    assert user.organization == response['data']['attributes']['organization']
