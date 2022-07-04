@@ -101,7 +101,7 @@ def test_picture(api_mock, user_factory):
     content = b'image'
 
     user = user_factory()
-    file_name = f'{user.first_name}_{user.last_name}.{content_type.split('/')[-1]}'
+    file_name = f'{user.first_name}_{user.last_name}.{content_type.split("/")[-1]}'
 
     api_mock.call.return_value.content = content
     api_mock.call.return_value.headers = {
