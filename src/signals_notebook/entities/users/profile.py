@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from typing import List, Literal, Union, Generator, cast
 
@@ -6,6 +7,8 @@ from pydantic import BaseModel, Field
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ObjectType, Response, ResponseData
 
+
+log = logging.getLogger(__name__)
 
 class Privelege(BaseModel):
     can_move_experiments: bool = Field(alias='canMoveExperiments', default=True)
@@ -110,6 +113,16 @@ class ProfileResponse(Response[Profile]):
     pass
 
 
+class GroupRequestBody(BaseModel):
+    is_system: bool = Field(alias='isSystem')
+    name: str
+    description: str
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+
 class Group(BaseModel):
     type: Literal[ObjectType.GROUP] = Field(allow_mutation=False)
     eid: str
@@ -171,6 +184,30 @@ class Group(BaseModel):
             method='GET',
             path=(cls._get_endpoint(), group_id),
         )
+        result = GroupResponse(**response.json())
+        return cast(ResponseData, result.data).body
+
+    @classmethod
+    def create(cls, request: GroupRequestBody) -> 'Group':
+        """Create new Group
+
+        Returns:
+            Group
+        """
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Create User: %s...', cls.__name__)
+
+        response = api.call(
+            method='POST',
+            path=(cls._get_endpoint(),),
+            json={
+                'data': {
+                    'attributes': request.dict(by_alias=True),
+                }
+            },
+        )
+        log.debug('Group: %s was created.', cls.__name__)
+
         result = GroupResponse(**response.json())
         return cast(ResponseData, result.data).body
 
