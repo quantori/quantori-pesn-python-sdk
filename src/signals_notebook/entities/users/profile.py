@@ -125,6 +125,13 @@ class GroupRequestBody(BaseModel):
         allow_population_by_field_name = True
 
 
+class GroupMember(BaseModel):
+    user_id: str = Field(alias='userId')
+    user_name: str = Field(alias='userName')
+    first_name: str = Field(alias='firstName')
+    last_name: str = Field(alias='lastName')
+
+
 class Group(BaseModel):
     type: Literal[ObjectType.GROUP] = Field(allow_mutation=False)
     eid: str
@@ -255,5 +262,25 @@ class Group(BaseModel):
             path=(self._get_endpoint(), self.id),
         )
         log.debug('Group: %s was disabled successfully', self.id)
+
+    def get_members(self) -> Generator['Group', None, None]:
+        """Get user group members
+
+        Returns:
+            Group members
+        """
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.id, 'members'),
+        )
+        result = GroupMemberResponse(**response.json())
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+
 class GroupResponse(Response[Group]):
+    pass
+
+
+class GroupMemberResponse(Response[GroupMember]):
     pass
