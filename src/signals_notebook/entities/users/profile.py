@@ -115,6 +115,11 @@ class Group(BaseModel):
     eid: str
     id: str
     is_system: bool = Field(alias='isSystem', allow_mutation=False)
+    name: str
+    description: str
+    created_at: datetime = Field(alias='createdAt', allow_mutation=False)
+    edited_at: datetime = Field(alias='editedAt', allow_mutation=False)
+    digest: str
 
     class Config:
         validate_assignment = True
@@ -123,6 +128,51 @@ class Group(BaseModel):
     @classmethod
     def _get_entity_type(cls) -> ObjectType:
         return ObjectType.GROUP
+
+    @classmethod
+    def _get_endpoint(cls) -> str:
+        return 'groups'
+
+    @classmethod
+    def get_list(cls) -> Generator['Group', None, None]:
+        """Get all groups
+
+        Returns:
+            List of Group objects
+        """
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method='GET',
+            path=(cls._get_endpoint(),),
+        )
+        result = GroupResponse(**response.json())
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+        while result.links and result.links.next:
+            response = api.call(
+                method='GET',
+                path=result.links.next,
+            )
+
+            result = GroupResponse(**response.json())  # type: ignore
+            yield from [cast(ResponseData, item).body for item in result.data]
+
+    @classmethod
+    def get(cls, group_id: str) -> 'Group':
+        """Get group by id
+
+        Args:
+            group_id: Unique user group identifier
+        Returns:
+            Group
+        """
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method='GET',
+            path=(cls._get_endpoint(), group_id),
+        )
+        result = GroupResponse(**response.json())
+        return cast(ResponseData, result.data).body
 
 
 class GroupResponse(Response[Group]):
