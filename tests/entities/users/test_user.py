@@ -1,10 +1,5 @@
-import arrow
-import pytest
-
 from signals_notebook.common_types import File
 from signals_notebook.entities.users.user import User, UserCreationBody
-from signals_notebook.entities.users.user_store import UserStore
-from signals_notebook.entities.users.profile import Profile
 
 
 def test_create(api_mock):
@@ -72,13 +67,13 @@ def test_save(api_mock, user_factory):
         method='PATCH',
         path=('users', user.id),
         json={
-            "data": {
-                "attributes": {
-                    "alias": user.alias,
-                    "country": user.country,
-                    "firstName": 'Update first name',
-                    "lastName": user.last_name,
-                    "organization": user.organization,
+            'data': {
+                'attributes': {
+                    'alias': user.alias,
+                    'country': user.country,
+                    'firstName': 'Update first name',
+                    'lastName': user.last_name,
+                    'organization': user.organization,
                 },
             },
         },

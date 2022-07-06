@@ -1,9 +1,11 @@
+import json
+
 import arrow
 import pytest
 
+from signals_notebook.entities.users.profile import Profile
 from signals_notebook.entities.users.user import User
 from signals_notebook.entities.users.user_store import UserStore
-from signals_notebook.entities.users.profile import Profile
 
 
 @pytest.fixture()
@@ -112,7 +114,16 @@ def test_get_list(api_mock, user_factory):
 
     all_users_generator = UserStore.get_list()
     result = list(all_users_generator)
-    api_mock.call.assert_called_once_with(method='GET', path=('users',))
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=('users',),
+        params={
+            'q': '',
+            'enabled': json.dumps(response['data'][0]['attributes']['isEnabled']),
+            'offset': 0,
+            'limit': 20,
+        },
+    )
 
     for item, raw_item in zip(result, response['data']):
         assert isinstance(item, User)

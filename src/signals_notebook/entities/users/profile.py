@@ -24,6 +24,10 @@ class Licence(BaseModel):
     has_user_found: bool = Field(alias='hasUserFound')
     has_user_activated: bool = Field(alias='hasUserActivated')
 
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
 
 class Profile(BaseModel):
     id: str = Field(alias='userId', allow_mutation=False)
