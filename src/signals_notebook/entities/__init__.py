@@ -21,4 +21,4 @@ from signals_notebook.entities.users.user_store import UserStore # noqa
 from signals_notebook.entities.users.profile import Profile  # noqa
 from signals_notebook.entities.users.profile import Licence  # noqa
 from signals_notebook.entities.users.profile import Role  # noqa
-from signals_notebook.entities.users.profile import Group  # noqa
+from signals_notebook.entities.users.group import Group  # noqa

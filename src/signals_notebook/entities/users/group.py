@@ -175,11 +175,15 @@ class Group(BaseModel):
         result = GroupMemberResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
 
-    def add_user(self, user: User, force:bool = True) -> list[GroupMember]:
+    def add_user(self, user: User, force: bool = True) -> list[GroupMember]:
         """Add user to user group
 
+        Args:
+            user: User object
+            force: Force to update
+
         Returns:
-            Group
+            list[GroupMember]
         """
         api = SignalsNotebookApi.get_default_api()
 
@@ -200,6 +204,22 @@ class Group(BaseModel):
 
         result = GroupMemberResponse(**response.json())
         return [cast(ResponseData, item).body for item in result.data]
+
+    def delete_user(self, user: User,):
+        """Delete user from user group.
+
+        Args:
+            user: User object
+
+        Returns:
+
+        """
+        api = SignalsNotebookApi.get_default_api()
+
+        api.call(
+            method='DELETE',
+            path=(self._get_endpoint(), self.id, 'members', user.id),
+        )
 
 
 class GroupResponse(Response[Group]):
