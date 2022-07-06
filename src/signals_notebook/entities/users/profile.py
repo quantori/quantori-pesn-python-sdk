@@ -4,15 +4,11 @@ from typing import List, Literal, Union
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import ObjectType, Response
+from signals_notebook.entities.users.roles import Role
 
 
 class Privilege(BaseModel):
     pass
-
-class Role(BaseModel):
-    id: int
-    name: str
-    description: str
 
 
 class Licence(BaseModel):

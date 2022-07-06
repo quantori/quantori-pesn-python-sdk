@@ -20,4 +20,4 @@ from signals_notebook.entities.users.user import User  # noqa
 from signals_notebook.entities.users.user_store import UserStore # noqa
 from signals_notebook.entities.users.profile import Profile  # noqa
 from signals_notebook.entities.users.profile import Licence  # noqa
-from signals_notebook.entities.users.profile import Role  # noqa
+from signals_notebook.entities.users.roles import Role  # noqa
