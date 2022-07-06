@@ -241,6 +241,19 @@ class Group(BaseModel):
             },
         )
 
+    def delete(self):
+        """Delete user group by id.
 
+        Returns:
+
+        """
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Disable Group: %s...', self.id)
+
+        api.call(
+            method='DELETE',
+            path=(self._get_endpoint(), self.id),
+        )
+        log.debug('Group: %s was disabled successfully', self.id)
 class GroupResponse(Response[Group]):
     pass
