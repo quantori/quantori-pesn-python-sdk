@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime
 from typing import List, Literal, Union, Generator, cast
@@ -9,6 +10,7 @@ from signals_notebook.common_types import ObjectType, Response, ResponseData
 
 
 log = logging.getLogger(__name__)
+
 
 class Privelege(BaseModel):
     can_move_experiments: bool = Field(alias='canMoveExperiments', default=True)
@@ -210,6 +212,34 @@ class Group(BaseModel):
 
         result = GroupResponse(**response.json())
         return cast(ResponseData, result.data).body
+
+    def save(self, force: bool = True) -> None:
+        """Update attributes of a specified group.
+
+        Returns:
+
+        """
+        api = SignalsNotebookApi.get_default_api()
+        api.call(
+            method='PATCH',
+            path=(
+                self._get_endpoint(),
+                self.id,
+            ),
+            params={
+                'force': json.dumps(force),
+            },
+            json={
+                'data': {
+                    'attributes': self.dict(
+                        include={
+                            'name',
+                            'description',
+                        },
+                    )
+                },
+            },
+        )
 
 
 class GroupResponse(Response[Group]):
