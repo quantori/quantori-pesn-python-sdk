@@ -1,4 +1,7 @@
-from signals_notebook.common_types import File
+import arrow
+
+from signals_notebook.common_types import File, ObjectType
+from signals_notebook.entities.users.group import Group
 from signals_notebook.entities.users.user import User, UserCreationBody
 
 
@@ -114,3 +117,60 @@ def test_picture(api_mock, user_factory):
     assert result.name == file_name
     assert result.content == content
     assert result.content_type == content_type
+
+
+def test_get_system_groups(api_mock, user_factory):
+    user = user_factory()
+    response = {
+        'links': {'self': 'https://quantori.signalsnotebook.perkinelmer.cloud/api/rest/v1.0/users/101/systemGroups'},
+        'data': [
+            {
+                'type': 'group',
+                'id': '101',
+                'links': {'self': 'https://quantori.signalsnotebook.perkinelmer.cloud/api/rest/v1.0/groups/101'},
+                'attributes': {
+                    'isSystem': True,
+                    'id': '101',
+                    'eid': 'group:101',
+                    'name': 'Administrators',
+                    'description': 'Group containing all administrators',
+                    'createdAt': '2021-10-22T13:35:58.444Z',
+                    'editedAt': '2021-10-22T13:35:58.444Z',
+                    'type': 'group',
+                    'digest': '13385924',
+                },
+            },
+            {
+                'type': 'group',
+                'id': '102',
+                'links': {'self': 'https://quantori.signalsnotebook.perkinelmer.cloud/api/rest/v1.0/groups/102'},
+                'attributes': {
+                    'isSystem': True,
+                    'id': '102',
+                    'eid': 'group:102',
+                    'name': 'All users',
+                    'description': 'Group containing all users',
+                    'createdAt': '2021-10-22T13:35:58.625Z',
+                    'editedAt': '2021-10-22T13:35:58.625Z',
+                    'type': 'group',
+                    'digest': '46357805',
+                },
+            },
+        ],
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    result = user.get_system_groups()
+
+    api_mock.call.assert_called_once_with(method='GET', path=('users', user.id, 'systemGroups'))
+
+    for item, raw_item in zip(result, response['data']):
+        assert isinstance(item, Group)
+        assert item.id == raw_item['id']
+        assert item.type == ObjectType.GROUP
+        assert item.is_system == raw_item['attributes']['isSystem']
+        assert item.name == raw_item['attributes']['name']
+        assert item.description == raw_item['attributes']['description']
+        assert item.created_at == arrow.get(raw_item['attributes']['createdAt'])
+        assert item.edited_at == arrow.get(raw_item['attributes']['editedAt'])
+        assert item.digest == raw_item['attributes']['digest']
