@@ -264,3 +264,15 @@ def test_add_user(api_mock, user_factory, group_factory):
         assert item.user_name == raw_item['attributes']['userName']
         assert item.first_name == raw_item['attributes']['firstName']
         assert item.last_name == raw_item['attributes']['lastName']
+
+
+def test_delete_member(api_mock, group_factory, user_factory):
+    user = user_factory()
+    group = group_factory()
+
+    group.delete_user(user)
+
+    api_mock.call.assert_called_once_with(
+        method='DELETE',
+        path=('groups', group.id, 'members', user.id),
+    )
