@@ -168,7 +168,7 @@ class User(BaseModel):
             return self._picture
 
         content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
-        content_type = response.headers.get(&#39;content-type&#39;)
+        content_type = response.headers.get(&#39;content-type&#39;, &#39;&#39;)
         _, params = cgi.parse_header(content_disposition)
         file_name = f&#39;{self.first_name}_{self.last_name}.{content_type.split(&#34;/&#34;)[-1]}&#39;
         self._picture = File(name=file_name, content=response.content, content_type=content_type)
@@ -357,7 +357,7 @@ class UserResponse(Response[User]):
             return self._picture
 
         content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
-        content_type = response.headers.get(&#39;content-type&#39;)
+        content_type = response.headers.get(&#39;content-type&#39;, &#39;&#39;)
         _, params = cgi.parse_header(content_disposition)
         file_name = f&#39;{self.first_name}_{self.last_name}.{content_type.split(&#34;/&#34;)[-1]}&#39;
         self._picture = File(name=file_name, content=response.content, content_type=content_type)
@@ -490,7 +490,7 @@ def picture(self) -&gt; Optional[File]:
         return self._picture
 
     content_disposition = response.headers.get(&#39;content-disposition&#39;, &#39;&#39;)
-    content_type = response.headers.get(&#39;content-type&#39;)
+    content_type = response.headers.get(&#39;content-type&#39;, &#39;&#39;)
     _, params = cgi.parse_header(content_disposition)
     file_name = f&#39;{self.first_name}_{self.last_name}.{content_type.split(&#34;/&#34;)[-1]}&#39;
     self._picture = File(name=file_name, content=response.content, content_type=content_type)
