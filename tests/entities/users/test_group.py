@@ -137,3 +137,30 @@ def test_create(api_mock):
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
     assert result.is_system == json.loads(response['data']['attributes']['isSystem'])
+
+
+def test_save(api_mock, group_factory):
+    group = group_factory()
+    new_name = 'Update name'
+    assert group.name != new_name
+
+    group.name = new_name
+
+    group.save()
+
+    api_mock.call.assert_called_once_with(
+        method='PATCH',
+        path=('groups', group.id),
+        params={
+            'force': json.dumps(True),
+        },
+        json={
+            'data': {
+                'attributes': {
+                    'name': group.name,
+                    'description': group.description,
+                },
+            },
+        },
+    )
+    assert group.name == new_name
