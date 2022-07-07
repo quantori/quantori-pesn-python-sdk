@@ -8,34 +8,34 @@ from signals_notebook.entities.users.group import Group, GroupRequestBody, Group
 
 def test_get_list(api_mock):
     response = {
-        "links": {"self": "https://snb.perkinelmer.net/api/rest/v1.0/groups"},
-        "data": [
+        'links': {'self': 'https://snb.perkinelmer.net/api/rest/v1.0/groups'},
+        'data': [
             {
-                "id": "1",
-                "type": "group",
-                "attributes": {
-                    "id": "1",
-                    "name": "TestSys",
-                    "description": "TestSys",
-                    "createdAt": "2019-12-02T04:58:45.069Z",
-                    "editedAt": "2019-12-02T04:58:45.069Z",
-                    "type": "group",
-                    "digest": "23eeab9d8c63bb438cf56596d4b7f589",
-                    "isSystem": "true",
+                'id': '1',
+                'type': 'group',
+                'attributes': {
+                    'id': '1',
+                    'name': 'TestSys',
+                    'description': 'TestSys',
+                    'createdAt': '2019-12-02T04:58:45.069Z',
+                    'editedAt': '2019-12-02T04:58:45.069Z',
+                    'type': 'group',
+                    'digest': '23eeab9d8c63bb438cf56596d4b7f589',
+                    'isSystem': 'true',
                 },
             },
             {
-                "id": "2",
-                "type": "group",
-                "attributes": {
-                    "id": "2",
-                    "name": "Administrator",
-                    "description": "Administrator",
-                    "createdAt": "2019-12-02T04:58:45.069Z",
-                    "editedAt": "2019-12-02T04:58:45.069Z",
-                    "type": "group",
-                    "digest": "23eeab9d8c63bb438cf56596d4b7f589",
-                    "isSystem": "true",
+                'id': '2',
+                'type': 'group',
+                'attributes': {
+                    'id': '2',
+                    'name': 'Administrator',
+                    'description': 'Administrator',
+                    'createdAt': '2019-12-02T04:58:45.069Z',
+                    'editedAt': '2019-12-02T04:58:45.069Z',
+                    'type': 'group',
+                    'digest': '23eeab9d8c63bb438cf56596d4b7f589',
+                    'isSystem': 'true',
                 },
             },
         ],
@@ -62,19 +62,19 @@ def test_get_list(api_mock):
 def test_get_by_id(api_mock, group_factory):
     group = group_factory()
     response = {
-        "links": {"self": "https://example.com/api/rest/v1.0/groups/103"},
-        "data": {
-            "id": group.id,
-            "type": "group",
-            "attributes": {
-                "id": group.id,
-                "name": "TestSys",
-                "description": "TestSys",
-                "createdAt": "2019-12-02T04:58:45.069Z",
-                "editedAt": "2019-12-02T04:58:45.069Z",
-                "type": "group",
-                "digest": "23eeab9d8c63bb438cf56596d4b7f589",
-                "isSystem": "true",
+        'links': {'self': 'https://example.com/api/rest/v1.0/groups/103'},
+        'data': {
+            'id': group.id,
+            'type': 'group',
+            'attributes': {
+                'id': group.id,
+                'name': 'TestSys',
+                'description': 'TestSys',
+                'createdAt': '2019-12-02T04:58:45.069Z',
+                'editedAt': '2019-12-02T04:58:45.069Z',
+                'type': 'group',
+                'digest': '23eeab9d8c63bb438cf56596d4b7f589',
+                'isSystem': 'true',
             },
         },
     }
@@ -95,19 +95,19 @@ def test_get_by_id(api_mock, group_factory):
 
 def test_create(api_mock):
     response = {
-        "links": {"self": "https://example.com/api/rest/v1.0/groups/103"},
-        "data": {
-            "id": "103",
-            "type": "group",
-            "attributes": {
-                "id": "103",
-                "name": "name",
-                "description": "description",
-                "createdAt": "2019-12-02T04:58:45.069Z",
-                "editedAt": "2019-12-02T04:58:45.069Z",
-                "type": "group",
-                "digest": "23eeab9d8c63bb438cf56596d4b7f589",
-                "isSystem": "true",
+        'links': {'self': 'https://example.com/api/rest/v1.0/groups/103'},
+        'data': {
+            'id': '103',
+            'type': 'group',
+            'attributes': {
+                'id': '103',
+                'name': 'name',
+                'description': 'description',
+                'createdAt': '2019-12-02T04:58:45.069Z',
+                'editedAt': '2019-12-02T04:58:45.069Z',
+                'type': 'group',
+                'digest': '23eeab9d8c63bb438cf56596d4b7f589',
+                'isSystem': 'true',
             },
         },
     }
@@ -179,31 +179,31 @@ def test_delete(api_mock, group_factory):
 def test_get_members(api_mock, group_factory):
     group = group_factory()
     response = {
-        "links": {"self": "https://snb.perkinelmer.net/api/rest/v1.0/groups/103/members"},
-        "data": [
+        'links': {'self': 'https://snb.perkinelmer.net/api/rest/v1.0/groups/103/members'},
+        'data': [
             {
-                "type": "user",
-                "id": "100",
-                "attributes": {
-                    "userId": "100",
-                    "userName": "foo.bar@perkinelmer.com",
-                    "email": "foo.bar@perkinelmer.com",
-                    "firstName": "foo",
-                    "lastName": "bar",
+                'type': 'user',
+                'id': '100',
+                'attributes': {
+                    'userId': '100',
+                    'userName': 'foo.bar@perkinelmer.com',
+                    'email': 'foo.bar@perkinelmer.com',
+                    'firstName': 'foo',
+                    'lastName': 'bar',
                 },
-                "links": {"self": "https://snb.perkinelmer.net/api/rest/v1.0/users/100"},
+                'links': {'self': 'https://snb.perkinelmer.net/api/rest/v1.0/users/100'},
             },
             {
-                "type": "user",
-                "id": "101",
-                "attributes": {
-                    "userId": "101",
-                    "userName": "test.test@perkinelmer.com",
-                    "email": "test.test@perkinelmer.com",
-                    "firstName": "test",
-                    "lastName": "test",
+                'type': 'user',
+                'id': '101',
+                'attributes': {
+                    'userId': '101',
+                    'userName': 'test.test@perkinelmer.com',
+                    'email': 'test.test@perkinelmer.com',
+                    'firstName': 'test',
+                    'lastName': 'test',
                 },
-                "links": {"self": "https://snb.perkinelmer.net/api/rest/v1.0/users/101"},
+                'links': {'self': 'https://snb.perkinelmer.net/api/rest/v1.0/users/101'},
             },
         ],
     }
@@ -229,19 +229,19 @@ def test_add_user(api_mock, user_factory, group_factory):
     user = user_factory(id=1)
 
     response = {
-        "links": {"self": "https://example.com/api/rest/v1.0/groups/103/members"},
-        "data": [
+        'links': {'self': 'https://example.com/api/rest/v1.0/groups/103/members'},
+        'data': [
             {
-                "type": "user",
-                "id": user.id,
-                "attributes": {
-                    "userId": user.id,
-                    "userName": user.username,
-                    "email": user.email,
-                    "firstName": user.first_name,
-                    "lastName": user.last_name,
+                'type': 'user',
+                'id': user.id,
+                'attributes': {
+                    'userId': user.id,
+                    'userName': user.username,
+                    'email': user.email,
+                    'firstName': user.first_name,
+                    'lastName': user.last_name,
                 },
-                "links": {"self": "https://example.com/api/rest/v1.0/users/100"},
+                'links': {'self': 'https://example.com/api/rest/v1.0/users/100'},
             },
         ],
     }
