@@ -3,7 +3,7 @@ import json
 import arrow
 import pytest
 
-from signals_notebook.entities.users.group import Group, GroupRequestBody
+from signals_notebook.entities.users.group import Group, GroupRequestBody, GroupMember
 
 
 def test_get_list(api_mock):
@@ -42,8 +42,8 @@ def test_get_list(api_mock):
     }
     api_mock.call.return_value.json.return_value = response
 
-    all_users_generator = Group.get_list()
-    result = list(all_users_generator)
+    all_groups_generator = Group.get_list()
+    result = list(all_groups_generator)
     api_mock.call.assert_called_once_with(
         method='GET',
         path=('groups',),
@@ -174,3 +174,51 @@ def test_delete(api_mock, group_factory):
         method='DELETE',
         path=('groups', group.id),
     )
+
+
+def test_get_members(api_mock, group_factory):
+    group = group_factory()
+    response = {
+        "links": {"self": "https://snb.perkinelmer.net/api/rest/v1.0/groups/103/members"},
+        "data": [
+            {
+                "type": "user",
+                "id": "100",
+                "attributes": {
+                    "userId": "100",
+                    "userName": "foo.bar@perkinelmer.com",
+                    "email": "foo.bar@perkinelmer.com",
+                    "firstName": "foo",
+                    "lastName": "bar",
+                },
+                "links": {"self": "https://snb.perkinelmer.net/api/rest/v1.0/users/100"},
+            },
+            {
+                "type": "user",
+                "id": "101",
+                "attributes": {
+                    "userId": "101",
+                    "userName": "test.test@perkinelmer.com",
+                    "email": "test.test@perkinelmer.com",
+                    "firstName": "test",
+                    "lastName": "test",
+                },
+                "links": {"self": "https://snb.perkinelmer.net/api/rest/v1.0/users/101"},
+            },
+        ],
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    group_members = group.get_members()
+
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=('groups', group.id, 'members'),
+    )
+
+    for item, raw_item in zip(group_members, response['data']):
+        assert isinstance(item, GroupMember)
+        assert item.user_id == raw_item['attributes']['userId']
+        assert item.user_name == raw_item['attributes']['userName']
+        assert item.first_name == raw_item['attributes']['firstName']
+        assert item.last_name == raw_item['attributes']['lastName']

@@ -168,7 +168,7 @@ class Group(BaseModel):
         )
         log.debug('Group: %s was disabled successfully', self.id)
 
-    def get_members(self) -> Generator[GroupMember, None, None]:
+    def get_members(self) -> list[GroupMember]:
         """Get user group members
 
         Returns:
@@ -180,7 +180,7 @@ class Group(BaseModel):
             path=(self._get_endpoint(), self.id, 'members'),
         )
         result = GroupMemberResponse(**response.json())
-        yield from [cast(ResponseData, item).body for item in result.data]
+        return [cast(ResponseData, item).body for item in result.data]
 
     def add_user(self, user: User, force: bool = True) -> list[GroupMember]:
         """Add user to user group
