@@ -142,7 +142,7 @@ class RoleFactory(factory.Factory):
     class Meta:
         model = Role
 
-    id = factory.Faker('random_int')
+    id = factory.Faker('uuid4')
     name = factory.Faker('word')
     description = factory.Faker('word')
     privileges = factory.SubFactory(PrivilegeFactory)
