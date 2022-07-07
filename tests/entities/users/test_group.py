@@ -222,3 +222,45 @@ def test_get_members(api_mock, group_factory):
         assert item.user_name == raw_item['attributes']['userName']
         assert item.first_name == raw_item['attributes']['firstName']
         assert item.last_name == raw_item['attributes']['lastName']
+
+
+def test_add_user(api_mock, user_factory, group_factory):
+    group = group_factory(id=1)
+    user = user_factory(id=1)
+
+    response = {
+        "links": {"self": "https://example.com/api/rest/v1.0/groups/103/members"},
+        "data": [
+            {
+                "type": "user",
+                "id": user.id,
+                "attributes": {
+                    "userId": user.id,
+                    "userName": user.username,
+                    "email": user.email,
+                    "firstName": user.first_name,
+                    "lastName": user.last_name,
+                },
+                "links": {"self": "https://example.com/api/rest/v1.0/users/100"},
+            },
+        ],
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    result = group.add_user(user)
+
+    api_mock.call.assert_called_once_with(
+        method='POST',
+        path=('groups', group.id, 'members'),
+        params={
+            'force': json.dumps(True),
+        },
+        json={'data': {'attributes': {'userId': user.id}}},
+    )
+
+    for item, raw_item in zip(result, response['data']):
+        assert isinstance(item, GroupMember)
+        assert item.user_id == raw_item['attributes']['userId']
+        assert item.user_name == raw_item['attributes']['userName']
+        assert item.first_name == raw_item['attributes']['firstName']
+        assert item.last_name == raw_item['attributes']['lastName']
