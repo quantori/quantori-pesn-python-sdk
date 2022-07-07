@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import Literal, Generator, cast
+from typing import cast, Generator, Literal
 
 from pydantic import BaseModel, Field
 
@@ -28,14 +28,6 @@ class GroupMember(BaseModel):
     user_name: str = Field(alias='userName')
     first_name: str = Field(alias='firstName')
     last_name: str = Field(alias='lastName')
-
-
-class GroupShares(BaseModel):
-    sid: str
-    canRead: str = Field(alias='canRead')
-    canWrite: str = Field(alias='canWrite')
-    isAdmin: str = Field(alias='isAdmin')
-    hasFullControl: str = Field(alias='hasFullControl')
 
 
 class Group(BaseModel):
@@ -212,7 +204,7 @@ class Group(BaseModel):
         result = GroupMemberResponse(**response.json())
         return [cast(ResponseData, item).body for item in result.data]
 
-    def delete_user(self, user: User,):
+    def delete_user(self, user: User):
         """Delete user from user group.
 
         Args:

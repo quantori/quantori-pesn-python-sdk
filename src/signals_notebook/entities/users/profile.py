@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List, Union, Generator, cast, Optional
+from typing import cast, Generator, List, Optional, Union
 
 from pydantic import BaseModel, Field
 

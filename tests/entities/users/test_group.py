@@ -1,9 +1,8 @@
 import json
 
 import arrow
-import pytest
 
-from signals_notebook.entities.users.group import Group, GroupRequestBody, GroupMember
+from signals_notebook.entities.users.group import Group, GroupMember, GroupRequestBody
 
 
 def test_get_list(api_mock):

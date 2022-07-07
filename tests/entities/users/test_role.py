@@ -1,7 +1,5 @@
 import json
 
-import pytest
-
 from signals_notebook.entities.users.profile import Role
 
 

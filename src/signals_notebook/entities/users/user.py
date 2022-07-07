@@ -1,13 +1,12 @@
 import cgi
 import logging
 from datetime import datetime
-from typing import cast, List, Optional
+from typing import cast, Optional
 
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
-from signals_notebook.entities.users.profile import Role
 
 
 log = logging.getLogger(__name__)
