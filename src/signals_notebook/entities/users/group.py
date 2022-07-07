@@ -65,7 +65,7 @@ class Group(BaseModel):
         """Get all groups
 
         Returns:
-            List of Group objects
+            Group
         """
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
