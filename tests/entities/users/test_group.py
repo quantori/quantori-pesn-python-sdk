@@ -164,3 +164,13 @@ def test_save(api_mock, group_factory):
         },
     )
     assert group.name == new_name
+
+
+def test_delete(api_mock, group_factory):
+    group = group_factory()
+    group.delete()
+
+    api_mock.call.assert_called_once_with(
+        method='DELETE',
+        path=('groups', group.id),
+    )
