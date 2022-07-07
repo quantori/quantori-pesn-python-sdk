@@ -58,3 +58,36 @@ def test_get_list(api_mock):
         assert item.edited_at == arrow.get(raw_item['attributes']['editedAt'])
         assert item.is_system == json.loads(raw_item['attributes']['isSystem'])
 
+
+def test_get_by_id(api_mock, group_factory):
+    group = group_factory()
+    response = {
+        "links": {"self": "https://example.com/api/rest/v1.0/groups/103"},
+        "data": {
+            "id": group.id,
+            "type": "group",
+            "attributes": {
+                "id": group.id,
+                "name": "TestSys",
+                "description": "TestSys",
+                "createdAt": "2019-12-02T04:58:45.069Z",
+                "editedAt": "2019-12-02T04:58:45.069Z",
+                "type": "group",
+                "digest": "23eeab9d8c63bb438cf56596d4b7f589",
+                "isSystem": "true",
+            },
+        },
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    result = Group.get(group.id)
+
+    api_mock.call.assert_called_once_with(method='GET', path=('groups', group.id))
+
+    assert isinstance(result, Group)
+    assert result.id == response['data']['id']
+    assert result.name == response['data']['attributes']['name']
+    assert result.description == response['data']['attributes']['description']
+    assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
+    assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+    assert result.is_system == json.loads(response['data']['attributes']['isSystem'])

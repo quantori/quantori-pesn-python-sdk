@@ -1,11 +1,12 @@
 import factory
 
-from signals_notebook.common_types import EID, EntityType
+from signals_notebook.common_types import EID, EntityType, ObjectType
 from signals_notebook.entities import (
     BiologicalSequence,
     ChemicalDrawing,
     Entity,
     Excel,
+    Group,
     Experiment,
     Image,
     Licence,
@@ -172,3 +173,17 @@ class ProfileFactory(factory.Factory):
     created_at = factory.Faker('date_time')
     roles = factory.List([factory.SubFactory(RoleFactory) for _ in range(1)])
     licenses = factory.List([factory.SubFactory(LicenceFactory) for _ in range(1)])
+
+
+class GroupFactory(factory.Factory):
+    class Meta:
+        model = Group
+
+    type = ObjectType.GROUP
+    id = factory.SubFactory(EIDFactory)
+    is_system = factory.Faker('pybool')
+    name = factory.Faker('word')
+    description = factory.Faker('word')
+    created_at = factory.Faker('date_time')
+    edited_at = factory.Faker('date_time')
+    digest = factory.Faker('word')
