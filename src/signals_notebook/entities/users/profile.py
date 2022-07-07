@@ -36,7 +36,7 @@ class Privelege(BaseModel):
 
 
 class Role(BaseModel):
-    id: int
+    id: str
     name: str
     description: Optional[str]
     privileges: Optional[Privelege]

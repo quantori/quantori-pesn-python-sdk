@@ -13,6 +13,11 @@ from signals_notebook.entities.users.profile import Role
 log = logging.getLogger(__name__)
 
 
+class UserRoleBody(BaseModel):
+    id: str
+    name: str
+
+
 class UserCreationBody(BaseModel):
     alias: str
     country: str
@@ -20,7 +25,7 @@ class UserCreationBody(BaseModel):
     first_name: str = Field(alias='firstName')
     last_name: str = Field(alias='lastName')
     organization: str = Field(alias='organization')
-    roles: List[Role] = Field(default=None)
+    roles: Optional[list[UserRoleBody]]
 
     class Config:
         validate_assignment = True
@@ -58,7 +63,6 @@ class User(BaseModel):
         """
         api = SignalsNotebookApi.get_default_api()
         log.debug('Create User: %s...', cls.__name__)
-
         response = api.call(
             method='POST',
             path=(cls._get_endpoint(),),
