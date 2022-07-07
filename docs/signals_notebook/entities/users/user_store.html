@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import cast, Generator
+<pre><code class="python">import json
+from typing import cast, Generator
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ResponseData
@@ -51,8 +52,25 @@ class UserStore:
         return cast(ResponseData, result.data).body
 
     @classmethod
-    def get_list(cls) -&gt; Generator[User, None, None]:
+    def get_list(
+        cls, q: str = &#39;&#39;, enabled: bool = True, offset: int = 0, limit: int = 20
+    ) -&gt; Generator[User, None, None]:
         &#34;&#34;&#34;Get all users from the scope
+
+        Parameter &#39;q&#39; is a String and it is used to filter users.
+
+        Example usage: Input &#39;foo&#39; as value of &#39;q&#39;, will return
+        Users whose first name starts with &#39;foo&#39;.
+        Users whose last name starts with &#39;foo&#39;.
+        Users whose email address starts with &#39;foo&#39;.
+        Users who has role name (except &#34;Standard User&#34;) contains &#39;foo&#39;.
+        All of above are case insensitive.
+
+        Args:
+            q: query string for list users
+            enabled: filter activated and deactivated users
+            offset: Number of items to skip before returning the results.
+            limit: Maximum number of items to return.
 
         Returns:
             User
@@ -61,6 +79,12 @@ class UserStore:
         response = api.call(
             method=&#39;GET&#39;,
             path=(&#39;users&#39;,),
+            params={
+                &#39;q&#39;: q,
+                &#39;enabled&#39;: json.dumps(enabled),
+                &#39;offset&#39;: offset,
+                &#39;limit&#39;: limit,
+            },
         )
         result = UserResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
@@ -141,8 +165,25 @@ class UserStore:
         return cast(ResponseData, result.data).body
 
     @classmethod
-    def get_list(cls) -&gt; Generator[User, None, None]:
+    def get_list(
+        cls, q: str = &#39;&#39;, enabled: bool = True, offset: int = 0, limit: int = 20
+    ) -&gt; Generator[User, None, None]:
         &#34;&#34;&#34;Get all users from the scope
+
+        Parameter &#39;q&#39; is a String and it is used to filter users.
+
+        Example usage: Input &#39;foo&#39; as value of &#39;q&#39;, will return
+        Users whose first name starts with &#39;foo&#39;.
+        Users whose last name starts with &#39;foo&#39;.
+        Users whose email address starts with &#39;foo&#39;.
+        Users who has role name (except &#34;Standard User&#34;) contains &#39;foo&#39;.
+        All of above are case insensitive.
+
+        Args:
+            q: query string for list users
+            enabled: filter activated and deactivated users
+            offset: Number of items to skip before returning the results.
+            limit: Maximum number of items to return.
 
         Returns:
             User
@@ -151,6 +192,12 @@ class UserStore:
         response = api.call(
             method=&#39;GET&#39;,
             path=(&#39;users&#39;,),
+            params={
+                &#39;q&#39;: q,
+                &#39;enabled&#39;: json.dumps(enabled),
+                &#39;offset&#39;: offset,
+                &#39;limit&#39;: limit,
+            },
         )
         result = UserResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
@@ -252,10 +299,28 @@ def get_current_user(cls) -&gt; Profile:
 </details>
 </dd>
 <dt id="signals_notebook.entities.users.user_store.UserStore.get_list"><code class="name flex">
-<span>def <span class="ident">get_list</span></span>(<span>) ‑> Generator[<a title="signals_notebook.entities.users.user.User" href="user.html#signals_notebook.entities.users.user.User">User</a>, None, None]</span>
+<span>def <span class="ident">get_list</span></span>(<span>q: str = '', enabled: bool = True, offset: int = 0, limit: int = 20) ‑> Generator[<a title="signals_notebook.entities.users.user.User" href="user.html#signals_notebook.entities.users.user.User">User</a>, None, None]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get all users from the scope</p>
+<p>Parameter 'q' is a String and it is used to filter users.</p>
+<p>Example usage: Input 'foo' as value of 'q', will return
+Users whose first name starts with 'foo'.
+Users whose last name starts with 'foo'.
+Users whose email address starts with 'foo'.
+Users who has role name (except "Standard User") contains 'foo'.
+All of above are case insensitive.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>q</code></strong></dt>
+<dd>query string for list users</dd>
+<dt><strong><code>enabled</code></strong></dt>
+<dd>filter activated and deactivated users</dd>
+<dt><strong><code>offset</code></strong></dt>
+<dd>Number of items to skip before returning the results.</dd>
+<dt><strong><code>limit</code></strong></dt>
+<dd>Maximum number of items to return.</dd>
+</dl>
 <h2 id="returns">Returns</h2>
 <p>User</p></div>
 <details class="source">
@@ -263,8 +328,25 @@ def get_current_user(cls) -&gt; Profile:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def get_list(cls) -&gt; Generator[User, None, None]:
+def get_list(
+    cls, q: str = &#39;&#39;, enabled: bool = True, offset: int = 0, limit: int = 20
+) -&gt; Generator[User, None, None]:
     &#34;&#34;&#34;Get all users from the scope
+
+    Parameter &#39;q&#39; is a String and it is used to filter users.
+
+    Example usage: Input &#39;foo&#39; as value of &#39;q&#39;, will return
+    Users whose first name starts with &#39;foo&#39;.
+    Users whose last name starts with &#39;foo&#39;.
+    Users whose email address starts with &#39;foo&#39;.
+    Users who has role name (except &#34;Standard User&#34;) contains &#39;foo&#39;.
+    All of above are case insensitive.
+
+    Args:
+        q: query string for list users
+        enabled: filter activated and deactivated users
+        offset: Number of items to skip before returning the results.
+        limit: Maximum number of items to return.
 
     Returns:
         User
@@ -273,6 +355,12 @@ def get_list(cls) -&gt; Generator[User, None, None]:
     response = api.call(
         method=&#39;GET&#39;,
         path=(&#39;users&#39;,),
+        params={
+            &#39;q&#39;: q,
+            &#39;enabled&#39;: json.dumps(enabled),
+            &#39;offset&#39;: offset,
+            &#39;limit&#39;: limit,
+        },
     )
     result = UserResponse(**response.json())
     yield from [cast(ResponseData, item).body for item in result.data]

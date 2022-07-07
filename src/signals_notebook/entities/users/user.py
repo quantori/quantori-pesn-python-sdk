@@ -145,7 +145,7 @@ class User(BaseModel):
             return self._picture
 
         content_disposition = response.headers.get('content-disposition', '')
-        content_type = response.headers.get('content-type')
+        content_type = response.headers.get('content-type', '')
         _, params = cgi.parse_header(content_disposition)
         file_name = f'{self.first_name}_{self.last_name}.{content_type.split("/")[-1]}'
         self._picture = File(name=file_name, content=response.content, content_type=content_type)

@@ -234,6 +234,12 @@ def test_get_several_pages(api_mock, user_factory, mocker, get_response_object):
             mocker.call(
                 method='GET',
                 path=('users',),
+                params={
+                    'q': '',
+                    'enabled': json.dumps(response1['data'][0]['attributes']['isEnabled']),
+                    'offset': 0,
+                    'limit': 20,
+                },
             ),
             mocker.call(
                 method='GET',
