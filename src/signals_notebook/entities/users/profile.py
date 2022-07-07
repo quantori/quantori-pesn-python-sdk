@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import List, Union, Generator, cast
+from typing import List, Union, Generator, cast, Optional
 
 from pydantic import BaseModel, Field
 
@@ -38,8 +38,8 @@ class Privelege(BaseModel):
 class Role(BaseModel):
     id: int
     name: str
-    description: str
-    privileges: Privelege
+    description: Optional[str]
+    privileges: Optional[Privelege]
 
     @classmethod
     def _get_entity_type(cls) -> ObjectType:
