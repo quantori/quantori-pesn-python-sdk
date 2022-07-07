@@ -3,7 +3,7 @@ import json
 import arrow
 import pytest
 
-from signals_notebook.entities.users.group import Group
+from signals_notebook.entities.users.group import Group, GroupRequestBody
 
 
 def test_get_list(api_mock):
@@ -83,6 +83,52 @@ def test_get_by_id(api_mock, group_factory):
     result = Group.get(group.id)
 
     api_mock.call.assert_called_once_with(method='GET', path=('groups', group.id))
+
+    assert isinstance(result, Group)
+    assert result.id == response['data']['id']
+    assert result.name == response['data']['attributes']['name']
+    assert result.description == response['data']['attributes']['description']
+    assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
+    assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+    assert result.is_system == json.loads(response['data']['attributes']['isSystem'])
+
+
+def test_create(api_mock):
+    response = {
+        "links": {"self": "https://example.com/api/rest/v1.0/groups/103"},
+        "data": {
+            "id": "103",
+            "type": "group",
+            "attributes": {
+                "id": "103",
+                "name": "name",
+                "description": "description",
+                "createdAt": "2019-12-02T04:58:45.069Z",
+                "editedAt": "2019-12-02T04:58:45.069Z",
+                "type": "group",
+                "digest": "23eeab9d8c63bb438cf56596d4b7f589",
+                "isSystem": "true",
+            },
+        },
+    }
+    new_user_body = GroupRequestBody(
+        is_system=True,
+        name='name',
+        description='description',
+    )
+    api_mock.call.return_value.json.return_value = response
+
+    result = Group.create(request=new_user_body)
+
+    api_mock.call.assert_called_once_with(
+        method='POST',
+        path=('groups',),
+        json={
+            'data': {
+                'attributes': new_user_body.dict(by_alias=True),
+            }
+        },
+    )
 
     assert isinstance(result, Group)
     assert result.id == response['data']['id']
