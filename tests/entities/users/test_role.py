@@ -60,10 +60,10 @@ def test_get_list(api_mock):
         'data': [
             {
                 'type': 'role',
-                'id': 1,
+                'id': '1',
                 'links': {'self': 'https://example.com/api/rest/v1.0/roles/1'},
                 'attributes': {
-                    'id': 1,
+                    'id': '1',
                     'name': 'System Admin',
                     'description': 'Users with this role have all privileges.',
                     'privileges': {
@@ -89,10 +89,10 @@ def test_get_list(api_mock):
             },
             {
                 'type': 'role',
-                'id': 2,
+                'id': '2',
                 'links': {'self': 'https://example.com/api/rest/v1.0/roles/2'},
                 'attributes': {
-                    'id': 2,
+                    'id': '2',
                     'name': 'Config Admin',
                     'description': 'Users with this role have privileges for accessing SNConfig and managing metadata.',
                     'privileges': {
