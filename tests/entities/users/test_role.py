@@ -5,16 +5,6 @@ import pytest
 from signals_notebook.entities.users.profile import Role
 
 
-@pytest.fixture()
-def get_response_object(mocker):
-    def _f(response):
-        mock = mocker.Mock()
-        mock.json.return_value = response
-        return mock
-
-    return _f
-
-
 def test_get_by_id(api_mock, role_factory):
     role = role_factory()
     response = {

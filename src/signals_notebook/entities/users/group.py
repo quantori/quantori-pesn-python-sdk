@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import List, Literal, Union, Generator, cast
+from typing import Literal, Generator, cast
 
 from pydantic import BaseModel, Field
 
@@ -40,7 +40,6 @@ class GroupShares(BaseModel):
 
 class Group(BaseModel):
     type: Literal[ObjectType.GROUP] = Field(allow_mutation=False)
-    eid: str
     id: str
     is_system: bool = Field(alias='isSystem', allow_mutation=False)
     name: str
