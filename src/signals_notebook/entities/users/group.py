@@ -30,6 +30,14 @@ class GroupMember(BaseModel):
     last_name: str = Field(alias='lastName')
 
 
+class GroupShares(BaseModel):
+    sid: str
+    canRead: str = Field(alias='canRead')
+    canWrite: str = Field(alias='canWrite')
+    isAdmin: str = Field(alias='isAdmin')
+    hasFullControl: str = Field(alias='hasFullControl')
+
+
 class Group(BaseModel):
     type: Literal[ObjectType.GROUP] = Field(allow_mutation=False)
     eid: str
