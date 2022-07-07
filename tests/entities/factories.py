@@ -18,6 +18,7 @@ from signals_notebook.entities import (
     User,
     Word,
 )
+from signals_notebook.entities.users.profile import Privelege
 
 
 class EIDFactory(factory.Factory):
@@ -131,12 +132,19 @@ class UserFactory(factory.Factory):
     created_at = factory.Faker('date_time')
 
 
+class PrivilegeFactory(factory.Factory):
+    class Meta:
+        model = Privelege
+
+
 class RoleFactory(factory.Factory):
     class Meta:
         model = Role
 
     id = factory.Faker('random_int')
     name = factory.Faker('word')
+    description = factory.Faker('word')
+    privileges = factory.SubFactory(PrivilegeFactory)
 
 
 class LicenceFactory(factory.Factory):
