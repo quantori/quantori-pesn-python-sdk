@@ -1,6 +1,10 @@
 name: Tests
 
 on:
+  workflow_run:
+    workflows: [ "Update_documentation" ]
+    types:
+      - completed
   pull_request:
     branches: [ main ]
 
