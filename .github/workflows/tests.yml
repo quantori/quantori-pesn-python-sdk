@@ -2,13 +2,13 @@ name: Tests
 
 on:
   workflow_run:
-    workflows: [ "Update_documentation" ]
-    types:
-      - completed
+    workflows: [Update_documentation]
+    types: [completed]
   pull_request:
     branches: [ main ]
 
 jobs:
+
   build:
 
     runs-on: ${{ matrix.os }}
