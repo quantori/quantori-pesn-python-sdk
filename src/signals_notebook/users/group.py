@@ -200,7 +200,7 @@ class Group(BaseModel):
         result = GroupMemberResponse(**response.json())
         return [cast(ResponseData, item).body for item in result.data]
 
-    def delete_user(self, user: User):
+    def delete_user(self, user: User) -> None:
         """Delete user from user group.
 
         Args:
