@@ -327,7 +327,17 @@ class Entity(BaseModel):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(data=data)</code></pre>
+        return template.render(data=data)
+
+    def dump(self, *args, **kwargs):
+        log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))
+
+    def get_metadata(self):
+        return {
+            &#39;eid&#39;: self.eid,
+            &#39;name&#39;: self.name,
+            &#39;description&#39;: self.description
+        }</code></pre>
 </details>
 </section>
 <section>
@@ -579,7 +589,17 @@ class Entity(BaseModel):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(data=data)</code></pre>
+        return template.render(data=data)
+
+    def dump(self, *args, **kwargs):
+        log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))
+
+    def get_metadata(self):
+        return {
+            &#39;eid&#39;: self.eid,
+            &#39;name&#39;: self.name,
+            &#39;description&#39;: self.description
+        }</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -775,6 +795,19 @@ def short_description(self) -&gt; EntityShortDescription:
     log.debug(&#39;Entity: %s was deleted from EntityStore&#39;, self.eid)</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.entities.entity.Entity.dump"><code class="name flex">
+<span>def <span class="ident">dump</span></span>(<span>self, *args, **kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump(self, *args, **kwargs):
+    log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.entity.Entity.get_html"><code class="name flex">
 <span>def <span class="ident">get_html</span></span>(<span>self) ‑> str</span>
 </code></dt>
@@ -797,6 +830,23 @@ def short_description(self) -&gt; EntityShortDescription:
     log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
     return template.render(data=data)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.entity.Entity.get_metadata"><code class="name flex">
+<span>def <span class="ident">get_metadata</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_metadata(self):
+    return {
+        &#39;eid&#39;: self.eid,
+        &#39;name&#39;: self.name,
+        &#39;description&#39;: self.description
+    }</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.entity.Entity.refresh"><code class="name flex">
@@ -1118,10 +1168,12 @@ def representation_for_update(self) -&gt; dict[str, dict]:
 <li><code><a title="signals_notebook.entities.entity.Entity.delete" href="#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.description" href="#signals_notebook.entities.entity.Entity.description">description</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.digest" href="#signals_notebook.entities.entity.Entity.digest">digest</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Entity.dump" href="#signals_notebook.entities.entity.Entity.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.edited_at" href="#signals_notebook.entities.entity.Entity.edited_at">edited_at</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.eid" href="#signals_notebook.entities.entity.Entity.eid">eid</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_html" href="#signals_notebook.entities.entity.Entity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_list" href="#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Entity.get_metadata" href="#signals_notebook.entities.entity.Entity.get_metadata">get_metadata</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_subclasses" href="#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_template_name" href="#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.name" href="#signals_notebook.entities.entity.Entity.name">name</a></code></li>
