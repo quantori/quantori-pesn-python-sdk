@@ -72,7 +72,7 @@ class Container(Entity, abc.ABC):
             method='GET',
             path=(self._get_endpoint(), self.eid, 'children'),
             params={
-                'order': 'layout',
+                #'order': 'layout',
             },
         )
 
@@ -90,3 +90,8 @@ class Container(Entity, abc.ABC):
 
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
+
+    def dump(self, base_path, fs_handler):
+        fs_handler.write(base_path + '/' + self.eid + '/metadata.json', json.dumps(self.get_metadata()))
+        for child in self.get_children():
+            child.dump(base_path + '/' + self.eid, fs_handler)

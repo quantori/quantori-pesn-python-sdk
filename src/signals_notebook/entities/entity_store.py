@@ -156,3 +156,14 @@ class EntityStore:
                 'force': json.dumps(force),
             },
         )
+
+    @classmethod
+    def get_entity_class(cls, type: EntityType):
+        from signals_notebook.entities import Experiment, Spotfire
+
+        entity_map = {
+            'experiment': Experiment,
+            'spotfiredxp': Spotfire
+        }
+
+        return entity_map[type]

@@ -1,3 +1,4 @@
+import json
 import logging
 from enum import Enum
 from functools import cached_property
@@ -6,6 +7,7 @@ from typing import ClassVar, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
+from signals_notebook.entities import EntityStore
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
@@ -129,3 +131,15 @@ class Experiment(Container):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)
+
+    @classmethod
+    def load(cls, path, fs_handler, notebook):
+        metadata = json.loads(fs_handler.read(path+'/'+'metadata.json'))
+        experiment = Experiment.create(
+            notebook=notebook, name=metadata['name'], description=metadata['description'],
+            force=True)
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(':')[0]
+            EntityStore.get_entity_class(child_entity_type).load(
+                fs_handler.join_path(path, child_entity), fs_handler, experiment)
