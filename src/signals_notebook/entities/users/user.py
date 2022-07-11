@@ -7,8 +7,8 @@ from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
-# from signals_notebook.entities.users.group import Group
-# from signals_notebook.entities.users.profile import Role
+
+from signals_notebook.entities.users.profile import Role
 
 
 log = logging.getLogger(__name__)
@@ -46,6 +46,7 @@ class User(BaseModel):
     created_at: datetime = Field(alias='createdAt', allow_mutation=False)
     last_login_at: Optional[datetime] = Field(alias='lastLoginAt', allow_mutation=False)
     _picture: Optional[File] = PrivateAttr(default=None)
+    _groups = PrivateAttr(default=None)
 
     class Config:
         validate_assignment = True
@@ -151,6 +152,10 @@ class User(BaseModel):
         file_name = f'{self.first_name}_{self.last_name}.{content_type.split("/")[-1]}'
         self._picture = File(name=file_name, content=response.content, content_type=content_type)
         return self._picture
+
+    @property
+    def groups(self):
+        return self.get_system_groups()
 
     def get_system_groups(self):
         from signals_notebook.entities.users.group import GroupResponse
