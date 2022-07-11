@@ -82,7 +82,7 @@ class User(BaseModel):
         Returns:
 
         """
-        from signals_notebook.entities import UserStore
+        from signals_notebook.users import UserStore
 
         UserStore.refresh(self)
 
@@ -155,7 +155,7 @@ class User(BaseModel):
         return self.get_system_groups()
 
     def get_system_groups(self):
-        from users.group import GroupResponse
+        from signals_notebook.users.group import GroupResponse
 
         api = SignalsNotebookApi.get_default_api()
         response = api.call(

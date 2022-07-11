@@ -2,7 +2,7 @@ import json
 
 import arrow
 
-from users.group import Group, GroupMember, GroupRequestBody
+from signals_notebook.users.group import Group, GroupMember, GroupRequestBody
 
 
 def test_get_list(api_mock):

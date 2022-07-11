@@ -1,6 +1,6 @@
 import json
 
-from users.profile import Role
+from signals_notebook.users.profile import Role
 
 
 def test_get_by_id(api_mock, role_factory):

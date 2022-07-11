@@ -7,19 +7,21 @@ from signals_notebook.entities import (
     Entity,
     Excel,
     Experiment,
-    Group,
     Image,
-    Licence,
     Notebook,
     PowerPoint,
-    Profile,
-    Role,
     Spotfire,
     Text,
-    User,
     Word,
 )
-from users.profile import Privelege
+from signals_notebook.users import (
+    Group,
+    Licence,
+    Profile,
+    Role,
+    User,
+    Privelege,
+)
 
 
 class EIDFactory(factory.Factory):
