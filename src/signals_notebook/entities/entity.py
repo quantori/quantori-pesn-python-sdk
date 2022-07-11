@@ -300,3 +300,13 @@ class Entity(BaseModel):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)
+
+    def dump(self, *args, **kwargs):
+        log.error('Dumping Entity %s: not implemented!' % str(self))
+
+    def get_metadata(self):
+        return {
+            'eid': self.eid,
+            'name': self.name,
+            'description': self.description
+        }
