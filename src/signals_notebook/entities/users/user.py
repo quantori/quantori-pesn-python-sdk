@@ -46,8 +46,6 @@ class User(BaseModel):
     created_at: datetime = Field(alias='createdAt', allow_mutation=False)
     last_login_at: Optional[datetime] = Field(alias='lastLoginAt', allow_mutation=False)
     _picture: Optional[File] = PrivateAttr(default=None)
-    # roles: Optional[list[Role]]
-    # groups = Optional[list[Group]]
 
     class Config:
         validate_assignment = True

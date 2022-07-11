@@ -21,17 +21,6 @@ class UserStore:
             path=('users', user_id),
         )
         result = UserResponse(**response.json())
-        # user = cast(ResponseData, result.data).body
-        # for i in response.json()['included']:
-        #     if not user.roles:
-        #         user.roles = []
-        #     elif not user.groups:
-        #         user.groups = []
-        #     if i['type']=='role':
-        #         user.roles.append(i['attributes'])
-        #     if i['type']=='group':
-        #         user.groups.append(i['attributes'])
-        # return user
         return cast(ResponseData, result.data).body
 
     @classmethod
