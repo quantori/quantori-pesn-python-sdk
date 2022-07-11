@@ -1,8 +1,8 @@
 import arrow
 
 from signals_notebook.common_types import File, ObjectType
-from signals_notebook.entities.users.group import Group
-from signals_notebook.entities.users.user import User, UserCreationBody
+from users.group import Group
+from users import User, UserCreationBody
 
 
 def test_create(api_mock):

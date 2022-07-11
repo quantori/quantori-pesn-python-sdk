@@ -19,7 +19,7 @@ from signals_notebook.entities import (
     User,
     Word,
 )
-from signals_notebook.entities.users.profile import Privelege
+from users.profile import Privelege
 
 
 class EIDFactory(factory.Factory):

@@ -8,9 +8,6 @@ from pydantic import BaseModel, Field, PrivateAttr
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
 
-from signals_notebook.entities.users.profile import Role
-
-
 log = logging.getLogger(__name__)
 
 
@@ -158,7 +155,7 @@ class User(BaseModel):
         return self.get_system_groups()
 
     def get_system_groups(self):
-        from signals_notebook.entities.users.group import GroupResponse
+        from users.group import GroupResponse
 
         api = SignalsNotebookApi.get_default_api()
         response = api.call(

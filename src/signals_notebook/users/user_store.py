@@ -3,8 +3,8 @@ from typing import cast, Generator
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ResponseData
-from signals_notebook.entities.users.profile import Profile, ProfileResponse
-from signals_notebook.entities.users.user import User, UserResponse
+from users.profile import Profile, ProfileResponse
+from users.user import User, UserResponse
 
 
 class UserStore:

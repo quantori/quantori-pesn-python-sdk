@@ -3,9 +3,9 @@ import json
 import arrow
 import pytest
 
-from signals_notebook.entities.users.profile import Profile
-from signals_notebook.entities.users.user import User
-from signals_notebook.entities.users.user_store import UserStore
+from users.profile import Profile
+from users import User
+from users.user_store import UserStore
 
 
 @pytest.fixture()

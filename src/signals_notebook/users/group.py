@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ObjectType, Response, ResponseData
-from signals_notebook.entities.users.user import User
+from users.user import User
 
 
 log = logging.getLogger(__name__)
