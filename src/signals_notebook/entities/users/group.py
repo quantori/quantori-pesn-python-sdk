@@ -45,10 +45,6 @@ class Group(BaseModel):
         allow_population_by_field_name = True
 
     @classmethod
-    def _get_entity_type(cls) -> ObjectType:
-        return ObjectType.GROUP
-
-    @classmethod
     def _get_endpoint(cls) -> str:
         return 'groups'
 

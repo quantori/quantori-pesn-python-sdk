@@ -5,7 +5,7 @@ from typing import cast, Generator, List, Optional, Union
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import ObjectType, Response, ResponseData
+from signals_notebook.common_types import Response, ResponseData
 
 
 log = logging.getLogger(__name__)
@@ -40,10 +40,6 @@ class Role(BaseModel):
     name: str
     description: Optional[str]
     privileges: Optional[Privelege]
-
-    @classmethod
-    def _get_entity_type(cls) -> ObjectType:
-        return ObjectType.ROLE
 
     @classmethod
     def _get_endpoint(cls) -> str:
