@@ -20,6 +20,10 @@ class GroupMember(BaseModel):
     last_name: str = Field(alias='lastName')
 
 
+class GroupMemberResponse(Response[GroupMember]):
+    pass
+
+
 class Group(BaseModel):
     type: Literal[ObjectType.GROUP] = Field(allow_mutation=False)
     id: str
@@ -202,8 +206,4 @@ class Group(BaseModel):
 
 
 class GroupResponse(Response[Group]):
-    pass
-
-
-class GroupMemberResponse(Response[GroupMember]):
     pass
