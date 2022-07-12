@@ -280,6 +280,7 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     eid: Union[EID, MID, AttrID, UUID, str] = Field(alias='id')
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
+    relationships: Optional[Any] = Field(alias='relationships')
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get('attributes', {})
@@ -288,6 +289,15 @@ class ResponseData(GenericModel, Generic[EntityClass]):
             attributes = {**attributes, **_context}
 
         super().__init__(**{**kwargs, 'attributes': attributes})
+
+    @property
+    def body_with_relationships(self):
+        from signals_notebook.users import User
+
+        if isinstance(self.body, User):
+            self.body.set_relationships(self.relationships)
+
+        return self.body
 
 
 class Response(GenericModel, Generic[EntityClass]):

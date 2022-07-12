@@ -44,10 +44,20 @@ class User(BaseModel):
     last_login_at: Optional[datetime] = Field(alias='lastLoginAt', allow_mutation=False)
     _picture: Optional[File] = PrivateAttr(default=None)
     _groups = PrivateAttr(default=None)
+    _relationships: dict = PrivateAttr(default=None)
 
     class Config:
         validate_assignment = True
         allow_population_by_field_name = True
+
+    @classmethod
+    def set_relationships(cls, value: dict):
+        cls._relationships = value
+
+    @property
+    def roles(self):
+        from signals_notebook.users.profile import Role
+        return [Role.get(i['id']) for i in self._relationships['roles']['data']]
 
     @classmethod
     def _get_endpoint(cls) -> str:
