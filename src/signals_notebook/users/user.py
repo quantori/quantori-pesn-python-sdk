@@ -163,10 +163,10 @@ class User(BaseModel):
 
     @property
     def groups(self):
-        return self.get_system_groups()
-
-    def get_system_groups(self):
         from signals_notebook.users.group import GroupResponse
+
+        if self._groups:
+            return self._groups
 
         api = SignalsNotebookApi.get_default_api()
         response = api.call(

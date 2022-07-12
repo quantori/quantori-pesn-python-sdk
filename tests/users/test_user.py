@@ -170,7 +170,7 @@ def test_get_system_groups(api_mock, user_factory):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = user.get_system_groups()
+    result = user.groups
 
     api_mock.call.assert_called_once_with(method='GET', path=('users', user.id, 'systemGroups'))
 
