@@ -80,7 +80,7 @@ class Container(Entity, abc.ABC):
                 &#39;force&#39;: json.dumps(force),
             },
             headers={
-                &#39;Content-Type&#39;: content_type,
+                &#39;Content-Type&#39;: content_type if content_type else &#39;application/octet-stream&#39;,
             },
             data=content,
         )
@@ -185,7 +185,7 @@ class Container(Entity, abc.ABC):
                 &#39;force&#39;: json.dumps(force),
             },
             headers={
-                &#39;Content-Type&#39;: content_type,
+                &#39;Content-Type&#39;: content_type if content_type else &#39;application/octet-stream&#39;,
             },
             data=content,
         )
@@ -329,7 +329,7 @@ class Container(Entity, abc.ABC):
             &#39;force&#39;: json.dumps(force),
         },
         headers={
-            &#39;Content-Type&#39;: content_type,
+            &#39;Content-Type&#39;: content_type if content_type else &#39;application/octet-stream&#39;,
         },
         data=content,
     )
