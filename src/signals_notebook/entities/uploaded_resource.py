@@ -36,7 +36,6 @@ class UploadedResource(ContentfulEntity):
         return container.add_child(
             name=name,
             content=content.encode('utf-8'),
-            content_type='',
             force=force,
         )
 

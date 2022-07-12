@@ -21,7 +21,7 @@ class Container(Entity, abc.ABC):
         self,
         name: str,
         content: bytes,
-        content_type: str,
+        content_type: str = None,
         force: bool = True,
     ) -> Entity:
         """Upload a file to an entity as a child.
@@ -37,8 +37,12 @@ class Container(Entity, abc.ABC):
         """
         api = SignalsNotebookApi.get_default_api()
 
-        extension = mimetypes.guess_extension(content_type)
-        file_name = f'{name}{extension}'
+        if content_type:
+            extension = mimetypes.guess_extension(content_type)
+            file_name = f'{name}{extension}'
+        else:
+            content_type = mimetypes.guess_type(name)[0]
+            file_name = name
 
         response = api.call(
             method='POST',

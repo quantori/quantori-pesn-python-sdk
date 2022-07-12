@@ -12,6 +12,7 @@ from signals_notebook.entities import (
     PowerPoint,
     Spotfire,
     Text,
+    UploadedResource,
     Word,
 )
 
@@ -111,3 +112,10 @@ class SpotfireFactory(EntityFactory):
         model = Spotfire
 
     type = EntityType.SPOTFIRE
+
+
+class UploadedResourceFactory(EntityFactory):
+    class Meta:
+        model = UploadedResource
+
+    type = EntityType.UPLOADED_RESOURCE
