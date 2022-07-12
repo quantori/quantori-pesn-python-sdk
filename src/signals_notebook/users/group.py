@@ -13,16 +13,6 @@ from signals_notebook.users.user import User
 log = logging.getLogger(__name__)
 
 
-class GroupRequestBody(BaseModel):
-    is_system: bool = Field(alias='isSystem')
-    name: str
-    description: str
-
-    class Config:
-        validate_assignment = True
-        allow_population_by_field_name = True
-
-
 class GroupMember(BaseModel):
     user_id: str = Field(alias='userId')
     user_name: str = Field(alias='userName')
@@ -90,7 +80,7 @@ class Group(BaseModel):
         return cast(ResponseData, result.data).body
 
     @classmethod
-    def create(cls, request: GroupRequestBody) -> 'Group':
+    def create(cls, is_system: bool, name: str, description: str) -> 'Group':
         """Create new Group
 
         Returns:
@@ -102,11 +92,7 @@ class Group(BaseModel):
         response = api.call(
             method='POST',
             path=(cls._get_endpoint(),),
-            json={
-                'data': {
-                    'attributes': request.dict(by_alias=True),
-                }
-            },
+            json={'data': {'attributes': {'name': name, 'description': description, 'isSystem': is_system}}},
         )
         log.debug('Group: %s was created.', cls.__name__)
 
@@ -190,9 +176,7 @@ class Group(BaseModel):
             },
             json={
                 'data': {
-                    'attributes': {
-                        'userId': user.id
-                    },
+                    'attributes': {'userId': user.id},
                 }
             },
         )

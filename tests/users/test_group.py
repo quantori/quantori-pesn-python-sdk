@@ -2,7 +2,7 @@ import json
 
 import arrow
 
-from signals_notebook.users.group import Group, GroupMember, GroupRequestBody
+from signals_notebook.users.group import Group, GroupMember
 
 
 def test_get_list(api_mock):
@@ -110,21 +110,16 @@ def test_create(api_mock):
             },
         },
     }
-    new_user_body = GroupRequestBody(
-        is_system=True,
-        name='name',
-        description='description',
-    )
     api_mock.call.return_value.json.return_value = response
 
-    result = Group.create(request=new_user_body)
+    result = Group.create(is_system=True, name='name', description='description')
 
     api_mock.call.assert_called_once_with(
         method='POST',
         path=('groups',),
         json={
             'data': {
-                'attributes': new_user_body.dict(by_alias=True),
+                'attributes': {'name': 'name', 'description': 'description', 'isSystem': True},
             }
         },
     )
