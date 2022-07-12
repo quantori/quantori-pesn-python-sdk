@@ -36,27 +36,9 @@ from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
+from signals_notebook.users.profile import Role
 
 log = logging.getLogger(__name__)
-
-
-class UserRoleBody(BaseModel):
-    id: str
-    name: str
-
-
-class UserCreationBody(BaseModel):
-    alias: str
-    country: str
-    email: str = Field(alias=&#39;emailAddress&#39;, allow_mutation=False)
-    first_name: str = Field(alias=&#39;firstName&#39;)
-    last_name: str = Field(alias=&#39;lastName&#39;)
-    organization: str = Field(alias=&#39;organization&#39;)
-    roles: Optional[list[UserRoleBody]]
-
-    class Config:
-        validate_assignment = True
-        allow_population_by_field_name = True
 
 
 class User(BaseModel):
@@ -85,7 +67,6 @@ class User(BaseModel):
 
     @property
     def roles(self):
-        from signals_notebook.users.profile import Role
         return [Role.get(i[&#39;id&#39;]) for i in self._relationships[&#39;roles&#39;][&#39;data&#39;]]
 
     @classmethod
@@ -93,7 +74,16 @@ class User(BaseModel):
         return &#39;users&#39;
 
     @classmethod
-    def create(cls, request: UserCreationBody) -&gt; &#39;User&#39;:
+    def create(
+        cls,
+        alias: str,
+        country: str,
+        email: str,
+        first_name: str,
+        last_name: str,
+        organization: str,
+        roles: Optional[list[Role]],
+    ) -&gt; &#39;User&#39;:
         &#34;&#34;&#34;Create new User
 
         Returns:
@@ -106,7 +96,15 @@ class User(BaseModel):
             path=(cls._get_endpoint(),),
             json={
                 &#39;data&#39;: {
-                    &#39;attributes&#39;: request.dict(by_alias=True, exclude_none=True),
+                    &#39;attributes&#39;: {
+                        &#39;alias&#39;: alias,
+                        &#39;country&#39;: country,
+                        &#39;emailAddress&#39;: email,
+                        &#39;firstName&#39;: first_name,
+                        &#39;lastName&#39;: last_name,
+                        &#39;organization&#39;: organization,
+                        &#39;roles&#39;: [role.dict(include={&#39;id&#39;, &#39;name&#39;}) for role in roles] if roles else None,
+                    },
                 }
             },
         )
@@ -121,7 +119,7 @@ class User(BaseModel):
         Returns:
 
         &#34;&#34;&#34;
-        from signals_notebook.users import UserStore
+        from signals_notebook.users.user_store import UserStore
 
         UserStore.refresh(self)
 
@@ -193,10 +191,10 @@ class User(BaseModel):
 
     @property
     def groups(self):
-        return self.get_system_groups()
-
-    def get_system_groups(self):
         from signals_notebook.users.group import GroupResponse
+
+        if self._groups:
+            return self._groups
 
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
@@ -292,7 +290,6 @@ class UserResponse(Response[User]):
 
     @property
     def roles(self):
-        from signals_notebook.users.profile import Role
         return [Role.get(i[&#39;id&#39;]) for i in self._relationships[&#39;roles&#39;][&#39;data&#39;]]
 
     @classmethod
@@ -300,7 +297,16 @@ class UserResponse(Response[User]):
         return &#39;users&#39;
 
     @classmethod
-    def create(cls, request: UserCreationBody) -&gt; &#39;User&#39;:
+    def create(
+        cls,
+        alias: str,
+        country: str,
+        email: str,
+        first_name: str,
+        last_name: str,
+        organization: str,
+        roles: Optional[list[Role]],
+    ) -&gt; &#39;User&#39;:
         &#34;&#34;&#34;Create new User
 
         Returns:
@@ -313,7 +319,15 @@ class UserResponse(Response[User]):
             path=(cls._get_endpoint(),),
             json={
                 &#39;data&#39;: {
-                    &#39;attributes&#39;: request.dict(by_alias=True, exclude_none=True),
+                    &#39;attributes&#39;: {
+                        &#39;alias&#39;: alias,
+                        &#39;country&#39;: country,
+                        &#39;emailAddress&#39;: email,
+                        &#39;firstName&#39;: first_name,
+                        &#39;lastName&#39;: last_name,
+                        &#39;organization&#39;: organization,
+                        &#39;roles&#39;: [role.dict(include={&#39;id&#39;, &#39;name&#39;}) for role in roles] if roles else None,
+                    },
                 }
             },
         )
@@ -328,7 +342,7 @@ class UserResponse(Response[User]):
         Returns:
 
         &#34;&#34;&#34;
-        from signals_notebook.users import UserStore
+        from signals_notebook.users.user_store import UserStore
 
         UserStore.refresh(self)
 
@@ -400,10 +414,10 @@ class UserResponse(Response[User]):
 
     @property
     def groups(self):
-        return self.get_system_groups()
-
-    def get_system_groups(self):
         from signals_notebook.users.group import GroupResponse
+
+        if self._groups:
+            return self._groups
 
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
@@ -472,7 +486,7 @@ class UserResponse(Response[User]):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.users.user.User.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>request: <a title="signals_notebook.users.user.UserCreationBody" href="#signals_notebook.users.user.UserCreationBody">UserCreationBody</a>) ‑> <a title="signals_notebook.users.user.User" href="#signals_notebook.users.user.User">User</a></span>
+<span>def <span class="ident">create</span></span>(<span>alias: str, country: str, email: str, first_name: str, last_name: str, organization: str, roles: Optional[list]) ‑> <a title="signals_notebook.users.user.User" href="#signals_notebook.users.user.User">User</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create new User</p>
@@ -483,7 +497,16 @@ class UserResponse(Response[User]):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def create(cls, request: UserCreationBody) -&gt; &#39;User&#39;:
+def create(
+    cls,
+    alias: str,
+    country: str,
+    email: str,
+    first_name: str,
+    last_name: str,
+    organization: str,
+    roles: Optional[list[Role]],
+) -&gt; &#39;User&#39;:
     &#34;&#34;&#34;Create new User
 
     Returns:
@@ -496,7 +519,15 @@ def create(cls, request: UserCreationBody) -&gt; &#39;User&#39;:
         path=(cls._get_endpoint(),),
         json={
             &#39;data&#39;: {
-                &#39;attributes&#39;: request.dict(by_alias=True, exclude_none=True),
+                &#39;attributes&#39;: {
+                    &#39;alias&#39;: alias,
+                    &#39;country&#39;: country,
+                    &#39;emailAddress&#39;: email,
+                    &#39;firstName&#39;: first_name,
+                    &#39;lastName&#39;: last_name,
+                    &#39;organization&#39;: organization,
+                    &#39;roles&#39;: [role.dict(include={&#39;id&#39;, &#39;name&#39;}) for role in roles] if roles else None,
+                },
             }
         },
     )
@@ -532,7 +563,18 @@ def set_relationships(cls, value: dict):
 </summary>
 <pre><code class="python">@property
 def groups(self):
-    return self.get_system_groups()</code></pre>
+    from signals_notebook.users.group import GroupResponse
+
+    if self._groups:
+        return self._groups
+
+    api = SignalsNotebookApi.get_default_api()
+    response = api.call(
+        method=&#39;GET&#39;,
+        path=(self._get_endpoint(), self.id, &#39;systemGroups&#39;),
+    )
+    result = GroupResponse(**response.json())
+    return [cast(ResponseData, item).body for item in result.data]</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.users.user.User.picture"><code class="name">var <span class="ident">picture</span> : Optional[<a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a>]</code></dt>
@@ -574,7 +616,6 @@ def picture(self) -&gt; Optional[File]:
 </summary>
 <pre><code class="python">@property
 def roles(self):
-    from signals_notebook.users.profile import Role
     return [Role.get(i[&#39;id&#39;]) for i in self._relationships[&#39;roles&#39;][&#39;data&#39;]]</code></pre>
 </details>
 </dd>
@@ -607,27 +648,6 @@ def roles(self):
     log.debug(&#39;User: %s was disabled successfully&#39;, self.id)</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.users.user.User.get_system_groups"><code class="name flex">
-<span>def <span class="ident">get_system_groups</span></span>(<span>self)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def get_system_groups(self):
-    from signals_notebook.users.group import GroupResponse
-
-    api = SignalsNotebookApi.get_default_api()
-    response = api.call(
-        method=&#39;GET&#39;,
-        path=(self._get_endpoint(), self.id, &#39;systemGroups&#39;),
-    )
-    result = GroupResponse(**response.json())
-    return [cast(ResponseData, item).body for item in result.data]</code></pre>
-</details>
-</dd>
 <dt id="signals_notebook.users.user.User.refresh"><code class="name flex">
 <span>def <span class="ident">refresh</span></span>(<span>self) ‑> None</span>
 </code></dt>
@@ -644,7 +664,7 @@ def roles(self):
     Returns:
 
     &#34;&#34;&#34;
-    from signals_notebook.users import UserStore
+    from signals_notebook.users.user_store import UserStore
 
     UserStore.refresh(self)</code></pre>
 </details>
@@ -691,71 +711,6 @@ def roles(self):
 </dd>
 </dl>
 </dd>
-<dt id="signals_notebook.users.user.UserCreationBody"><code class="flex name class">
-<span>class <span class="ident">UserCreationBody</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class UserCreationBody(BaseModel):
-    alias: str
-    country: str
-    email: str = Field(alias=&#39;emailAddress&#39;, allow_mutation=False)
-    first_name: str = Field(alias=&#39;firstName&#39;)
-    last_name: str = Field(alias=&#39;lastName&#39;)
-    organization: str = Field(alias=&#39;organization&#39;)
-    roles: Optional[list[UserRoleBody]]
-
-    class Config:
-        validate_assignment = True
-        allow_population_by_field_name = True</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.users.user.UserCreationBody.Config"><code class="name">var <span class="ident">Config</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.UserCreationBody.alias"><code class="name">var <span class="ident">alias</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.UserCreationBody.country"><code class="name">var <span class="ident">country</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.UserCreationBody.email"><code class="name">var <span class="ident">email</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.UserCreationBody.first_name"><code class="name">var <span class="ident">first_name</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.UserCreationBody.last_name"><code class="name">var <span class="ident">last_name</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.UserCreationBody.organization"><code class="name">var <span class="ident">organization</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.UserCreationBody.roles"><code class="name">var <span class="ident">roles</span> : Optional[list]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
 <dt id="signals_notebook.users.user.UserResponse"><code class="flex name class">
 <span>class <span class="ident">UserResponse</span></span>
 <span>(</span><span>**kwargs)</span>
@@ -786,38 +741,6 @@ def roles(self):
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.users.user.UserResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.users.user.UserRoleBody"><code class="flex name class">
-<span>class <span class="ident">UserRoleBody</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class UserRoleBody(BaseModel):
-    id: str
-    name: str</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.users.user.UserRoleBody.id"><code class="name">var <span class="ident">id</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.UserRoleBody.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -858,7 +781,6 @@ def roles(self):
 <li><code><a title="signals_notebook.users.user.User.delete" href="#signals_notebook.users.user.User.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.email" href="#signals_notebook.users.user.User.email">email</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.first_name" href="#signals_notebook.users.user.User.first_name">first_name</a></code></li>
-<li><code><a title="signals_notebook.users.user.User.get_system_groups" href="#signals_notebook.users.user.User.get_system_groups">get_system_groups</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.groups" href="#signals_notebook.users.user.User.groups">groups</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.id" href="#signals_notebook.users.user.User.id">id</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.is_enabled" href="#signals_notebook.users.user.User.is_enabled">is_enabled</a></code></li>
@@ -874,30 +796,10 @@ def roles(self):
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.users.user.UserCreationBody" href="#signals_notebook.users.user.UserCreationBody">UserCreationBody</a></code></h4>
-<ul class="two-column">
-<li><code><a title="signals_notebook.users.user.UserCreationBody.Config" href="#signals_notebook.users.user.UserCreationBody.Config">Config</a></code></li>
-<li><code><a title="signals_notebook.users.user.UserCreationBody.alias" href="#signals_notebook.users.user.UserCreationBody.alias">alias</a></code></li>
-<li><code><a title="signals_notebook.users.user.UserCreationBody.country" href="#signals_notebook.users.user.UserCreationBody.country">country</a></code></li>
-<li><code><a title="signals_notebook.users.user.UserCreationBody.email" href="#signals_notebook.users.user.UserCreationBody.email">email</a></code></li>
-<li><code><a title="signals_notebook.users.user.UserCreationBody.first_name" href="#signals_notebook.users.user.UserCreationBody.first_name">first_name</a></code></li>
-<li><code><a title="signals_notebook.users.user.UserCreationBody.last_name" href="#signals_notebook.users.user.UserCreationBody.last_name">last_name</a></code></li>
-<li><code><a title="signals_notebook.users.user.UserCreationBody.organization" href="#signals_notebook.users.user.UserCreationBody.organization">organization</a></code></li>
-<li><code><a title="signals_notebook.users.user.UserCreationBody.roles" href="#signals_notebook.users.user.UserCreationBody.roles">roles</a></code></li>
-</ul>
-</li>
-<li>
 <h4><code><a title="signals_notebook.users.user.UserResponse" href="#signals_notebook.users.user.UserResponse">UserResponse</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.users.user.UserResponse.data" href="#signals_notebook.users.user.UserResponse.data">data</a></code></li>
 <li><code><a title="signals_notebook.users.user.UserResponse.links" href="#signals_notebook.users.user.UserResponse.links">links</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="signals_notebook.users.user.UserRoleBody" href="#signals_notebook.users.user.UserRoleBody">UserRoleBody</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.users.user.UserRoleBody.id" href="#signals_notebook.users.user.UserRoleBody.id">id</a></code></li>
-<li><code><a title="signals_notebook.users.user.UserRoleBody.name" href="#signals_notebook.users.user.UserRoleBody.name">name</a></code></li>
 </ul>
 </li>
 </ul>

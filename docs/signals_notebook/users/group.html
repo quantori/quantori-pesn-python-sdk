@@ -41,21 +41,15 @@ from signals_notebook.users.user import User
 log = logging.getLogger(__name__)
 
 
-class GroupRequestBody(BaseModel):
-    is_system: bool = Field(alias=&#39;isSystem&#39;)
-    name: str
-    description: str
-
-    class Config:
-        validate_assignment = True
-        allow_population_by_field_name = True
-
-
 class GroupMember(BaseModel):
     user_id: str = Field(alias=&#39;userId&#39;)
     user_name: str = Field(alias=&#39;userName&#39;)
     first_name: str = Field(alias=&#39;firstName&#39;)
     last_name: str = Field(alias=&#39;lastName&#39;)
+
+
+class GroupMemberResponse(Response[GroupMember]):
+    pass
 
 
 class Group(BaseModel):
@@ -97,7 +91,7 @@ class Group(BaseModel):
                 path=result.links.next,
             )
 
-            result = GroupResponse(**response.json())  # type: ignore
+            result = GroupResponse(**response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
 
     @classmethod
@@ -118,7 +112,7 @@ class Group(BaseModel):
         return cast(ResponseData, result.data).body
 
     @classmethod
-    def create(cls, request: GroupRequestBody) -&gt; &#39;Group&#39;:
+    def create(cls, is_system: bool, name: str, description: str) -&gt; &#39;Group&#39;:
         &#34;&#34;&#34;Create new Group
 
         Returns:
@@ -130,11 +124,7 @@ class Group(BaseModel):
         response = api.call(
             method=&#39;POST&#39;,
             path=(cls._get_endpoint(),),
-            json={
-                &#39;data&#39;: {
-                    &#39;attributes&#39;: request.dict(by_alias=True),
-                }
-            },
+            json={&#39;data&#39;: {&#39;attributes&#39;: {&#39;name&#39;: name, &#39;description&#39;: description, &#39;isSystem&#39;: is_system}}},
         )
         log.debug(&#39;Group: %s was created.&#39;, cls.__name__)
 
@@ -218,9 +208,7 @@ class Group(BaseModel):
             },
             json={
                 &#39;data&#39;: {
-                    &#39;attributes&#39;: {
-                        &#39;userId&#39;: user.id
-                    },
+                    &#39;attributes&#39;: {&#39;userId&#39;: user.id},
                 }
             },
         )
@@ -246,10 +234,6 @@ class Group(BaseModel):
 
 
 class GroupResponse(Response[Group]):
-    pass
-
-
-class GroupMemberResponse(Response[GroupMember]):
     pass</code></pre>
 </details>
 </section>
@@ -312,7 +296,7 @@ class GroupMemberResponse(Response[GroupMember]):
                 path=result.links.next,
             )
 
-            result = GroupResponse(**response.json())  # type: ignore
+            result = GroupResponse(**response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
 
     @classmethod
@@ -333,7 +317,7 @@ class GroupMemberResponse(Response[GroupMember]):
         return cast(ResponseData, result.data).body
 
     @classmethod
-    def create(cls, request: GroupRequestBody) -&gt; &#39;Group&#39;:
+    def create(cls, is_system: bool, name: str, description: str) -&gt; &#39;Group&#39;:
         &#34;&#34;&#34;Create new Group
 
         Returns:
@@ -345,11 +329,7 @@ class GroupMemberResponse(Response[GroupMember]):
         response = api.call(
             method=&#39;POST&#39;,
             path=(cls._get_endpoint(),),
-            json={
-                &#39;data&#39;: {
-                    &#39;attributes&#39;: request.dict(by_alias=True),
-                }
-            },
+            json={&#39;data&#39;: {&#39;attributes&#39;: {&#39;name&#39;: name, &#39;description&#39;: description, &#39;isSystem&#39;: is_system}}},
         )
         log.debug(&#39;Group: %s was created.&#39;, cls.__name__)
 
@@ -433,9 +413,7 @@ class GroupMemberResponse(Response[GroupMember]):
             },
             json={
                 &#39;data&#39;: {
-                    &#39;attributes&#39;: {
-                        &#39;userId&#39;: user.id
-                    },
+                    &#39;attributes&#39;: {&#39;userId&#39;: user.id},
                 }
             },
         )
@@ -506,7 +484,7 @@ class GroupMemberResponse(Response[GroupMember]):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.users.group.Group.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>request: <a title="signals_notebook.users.group.GroupRequestBody" href="#signals_notebook.users.group.GroupRequestBody">GroupRequestBody</a>) ‑> <a title="signals_notebook.users.group.Group" href="#signals_notebook.users.group.Group">Group</a></span>
+<span>def <span class="ident">create</span></span>(<span>is_system: bool, name: str, description: str) ‑> <a title="signals_notebook.users.group.Group" href="#signals_notebook.users.group.Group">Group</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create new Group</p>
@@ -517,7 +495,7 @@ class GroupMemberResponse(Response[GroupMember]):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def create(cls, request: GroupRequestBody) -&gt; &#39;Group&#39;:
+def create(cls, is_system: bool, name: str, description: str) -&gt; &#39;Group&#39;:
     &#34;&#34;&#34;Create new Group
 
     Returns:
@@ -529,11 +507,7 @@ def create(cls, request: GroupRequestBody) -&gt; &#39;Group&#39;:
     response = api.call(
         method=&#39;POST&#39;,
         path=(cls._get_endpoint(),),
-        json={
-            &#39;data&#39;: {
-                &#39;attributes&#39;: request.dict(by_alias=True),
-            }
-        },
+        json={&#39;data&#39;: {&#39;attributes&#39;: {&#39;name&#39;: name, &#39;description&#39;: description, &#39;isSystem&#39;: is_system}}},
     )
     log.debug(&#39;Group: %s was created.&#39;, cls.__name__)
 
@@ -607,7 +581,7 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
             path=result.links.next,
         )
 
-        result = GroupResponse(**response.json())  # type: ignore
+        result = GroupResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]</code></pre>
 </details>
 </dd>
@@ -652,9 +626,7 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
         },
         json={
             &#39;data&#39;: {
-                &#39;attributes&#39;: {
-                    &#39;userId&#39;: user.id
-                },
+                &#39;attributes&#39;: {&#39;userId&#39;: user.id},
             }
         },
     )
@@ -865,51 +837,6 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 </dd>
 </dl>
 </dd>
-<dt id="signals_notebook.users.group.GroupRequestBody"><code class="flex name class">
-<span>class <span class="ident">GroupRequestBody</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class GroupRequestBody(BaseModel):
-    is_system: bool = Field(alias=&#39;isSystem&#39;)
-    name: str
-    description: str
-
-    class Config:
-        validate_assignment = True
-        allow_population_by_field_name = True</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.users.group.GroupRequestBody.Config"><code class="name">var <span class="ident">Config</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.group.GroupRequestBody.description"><code class="name">var <span class="ident">description</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.group.GroupRequestBody.is_system"><code class="name">var <span class="ident">is_system</span> : bool</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.group.GroupRequestBody.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
 <dt id="signals_notebook.users.group.GroupResponse"><code class="flex name class">
 <span>class <span class="ident">GroupResponse</span></span>
 <span>(</span><span>**kwargs)</span>
@@ -1067,15 +994,6 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 <ul class="">
 <li><code><a title="signals_notebook.users.group.GroupMemberResponse.data" href="#signals_notebook.users.group.GroupMemberResponse.data">data</a></code></li>
 <li><code><a title="signals_notebook.users.group.GroupMemberResponse.links" href="#signals_notebook.users.group.GroupMemberResponse.links">links</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="signals_notebook.users.group.GroupRequestBody" href="#signals_notebook.users.group.GroupRequestBody">GroupRequestBody</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.users.group.GroupRequestBody.Config" href="#signals_notebook.users.group.GroupRequestBody.Config">Config</a></code></li>
-<li><code><a title="signals_notebook.users.group.GroupRequestBody.description" href="#signals_notebook.users.group.GroupRequestBody.description">description</a></code></li>
-<li><code><a title="signals_notebook.users.group.GroupRequestBody.is_system" href="#signals_notebook.users.group.GroupRequestBody.is_system">is_system</a></code></li>
-<li><code><a title="signals_notebook.users.group.GroupRequestBody.name" href="#signals_notebook.users.group.GroupRequestBody.name">name</a></code></li>
 </ul>
 </li>
 <li>
