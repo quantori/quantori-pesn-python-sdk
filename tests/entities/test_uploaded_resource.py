@@ -12,7 +12,7 @@ from signals_notebook.entities import UploadedResource
         (None, True, 'Test.zip', None, True),
         ('111', False, 'Test', 'application/zip', True),
         (None, True, 'Test', 'application/zip', True),
-        (None, True, 'Test', None, False),
+        (None, True, 'Test', 'NOT VALID CONTENT_TYPE', False),
     ],
 )
 def test_create(api_mock, experiment_factory, eid_factory, digest, force, file_name, content_type, is_normal):
