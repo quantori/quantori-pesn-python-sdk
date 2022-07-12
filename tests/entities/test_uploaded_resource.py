@@ -50,7 +50,7 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force, file_n
             'force': 'true' if force else 'false',
         },
         headers={
-            'Content-Type': 'application/x-zip-compressed' if content_type is None else content_type,
+            'Content-Type': 'application/zip' if content_type is None else content_type,
         },
         data=content.encode('utf-8'),
     )
