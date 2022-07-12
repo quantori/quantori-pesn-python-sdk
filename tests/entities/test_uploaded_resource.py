@@ -6,15 +6,16 @@ from signals_notebook.entities import UploadedResource
 
 
 @pytest.mark.parametrize(
-    'digest, force, file_name, content_type',
+    'digest, force, file_name, content_type, is_normal',
     [
-        ('111', False, 'Test.zip', None),
-        (None, True, 'Test.zip', None),
-        ('111', False, 'Test', 'application/zip'),
-        (None, True, 'Test', 'application/zip'),
+        ('111', False, 'Test.zip', None, True),
+        (None, True, 'Test.zip', None, True),
+        ('111', False, 'Test', 'application/zip', True),
+        (None, True, 'Test', 'application/zip', True),
+        (None, True, 'Test', None, False),
     ],
 )
-def test_create(api_mock, experiment_factory, eid_factory, digest, force, file_name, content_type):
+def test_create(api_mock, experiment_factory, eid_factory, digest, force, file_name, content_type, is_normal):
     container = experiment_factory(digest=digest)
     eid = eid_factory(type=EntityType.UPLOADED_RESOURCE)
     content = 'Some text'
@@ -41,6 +42,7 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force, file_n
     )
 
     path_file_name = file_name if content_type is None else f'{file_name}.zip'
+    request_content_type = 'application/zip' if content_type is None else content_type
 
     api_mock.call.assert_called_once_with(
         method='POST',
@@ -50,7 +52,7 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force, file_n
             'force': 'true' if force else 'false',
         },
         headers={
-            'Content-Type': 'application/zip' if content_type is None else content_type,
+            'Content-Type': request_content_type if is_normal else 'application/octet-stream',
         },
         data=content.encode('utf-8'),
     )
