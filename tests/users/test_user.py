@@ -2,10 +2,11 @@ import arrow
 
 from signals_notebook.common_types import File, ObjectType
 from signals_notebook.users.group import Group
-from signals_notebook.users.user import User, UserCreationBody
+from signals_notebook.users.user import User
 
 
-def test_create(api_mock):
+def test_create(api_mock, role_factory):
+    role = role_factory()
     response = {
         'links': {'self': 'https://snb.perkinelmer.net/api/rest/v1.0/users/100'},
         'data': {
@@ -26,24 +27,33 @@ def test_create(api_mock):
             },
         },
     }
-    new_user_body = UserCreationBody(
+
+    api_mock.call.return_value.json.return_value = response
+
+    result = User.create(
         alias='alias',
         country='USA',
         email='unique2@quantori.com',
         first_name='first_name',
         last_name='last_name',
         organization='orga',
+        roles=[role],
     )
-    api_mock.call.return_value.json.return_value = response
-
-    result = User.create(request=new_user_body)
 
     api_mock.call.assert_called_once_with(
         method='POST',
         path=('users',),
         json={
             'data': {
-                'attributes': new_user_body.dict(by_alias=True, exclude_none=True),
+                'attributes': {
+                    'alias': 'alias',
+                    'country': 'USA',
+                    'emailAddress': 'unique2@quantori.com',
+                    'firstName': 'first_name',
+                    'lastName': 'last_name',
+                    'organization': 'orga',
+                    'roles': [{'id': role.id, 'name': role.name}],
+                },
             }
         },
     )
