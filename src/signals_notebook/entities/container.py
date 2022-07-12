@@ -52,7 +52,7 @@ class Container(Entity, abc.ABC):
                 'force': json.dumps(force),
             },
             headers={
-                'Content-Type': content_type if content_type else 'application/octet-stream',
+                'Content-Type': content_type or 'application/octet-stream',
             },
             data=content,
         )
