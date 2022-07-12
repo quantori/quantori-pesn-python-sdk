@@ -1,3 +1,5 @@
+import mimetypes
+
 import arrow
 
 from signals_notebook.common_types import File, ObjectType
@@ -109,7 +111,8 @@ def test_picture(api_mock, user_factory):
     content = b'image'
 
     user = user_factory()
-    file_name = f'{user.first_name}_{user.last_name}.{content_type.split("/")[-1]}'
+    extension = mimetypes.guess_extension(content_type)
+    file_name = f'{user.first_name}_{user.last_name}{extension}'
 
     api_mock.call.return_value.content = content
     api_mock.call.return_value.headers = {

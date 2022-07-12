@@ -8,16 +8,11 @@ from tests.entities.factories import (
     EntityFactory,
     ExcelFactory,
     ExperimentFactory,
-    GroupFactory,
     ImageFactory,
-    LicenceFactory,
     NotebookFactory,
     PowerPointFactory,
-    ProfileFactory,
-    RoleFactory,
     SpotfireFactory,
     TextFactory,
-    UserFactory,
     WordFactory,
 )
 from tests.entities.samples.factories import (
@@ -50,11 +45,6 @@ register(SpotfireFactory)
 register(TodoListFactory)
 register(TaskFactory)
 register(TaskCellFactory)
-register(UserFactory)
-register(RoleFactory)
-register(LicenceFactory)
-register(ProfileFactory)
-register(GroupFactory)
 
 
 @pytest.fixture()
