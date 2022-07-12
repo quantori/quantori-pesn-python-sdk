@@ -27,7 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import logging
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, Optional
 
 from pydantic import Field
 
@@ -48,22 +48,32 @@ class UploadedResource(ContentfulEntity):
         return EntityType.UPLOADED_RESOURCE
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+    def create(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content: str = &#39;&#39;,
+        content_type: Optional[str] = None,
+        force: bool = True
+    ) -&gt; Entity:
         &#34;&#34;&#34;Create UploadedResource Entity
 
         Args:
             container: Container where create new UploadedResource
             name: file name
             content: UploadedResource content
+            content_type: UploadedResource content type
             force: Force to post attachment
 
         Returns:
-            PowerPoint
+            UploadedResource
         &#34;&#34;&#34;
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
             content=content.encode(&#39;utf-8&#39;),
+            content_type=content_type,
             force=force,
         )
 
@@ -105,22 +115,32 @@ class UploadedResource(ContentfulEntity):
         return EntityType.UPLOADED_RESOURCE
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+    def create(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content: str = &#39;&#39;,
+        content_type: Optional[str] = None,
+        force: bool = True
+    ) -&gt; Entity:
         &#34;&#34;&#34;Create UploadedResource Entity
 
         Args:
             container: Container where create new UploadedResource
             name: file name
             content: UploadedResource content
+            content_type: UploadedResource content type
             force: Force to post attachment
 
         Returns:
-            PowerPoint
+            UploadedResource
         &#34;&#34;&#34;
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
             content=content.encode(&#39;utf-8&#39;),
+            content_type=content_type,
             force=force,
         )
 
@@ -150,7 +170,7 @@ class UploadedResource(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.uploaded_resource.UploadedResource.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: str = '', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: str = '', content_type: Optional[str] = None, force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create UploadedResource Entity</p>
@@ -162,32 +182,44 @@ class UploadedResource(ContentfulEntity):
 <dd>file name</dd>
 <dt><strong><code>content</code></strong></dt>
 <dd>UploadedResource content</dd>
+<dt><strong><code>content_type</code></strong></dt>
+<dd>UploadedResource content type</dd>
 <dt><strong><code>force</code></strong></dt>
 <dd>Force to post attachment</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>PowerPoint</p></div>
+<p>UploadedResource</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+def create(
+    cls,
+    *,
+    container: Container,
+    name: str,
+    content: str = &#39;&#39;,
+    content_type: Optional[str] = None,
+    force: bool = True
+) -&gt; Entity:
     &#34;&#34;&#34;Create UploadedResource Entity
 
     Args:
         container: Container where create new UploadedResource
         name: file name
         content: UploadedResource content
+        content_type: UploadedResource content type
         force: Force to post attachment
 
     Returns:
-        PowerPoint
+        UploadedResource
     &#34;&#34;&#34;
     log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
     return container.add_child(
         name=name,
         content=content.encode(&#39;utf-8&#39;),
+        content_type=content_type,
         force=force,
     )</code></pre>
 </details>
