@@ -292,7 +292,7 @@ class ResponseData(GenericModel, Generic[EntityClass]):
 
     @property
     def body_with_relationships(self):
-        from signals_notebook.users import User
+        from signals_notebook.users.user import User
 
         if isinstance(self.body, User):
             self.body.set_relationships(self.relationships)

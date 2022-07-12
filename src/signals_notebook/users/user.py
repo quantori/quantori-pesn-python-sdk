@@ -8,27 +8,9 @@ from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
+from signals_notebook.users.profile import Role
 
 log = logging.getLogger(__name__)
-
-
-class UserRoleBody(BaseModel):
-    id: str
-    name: str
-
-
-class UserCreationBody(BaseModel):
-    alias: str
-    country: str
-    email: str = Field(alias='emailAddress', allow_mutation=False)
-    first_name: str = Field(alias='firstName')
-    last_name: str = Field(alias='lastName')
-    organization: str = Field(alias='organization')
-    roles: Optional[list[UserRoleBody]]
-
-    class Config:
-        validate_assignment = True
-        allow_population_by_field_name = True
 
 
 class User(BaseModel):
@@ -57,7 +39,6 @@ class User(BaseModel):
 
     @property
     def roles(self):
-        from signals_notebook.users.profile import Role
         return [Role.get(i['id']) for i in self._relationships['roles']['data']]
 
     @classmethod
@@ -65,7 +46,16 @@ class User(BaseModel):
         return 'users'
 
     @classmethod
-    def create(cls, request: UserCreationBody) -> 'User':
+    def create(
+        cls,
+        alias: str,
+        country: str,
+        email: str,
+        first_name: str,
+        last_name: str,
+        organization: str,
+        roles: Optional[list[Role]],
+    ) -> 'User':
         """Create new User
 
         Returns:
@@ -78,7 +68,15 @@ class User(BaseModel):
             path=(cls._get_endpoint(),),
             json={
                 'data': {
-                    'attributes': request.dict(by_alias=True, exclude_none=True),
+                    'attributes': {
+                        'alias': alias,
+                        'country': country,
+                        'emailAddress': email,
+                        'firstName': first_name,
+                        'lastName': last_name,
+                        'organization': organization,
+                        'roles': [role.dict(include={'id', 'name'}) for role in roles] if roles else None,
+                    },
                 }
             },
         )
@@ -93,7 +91,7 @@ class User(BaseModel):
         Returns:
 
         """
-        from signals_notebook.users import UserStore
+        from signals_notebook.users.user_store import UserStore
 
         UserStore.refresh(self)
 
