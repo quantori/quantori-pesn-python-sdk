@@ -66,6 +66,7 @@ class ObjectType(str, Enum):
     USER = &#39;user&#39;
     PROFILE = &#39;profile&#39;
     GROUP = &#39;group&#39;
+    ROLE = &#39;role&#39;
 
 
 class EntityType(str, Enum):
@@ -307,6 +308,7 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     eid: Union[EID, MID, AttrID, UUID, str] = Field(alias=&#39;id&#39;)
     links: Optional[Links] = None
     body: EntityClass = Field(alias=&#39;attributes&#39;)
+    relationships: Optional[Any] = Field(alias=&#39;relationships&#39;)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get(&#39;attributes&#39;, {})
@@ -315,6 +317,15 @@ class ResponseData(GenericModel, Generic[EntityClass]):
             attributes = {**attributes, **_context}
 
         super().__init__(**{**kwargs, &#39;attributes&#39;: attributes})
+
+    @property
+    def body_with_relationships(self):
+        from signals_notebook.users import User
+
+        if isinstance(self.body, User):
+            self.body.set_relationships(self.relationships)
+
+        return self.body
 
 
 class Response(GenericModel, Generic[EntityClass]):
@@ -1649,7 +1660,8 @@ def type(self) -&gt; MaterialType:
     PROPERTY = &#39;property&#39;
     USER = &#39;user&#39;
     PROFILE = &#39;profile&#39;
-    GROUP = &#39;group&#39;</code></pre>
+    GROUP = &#39;group&#39;
+    ROLE = &#39;role&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1691,6 +1703,10 @@ def type(self) -&gt; MaterialType:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.ObjectType.PROPERTY"><code class="name">var <span class="ident">PROPERTY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.ROLE"><code class="name">var <span class="ident">ROLE</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1747,13 +1763,15 @@ def type(self) -&gt; MaterialType:
 <li><a title="signals_notebook.entities.tables.table.Response[ColumnDefinitions]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[ColumnDefinitions]">Response[ColumnDefinitions]</a></li>
 <li><a title="signals_notebook.entities.tables.table.Response[Row]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[Row]">Response[Row]</a></li>
 <li><a title="signals_notebook.entities.todo_list.task.Response[TaskCell]" href="entities/todo_list/task.html#signals_notebook.entities.todo_list.task.Response[TaskCell]">Response[TaskCell]</a></li>
-<li><a title="signals_notebook.entities.users.profile.Response[Group]" href="entities/users/profile.html#signals_notebook.entities.users.profile.Response[Group]">Response[Group]</a></li>
-<li><a title="signals_notebook.entities.users.profile.Response[Profile]" href="entities/users/profile.html#signals_notebook.entities.users.profile.Response[Profile]">Response[Profile]</a></li>
-<li><a title="signals_notebook.entities.users.user.Response[User]" href="entities/users/user.html#signals_notebook.entities.users.user.Response[User]">Response[User]</a></li>
 <li><a title="signals_notebook.materials.asset.Response[Batch]" href="materials/asset.html#signals_notebook.materials.asset.Response[Batch]">Response[Batch]</a></li>
 <li><a title="signals_notebook.materials.library.Response[Asset]" href="materials/library.html#signals_notebook.materials.library.Response[Asset]">Response[Asset]</a></li>
 <li><a title="signals_notebook.materials.library.Response[_LibraryListData]" href="materials/library.html#signals_notebook.materials.library.Response[_LibraryListData]">Response[_LibraryListData]</a></li>
 <li><a title="signals_notebook.materials.material_store.Response[Union[Library, Asset, Batch]]" href="materials/material_store.html#signals_notebook.materials.material_store.Response[Union[Library, Asset, Batch]]">Response[Union[Library, Asset, Batch]]</a></li>
+<li><a title="signals_notebook.users.group.Response[GroupMember]" href="users/group.html#signals_notebook.users.group.Response[GroupMember]">Response[GroupMember]</a></li>
+<li><a title="signals_notebook.users.group.Response[Group]" href="users/group.html#signals_notebook.users.group.Response[Group]">Response[Group]</a></li>
+<li><a title="signals_notebook.users.profile.Response[Profile]" href="users/profile.html#signals_notebook.users.profile.Response[Profile]">Response[Profile]</a></li>
+<li><a title="signals_notebook.users.profile.Response[Role]" href="users/profile.html#signals_notebook.users.profile.Response[Role]">Response[Role]</a></li>
+<li><a title="signals_notebook.users.user.Response[User]" href="users/user.html#signals_notebook.users.user.Response[User]">Response[User]</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>
@@ -1783,6 +1801,7 @@ def type(self) -&gt; MaterialType:
     eid: Union[EID, MID, AttrID, UUID, str] = Field(alias=&#39;id&#39;)
     links: Optional[Links] = None
     body: EntityClass = Field(alias=&#39;attributes&#39;)
+    relationships: Optional[Any] = Field(alias=&#39;relationships&#39;)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get(&#39;attributes&#39;, {})
@@ -1790,7 +1809,16 @@ def type(self) -&gt; MaterialType:
         if _context:
             attributes = {**attributes, **_context}
 
-        super().__init__(**{**kwargs, &#39;attributes&#39;: attributes})</code></pre>
+        super().__init__(**{**kwargs, &#39;attributes&#39;: attributes})
+
+    @property
+    def body_with_relationships(self):
+        from signals_notebook.users import User
+
+        if isinstance(self.body, User):
+            self.body.set_relationships(self.relationships)
+
+        return self.body</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1806,9 +1834,11 @@ def type(self) -&gt; MaterialType:
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
 <li>pydantic.generics.ResponseData[DataGrids]</li>
+<li>pydantic.generics.ResponseData[GroupMember]</li>
 <li>pydantic.generics.ResponseData[Group]</li>
 <li>pydantic.generics.ResponseData[Profile]</li>
 <li>pydantic.generics.ResponseData[Property]</li>
+<li>pydantic.generics.ResponseData[Role]</li>
 <li>pydantic.generics.ResponseData[Row]</li>
 <li>pydantic.generics.ResponseData[SampleCell]</li>
 <li>pydantic.generics.ResponseData[Sample]</li>
@@ -1831,9 +1861,33 @@ def type(self) -&gt; MaterialType:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.common_types.ResponseData.relationships"><code class="name">var <span class="ident">relationships</span> : Optional[Any]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.ResponseData.type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.common_types.ObjectType" href="#signals_notebook.common_types.ObjectType">ObjectType</a></code></dt>
 <dd>
 <div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="signals_notebook.common_types.ResponseData.body_with_relationships"><code class="name">var <span class="ident">body_with_relationships</span></code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def body_with_relationships(self):
+    from signals_notebook.users import User
+
+    if isinstance(self.body, User):
+        self.body.set_relationships(self.relationships)
+
+    return self.body</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -2027,6 +2081,7 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.ObjectType.MATERIAL" href="#signals_notebook.common_types.ObjectType.MATERIAL">MATERIAL</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROFILE" href="#signals_notebook.common_types.ObjectType.PROFILE">PROFILE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROPERTY" href="#signals_notebook.common_types.ObjectType.PROPERTY">PROPERTY</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.ROLE" href="#signals_notebook.common_types.ObjectType.ROLE">ROLE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.STOICHIOMETRY" href="#signals_notebook.common_types.ObjectType.STOICHIOMETRY">STOICHIOMETRY</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.USER" href="#signals_notebook.common_types.ObjectType.USER">USER</a></code></li>
 </ul>
@@ -2042,8 +2097,10 @@ def type(self) -&gt; MaterialType:
 <h4><code><a title="signals_notebook.common_types.ResponseData" href="#signals_notebook.common_types.ResponseData">ResponseData</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.common_types.ResponseData.body" href="#signals_notebook.common_types.ResponseData.body">body</a></code></li>
+<li><code><a title="signals_notebook.common_types.ResponseData.body_with_relationships" href="#signals_notebook.common_types.ResponseData.body_with_relationships">body_with_relationships</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.eid" href="#signals_notebook.common_types.ResponseData.eid">eid</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.links" href="#signals_notebook.common_types.ResponseData.links">links</a></code></li>
+<li><code><a title="signals_notebook.common_types.ResponseData.relationships" href="#signals_notebook.common_types.ResponseData.relationships">relationships</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.type" href="#signals_notebook.common_types.ResponseData.type">type</a></code></li>
 </ul>
 </li>
