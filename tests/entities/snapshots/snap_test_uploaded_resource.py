@@ -10,8 +10,6 @@ snapshots = Snapshot()
 snapshots['test_get_html 1'] = '''<div style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
     <h2>name</h2>
     
-    
-    <a href="data:application/vnd.openxmlformats-officedocument.presentationml.presentation;base64,U29tZSB0ZXh0" download="name.pptx">DOWNLOAD .PPTX FILE</a>
-    
+    <a href="data:application/zip;base64,U29tZSB0ZXh0" download="name">DOWNLOAD UPLOADED FILE FILE</a>
     
 </div>'''
