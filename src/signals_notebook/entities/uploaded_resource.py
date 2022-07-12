@@ -27,7 +27,7 @@ class UploadedResource(ContentfulEntity):
         name: str,
         content: str = '',
         content_type: Optional[str] = None,
-        force: bool = True
+        force: bool = True,
     ) -> Entity:
         """Create UploadedResource Entity
 
