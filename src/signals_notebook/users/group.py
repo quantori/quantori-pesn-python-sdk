@@ -69,7 +69,7 @@ class Group(BaseModel):
                 path=result.links.next,
             )
 
-            result = GroupResponse(**response.json())  # type: ignore
+            result = GroupResponse(**response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
 
     @classmethod
