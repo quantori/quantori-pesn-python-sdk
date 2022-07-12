@@ -2,7 +2,7 @@ import abc
 import json
 import logging
 import mimetypes
-from typing import cast, Generator, Union
+from typing import cast, Generator, Optional, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
@@ -21,7 +21,7 @@ class Container(Entity, abc.ABC):
         self,
         name: str,
         content: bytes,
-        content_type: str = None,
+        content_type: Optional[str] = None,
         force: bool = True,
     ) -> Entity:
         """Upload a file to an entity as a child.

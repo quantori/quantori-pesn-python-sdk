@@ -1,5 +1,5 @@
 import logging
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, Optional
 
 from pydantic import Field
 
@@ -20,22 +20,32 @@ class UploadedResource(ContentfulEntity):
         return EntityType.UPLOADED_RESOURCE
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: str = '', force: bool = True) -> Entity:
+    def create(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content: str = '',
+        content_type: Optional[str] = None,
+        force: bool = True
+    ) -> Entity:
         """Create UploadedResource Entity
 
         Args:
             container: Container where create new UploadedResource
             name: file name
             content: UploadedResource content
+            content_type: UploadedResource content type
             force: Force to post attachment
 
         Returns:
-            PowerPoint
+            UploadedResource
         """
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
             content=content.encode('utf-8'),
+            content_type=content_type,
             force=force,
         )
 

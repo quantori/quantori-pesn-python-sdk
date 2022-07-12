@@ -5,11 +5,18 @@ from signals_notebook.common_types import EntityType, File, ObjectType
 from signals_notebook.entities import UploadedResource
 
 
-@pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
-def test_create(api_mock, experiment_factory, eid_factory, digest, force):
+@pytest.mark.parametrize(
+    'digest, force, file_name, content_type',
+    [
+        ('111', False, 'Test.zip', None),
+        (None, True, 'Test.zip', None),
+        ('111', False, 'Test', 'application/zip'),
+        (None, True, 'Test', 'application/zip'),
+    ],
+)
+def test_create(api_mock, experiment_factory, eid_factory, digest, force, file_name, content_type):
     container = experiment_factory(digest=digest)
     eid = eid_factory(type=EntityType.UPLOADED_RESOURCE)
-    file_name = 'Test.zip'
     content = 'Some text'
     response = {
         'links': {'self': f'https://example.com/{eid}'},
@@ -29,17 +36,21 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = UploadedResource.create(container=container, name=file_name, content=content, force=force)
+    result = UploadedResource.create(
+        container=container, name=file_name, content=content, content_type=content_type, force=force
+    )
+
+    path_file_name = file_name if content_type is None else f'{file_name}.zip'
 
     api_mock.call.assert_called_once_with(
         method='POST',
-        path=('entities', container.eid, 'children', file_name),
+        path=('entities', container.eid, 'children', path_file_name),
         params={
             'digest': container.digest,
             'force': 'true' if force else 'false',
         },
         headers={
-            'Content-Type': 'application/x-zip-compressed',
+            'Content-Type': 'application/x-zip-compressed' if content_type is None else content_type,
         },
         data=content.encode('utf-8'),
     )
@@ -56,7 +67,7 @@ def test_get_content(uploaded_resource_factory, api_mock):
     uploaded_resource = uploaded_resource_factory()
     file_name = 'Test.zip'
     content = b'Some text'
-    content_type = 'application/x-zip-compressed'
+    content_type = 'application/zip'
 
     api_mock.call.return_value.headers = {
         'content-type': content_type,
@@ -84,7 +95,7 @@ def test_get_html(uploaded_resource_factory, snapshot, api_mock):
     uploaded_resource = uploaded_resource_factory(name='name')
     file_name = 'Test.zip'
     content = b'Some text'
-    content_type = 'application/x-zip-compressed'
+    content_type = 'application/zip'
 
     api_mock.call.return_value.headers = {
         'content-type': content_type,
