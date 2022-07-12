@@ -21,7 +21,11 @@ class UserStore:
             path=('users', user_id),
         )
         result = UserResponse(**response.json())
-        return cast(ResponseData, result.data).body_with_relationships
+
+        user = cast(ResponseData, result.data).body
+        user.set_relationships(result.data.relationships)
+
+        return user
 
     @classmethod
     def get_list(
@@ -59,7 +63,12 @@ class UserStore:
             },
         )
         result = UserResponse(**response.json())
-        yield from [cast(ResponseData, item).body_with_relationships for item in result.data]
+
+        for item in result.data:
+            user = cast(ResponseData, item).body
+            user.set_relationships(item.relationships)
+
+            yield user
 
         while result.links and result.links.next:
             response = api.call(
@@ -68,7 +77,12 @@ class UserStore:
             )
 
             result = UserResponse(**response.json())
-            yield from [cast(ResponseData, item).body_with_relationships for item in result.data]
+
+            for item in result.data:
+                user = cast(ResponseData, item).body
+                user.set_relationships(item.relationships)
+
+                yield user
 
     @classmethod
     def get_current_user(cls) -> Profile:

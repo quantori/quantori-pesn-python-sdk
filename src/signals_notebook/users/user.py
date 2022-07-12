@@ -27,19 +27,22 @@ class User(BaseModel):
     last_login_at: Optional[datetime] = Field(alias='lastLoginAt', allow_mutation=False)
     _picture: Optional[File] = PrivateAttr(default=None)
     _groups = PrivateAttr(default=None)
+    _roles = PrivateAttr(default=None)
     _relationships: dict = PrivateAttr(default=None)
 
     class Config:
         validate_assignment = True
         allow_population_by_field_name = True
 
-    @classmethod
-    def set_relationships(cls, value: dict):
-        cls._relationships = value
+    def set_relationships(self, value: dict):
+        self._relationships = value
 
     @property
     def roles(self):
-        return [Role.get(i['id']) for i in self._relationships['roles']['data']]
+        if self._roles:
+            return self._roles
+        self._roles = [Role.get(i['id']) for i in self._relationships['roles']['data']]
+        return self._roles
 
     @classmethod
     def _get_endpoint(cls) -> str:
