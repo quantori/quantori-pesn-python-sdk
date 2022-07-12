@@ -1,5 +1,6 @@
 import cgi
 import logging
+import mimetypes
 from datetime import datetime
 from typing import cast, Optional
 
@@ -155,8 +156,10 @@ class User(BaseModel):
 
         content_disposition = response.headers.get('content-disposition', '')
         content_type = response.headers.get('content-type', '')
+        extension = mimetypes.guess_extension(content_type)
+
         _, params = cgi.parse_header(content_disposition)
-        file_name = f'{self.first_name}_{self.last_name}.{content_type.split("/")[-1]}'
+        file_name = f'{self.first_name}_{self.last_name}{extension}'
         self._picture = File(name=file_name, content=response.content, content_type=content_type)
         return self._picture
 
