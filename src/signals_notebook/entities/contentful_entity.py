@@ -28,6 +28,7 @@ class ContentfulEntity(Entity, abc.ABC):
                 'format': format,
             },
         )
+        print(response.content)
 
         content_disposition = response.headers.get('content-disposition', '')
         _, params = cgi.parse_header(content_disposition)

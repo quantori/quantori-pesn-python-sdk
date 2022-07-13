@@ -5,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.common_types import ObjectType
-from signals_notebook.entities.plates.cell import Cell
+from signals_notebook.entities.plates.cell import PlateCell
 
 log = logging.getLogger(__name__)
 
@@ -13,8 +13,8 @@ log = logging.getLogger(__name__)
 class PlateRow(BaseModel):
     id: Optional[UUID] = Field(allow_mutation=False, default=None)
     type: Literal[ObjectType.PLATE_ROW] = Field(allow_mutation=False, default=ObjectType.ADT_ROW)
-    cells: List[Cell]
-    _cells_dict: Dict[Union[UUID, str], Cell] = PrivateAttr(default={})
+    cells: List[PlateCell]
+    _cells_dict: Dict[Union[UUID, str], PlateCell] = PrivateAttr(default={})
 
     def __init__(self, **data):
         super().__init__(**data)
@@ -26,7 +26,7 @@ class PlateRow(BaseModel):
     class Config:
         validate_assignment = True
 
-    def __getitem__(self, index: Union[int, str, UUID]) -> Cell:
+    def __getitem__(self, index: Union[int, str, UUID]) -> PlateCell:
         if isinstance(index, int):
             return self.cells[index]
 

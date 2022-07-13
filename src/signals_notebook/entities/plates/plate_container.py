@@ -49,17 +49,13 @@ class PlateContainer(ContentfulEntity):
     def _get_entity_type(cls) -> EntityType:
         return EntityType.PLATE_CONTAINER
 
-    @classmethod
-    def _get_endpoint(cls) -> str:
-        return 'plates'
-
     def _reload_data(self):
         api = SignalsNotebookApi.get_default_api()
         log.debug('Reload rows for Plate Container: %s', self.eid)
 
         response = api.call(
             method='GET',
-            path=(self._get_endpoint(), self.eid, 'summary'),
+            path=('plates', self.eid, 'summary'),
         )
         result = PlateContainerDataResponse(**response.json())
         self._rows = []

@@ -15,6 +15,7 @@ from tests.entities.factories import (
     TextFactory,
     WordFactory,
 )
+from tests.entities.plates.factories import PlateContainerFactory
 from tests.entities.samples.factories import (
     SampleCellFactory,
     SampleFactory,
@@ -45,6 +46,7 @@ register(SpotfireFactory)
 register(TodoListFactory)
 register(TaskFactory)
 register(TaskCellFactory)
+register(PlateContainerFactory)
 
 
 @pytest.fixture()

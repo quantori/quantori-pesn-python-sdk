@@ -33,7 +33,7 @@ class CellContent(GenericModel, Generic[CellContentType]):
         validate_assignment = True
 
 
-class Cell(GenericModel, Generic[CellContentType]):
+class PlateCell(GenericModel, Generic[CellContentType]):
     id: UUID = Field(allow_mutation=False, alias='key')
     type: ColumnDataType = Field(allow_mutation=False)
     name: str = Field(allow_mutation=False)
