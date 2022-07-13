@@ -5,8 +5,8 @@ from typing import Literal, Optional
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import EntityCreationRequestPayload, EntityType
-from signals_notebook.entities import EntityStore
 from signals_notebook.entities.container import Container
+from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -76,12 +76,13 @@ class Notebook(Container):
             child.dump(base_path + '/' + self.eid, fs_handler)
 
     @classmethod
-    def load(cls, path, fs_handler):
-        metadata = json.loads(fs_handler.read(path+'/'+'metadata.json'))
-        notebook = Notebook.create(name='restore:' + metadata['name'], description=metadata['description'], force=True)
+    def load(cls, path: str, fs_handler: FSHandler):
+        from signals_notebook.item_mapper import ItemMapper
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
+        notebook = cls.create(name='restore:' + metadata['name'], description=metadata['description'], force=True)
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
-            EntityStore.get_entity_class(child_entity_type).load(
-                path+'/'+child_entity, fs_handler, notebook
+            ItemMapper.get_item_class(child_entity_type).load(
+                fs_handler.join_path(path, child_entity), fs_handler, notebook
             )

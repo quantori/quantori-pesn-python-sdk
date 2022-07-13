@@ -7,11 +7,11 @@ from typing import ClassVar, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
-from signals_notebook.entities import EntityStore
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
 from signals_notebook.jinja_env import env
+from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -133,13 +133,14 @@ class Experiment(Container):
         return template.render(data=data)
 
     @classmethod
-    def load(cls, path, fs_handler, notebook):
-        metadata = json.loads(fs_handler.read(path+'/'+'metadata.json'))
-        experiment = Experiment.create(
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook):
+        from signals_notebook.item_mapper import ItemMapper
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
+        experiment = cls.create(
             notebook=notebook, name=metadata['name'], description=metadata['description'],
             force=True)
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
-            EntityStore.get_entity_class(child_entity_type).load(
+            ItemMapper.get_item_class(child_entity_type).load(
                 fs_handler.join_path(path, child_entity), fs_handler, experiment)
