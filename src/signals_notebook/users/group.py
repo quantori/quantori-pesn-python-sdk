@@ -1,14 +1,16 @@
 import json
 import logging
 from datetime import datetime
-from typing import cast, Generator, Literal
+from typing import cast, Generator, Literal, TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ObjectType, Response, ResponseData
-from signals_notebook.users.user import User
 
+
+if TYPE_CHECKING:
+    from signals_notebook.users.user import User
 
 log = logging.getLogger(__name__)
 
@@ -160,7 +162,7 @@ class Group(BaseModel):
         result = GroupMemberResponse(**response.json())
         return [cast(ResponseData, item).body for item in result.data]
 
-    def add_user(self, user: User, force: bool = True) -> list[GroupMember]:
+    def add_user(self, user: 'User', force: bool = True) -> list[GroupMember]:
         """Add user to user group
 
         Args:
@@ -188,7 +190,7 @@ class Group(BaseModel):
         result = GroupMemberResponse(**response.json())
         return [cast(ResponseData, item).body for item in result.data]
 
-    def delete_user(self, user: User) -> None:
+    def delete_user(self, user: 'User') -> None:
         """Delete user from user group.
 
         Args:

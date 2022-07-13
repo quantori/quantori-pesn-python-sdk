@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
+from signals_notebook.users.group import Group, GroupResponse
 from signals_notebook.users.profile import Role
 
 log = logging.getLogger(__name__)
@@ -26,19 +27,19 @@ class User(BaseModel):
     created_at: datetime = Field(alias='createdAt', allow_mutation=False)
     last_login_at: Optional[datetime] = Field(alias='lastLoginAt', allow_mutation=False)
     _picture: Optional[File] = PrivateAttr(default=None)
-    _groups = PrivateAttr(default=None)
-    _roles = PrivateAttr(default=None)
-    _relationships: dict = PrivateAttr(default=None)
+    _groups: list[Group] = PrivateAttr(default=[])
+    _roles: list[Role] = PrivateAttr(default=[])
+    _relationships: dict = PrivateAttr(default={})
 
     class Config:
         validate_assignment = True
         allow_population_by_field_name = True
 
-    def set_relationships(self, value: dict):
+    def set_relationships(self, value: dict) -> None:
         self._relationships = value
 
     @property
-    def roles(self):
+    def roles(self) -> list[Role]:
         if self._roles:
             return self._roles
         self._roles = [Role.get(i['id']) for i in self._relationships['roles']['data']]
@@ -165,9 +166,7 @@ class User(BaseModel):
         return self._picture
 
     @property
-    def groups(self):
-        from signals_notebook.users.group import GroupResponse
-
+    def groups(self) -> list[Group]:
         if self._groups:
             return self._groups
 
