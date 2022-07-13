@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>signals_notebook API documentation</title>
+<title>signals_notebook.utils API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,64 +19,20 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Package <code>signals_notebook</code></h1>
+<h1 class="title">Module <code>signals_notebook.utils</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import logging
-import mimetypes
-from os.path import dirname, join
-
-mime_types_file = join(dirname(__file__), &#39;mime.types&#39;)
-
-mimetypes.init([mime_types_file])
-
-logging.getLogger(__name__).addHandler(logging.NullHandler())</code></pre>
+<pre><code class="python">from signals_notebook.utils.fs_handler import FSHandler</code></pre>
 </details>
 </section>
 <section>
 <h2 class="section-title" id="header-submodules">Sub-modules</h2>
 <dl>
-<dt><code class="name"><a title="signals_notebook.api" href="api.html">signals_notebook.api</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="signals_notebook.attributes" href="attributes/index.html">signals_notebook.attributes</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="signals_notebook.base" href="base.html">signals_notebook.base</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="signals_notebook.common_types" href="common_types.html">signals_notebook.common_types</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="signals_notebook.entities" href="entities/index.html">signals_notebook.entities</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="signals_notebook.exceptions" href="exceptions.html">signals_notebook.exceptions</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="signals_notebook.item_mapper" href="item_mapper.html">signals_notebook.item_mapper</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="signals_notebook.jinja_env" href="jinja_env.html">signals_notebook.jinja_env</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="signals_notebook.materials" href="materials/index.html">signals_notebook.materials</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt><code class="name"><a title="signals_notebook.utils" href="utils/index.html">signals_notebook.utils</a></code></dt>
+<dt><code class="name"><a title="signals_notebook.utils.fs_handler" href="fs_handler.html">signals_notebook.utils.fs_handler</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -95,18 +51,14 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())</code></pre>
 <ul></ul>
 </div>
 <ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="signals_notebook" href="../index.html">signals_notebook</a></code></li>
+</ul>
+</li>
 <li><h3><a href="#header-submodules">Sub-modules</a></h3>
 <ul>
-<li><code><a title="signals_notebook.api" href="api.html">signals_notebook.api</a></code></li>
-<li><code><a title="signals_notebook.attributes" href="attributes/index.html">signals_notebook.attributes</a></code></li>
-<li><code><a title="signals_notebook.base" href="base.html">signals_notebook.base</a></code></li>
-<li><code><a title="signals_notebook.common_types" href="common_types.html">signals_notebook.common_types</a></code></li>
-<li><code><a title="signals_notebook.entities" href="entities/index.html">signals_notebook.entities</a></code></li>
-<li><code><a title="signals_notebook.exceptions" href="exceptions.html">signals_notebook.exceptions</a></code></li>
-<li><code><a title="signals_notebook.item_mapper" href="item_mapper.html">signals_notebook.item_mapper</a></code></li>
-<li><code><a title="signals_notebook.jinja_env" href="jinja_env.html">signals_notebook.jinja_env</a></code></li>
-<li><code><a title="signals_notebook.materials" href="materials/index.html">signals_notebook.materials</a></code></li>
-<li><code><a title="signals_notebook.utils" href="utils/index.html">signals_notebook.utils</a></code></li>
+<li><code><a title="signals_notebook.utils.fs_handler" href="fs_handler.html">signals_notebook.utils.fs_handler</a></code></li>
 </ul>
 </li>
 </ul>

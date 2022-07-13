@@ -1,3 +1,4 @@
+import json
 import logging
 from typing import Literal, Optional
 
@@ -5,6 +6,7 @@ from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import EntityCreationRequestPayload, EntityType
 from signals_notebook.entities.container import Container
+from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -67,3 +69,24 @@ class Notebook(Container):
             force=force,
             request=request,
         )
+
+    def dump(self, base_path: str, fs_handler: FSHandler):
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps({k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}),
+        )
+        for child in self.get_children(order=None):
+            child.dump(base_path + '/' + self.eid, fs_handler)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler):
+        from signals_notebook.item_mapper import ItemMapper
+
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
+        notebook = cls.create(name='restore:' + metadata['name'], description=metadata['description'], force=True)
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(':')[0]
+            ItemMapper.get_item_class(child_entity_type).load(
+                fs_handler.join_path(path, child_entity), fs_handler, notebook
+            )

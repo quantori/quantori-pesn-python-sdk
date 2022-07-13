@@ -7,6 +7,7 @@ from typing import cast, Generator, Optional, Union
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
 from signals_notebook.entities import Entity
+from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -63,7 +64,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self) -> Generator[Entity, None, None]:
+    def get_children(self, order: str = 'layout') -> Generator[Entity, None, None]:
         """Get children of a specified entity.
 
         Returns:
@@ -72,13 +73,8 @@ class Container(Entity, abc.ABC):
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get children for: %s', self.eid)
 
-        response = api.call(
-            method='GET',
-            path=(self._get_endpoint(), self.eid, 'children'),
-            params={
-                'order': 'layout',
-            },
-        )
+        params = {'order': order} if order else {}
+        response = api.call(method='GET', path=(self._get_endpoint(), self.eid, 'children'), params=params)
 
         entity_classes = (*Entity.get_subclasses(), Entity)
 
@@ -94,3 +90,11 @@ class Container(Entity, abc.ABC):
 
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
+
+    def dump(self, base_path: str, fs_handler: FSHandler):
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps({k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}),
+        )
+        for child in self.get_children(order=None):
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
