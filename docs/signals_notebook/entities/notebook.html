@@ -98,8 +98,8 @@ class Notebook(Container):
             request=request,
         )
 
-    def dump(self, base_path, fs_handler):
-        fs_handler.write(base_path + &#39;/&#39; + self.eid + &#39;/metadata.json&#39;, json.dumps(self.get_metadata()))
+    def dump(self, base_path: str, fs_handler: FSHandler):
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(self.dict()))
         for child in self.get_children():
             child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)
 
@@ -214,8 +214,8 @@ class Notebook(Container):
             request=request,
         )
 
-    def dump(self, base_path, fs_handler):
-        fs_handler.write(base_path + &#39;/&#39; + self.eid + &#39;/metadata.json&#39;, json.dumps(self.get_metadata()))
+    def dump(self, base_path: str, fs_handler: FSHandler):
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(self.dict()))
         for child in self.get_children():
             child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)
 
@@ -334,7 +334,7 @@ def load(cls, path: str, fs_handler: FSHandler):
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.entities.notebook.Notebook.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path, fs_handler)</span>
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -342,8 +342,8 @@ def load(cls, path: str, fs_handler: FSHandler):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path, fs_handler):
-    fs_handler.write(base_path + &#39;/&#39; + self.eid + &#39;/metadata.json&#39;, json.dumps(self.get_metadata()))
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler):
+    fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(self.dict()))
     for child in self.get_children():
         child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)</code></pre>
 </details>
