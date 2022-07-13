@@ -3,16 +3,18 @@ import json
 import logging
 import mimetypes
 from datetime import datetime
-from typing import cast, Generator, Optional, Union
+from typing import cast, Generator, Optional, Union, TYPE_CHECKING
 
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
-from signals_notebook.users.group import Group, GroupResponse
 from signals_notebook.users.profile import Role
 
 log = logging.getLogger(__name__)
+
+if TYPE_CHECKING:
+    from signals_notebook.users.group import Group
 
 
 class Licence(BaseModel):
@@ -59,7 +61,7 @@ class User(BaseUser):
     organization: str = Field(alias='organization')
     last_login_at: Optional[datetime] = Field(alias='lastLoginAt', allow_mutation=False)
     _picture: Optional[File] = PrivateAttr(default=None)
-    _groups: list[Group] = PrivateAttr(default=[])
+    _groups: list['Group'] = PrivateAttr(default=[])
     _roles: list[Role] = PrivateAttr(default=[])
     _relationships: dict = PrivateAttr(default={})
 
@@ -285,7 +287,9 @@ class User(BaseUser):
         return self._picture
 
     @property
-    def groups(self) -> list[Group]:
+    def groups(self) -> list['Group']:
+        from signals_notebook.users.group import GroupResponse
+
         if self._groups:
             return self._groups
 

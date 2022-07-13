@@ -1,29 +1,16 @@
 import json
 import logging
 from datetime import datetime
-from typing import cast, Generator, Literal, TYPE_CHECKING
+from typing import cast, Generator, Literal
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ObjectType, Response, ResponseData
+from signals_notebook.users.user import User
 
-
-if TYPE_CHECKING:
-    from signals_notebook.users.user import User
 
 log = logging.getLogger(__name__)
-
-
-class GroupMember(BaseModel):
-    user_id: str = Field(alias='userId')
-    user_name: str = Field(alias='userName')
-    first_name: str = Field(alias='firstName')
-    last_name: str = Field(alias='lastName')
-
-
-class GroupMemberResponse(Response[GroupMember]):
-    pass
 
 
 class Group(BaseModel):
@@ -148,21 +135,21 @@ class Group(BaseModel):
         )
         log.debug('Group: %s was disabled successfully', self.id)
 
-    def get_members(self) -> list[GroupMember]:
+    def get_members(self) -> list[User]:
         """Get user group members
 
         Returns:
-            Group members
+            Users
         """
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
             path=(self._get_endpoint(), self.id, 'members'),
         )
-        result = GroupMemberResponse(**response.json())
-        return [cast(ResponseData, item).body for item in result.data]
 
-    def add_user(self, user: 'User', force: bool = True) -> list[GroupMember]:
+        return [User.get(user['id']) for user in response.json()['data']]
+
+    def add_user(self, user: User, force: bool = True) -> list[User]:
         """Add user to user group
 
         Args:
@@ -170,11 +157,11 @@ class Group(BaseModel):
             force: Force to update
 
         Returns:
-            list[GroupMember]
+            list[User]
         """
         api = SignalsNotebookApi.get_default_api()
 
-        response = api.call(
+        api.call(
             method='POST',
             path=(self._get_endpoint(), self.id, 'members'),
             params={
@@ -187,10 +174,9 @@ class Group(BaseModel):
             },
         )
 
-        result = GroupMemberResponse(**response.json())
-        return [cast(ResponseData, item).body for item in result.data]
+        return self.get_members()
 
-    def delete_user(self, user: 'User') -> None:
+    def delete_user(self, user: User) -> None:
         """Delete user from user group.
 
         Args:
