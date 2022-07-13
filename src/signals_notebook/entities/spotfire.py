@@ -54,7 +54,7 @@ class Spotfire(ContentfulEntity):
         content = self.get_content()
         metadata = {
             'file_name': content.name,
-            **self.get_metadata()
+            **self.dict()
         }
         fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
         file_name = content.name
