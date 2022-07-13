@@ -2,8 +2,8 @@ import factory
 
 from signals_notebook.common_types import ObjectType
 from signals_notebook.users.group import Group
-from signals_notebook.users.profile import Licence, Privelege, Profile, Role
-from signals_notebook.users.user import User
+from signals_notebook.users.role import Privelege, Role
+from signals_notebook.users.user import Licence, Profile, User
 from tests.entities.factories import EIDFactory
 
 

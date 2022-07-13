@@ -9,7 +9,7 @@ from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
-from signals_notebook.users.profile import Role
+from signals_notebook.users.role import Role
 
 log = logging.getLogger(__name__)
 
