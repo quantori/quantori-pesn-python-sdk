@@ -42,7 +42,7 @@ class User(BaseModel):
     def roles(self) -> list[Role]:
         if self._roles:
             return self._roles
-        self._roles = [Role.get(i['id']) for i in self._relationships['roles']['data']]
+        self._roles = [Role.get(role['id']) for role in self._relationships['roles']['data']]
         return self._roles
 
     @classmethod

@@ -3,7 +3,7 @@ import json
 import arrow
 import pytest
 
-from signals_notebook.users.profile import Profile
+from signals_notebook.users.profile import Profile, Role
 from signals_notebook.users.user import User
 from signals_notebook.users.user_store import UserStore
 
@@ -20,6 +20,7 @@ def get_response_object(mocker):
 
 def test_get_by_id(api_mock, user_factory):
     user = user_factory()
+
     response = {
         'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}'},
         'data': {
@@ -49,6 +50,7 @@ def test_get_by_id(api_mock, user_factory):
             },
         },
     }
+
     api_mock.call.return_value.json.return_value = response
 
     result = UserStore.get(user.id)
@@ -62,6 +64,7 @@ def test_get_by_id(api_mock, user_factory):
     assert result.first_name == response['data']['attributes']['firstName']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.last_login_at == arrow.get(response['data']['attributes']['lastLoginAt'])
+    assert result._relationships == response['data']['relationships']
 
 
 def test_get_list(api_mock, user_factory):
@@ -131,6 +134,7 @@ def test_get_list(api_mock, user_factory):
         assert item.username == raw_item['attributes']['userName']
         assert item.email == raw_item['attributes']['email']
         assert item.first_name == raw_item['attributes']['firstName']
+        assert item._relationships == raw_item['relationships']
 
 
 def test_get_several_pages(api_mock, user_factory, mocker, get_response_object):
@@ -341,3 +345,61 @@ def test_get_current_user(api_mock, profile_factory):
     assert result.first_name == response['data']['attributes']['firstName']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.tenant == response['data']['attributes']['tenant']
+
+
+def test_get_roles(api_mock, user_factory, role_factory):
+    user = user_factory()
+    role = role_factory()
+
+    relationships = {
+        'picture': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/picture'}},
+        'roles': {
+            'data': [
+                {'id': role.id, 'type': 'role'},
+            ]
+        },
+        'systemGroups': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/systemGroups'}},
+    }
+    role_response = {
+        'links': {'self': 'https://example.com/api/rest/v1.0/roles/1'},
+        'data': {
+            'type': 'role',
+            'id': role.id,
+            'links': {'self': 'https://example.com/api/rest/v1.0/roles/1'},
+            'attributes': {
+                'id': role.id,
+                'name': 'System Admin',
+                'description': 'Users with this role have all privileges.',
+                'privileges': {
+                    'canMoveExperiments': 'true',
+                    'canManageSystemTemplates': 'true',
+                    'canTrashRequests': 'true',
+                    'canTrashSamples': 'true',
+                    'canShare': 'true',
+                    'canAddMaterials': 'true',
+                    'canTrashExperiments': 'true',
+                    'canTrashMaterials': 'true',
+                    'canTrashNotebooks': 'true',
+                    'canViewMaterials': 'true',
+                    'canManageMaterialLibraries': 'true',
+                    'canShareTemplates': 'true',
+                    'canManageAttributes': 'true',
+                    'canManageGroups': 'true',
+                    'canSearchElnArchive': 'true',
+                    'canConfigure': 'true',
+                    'canEditMaterials': 'true',
+                },
+            },
+        },
+    }
+    user.set_relationships(relationships)
+
+    api_mock.call.return_value.json.return_value = role_response
+
+    roles = user.roles
+
+    api_mock.call.assert_called_once_with(method='GET', path=('roles', role.id))
+
+    assert isinstance(roles, list)
+    for role in roles:
+        assert isinstance(role, Role)
