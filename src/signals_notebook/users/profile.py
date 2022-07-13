@@ -75,36 +75,3 @@ class Role(BaseModel):
 
 class RoleResponse(Response[Role]):
     pass
-
-
-class Licence(BaseModel):
-    id: Union[int, str]
-    name: str
-    expires_at: datetime = Field(alias='expiresAt')
-    valid: bool
-    has_service_expired: bool = Field(alias='hasServiceExpired')
-    has_user_found: bool = Field(alias='hasUserFound')
-    has_user_activated: bool = Field(alias='hasUserActivated')
-
-    class Config:
-        validate_assignment = True
-        allow_population_by_field_name = True
-
-
-class Profile(BaseModel):
-    id: str = Field(alias='userId', allow_mutation=False)
-    first_name: str = Field(alias='firstName')
-    last_name: str = Field(alias='lastName')
-    email: str
-    created_at: datetime = Field(alias='createdAt', allow_mutation=False)
-    tenant: str
-    roles: List[Role]
-    licenses: List[Licence]
-
-    class Config:
-        validate_assignment = True
-        allow_population_by_field_name = True
-
-
-class ProfileResponse(Response[Profile]):
-    pass
