@@ -13,6 +13,7 @@ from tests.entities.factories import (
     PowerPointFactory,
     SpotfireFactory,
     TextFactory,
+    UploadedResourceFactory,
     WordFactory,
 )
 from tests.entities.plates.factories import PlateContainerFactory
@@ -46,6 +47,7 @@ register(SpotfireFactory)
 register(TodoListFactory)
 register(TaskFactory)
 register(TaskCellFactory)
+register(UploadedResourceFactory)
 register(PlateContainerFactory)
 
 
