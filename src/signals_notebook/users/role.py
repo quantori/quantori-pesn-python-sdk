@@ -46,6 +46,8 @@ class Role(BaseModel):
 
     @classmethod
     def get_list(cls) -> Generator['Role', None, None]:
+        log.debug('Get List of Roles')
+
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
@@ -53,6 +55,8 @@ class Role(BaseModel):
         )
         result = RoleResponse(**response.json())
         yield from [cast(ResponseData, item).body for item in result.data]
+
+        log.debug('List of Roles were got successfully.')
 
     @classmethod
     def get(cls, role_id: str) -> 'Role':
@@ -63,12 +67,17 @@ class Role(BaseModel):
         Returns:
             Role
         """
+        log.debug('Getting Role: ', role_id)
+
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
             path=(cls._get_endpoint(), role_id),
         )
         result = RoleResponse(**response.json())
+
+        log.debug('Role: %s was got successfully.', role_id)
+
         return cast(ResponseData, result.data).body
 
 

@@ -38,6 +38,8 @@ class Group(BaseModel):
         Returns:
             Group
         """
+        log.debug('Get List of Groups')
+
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
@@ -55,6 +57,8 @@ class Group(BaseModel):
             result = GroupResponse(**response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
 
+        log.debug('List of Groups were got successfully.')
+
     @classmethod
     def get(cls, group_id: str) -> 'Group':
         """Get group by id
@@ -64,12 +68,17 @@ class Group(BaseModel):
         Returns:
             Group
         """
+        log.debug('Get Group: %s', group_id)
+
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
             path=(cls._get_endpoint(), group_id),
         )
         result = GroupResponse(**response.json())
+
+        log.debug('Group: %s was got successfully.', group_id)
+
         return cast(ResponseData, result.data).body
 
     @classmethod
@@ -80,7 +89,7 @@ class Group(BaseModel):
             Group
         """
         api = SignalsNotebookApi.get_default_api()
-        log.debug('Create User: %s...', cls.__name__)
+        log.debug('Create Group: %s...', cls.__name__)
 
         response = api.call(
             method='POST',
@@ -142,12 +151,15 @@ class Group(BaseModel):
         Returns:
             Users
         """
+        log.debug('Get Group Members')
+
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
             path=(self._get_endpoint(), self.id, 'members'),
         )
 
+        log.debug('Group members were got successfully.')
         return [User.get(user['id']) for user in response.json()['data']]
 
     def add_user(self, user: User, force: bool = True) -> list[User]:
@@ -160,6 +172,8 @@ class Group(BaseModel):
         Returns:
             list[User]
         """
+        log.debug('Adding members to group')
+
         api = SignalsNotebookApi.get_default_api()
 
         api.call(
@@ -175,6 +189,8 @@ class Group(BaseModel):
             },
         )
 
+        log.debug('Group member: %s was added successfully', user.id)
+
         return self.get_members()
 
     def delete_user(self, user: User) -> None:
@@ -186,12 +202,15 @@ class Group(BaseModel):
         Returns:
 
         """
+        log.debug('Deleting members from group')
+
         api = SignalsNotebookApi.get_default_api()
 
         api.call(
             method='DELETE',
             path=(self._get_endpoint(), self.id, 'members', user.id),
         )
+        log.debug('Group member: %s was deleted successfully', user.id)
 
 
 class GroupResponse(Response[Group]):

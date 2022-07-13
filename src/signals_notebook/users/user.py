@@ -86,6 +86,8 @@ class User(BaseUser):
         Returns:
             User
         """
+        log.debug('Get user: %s', user_id)
+
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method='GET',
@@ -95,6 +97,8 @@ class User(BaseUser):
 
         user = cast(ResponseData, result.data).body
         user.set_relationships(result.data.relationships)  # type: ignore
+
+        log.debug('Role: %s was got successfully.', user_id)
 
         return user
 
@@ -121,6 +125,9 @@ class User(BaseUser):
             User
         """
         api = SignalsNotebookApi.get_default_api()
+
+        log.debug('Get List of Users')
+
         response = api.call(
             method='GET',
             path=('users',),
@@ -153,6 +160,8 @@ class User(BaseUser):
 
                 yield user
 
+        log.debug('List of Users was got successfully.')
+
     @staticmethod
     def get_current_user() -> Profile:
         """Get current user for api session
@@ -161,11 +170,17 @@ class User(BaseUser):
             User
         """
         api = SignalsNotebookApi.get_default_api()
+
+        log.debug('Get current user')
+
         response = api.call(
             method='GET',
             path=('profiles', 'me'),
         )
         result = ProfileResponse(**response.json())
+
+        log.debug('Current user was got successfully.')
+
         return cast(ResponseData, result.data).body
 
     @classmethod
@@ -185,7 +200,9 @@ class User(BaseUser):
             User
         """
         api = SignalsNotebookApi.get_default_api()
+
         log.debug('Create User: %s...', cls.__name__)
+
         response = api.call(
             method='POST',
             path=(cls._get_endpoint(),),
@@ -295,11 +312,17 @@ class User(BaseUser):
             return self._groups
 
         api = SignalsNotebookApi.get_default_api()
+
+        log.debug('Getting System Groups')
+
         response = api.call(
             method='GET',
             path=(self._get_endpoint(), self.id, 'systemGroups'),
         )
         result = GroupResponse(**response.json())
+
+        log.debug('List of groups was got successfully.')
+
         return [cast(ResponseData, item).body for item in result.data]
 
 
