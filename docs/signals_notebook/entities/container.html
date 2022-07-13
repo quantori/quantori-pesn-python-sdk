@@ -100,7 +100,7 @@ class Container(Entity, abc.ABC):
             method=&#39;GET&#39;,
             path=(self._get_endpoint(), self.eid, &#39;children&#39;),
             params={
-                &#39;order&#39;: &#39;layout&#39;,
+                #&#39;order&#39;: &#39;layout&#39;,
             },
         )
 
@@ -117,7 +117,12 @@ class Container(Entity, abc.ABC):
             )
 
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
-            yield from [cast(ResponseData, item).body for item in result.data]</code></pre>
+            yield from [cast(ResponseData, item).body for item in result.data]
+
+    def dump(self, base_path, fs_handler):
+        fs_handler.write(base_path + &#39;/&#39; + self.eid + &#39;/metadata.json&#39;, json.dumps(self.get_metadata()))
+        for child in self.get_children():
+            child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)</code></pre>
 </details>
 </section>
 <section>
@@ -201,7 +206,7 @@ class Container(Entity, abc.ABC):
             method=&#39;GET&#39;,
             path=(self._get_endpoint(), self.eid, &#39;children&#39;),
             params={
-                &#39;order&#39;: &#39;layout&#39;,
+                #&#39;order&#39;: &#39;layout&#39;,
             },
         )
 
@@ -218,7 +223,12 @@ class Container(Entity, abc.ABC):
             )
 
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
-            yield from [cast(ResponseData, item).body for item in result.data]</code></pre>
+            yield from [cast(ResponseData, item).body for item in result.data]
+
+    def dump(self, base_path, fs_handler):
+        fs_handler.write(base_path + &#39;/&#39; + self.eid + &#39;/metadata.json&#39;, json.dumps(self.get_metadata()))
+        for child in self.get_children():
+            child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -329,6 +339,21 @@ class Container(Entity, abc.ABC):
     return cast(ResponseData, result.data).body</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.entities.container.Container.dump"><code class="name flex">
+<span>def <span class="ident">dump</span></span>(<span>self, base_path, fs_handler)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump(self, base_path, fs_handler):
+    fs_handler.write(base_path + &#39;/&#39; + self.eid + &#39;/metadata.json&#39;, json.dumps(self.get_metadata()))
+    for child in self.get_children():
+        child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.container.Container.get_children"><code class="name flex">
 <span>def <span class="ident">get_children</span></span>(<span>self) ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
 </code></dt>
@@ -353,7 +378,7 @@ class Container(Entity, abc.ABC):
         method=&#39;GET&#39;,
         path=(self._get_endpoint(), self.eid, &#39;children&#39;),
         params={
-            &#39;order&#39;: &#39;layout&#39;,
+            #&#39;order&#39;: &#39;layout&#39;,
         },
     )
 
@@ -413,6 +438,7 @@ class Container(Entity, abc.ABC):
 <li><code><a title="signals_notebook.entities.container.Container.created_at" href="#signals_notebook.entities.container.Container.created_at">created_at</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.description" href="#signals_notebook.entities.container.Container.description">description</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.digest" href="#signals_notebook.entities.container.Container.digest">digest</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.dump" href="#signals_notebook.entities.container.Container.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.edited_at" href="#signals_notebook.entities.container.Container.edited_at">edited_at</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.eid" href="#signals_notebook.entities.container.Container.eid">eid</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_children" href="#signals_notebook.entities.container.Container.get_children">get_children</a></code></li>

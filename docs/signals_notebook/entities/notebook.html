@@ -26,12 +26,14 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import logging
+<pre><code class="python">import json
+import logging
 from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import EntityCreationRequestPayload, EntityType
+from signals_notebook.entities import EntityStore
 from signals_notebook.entities.container import Container
 
 log = logging.getLogger(__name__)
@@ -94,7 +96,23 @@ class Notebook(Container):
             digest=digest,
             force=force,
             request=request,
-        )</code></pre>
+        )
+
+    def dump(self, base_path, fs_handler):
+        fs_handler.write(base_path + &#39;/&#39; + self.eid + &#39;/metadata.json&#39;, json.dumps(self.get_metadata()))
+        for child in self.get_children():
+            child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)
+
+    @classmethod
+    def load(cls, path, fs_handler):
+        metadata = json.loads(fs_handler.read(path+&#39;/&#39;+&#39;metadata.json&#39;))
+        notebook = Notebook.create(name=&#39;restore:&#39; + metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True)
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(&#39;:&#39;)[0]
+            EntityStore.get_entity_class(child_entity_type).load(
+                path+&#39;/&#39;+child_entity, fs_handler, notebook
+            )</code></pre>
 </details>
 </section>
 <section>
@@ -193,7 +211,23 @@ class Notebook(Container):
             digest=digest,
             force=force,
             request=request,
-        )</code></pre>
+        )
+
+    def dump(self, base_path, fs_handler):
+        fs_handler.write(base_path + &#39;/&#39; + self.eid + &#39;/metadata.json&#39;, json.dumps(self.get_metadata()))
+        for child in self.get_children():
+            child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)
+
+    @classmethod
+    def load(cls, path, fs_handler):
+        metadata = json.loads(fs_handler.read(path+&#39;/&#39;+&#39;metadata.json&#39;))
+        notebook = Notebook.create(name=&#39;restore:&#39; + metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True)
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(&#39;:&#39;)[0]
+            EntityStore.get_entity_class(child_entity_type).load(
+                path+&#39;/&#39;+child_entity, fs_handler, notebook
+            )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -272,6 +306,45 @@ def create(
     )</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.entities.notebook.Notebook.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>path, fs_handler)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def load(cls, path, fs_handler):
+    metadata = json.loads(fs_handler.read(path+&#39;/&#39;+&#39;metadata.json&#39;))
+    notebook = Notebook.create(name=&#39;restore:&#39; + metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True)
+    child_entities_folders = fs_handler.list_subfolders(path)
+    for child_entity in child_entities_folders:
+        child_entity_type = child_entity.split(&#39;:&#39;)[0]
+        EntityStore.get_entity_class(child_entity_type).load(
+            path+&#39;/&#39;+child_entity, fs_handler, notebook
+        )</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.notebook.Notebook.dump"><code class="name flex">
+<span>def <span class="ident">dump</span></span>(<span>self, base_path, fs_handler)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump(self, base_path, fs_handler):
+    fs_handler.write(base_path + &#39;/&#39; + self.eid + &#39;/metadata.json&#39;, json.dumps(self.get_metadata()))
+    for child in self.get_children():
+        child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -318,6 +391,8 @@ def create(
 <h4><code><a title="signals_notebook.entities.notebook.Notebook" href="#signals_notebook.entities.notebook.Notebook">Notebook</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.entities.notebook.Notebook.create" href="#signals_notebook.entities.notebook.Notebook.create">create</a></code></li>
+<li><code><a title="signals_notebook.entities.notebook.Notebook.dump" href="#signals_notebook.entities.notebook.Notebook.dump">dump</a></code></li>
+<li><code><a title="signals_notebook.entities.notebook.Notebook.load" href="#signals_notebook.entities.notebook.Notebook.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.notebook.Notebook.type" href="#signals_notebook.entities.notebook.Notebook.type">type</a></code></li>
 </ul>
 </li>
