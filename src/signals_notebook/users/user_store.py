@@ -23,7 +23,7 @@ class UserStore:
         result = UserResponse(**response.json())
 
         user = cast(ResponseData, result.data).body
-        user.set_relationships(result.data.relationships)
+        user.set_relationships(result.data.relationships)  # type: ignore
 
         return user
 
@@ -66,7 +66,7 @@ class UserStore:
 
         for item in result.data:
             user = cast(ResponseData, item).body
-            user.set_relationships(item.relationships)
+            user.set_relationships(item.relationships)  # type: ignore
 
             yield user
 
@@ -80,7 +80,7 @@ class UserStore:
 
             for item in result.data:
                 user = cast(ResponseData, item).body
-                user.set_relationships(item.relationships)
+                user.set_relationships(item.relationships)  # type: ignore
 
                 yield user
 
