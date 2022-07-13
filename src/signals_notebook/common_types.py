@@ -35,6 +35,10 @@ class ObjectType(str, Enum):
     ATTRIBUTE = 'attribute'
     STOICHIOMETRY = 'stoichiometry'
     PROPERTY = 'property'
+    USER = 'user'
+    PROFILE = 'profile'
+    GROUP = 'group'
+    ROLE = 'role'
 
 
 class EntityType(str, Enum):
@@ -276,6 +280,7 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     eid: Union[EID, MID, AttrID, UUID, str] = Field(alias='id')
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
+    relationships: Optional[dict[str, Any]] = Field(default=None)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get('attributes', {})
