@@ -29,29 +29,16 @@
 <pre><code class="python">import json
 import logging
 from datetime import datetime
-from typing import cast, Generator, Literal, TYPE_CHECKING
+from typing import cast, Generator, Literal
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ObjectType, Response, ResponseData
+from signals_notebook.users.user import User
 
-
-if TYPE_CHECKING:
-    from signals_notebook.users.user import User
 
 log = logging.getLogger(__name__)
-
-
-class GroupMember(BaseModel):
-    user_id: str = Field(alias=&#39;userId&#39;)
-    user_name: str = Field(alias=&#39;userName&#39;)
-    first_name: str = Field(alias=&#39;firstName&#39;)
-    last_name: str = Field(alias=&#39;lastName&#39;)
-
-
-class GroupMemberResponse(Response[GroupMember]):
-    pass
 
 
 class Group(BaseModel):
@@ -160,6 +147,7 @@ class Group(BaseModel):
                 },
             },
         )
+        log.debug(&#39;Group: %s was saved successfully&#39;, self.id)
 
     def delete(self):
         &#34;&#34;&#34;Delete user group by id.
@@ -176,21 +164,21 @@ class Group(BaseModel):
         )
         log.debug(&#39;Group: %s was disabled successfully&#39;, self.id)
 
-    def get_members(self) -&gt; list[GroupMember]:
+    def get_members(self) -&gt; list[User]:
         &#34;&#34;&#34;Get user group members
 
         Returns:
-            Group members
+            Users
         &#34;&#34;&#34;
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method=&#39;GET&#39;,
             path=(self._get_endpoint(), self.id, &#39;members&#39;),
         )
-        result = GroupMemberResponse(**response.json())
-        return [cast(ResponseData, item).body for item in result.data]
 
-    def add_user(self, user: &#39;User&#39;, force: bool = True) -&gt; list[GroupMember]:
+        return [User.get(user[&#39;id&#39;]) for user in response.json()[&#39;data&#39;]]
+
+    def add_user(self, user: User, force: bool = True) -&gt; list[User]:
         &#34;&#34;&#34;Add user to user group
 
         Args:
@@ -198,11 +186,11 @@ class Group(BaseModel):
             force: Force to update
 
         Returns:
-            list[GroupMember]
+            list[User]
         &#34;&#34;&#34;
         api = SignalsNotebookApi.get_default_api()
 
-        response = api.call(
+        api.call(
             method=&#39;POST&#39;,
             path=(self._get_endpoint(), self.id, &#39;members&#39;),
             params={
@@ -215,10 +203,9 @@ class Group(BaseModel):
             },
         )
 
-        result = GroupMemberResponse(**response.json())
-        return [cast(ResponseData, item).body for item in result.data]
+        return self.get_members()
 
-    def delete_user(self, user: &#39;User&#39;) -&gt; None:
+    def delete_user(self, user: User) -&gt; None:
         &#34;&#34;&#34;Delete user from user group.
 
         Args:
@@ -365,6 +352,7 @@ class GroupResponse(Response[Group]):
                 },
             },
         )
+        log.debug(&#39;Group: %s was saved successfully&#39;, self.id)
 
     def delete(self):
         &#34;&#34;&#34;Delete user group by id.
@@ -381,21 +369,21 @@ class GroupResponse(Response[Group]):
         )
         log.debug(&#39;Group: %s was disabled successfully&#39;, self.id)
 
-    def get_members(self) -&gt; list[GroupMember]:
+    def get_members(self) -&gt; list[User]:
         &#34;&#34;&#34;Get user group members
 
         Returns:
-            Group members
+            Users
         &#34;&#34;&#34;
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method=&#39;GET&#39;,
             path=(self._get_endpoint(), self.id, &#39;members&#39;),
         )
-        result = GroupMemberResponse(**response.json())
-        return [cast(ResponseData, item).body for item in result.data]
 
-    def add_user(self, user: &#39;User&#39;, force: bool = True) -&gt; list[GroupMember]:
+        return [User.get(user[&#39;id&#39;]) for user in response.json()[&#39;data&#39;]]
+
+    def add_user(self, user: User, force: bool = True) -&gt; list[User]:
         &#34;&#34;&#34;Add user to user group
 
         Args:
@@ -403,11 +391,11 @@ class GroupResponse(Response[Group]):
             force: Force to update
 
         Returns:
-            list[GroupMember]
+            list[User]
         &#34;&#34;&#34;
         api = SignalsNotebookApi.get_default_api()
 
-        response = api.call(
+        api.call(
             method=&#39;POST&#39;,
             path=(self._get_endpoint(), self.id, &#39;members&#39;),
             params={
@@ -420,10 +408,9 @@ class GroupResponse(Response[Group]):
             },
         )
 
-        result = GroupMemberResponse(**response.json())
-        return [cast(ResponseData, item).body for item in result.data]
+        return self.get_members()
 
-    def delete_user(self, user: &#39;User&#39;) -&gt; None:
+    def delete_user(self, user: User) -&gt; None:
         &#34;&#34;&#34;Delete user from user group.
 
         Args:
@@ -591,7 +578,7 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.users.group.Group.add_user"><code class="name flex">
-<span>def <span class="ident">add_user</span></span>(<span>self, user: User, force: bool = True) ‑> list</span>
+<span>def <span class="ident">add_user</span></span>(<span>self, user: <a title="signals_notebook.users.user.User" href="user.html#signals_notebook.users.user.User">User</a>, force: bool = True) ‑> list</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Add user to user group</p>
@@ -603,12 +590,12 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 <dd>Force to update</dd>
 </dl>
 <h2 id="returns">Returns</h2>
-<p>list[GroupMember]</p></div>
+<p>list[User]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_user(self, user: &#39;User&#39;, force: bool = True) -&gt; list[GroupMember]:
+<pre><code class="python">def add_user(self, user: User, force: bool = True) -&gt; list[User]:
     &#34;&#34;&#34;Add user to user group
 
     Args:
@@ -616,11 +603,11 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
         force: Force to update
 
     Returns:
-        list[GroupMember]
+        list[User]
     &#34;&#34;&#34;
     api = SignalsNotebookApi.get_default_api()
 
-    response = api.call(
+    api.call(
         method=&#39;POST&#39;,
         path=(self._get_endpoint(), self.id, &#39;members&#39;),
         params={
@@ -633,8 +620,7 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
         },
     )
 
-    result = GroupMemberResponse(**response.json())
-    return [cast(ResponseData, item).body for item in result.data]</code></pre>
+    return self.get_members()</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.users.group.Group.delete"><code class="name flex">
@@ -664,7 +650,7 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 </details>
 </dd>
 <dt id="signals_notebook.users.group.Group.delete_user"><code class="name flex">
-<span>def <span class="ident">delete_user</span></span>(<span>self, user: User)</span>
+<span>def <span class="ident">delete_user</span></span>(<span>self, user: <a title="signals_notebook.users.user.User" href="user.html#signals_notebook.users.user.User">User</a>) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Delete user from user group.</p>
@@ -678,7 +664,7 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def delete_user(self, user: &#39;User&#39;) -&gt; None:
+<pre><code class="python">def delete_user(self, user: User) -&gt; None:
     &#34;&#34;&#34;Delete user from user group.
 
     Args:
@@ -701,24 +687,24 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 <dd>
 <div class="desc"><p>Get user group members</p>
 <h2 id="returns">Returns</h2>
-<p>Group members</p></div>
+<p>Users</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_members(self) -&gt; list[GroupMember]:
+<pre><code class="python">def get_members(self) -&gt; list[User]:
     &#34;&#34;&#34;Get user group members
 
     Returns:
-        Group members
+        Users
     &#34;&#34;&#34;
     api = SignalsNotebookApi.get_default_api()
     response = api.call(
         method=&#39;GET&#39;,
         path=(self._get_endpoint(), self.id, &#39;members&#39;),
     )
-    result = GroupMemberResponse(**response.json())
-    return [cast(ResponseData, item).body for item in result.data]</code></pre>
+
+    return [User.get(user[&#39;id&#39;]) for user in response.json()[&#39;data&#39;]]</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.users.group.Group.save"><code class="name flex">
@@ -757,85 +743,9 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
                 )
             },
         },
-    )</code></pre>
+    )
+    log.debug(&#39;Group: %s was saved successfully&#39;, self.id)</code></pre>
 </details>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.users.group.GroupMember"><code class="flex name class">
-<span>class <span class="ident">GroupMember</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class GroupMember(BaseModel):
-    user_id: str = Field(alias=&#39;userId&#39;)
-    user_name: str = Field(alias=&#39;userName&#39;)
-    first_name: str = Field(alias=&#39;firstName&#39;)
-    last_name: str = Field(alias=&#39;lastName&#39;)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.users.group.GroupMember.first_name"><code class="name">var <span class="ident">first_name</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.group.GroupMember.last_name"><code class="name">var <span class="ident">last_name</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.group.GroupMember.user_id"><code class="name">var <span class="ident">user_id</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.group.GroupMember.user_name"><code class="name">var <span class="ident">user_name</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.users.group.GroupMemberResponse"><code class="flex name class">
-<span>class <span class="ident">GroupMemberResponse</span></span>
-<span>(</span><span>**kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class GroupMemberResponse(Response[GroupMember]):
-    pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="signals_notebook.users.group.Response[GroupMember]" href="#signals_notebook.users.group.Response[GroupMember]">Response[GroupMember]</a></li>
-<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
-<li>pydantic.generics.GenericModel</li>
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-<li>typing.Generic</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.users.group.GroupMemberResponse.data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.users.group.GroupMember" href="#signals_notebook.users.group.GroupMember">GroupMember</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.users.group.GroupMember" href="#signals_notebook.users.group.GroupMember">GroupMember</a>]]]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.group.GroupMemberResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
-<dd>
-<div class="desc"></div>
 </dd>
 </dl>
 </dd>
@@ -869,41 +779,6 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.users.group.GroupResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.users.group.Response[GroupMember]"><code class="flex name class">
-<span>class <span class="ident">Response[GroupMember]</span></span>
-<span>(</span><span>**kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
-<li>pydantic.generics.GenericModel</li>
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-<li>typing.Generic</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="signals_notebook.users.group.GroupMemberResponse" href="#signals_notebook.users.group.GroupMemberResponse">GroupMemberResponse</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.users.group.Response[GroupMember].Config"><code class="name">var <span class="ident">Config</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.group.Response[GroupMember].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.users.group.GroupMember" href="#signals_notebook.users.group.GroupMember">GroupMember</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.users.group.GroupMember" href="#signals_notebook.users.group.GroupMember">GroupMember</a>]]]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.group.Response[GroupMember].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -983,34 +858,10 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.users.group.GroupMember" href="#signals_notebook.users.group.GroupMember">GroupMember</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.users.group.GroupMember.first_name" href="#signals_notebook.users.group.GroupMember.first_name">first_name</a></code></li>
-<li><code><a title="signals_notebook.users.group.GroupMember.last_name" href="#signals_notebook.users.group.GroupMember.last_name">last_name</a></code></li>
-<li><code><a title="signals_notebook.users.group.GroupMember.user_id" href="#signals_notebook.users.group.GroupMember.user_id">user_id</a></code></li>
-<li><code><a title="signals_notebook.users.group.GroupMember.user_name" href="#signals_notebook.users.group.GroupMember.user_name">user_name</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="signals_notebook.users.group.GroupMemberResponse" href="#signals_notebook.users.group.GroupMemberResponse">GroupMemberResponse</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.users.group.GroupMemberResponse.data" href="#signals_notebook.users.group.GroupMemberResponse.data">data</a></code></li>
-<li><code><a title="signals_notebook.users.group.GroupMemberResponse.links" href="#signals_notebook.users.group.GroupMemberResponse.links">links</a></code></li>
-</ul>
-</li>
-<li>
 <h4><code><a title="signals_notebook.users.group.GroupResponse" href="#signals_notebook.users.group.GroupResponse">GroupResponse</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.users.group.GroupResponse.data" href="#signals_notebook.users.group.GroupResponse.data">data</a></code></li>
 <li><code><a title="signals_notebook.users.group.GroupResponse.links" href="#signals_notebook.users.group.GroupResponse.links">links</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="signals_notebook.users.group.Response[GroupMember]" href="#signals_notebook.users.group.Response[GroupMember]">Response[GroupMember]</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.users.group.Response[GroupMember].Config" href="#signals_notebook.users.group.Response[GroupMember].Config">Config</a></code></li>
-<li><code><a title="signals_notebook.users.group.Response[GroupMember].data" href="#signals_notebook.users.group.Response[GroupMember].data">data</a></code></li>
-<li><code><a title="signals_notebook.users.group.Response[GroupMember].links" href="#signals_notebook.users.group.Response[GroupMember].links">links</a></code></li>
 </ul>
 </li>
 <li>

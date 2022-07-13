@@ -308,7 +308,7 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     eid: Union[EID, MID, AttrID, UUID, str] = Field(alias=&#39;id&#39;)
     links: Optional[Links] = None
     body: EntityClass = Field(alias=&#39;attributes&#39;)
-    relationships: Optional[Any] = Field(alias=&#39;relationships&#39;)
+    relationships: Optional[dict[str, Any]] = Field(default=None)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get(&#39;attributes&#39;, {})
@@ -1758,10 +1758,9 @@ def type(self) -&gt; MaterialType:
 <li><a title="signals_notebook.materials.library.Response[Asset]" href="materials/library.html#signals_notebook.materials.library.Response[Asset]">Response[Asset]</a></li>
 <li><a title="signals_notebook.materials.library.Response[_LibraryListData]" href="materials/library.html#signals_notebook.materials.library.Response[_LibraryListData]">Response[_LibraryListData]</a></li>
 <li><a title="signals_notebook.materials.material_store.Response[Union[Library, Asset, Batch]]" href="materials/material_store.html#signals_notebook.materials.material_store.Response[Union[Library, Asset, Batch]]">Response[Union[Library, Asset, Batch]]</a></li>
-<li><a title="signals_notebook.users.group.Response[GroupMember]" href="users/group.html#signals_notebook.users.group.Response[GroupMember]">Response[GroupMember]</a></li>
 <li><a title="signals_notebook.users.group.Response[Group]" href="users/group.html#signals_notebook.users.group.Response[Group]">Response[Group]</a></li>
-<li><a title="signals_notebook.users.profile.Response[Profile]" href="users/profile.html#signals_notebook.users.profile.Response[Profile]">Response[Profile]</a></li>
-<li><a title="signals_notebook.users.profile.Response[Role]" href="users/profile.html#signals_notebook.users.profile.Response[Role]">Response[Role]</a></li>
+<li><a title="signals_notebook.users.role.Response[Role]" href="users/role.html#signals_notebook.users.role.Response[Role]">Response[Role]</a></li>
+<li><a title="signals_notebook.users.user.Response[Profile]" href="users/user.html#signals_notebook.users.user.Response[Profile]">Response[Profile]</a></li>
 <li><a title="signals_notebook.users.user.Response[User]" href="users/user.html#signals_notebook.users.user.Response[User]">Response[User]</a></li>
 </ul>
 <h3>Class variables</h3>
@@ -1792,7 +1791,7 @@ def type(self) -&gt; MaterialType:
     eid: Union[EID, MID, AttrID, UUID, str] = Field(alias=&#39;id&#39;)
     links: Optional[Links] = None
     body: EntityClass = Field(alias=&#39;attributes&#39;)
-    relationships: Optional[Any] = Field(alias=&#39;relationships&#39;)
+    relationships: Optional[dict[str, Any]] = Field(default=None)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get(&#39;attributes&#39;, {})
@@ -1816,7 +1815,6 @@ def type(self) -&gt; MaterialType:
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
 <li>pydantic.generics.ResponseData[DataGrids]</li>
-<li>pydantic.generics.ResponseData[GroupMember]</li>
 <li>pydantic.generics.ResponseData[Group]</li>
 <li>pydantic.generics.ResponseData[Profile]</li>
 <li>pydantic.generics.ResponseData[Property]</li>
@@ -1843,7 +1841,7 @@ def type(self) -&gt; MaterialType:
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.common_types.ResponseData.relationships"><code class="name">var <span class="ident">relationships</span> : Optional[Any]</code></dt>
+<dt id="signals_notebook.common_types.ResponseData.relationships"><code class="name">var <span class="ident">relationships</span> : Optional[dict]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>

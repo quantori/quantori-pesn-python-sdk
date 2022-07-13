@@ -27,41 +27,71 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import cgi
+import json
 import logging
 import mimetypes
 from datetime import datetime
-from typing import cast, Optional
+from typing import Any, cast, Generator, Optional, TYPE_CHECKING, Union
 
 from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
-from signals_notebook.users.group import Group, GroupResponse
-from signals_notebook.users.profile import Role
+from signals_notebook.users.role import Role
 
 log = logging.getLogger(__name__)
 
+if TYPE_CHECKING:
+    from signals_notebook.users.group import Group
 
-class User(BaseModel):
-    is_enabled: Optional[bool] = Field(alias=&#39;isEnabled&#39;, allow_mutation=False)
-    id: str = Field(alias=&#39;userId&#39;, allow_mutation=False)
-    username: str = Field(alias=&#39;userName&#39;, allow_mutation=False)
-    email: str = Field(allow_mutation=False)
-    alias: Optional[str] = Field(alias=&#39;alias&#39;)
-    first_name: str = Field(alias=&#39;firstName&#39;)
-    last_name: str = Field(alias=&#39;lastName&#39;)
-    country: str = Field(alias=&#39;country&#39;)
-    organization: str = Field(alias=&#39;organization&#39;)
-    created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
-    last_login_at: Optional[datetime] = Field(alias=&#39;lastLoginAt&#39;, allow_mutation=False)
-    _picture: Optional[File] = PrivateAttr(default=None)
-    _groups: list[Group] = PrivateAttr(default=[])
-    _roles: list[Role] = PrivateAttr(default=[])
-    _relationships: dict = PrivateAttr(default={})
+
+class Licence(BaseModel):
+    id: Union[int, str]
+    name: str
+    expires_at: datetime = Field(alias=&#39;expiresAt&#39;)
+    valid: bool
+    has_service_expired: bool = Field(alias=&#39;hasServiceExpired&#39;)
+    has_user_found: bool = Field(alias=&#39;hasUserFound&#39;)
+    has_user_activated: bool = Field(alias=&#39;hasUserActivated&#39;)
 
     class Config:
         validate_assignment = True
         allow_population_by_field_name = True
+
+
+class BaseUser(BaseModel):
+    id: str = Field(alias=&#39;userId&#39;, allow_mutation=False)
+    first_name: str = Field(alias=&#39;firstName&#39;)
+    last_name: str = Field(alias=&#39;lastName&#39;)
+    email: str = Field(allow_mutation=False)
+    created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+
+class Profile(BaseUser):
+    tenant: str
+    roles: list[Role]
+    licenses: list[Licence]
+
+
+class ProfileResponse(Response[Profile]):
+    pass
+
+
+class User(BaseUser):
+    is_enabled: Optional[bool] = Field(alias=&#39;isEnabled&#39;, allow_mutation=False)
+    username: str = Field(alias=&#39;userName&#39;, allow_mutation=False)
+    alias: Optional[str] = Field(alias=&#39;alias&#39;)
+    country: str = Field(alias=&#39;country&#39;)
+    organization: str = Field(alias=&#39;organization&#39;)
+    last_login_at: Optional[datetime] = Field(alias=&#39;lastLoginAt&#39;, allow_mutation=False)
+    _picture: Optional[File] = PrivateAttr(default=None)
+    _groups: list[&#39;Group&#39;] = PrivateAttr(default=[])
+    _roles: list[Role] = PrivateAttr(default=[])
+    _relationships: dict[str, Any] = PrivateAttr(default={})
 
     def set_relationships(self, value: dict) -&gt; None:
         self._relationships = value
@@ -76,6 +106,95 @@ class User(BaseModel):
     @classmethod
     def _get_endpoint(cls) -&gt; str:
         return &#39;users&#39;
+
+    @staticmethod
+    def get(user_id: str) -&gt; &#39;User&#39;:
+        &#34;&#34;&#34;Get user by id from the scope
+
+        Returns:
+            User
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(&#39;users&#39;, user_id),
+        )
+        result = UserResponse(**response.json())
+
+        user = cast(ResponseData, result.data).body
+        user.set_relationships(result.data.relationships)  # type: ignore
+
+        return user
+
+    @staticmethod
+    def get_list(q: str = &#39;&#39;, enabled: bool = True, offset: int = 0, limit: int = 20) -&gt; Generator[&#39;User&#39;, None, None]:
+        &#34;&#34;&#34;Get all users from the scope
+
+        Parameter &#39;q&#39; is a String and it is used to filter users.
+
+        Example usage: Input &#39;foo&#39; as value of &#39;q&#39;, will return
+        Users whose first name starts with &#39;foo&#39;.
+        Users whose last name starts with &#39;foo&#39;.
+        Users whose email address starts with &#39;foo&#39;.
+        Users who has role name (except &#34;Standard User&#34;) contains &#39;foo&#39;.
+        All of above are case insensitive.
+
+        Args:
+            q: query string for list users
+            enabled: filter activated and deactivated users
+            offset: Number of items to skip before returning the results.
+            limit: Maximum number of items to return.
+
+        Returns:
+            User
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(&#39;users&#39;,),
+            params={
+                &#39;q&#39;: q,
+                &#39;enabled&#39;: json.dumps(enabled),
+                &#39;offset&#39;: offset,
+                &#39;limit&#39;: limit,
+            },
+        )
+        result = UserResponse(**response.json())
+
+        for item in result.data:
+            user = cast(ResponseData, item).body
+            user.set_relationships(item.relationships)  # type: ignore
+
+            yield user
+
+        while result.links and result.links.next:
+            response = api.call(
+                method=&#39;GET&#39;,
+                path=result.links.next,
+            )
+
+            result = UserResponse(**response.json())
+
+            for item in result.data:
+                user = cast(ResponseData, item).body
+                user.set_relationships(item.relationships)  # type: ignore
+
+                yield user
+
+    @staticmethod
+    def get_current_user() -&gt; Profile:
+        &#34;&#34;&#34;Get current user for api session
+
+        Returns:
+            User
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(&#39;profiles&#39;, &#39;me&#39;),
+        )
+        result = ProfileResponse(**response.json())
+        return cast(ResponseData, result.data).body
 
     @classmethod
     def create(
@@ -123,9 +242,11 @@ class User(BaseModel):
         Returns:
 
         &#34;&#34;&#34;
-        from signals_notebook.users.user_store import UserStore
-
-        UserStore.refresh(self)
+        refreshed_entity = self.get(self.id)
+        for field in self.__fields__.values():
+            if field.field_info.allow_mutation:
+                new_value = getattr(refreshed_entity, field.name)
+                setattr(self, field.name, new_value)
 
     def save(self) -&gt; None:
         &#34;&#34;&#34;Update attributes of a specified user.
@@ -155,6 +276,7 @@ class User(BaseModel):
                 },
             },
         )
+        log.debug(&#39;User: %s was saved successfully&#39;, self.id)
 
     def delete(self) -&gt; None:
         &#34;&#34;&#34;Make specified user disabled.
@@ -194,7 +316,9 @@ class User(BaseModel):
         return self._picture
 
     @property
-    def groups(self) -&gt; list[Group]:
+    def groups(self) -&gt; list[&#39;Group&#39;]:
+        from signals_notebook.users.group import GroupResponse
+
         if self._groups:
             return self._groups
 
@@ -220,6 +344,239 @@ class UserResponse(Response[User]):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="signals_notebook.users.user.BaseUser"><code class="flex name class">
+<span>class <span class="ident">BaseUser</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class BaseUser(BaseModel):
+    id: str = Field(alias=&#39;userId&#39;, allow_mutation=False)
+    first_name: str = Field(alias=&#39;firstName&#39;)
+    last_name: str = Field(alias=&#39;lastName&#39;)
+    email: str = Field(allow_mutation=False)
+    created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.users.user.Profile" href="#signals_notebook.users.user.Profile">Profile</a></li>
+<li><a title="signals_notebook.users.user.User" href="#signals_notebook.users.user.User">User</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.users.user.BaseUser.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.BaseUser.created_at"><code class="name">var <span class="ident">created_at</span> : datetime.datetime</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.BaseUser.email"><code class="name">var <span class="ident">email</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.BaseUser.first_name"><code class="name">var <span class="ident">first_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.BaseUser.id"><code class="name">var <span class="ident">id</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.BaseUser.last_name"><code class="name">var <span class="ident">last_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.users.user.Licence"><code class="flex name class">
+<span>class <span class="ident">Licence</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Licence(BaseModel):
+    id: Union[int, str]
+    name: str
+    expires_at: datetime = Field(alias=&#39;expiresAt&#39;)
+    valid: bool
+    has_service_expired: bool = Field(alias=&#39;hasServiceExpired&#39;)
+    has_user_found: bool = Field(alias=&#39;hasUserFound&#39;)
+    has_user_activated: bool = Field(alias=&#39;hasUserActivated&#39;)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.users.user.Licence.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Licence.expires_at"><code class="name">var <span class="ident">expires_at</span> : datetime.datetime</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Licence.has_service_expired"><code class="name">var <span class="ident">has_service_expired</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Licence.has_user_activated"><code class="name">var <span class="ident">has_user_activated</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Licence.has_user_found"><code class="name">var <span class="ident">has_user_found</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Licence.id"><code class="name">var <span class="ident">id</span> : Union[int, str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Licence.name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Licence.valid"><code class="name">var <span class="ident">valid</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.users.user.Profile"><code class="flex name class">
+<span>class <span class="ident">Profile</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Profile(BaseUser):
+    tenant: str
+    roles: list[Role]
+    licenses: list[Licence]</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.users.user.BaseUser" href="#signals_notebook.users.user.BaseUser">BaseUser</a></li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.users.user.Profile.licenses"><code class="name">var <span class="ident">licenses</span> : list</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Profile.roles"><code class="name">var <span class="ident">roles</span> : list</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Profile.tenant"><code class="name">var <span class="ident">tenant</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.users.user.ProfileResponse"><code class="flex name class">
+<span>class <span class="ident">ProfileResponse</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ProfileResponse(Response[Profile]):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.users.user.Response[Profile]" href="#signals_notebook.users.user.Response[Profile]">Response[Profile]</a></li>
+<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.users.user.ProfileResponse.data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.users.user.Profile" href="#signals_notebook.users.user.Profile">Profile</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.users.user.Profile" href="#signals_notebook.users.user.Profile">Profile</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.ProfileResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.users.user.Response[Profile]"><code class="flex name class">
+<span>class <span class="ident">Response[Profile]</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.users.user.ProfileResponse" href="#signals_notebook.users.user.ProfileResponse">ProfileResponse</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.users.user.Response[Profile].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Response[Profile].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.users.user.Profile" href="#signals_notebook.users.user.Profile">Profile</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.users.user.Profile" href="#signals_notebook.users.user.Profile">Profile</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.users.user.Response[Profile].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
 <dt id="signals_notebook.users.user.Response[User]"><code class="flex name class">
 <span>class <span class="ident">Response[User]</span></span>
 <span>(</span><span>**kwargs)</span>
@@ -266,26 +623,17 @@ class UserResponse(Response[User]):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class User(BaseModel):
+<pre><code class="python">class User(BaseUser):
     is_enabled: Optional[bool] = Field(alias=&#39;isEnabled&#39;, allow_mutation=False)
-    id: str = Field(alias=&#39;userId&#39;, allow_mutation=False)
     username: str = Field(alias=&#39;userName&#39;, allow_mutation=False)
-    email: str = Field(allow_mutation=False)
     alias: Optional[str] = Field(alias=&#39;alias&#39;)
-    first_name: str = Field(alias=&#39;firstName&#39;)
-    last_name: str = Field(alias=&#39;lastName&#39;)
     country: str = Field(alias=&#39;country&#39;)
     organization: str = Field(alias=&#39;organization&#39;)
-    created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
     last_login_at: Optional[datetime] = Field(alias=&#39;lastLoginAt&#39;, allow_mutation=False)
     _picture: Optional[File] = PrivateAttr(default=None)
-    _groups: list[Group] = PrivateAttr(default=[])
+    _groups: list[&#39;Group&#39;] = PrivateAttr(default=[])
     _roles: list[Role] = PrivateAttr(default=[])
-    _relationships: dict = PrivateAttr(default={})
-
-    class Config:
-        validate_assignment = True
-        allow_population_by_field_name = True
+    _relationships: dict[str, Any] = PrivateAttr(default={})
 
     def set_relationships(self, value: dict) -&gt; None:
         self._relationships = value
@@ -300,6 +648,95 @@ class UserResponse(Response[User]):
     @classmethod
     def _get_endpoint(cls) -&gt; str:
         return &#39;users&#39;
+
+    @staticmethod
+    def get(user_id: str) -&gt; &#39;User&#39;:
+        &#34;&#34;&#34;Get user by id from the scope
+
+        Returns:
+            User
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(&#39;users&#39;, user_id),
+        )
+        result = UserResponse(**response.json())
+
+        user = cast(ResponseData, result.data).body
+        user.set_relationships(result.data.relationships)  # type: ignore
+
+        return user
+
+    @staticmethod
+    def get_list(q: str = &#39;&#39;, enabled: bool = True, offset: int = 0, limit: int = 20) -&gt; Generator[&#39;User&#39;, None, None]:
+        &#34;&#34;&#34;Get all users from the scope
+
+        Parameter &#39;q&#39; is a String and it is used to filter users.
+
+        Example usage: Input &#39;foo&#39; as value of &#39;q&#39;, will return
+        Users whose first name starts with &#39;foo&#39;.
+        Users whose last name starts with &#39;foo&#39;.
+        Users whose email address starts with &#39;foo&#39;.
+        Users who has role name (except &#34;Standard User&#34;) contains &#39;foo&#39;.
+        All of above are case insensitive.
+
+        Args:
+            q: query string for list users
+            enabled: filter activated and deactivated users
+            offset: Number of items to skip before returning the results.
+            limit: Maximum number of items to return.
+
+        Returns:
+            User
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(&#39;users&#39;,),
+            params={
+                &#39;q&#39;: q,
+                &#39;enabled&#39;: json.dumps(enabled),
+                &#39;offset&#39;: offset,
+                &#39;limit&#39;: limit,
+            },
+        )
+        result = UserResponse(**response.json())
+
+        for item in result.data:
+            user = cast(ResponseData, item).body
+            user.set_relationships(item.relationships)  # type: ignore
+
+            yield user
+
+        while result.links and result.links.next:
+            response = api.call(
+                method=&#39;GET&#39;,
+                path=result.links.next,
+            )
+
+            result = UserResponse(**response.json())
+
+            for item in result.data:
+                user = cast(ResponseData, item).body
+                user.set_relationships(item.relationships)  # type: ignore
+
+                yield user
+
+    @staticmethod
+    def get_current_user() -&gt; Profile:
+        &#34;&#34;&#34;Get current user for api session
+
+        Returns:
+            User
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(&#39;profiles&#39;, &#39;me&#39;),
+        )
+        result = ProfileResponse(**response.json())
+        return cast(ResponseData, result.data).body
 
     @classmethod
     def create(
@@ -347,9 +784,11 @@ class UserResponse(Response[User]):
         Returns:
 
         &#34;&#34;&#34;
-        from signals_notebook.users.user_store import UserStore
-
-        UserStore.refresh(self)
+        refreshed_entity = self.get(self.id)
+        for field in self.__fields__.values():
+            if field.field_info.allow_mutation:
+                new_value = getattr(refreshed_entity, field.name)
+                setattr(self, field.name, new_value)
 
     def save(self) -&gt; None:
         &#34;&#34;&#34;Update attributes of a specified user.
@@ -379,6 +818,7 @@ class UserResponse(Response[User]):
                 },
             },
         )
+        log.debug(&#39;User: %s was saved successfully&#39;, self.id)
 
     def delete(self) -&gt; None:
         &#34;&#34;&#34;Make specified user disabled.
@@ -418,7 +858,9 @@ class UserResponse(Response[User]):
         return self._picture
 
     @property
-    def groups(self) -&gt; list[Group]:
+    def groups(self) -&gt; list[&#39;Group&#39;]:
+        from signals_notebook.users.group import GroupResponse
+
         if self._groups:
             return self._groups
 
@@ -432,15 +874,12 @@ class UserResponse(Response[User]):
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="signals_notebook.users.user.BaseUser" href="#signals_notebook.users.user.BaseUser">BaseUser</a></li>
 <li>pydantic.main.BaseModel</li>
 <li>pydantic.utils.Representation</li>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.users.user.User.Config"><code class="name">var <span class="ident">Config</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="signals_notebook.users.user.User.alias"><code class="name">var <span class="ident">alias</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
@@ -449,31 +888,11 @@ class UserResponse(Response[User]):
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.users.user.User.created_at"><code class="name">var <span class="ident">created_at</span> : datetime.datetime</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.User.email"><code class="name">var <span class="ident">email</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.User.first_name"><code class="name">var <span class="ident">first_name</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.User.id"><code class="name">var <span class="ident">id</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="signals_notebook.users.user.User.is_enabled"><code class="name">var <span class="ident">is_enabled</span> : Optional[bool]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.users.user.User.last_login_at"><code class="name">var <span class="ident">last_login_at</span> : Optional[datetime.datetime]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.users.user.User.last_name"><code class="name">var <span class="ident">last_name</span> : str</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -540,6 +959,149 @@ def create(
     return cast(ResponseData, result.data).body</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.users.user.User.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>user_id: str) ‑> <a title="signals_notebook.users.user.User" href="#signals_notebook.users.user.User">User</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get user by id from the scope</p>
+<h2 id="returns">Returns</h2>
+<p>User</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def get(user_id: str) -&gt; &#39;User&#39;:
+    &#34;&#34;&#34;Get user by id from the scope
+
+    Returns:
+        User
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    response = api.call(
+        method=&#39;GET&#39;,
+        path=(&#39;users&#39;, user_id),
+    )
+    result = UserResponse(**response.json())
+
+    user = cast(ResponseData, result.data).body
+    user.set_relationships(result.data.relationships)  # type: ignore
+
+    return user</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.users.user.User.get_current_user"><code class="name flex">
+<span>def <span class="ident">get_current_user</span></span>(<span>) ‑> <a title="signals_notebook.users.user.Profile" href="#signals_notebook.users.user.Profile">Profile</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get current user for api session</p>
+<h2 id="returns">Returns</h2>
+<p>User</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def get_current_user() -&gt; Profile:
+    &#34;&#34;&#34;Get current user for api session
+
+    Returns:
+        User
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    response = api.call(
+        method=&#39;GET&#39;,
+        path=(&#39;profiles&#39;, &#39;me&#39;),
+    )
+    result = ProfileResponse(**response.json())
+    return cast(ResponseData, result.data).body</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.users.user.User.get_list"><code class="name flex">
+<span>def <span class="ident">get_list</span></span>(<span>q: str = '', enabled: bool = True, offset: int = 0, limit: int = 20) ‑> Generator[<a title="signals_notebook.users.user.User" href="#signals_notebook.users.user.User">User</a>, None, None]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get all users from the scope</p>
+<p>Parameter 'q' is a String and it is used to filter users.</p>
+<p>Example usage: Input 'foo' as value of 'q', will return
+Users whose first name starts with 'foo'.
+Users whose last name starts with 'foo'.
+Users whose email address starts with 'foo'.
+Users who has role name (except "Standard User") contains 'foo'.
+All of above are case insensitive.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>q</code></strong></dt>
+<dd>query string for list users</dd>
+<dt><strong><code>enabled</code></strong></dt>
+<dd>filter activated and deactivated users</dd>
+<dt><strong><code>offset</code></strong></dt>
+<dd>Number of items to skip before returning the results.</dd>
+<dt><strong><code>limit</code></strong></dt>
+<dd>Maximum number of items to return.</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>User</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def get_list(q: str = &#39;&#39;, enabled: bool = True, offset: int = 0, limit: int = 20) -&gt; Generator[&#39;User&#39;, None, None]:
+    &#34;&#34;&#34;Get all users from the scope
+
+    Parameter &#39;q&#39; is a String and it is used to filter users.
+
+    Example usage: Input &#39;foo&#39; as value of &#39;q&#39;, will return
+    Users whose first name starts with &#39;foo&#39;.
+    Users whose last name starts with &#39;foo&#39;.
+    Users whose email address starts with &#39;foo&#39;.
+    Users who has role name (except &#34;Standard User&#34;) contains &#39;foo&#39;.
+    All of above are case insensitive.
+
+    Args:
+        q: query string for list users
+        enabled: filter activated and deactivated users
+        offset: Number of items to skip before returning the results.
+        limit: Maximum number of items to return.
+
+    Returns:
+        User
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    response = api.call(
+        method=&#39;GET&#39;,
+        path=(&#39;users&#39;,),
+        params={
+            &#39;q&#39;: q,
+            &#39;enabled&#39;: json.dumps(enabled),
+            &#39;offset&#39;: offset,
+            &#39;limit&#39;: limit,
+        },
+    )
+    result = UserResponse(**response.json())
+
+    for item in result.data:
+        user = cast(ResponseData, item).body
+        user.set_relationships(item.relationships)  # type: ignore
+
+        yield user
+
+    while result.links and result.links.next:
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=result.links.next,
+        )
+
+        result = UserResponse(**response.json())
+
+        for item in result.data:
+            user = cast(ResponseData, item).body
+            user.set_relationships(item.relationships)  # type: ignore
+
+            yield user</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
@@ -551,7 +1113,9 @@ def create(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def groups(self) -&gt; list[Group]:
+def groups(self) -&gt; list[&#39;Group&#39;]:
+    from signals_notebook.users.group import GroupResponse
+
     if self._groups:
         return self._groups
 
@@ -654,9 +1218,11 @@ def roles(self) -&gt; list[Role]:
     Returns:
 
     &#34;&#34;&#34;
-    from signals_notebook.users.user_store import UserStore
-
-    UserStore.refresh(self)</code></pre>
+    refreshed_entity = self.get(self.id)
+    for field in self.__fields__.values():
+        if field.field_info.allow_mutation:
+            new_value = getattr(refreshed_entity, field.name)
+            setattr(self, field.name, new_value)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.users.user.User.save"><code class="name flex">
@@ -696,7 +1262,8 @@ def roles(self) -&gt; list[Role]:
                 )
             },
         },
-    )</code></pre>
+    )
+    log.debug(&#39;User: %s was saved successfully&#39;, self.id)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.users.user.User.set_relationships"><code class="name flex">
@@ -766,6 +1333,53 @@ def roles(self) -&gt; list[Role]:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="signals_notebook.users.user.BaseUser" href="#signals_notebook.users.user.BaseUser">BaseUser</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.users.user.BaseUser.Config" href="#signals_notebook.users.user.BaseUser.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.users.user.BaseUser.created_at" href="#signals_notebook.users.user.BaseUser.created_at">created_at</a></code></li>
+<li><code><a title="signals_notebook.users.user.BaseUser.email" href="#signals_notebook.users.user.BaseUser.email">email</a></code></li>
+<li><code><a title="signals_notebook.users.user.BaseUser.first_name" href="#signals_notebook.users.user.BaseUser.first_name">first_name</a></code></li>
+<li><code><a title="signals_notebook.users.user.BaseUser.id" href="#signals_notebook.users.user.BaseUser.id">id</a></code></li>
+<li><code><a title="signals_notebook.users.user.BaseUser.last_name" href="#signals_notebook.users.user.BaseUser.last_name">last_name</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.users.user.Licence" href="#signals_notebook.users.user.Licence">Licence</a></code></h4>
+<ul class="two-column">
+<li><code><a title="signals_notebook.users.user.Licence.Config" href="#signals_notebook.users.user.Licence.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.users.user.Licence.expires_at" href="#signals_notebook.users.user.Licence.expires_at">expires_at</a></code></li>
+<li><code><a title="signals_notebook.users.user.Licence.has_service_expired" href="#signals_notebook.users.user.Licence.has_service_expired">has_service_expired</a></code></li>
+<li><code><a title="signals_notebook.users.user.Licence.has_user_activated" href="#signals_notebook.users.user.Licence.has_user_activated">has_user_activated</a></code></li>
+<li><code><a title="signals_notebook.users.user.Licence.has_user_found" href="#signals_notebook.users.user.Licence.has_user_found">has_user_found</a></code></li>
+<li><code><a title="signals_notebook.users.user.Licence.id" href="#signals_notebook.users.user.Licence.id">id</a></code></li>
+<li><code><a title="signals_notebook.users.user.Licence.name" href="#signals_notebook.users.user.Licence.name">name</a></code></li>
+<li><code><a title="signals_notebook.users.user.Licence.valid" href="#signals_notebook.users.user.Licence.valid">valid</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.users.user.Profile" href="#signals_notebook.users.user.Profile">Profile</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.users.user.Profile.licenses" href="#signals_notebook.users.user.Profile.licenses">licenses</a></code></li>
+<li><code><a title="signals_notebook.users.user.Profile.roles" href="#signals_notebook.users.user.Profile.roles">roles</a></code></li>
+<li><code><a title="signals_notebook.users.user.Profile.tenant" href="#signals_notebook.users.user.Profile.tenant">tenant</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.users.user.ProfileResponse" href="#signals_notebook.users.user.ProfileResponse">ProfileResponse</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.users.user.ProfileResponse.data" href="#signals_notebook.users.user.ProfileResponse.data">data</a></code></li>
+<li><code><a title="signals_notebook.users.user.ProfileResponse.links" href="#signals_notebook.users.user.ProfileResponse.links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.users.user.Response[Profile]" href="#signals_notebook.users.user.Response[Profile]">Response[Profile]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.users.user.Response[Profile].Config" href="#signals_notebook.users.user.Response[Profile].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.users.user.Response[Profile].data" href="#signals_notebook.users.user.Response[Profile].data">data</a></code></li>
+<li><code><a title="signals_notebook.users.user.Response[Profile].links" href="#signals_notebook.users.user.Response[Profile].links">links</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="signals_notebook.users.user.Response[User]" href="#signals_notebook.users.user.Response[User]">Response[User]</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.users.user.Response[User].Config" href="#signals_notebook.users.user.Response[User].Config">Config</a></code></li>
@@ -776,19 +1390,16 @@ def roles(self) -&gt; list[Role]:
 <li>
 <h4><code><a title="signals_notebook.users.user.User" href="#signals_notebook.users.user.User">User</a></code></h4>
 <ul class="two-column">
-<li><code><a title="signals_notebook.users.user.User.Config" href="#signals_notebook.users.user.User.Config">Config</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.alias" href="#signals_notebook.users.user.User.alias">alias</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.country" href="#signals_notebook.users.user.User.country">country</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.create" href="#signals_notebook.users.user.User.create">create</a></code></li>
-<li><code><a title="signals_notebook.users.user.User.created_at" href="#signals_notebook.users.user.User.created_at">created_at</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.delete" href="#signals_notebook.users.user.User.delete">delete</a></code></li>
-<li><code><a title="signals_notebook.users.user.User.email" href="#signals_notebook.users.user.User.email">email</a></code></li>
-<li><code><a title="signals_notebook.users.user.User.first_name" href="#signals_notebook.users.user.User.first_name">first_name</a></code></li>
+<li><code><a title="signals_notebook.users.user.User.get" href="#signals_notebook.users.user.User.get">get</a></code></li>
+<li><code><a title="signals_notebook.users.user.User.get_current_user" href="#signals_notebook.users.user.User.get_current_user">get_current_user</a></code></li>
+<li><code><a title="signals_notebook.users.user.User.get_list" href="#signals_notebook.users.user.User.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.groups" href="#signals_notebook.users.user.User.groups">groups</a></code></li>
-<li><code><a title="signals_notebook.users.user.User.id" href="#signals_notebook.users.user.User.id">id</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.is_enabled" href="#signals_notebook.users.user.User.is_enabled">is_enabled</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.last_login_at" href="#signals_notebook.users.user.User.last_login_at">last_login_at</a></code></li>
-<li><code><a title="signals_notebook.users.user.User.last_name" href="#signals_notebook.users.user.User.last_name">last_name</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.organization" href="#signals_notebook.users.user.User.organization">organization</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.picture" href="#signals_notebook.users.user.User.picture">picture</a></code></li>
 <li><code><a title="signals_notebook.users.user.User.refresh" href="#signals_notebook.users.user.User.refresh">refresh</a></code></li>
