@@ -70,8 +70,8 @@ class Notebook(Container):
             request=request,
         )
 
-    def dump(self, base_path, fs_handler):
-        fs_handler.write(base_path + '/' + self.eid + '/metadata.json', json.dumps(self.get_metadata()))
+    def dump(self, base_path: str, fs_handler: FSHandler):
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(self.dict()))
         for child in self.get_children():
             child.dump(base_path + '/' + self.eid, fs_handler)
 
