@@ -4,7 +4,7 @@
     {% if data['name'].endswith('.pptx') %}
     <a href="{{ data['content'] }}" download="{{ data['name'] }}">DOWNLOAD .PPTX FILE</a>
     {% else %}
-    <a href="{{ data['content'] }}" download="{{ data['name'] }}.xlsx">DOWNLOAD .PPTX FILE</a>
+    <a href="{{ data['content'] }}" download="{{ data['name'] }}.pptx">DOWNLOAD .PPTX FILE</a>
     {% endif %}
     {% endif %}
 </div>
