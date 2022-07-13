@@ -54,7 +54,7 @@ class ColumnDataType(str, Enum):
 
 class CellContent(GenericModel, Generic[CellContentType]):
     user: Optional[str]
-    value: CellContentType
+    value: Optional[CellContentType] = None
     values: Optional[List[CellContentType]] = None
 
     class Config:
@@ -93,7 +93,7 @@ class PlateCell(GenericModel, Generic[CellContentType]):
 </summary>
 <pre><code class="python">class CellContent(GenericModel, Generic[CellContentType]):
     user: Optional[str]
-    value: CellContentType
+    value: Optional[CellContentType] = None
     values: Optional[List[CellContentType]] = None
 
     class Config:
@@ -116,7 +116,7 @@ class PlateCell(GenericModel, Generic[CellContentType]):
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.plates.cell.CellContent.value"><code class="name">var <span class="ident">value</span> : ~CellContentType</code></dt>
+<dt id="signals_notebook.entities.plates.cell.CellContent.value"><code class="name">var <span class="ident">value</span> : Optional[~CellContentType]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
