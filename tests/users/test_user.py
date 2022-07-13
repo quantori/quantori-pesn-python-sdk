@@ -5,8 +5,8 @@ import arrow
 
 from signals_notebook.common_types import File, ObjectType
 from signals_notebook.users.group import Group
-from signals_notebook.users.user import User, Profile
 from signals_notebook.users.role import Role
+from signals_notebook.users.user import Profile, User
 
 
 def test_get_by_id(api_mock, user_factory):

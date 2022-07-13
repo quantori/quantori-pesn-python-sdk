@@ -3,7 +3,7 @@ import json
 import logging
 import mimetypes
 from datetime import datetime
-from typing import cast, Generator, Optional, Union, TYPE_CHECKING, Any
+from typing import Any, cast, Generator, Optional, TYPE_CHECKING, Union
 
 from pydantic import BaseModel, Field, PrivateAttr
 
