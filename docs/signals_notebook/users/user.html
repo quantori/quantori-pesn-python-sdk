@@ -114,6 +114,8 @@ class User(BaseUser):
         Returns:
             User
         &#34;&#34;&#34;
+        log.debug(&#39;Get user: %s&#39;, user_id)
+
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method=&#39;GET&#39;,
@@ -123,6 +125,8 @@ class User(BaseUser):
 
         user = cast(ResponseData, result.data).body
         user.set_relationships(result.data.relationships)  # type: ignore
+
+        log.debug(&#39;Role: %s was got successfully.&#39;, user_id)
 
         return user
 
@@ -149,6 +153,9 @@ class User(BaseUser):
             User
         &#34;&#34;&#34;
         api = SignalsNotebookApi.get_default_api()
+
+        log.debug(&#39;Get List of Users&#39;)
+
         response = api.call(
             method=&#39;GET&#39;,
             path=(&#39;users&#39;,),
@@ -181,6 +188,8 @@ class User(BaseUser):
 
                 yield user
 
+        log.debug(&#39;List of Users was got successfully.&#39;)
+
     @staticmethod
     def get_current_user() -&gt; Profile:
         &#34;&#34;&#34;Get current user for api session
@@ -189,11 +198,17 @@ class User(BaseUser):
             User
         &#34;&#34;&#34;
         api = SignalsNotebookApi.get_default_api()
+
+        log.debug(&#39;Get current user&#39;)
+
         response = api.call(
             method=&#39;GET&#39;,
             path=(&#39;profiles&#39;, &#39;me&#39;),
         )
         result = ProfileResponse(**response.json())
+
+        log.debug(&#39;Current user was got successfully.&#39;)
+
         return cast(ResponseData, result.data).body
 
     @classmethod
@@ -213,7 +228,9 @@ class User(BaseUser):
             User
         &#34;&#34;&#34;
         api = SignalsNotebookApi.get_default_api()
+
         log.debug(&#39;Create User: %s...&#39;, cls.__name__)
+
         response = api.call(
             method=&#39;POST&#39;,
             path=(cls._get_endpoint(),),
@@ -323,11 +340,17 @@ class User(BaseUser):
             return self._groups
 
         api = SignalsNotebookApi.get_default_api()
+
+        log.debug(&#39;Getting System Groups&#39;)
+
         response = api.call(
             method=&#39;GET&#39;,
             path=(self._get_endpoint(), self.id, &#39;systemGroups&#39;),
         )
         result = GroupResponse(**response.json())
+
+        log.debug(&#39;List of groups was got successfully.&#39;)
+
         return [cast(ResponseData, item).body for item in result.data]
 
 
@@ -656,6 +679,8 @@ class UserResponse(Response[User]):
         Returns:
             User
         &#34;&#34;&#34;
+        log.debug(&#39;Get user: %s&#39;, user_id)
+
         api = SignalsNotebookApi.get_default_api()
         response = api.call(
             method=&#39;GET&#39;,
@@ -665,6 +690,8 @@ class UserResponse(Response[User]):
 
         user = cast(ResponseData, result.data).body
         user.set_relationships(result.data.relationships)  # type: ignore
+
+        log.debug(&#39;Role: %s was got successfully.&#39;, user_id)
 
         return user
 
@@ -691,6 +718,9 @@ class UserResponse(Response[User]):
             User
         &#34;&#34;&#34;
         api = SignalsNotebookApi.get_default_api()
+
+        log.debug(&#39;Get List of Users&#39;)
+
         response = api.call(
             method=&#39;GET&#39;,
             path=(&#39;users&#39;,),
@@ -723,6 +753,8 @@ class UserResponse(Response[User]):
 
                 yield user
 
+        log.debug(&#39;List of Users was got successfully.&#39;)
+
     @staticmethod
     def get_current_user() -&gt; Profile:
         &#34;&#34;&#34;Get current user for api session
@@ -731,11 +763,17 @@ class UserResponse(Response[User]):
             User
         &#34;&#34;&#34;
         api = SignalsNotebookApi.get_default_api()
+
+        log.debug(&#39;Get current user&#39;)
+
         response = api.call(
             method=&#39;GET&#39;,
             path=(&#39;profiles&#39;, &#39;me&#39;),
         )
         result = ProfileResponse(**response.json())
+
+        log.debug(&#39;Current user was got successfully.&#39;)
+
         return cast(ResponseData, result.data).body
 
     @classmethod
@@ -755,7 +793,9 @@ class UserResponse(Response[User]):
             User
         &#34;&#34;&#34;
         api = SignalsNotebookApi.get_default_api()
+
         log.debug(&#39;Create User: %s...&#39;, cls.__name__)
+
         response = api.call(
             method=&#39;POST&#39;,
             path=(cls._get_endpoint(),),
@@ -865,11 +905,17 @@ class UserResponse(Response[User]):
             return self._groups
 
         api = SignalsNotebookApi.get_default_api()
+
+        log.debug(&#39;Getting System Groups&#39;)
+
         response = api.call(
             method=&#39;GET&#39;,
             path=(self._get_endpoint(), self.id, &#39;systemGroups&#39;),
         )
         result = GroupResponse(**response.json())
+
+        log.debug(&#39;List of groups was got successfully.&#39;)
+
         return [cast(ResponseData, item).body for item in result.data]</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -935,7 +981,9 @@ def create(
         User
     &#34;&#34;&#34;
     api = SignalsNotebookApi.get_default_api()
+
     log.debug(&#39;Create User: %s...&#39;, cls.__name__)
+
     response = api.call(
         method=&#39;POST&#39;,
         path=(cls._get_endpoint(),),
@@ -977,6 +1025,8 @@ def get(user_id: str) -&gt; &#39;User&#39;:
     Returns:
         User
     &#34;&#34;&#34;
+    log.debug(&#39;Get user: %s&#39;, user_id)
+
     api = SignalsNotebookApi.get_default_api()
     response = api.call(
         method=&#39;GET&#39;,
@@ -986,6 +1036,8 @@ def get(user_id: str) -&gt; &#39;User&#39;:
 
     user = cast(ResponseData, result.data).body
     user.set_relationships(result.data.relationships)  # type: ignore
+
+    log.debug(&#39;Role: %s was got successfully.&#39;, user_id)
 
     return user</code></pre>
 </details>
@@ -1009,11 +1061,17 @@ def get_current_user() -&gt; Profile:
         User
     &#34;&#34;&#34;
     api = SignalsNotebookApi.get_default_api()
+
+    log.debug(&#39;Get current user&#39;)
+
     response = api.call(
         method=&#39;GET&#39;,
         path=(&#39;profiles&#39;, &#39;me&#39;),
     )
     result = ProfileResponse(**response.json())
+
+    log.debug(&#39;Current user was got successfully.&#39;)
+
     return cast(ResponseData, result.data).body</code></pre>
 </details>
 </dd>
@@ -1069,6 +1127,9 @@ def get_list(q: str = &#39;&#39;, enabled: bool = True, offset: int = 0, limit: 
         User
     &#34;&#34;&#34;
     api = SignalsNotebookApi.get_default_api()
+
+    log.debug(&#39;Get List of Users&#39;)
+
     response = api.call(
         method=&#39;GET&#39;,
         path=(&#39;users&#39;,),
@@ -1099,7 +1160,9 @@ def get_list(q: str = &#39;&#39;, enabled: bool = True, offset: int = 0, limit: 
             user = cast(ResponseData, item).body
             user.set_relationships(item.relationships)  # type: ignore
 
-            yield user</code></pre>
+            yield user
+
+    log.debug(&#39;List of Users was got successfully.&#39;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1120,11 +1183,17 @@ def groups(self) -&gt; list[&#39;Group&#39;]:
         return self._groups
 
     api = SignalsNotebookApi.get_default_api()
+
+    log.debug(&#39;Getting System Groups&#39;)
+
     response = api.call(
         method=&#39;GET&#39;,
         path=(self._get_endpoint(), self.id, &#39;systemGroups&#39;),
     )
     result = GroupResponse(**response.json())
+
+    log.debug(&#39;List of groups was got successfully.&#39;)
+
     return [cast(ResponseData, item).body for item in result.data]</code></pre>
 </details>
 </dd>
