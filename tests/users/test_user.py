@@ -2,7 +2,6 @@ import json
 import mimetypes
 
 import arrow
-import pytest
 
 from signals_notebook.common_types import File, ObjectType
 from signals_notebook.users.group import Group

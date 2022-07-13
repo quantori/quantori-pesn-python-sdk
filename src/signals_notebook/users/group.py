@@ -119,6 +119,7 @@ class Group(BaseModel):
                 },
             },
         )
+        log.debug('Group: %s was saved successfully', self.id)
 
     def delete(self):
         """Delete user group by id.

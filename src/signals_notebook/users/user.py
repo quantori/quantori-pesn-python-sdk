@@ -3,7 +3,7 @@ import json
 import logging
 import mimetypes
 from datetime import datetime
-from typing import cast, Generator, Optional, Union, TYPE_CHECKING
+from typing import cast, Generator, Optional, Union, TYPE_CHECKING, Any
 
 from pydantic import BaseModel, Field, PrivateAttr
 
@@ -63,7 +63,7 @@ class User(BaseUser):
     _picture: Optional[File] = PrivateAttr(default=None)
     _groups: list['Group'] = PrivateAttr(default=[])
     _roles: list[Role] = PrivateAttr(default=[])
-    _relationships: dict = PrivateAttr(default={})
+    _relationships: dict[str, Any] = PrivateAttr(default={})
 
     def set_relationships(self, value: dict) -> None:
         self._relationships = value
@@ -248,6 +248,7 @@ class User(BaseUser):
                 },
             },
         )
+        log.debug('User: %s was saved successfully', self.id)
 
     def delete(self) -> None:
         """Make specified user disabled.
