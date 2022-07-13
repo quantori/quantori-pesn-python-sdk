@@ -82,7 +82,7 @@ class Spotfire(ContentfulEntity):
         content = self.get_content()
         metadata = {
             &#39;file_name&#39;: content.name,
-            **self.dict()
+            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
         }
         fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
         file_name = content.name
@@ -159,7 +159,7 @@ class Spotfire(ContentfulEntity):
         content = self.get_content()
         metadata = {
             &#39;file_name&#39;: content.name,
-            **self.dict()
+            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
         }
         fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
         file_name = content.name
@@ -269,7 +269,7 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container):
     content = self.get_content()
     metadata = {
         &#39;file_name&#39;: content.name,
-        **self.dict()
+        **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
     }
     fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
     file_name = content.name
