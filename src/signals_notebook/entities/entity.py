@@ -303,10 +303,3 @@ class Entity(BaseModel):
 
     def dump(self, *args, **kwargs):
         log.error('Dumping Entity %s: not implemented!' % str(self))
-
-    def get_metadata(self):
-        return {
-            'eid': self.eid,
-            'name': self.name,
-            'description': self.description
-        }
