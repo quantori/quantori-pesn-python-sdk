@@ -36,6 +36,7 @@ from pydantic import BaseModel, Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import File, Response, ResponseData
+from signals_notebook.users.group import Group, GroupResponse
 from signals_notebook.users.profile import Role
 
 log = logging.getLogger(__name__)
@@ -54,20 +55,23 @@ class User(BaseModel):
     created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
     last_login_at: Optional[datetime] = Field(alias=&#39;lastLoginAt&#39;, allow_mutation=False)
     _picture: Optional[File] = PrivateAttr(default=None)
-    _groups = PrivateAttr(default=None)
-    _relationships: dict = PrivateAttr(default=None)
+    _groups: list[Group] = PrivateAttr(default=[])
+    _roles: list[Role] = PrivateAttr(default=[])
+    _relationships: dict = PrivateAttr(default={})
 
     class Config:
         validate_assignment = True
         allow_population_by_field_name = True
 
-    @classmethod
-    def set_relationships(cls, value: dict):
-        cls._relationships = value
+    def set_relationships(self, value: dict) -&gt; None:
+        self._relationships = value
 
     @property
-    def roles(self):
-        return [Role.get(i[&#39;id&#39;]) for i in self._relationships[&#39;roles&#39;][&#39;data&#39;]]
+    def roles(self) -&gt; list[Role]:
+        if self._roles:
+            return self._roles
+        self._roles = [Role.get(role[&#39;id&#39;]) for role in self._relationships[&#39;roles&#39;][&#39;data&#39;]]
+        return self._roles
 
     @classmethod
     def _get_endpoint(cls) -&gt; str:
@@ -152,7 +156,7 @@ class User(BaseModel):
             },
         )
 
-    def delete(self):
+    def delete(self) -&gt; None:
         &#34;&#34;&#34;Make specified user disabled.
 
         Returns:
@@ -190,9 +194,7 @@ class User(BaseModel):
         return self._picture
 
     @property
-    def groups(self):
-        from signals_notebook.users.group import GroupResponse
-
+    def groups(self) -&gt; list[Group]:
         if self._groups:
             return self._groups
 
@@ -277,20 +279,23 @@ class UserResponse(Response[User]):
     created_at: datetime = Field(alias=&#39;createdAt&#39;, allow_mutation=False)
     last_login_at: Optional[datetime] = Field(alias=&#39;lastLoginAt&#39;, allow_mutation=False)
     _picture: Optional[File] = PrivateAttr(default=None)
-    _groups = PrivateAttr(default=None)
-    _relationships: dict = PrivateAttr(default=None)
+    _groups: list[Group] = PrivateAttr(default=[])
+    _roles: list[Role] = PrivateAttr(default=[])
+    _relationships: dict = PrivateAttr(default={})
 
     class Config:
         validate_assignment = True
         allow_population_by_field_name = True
 
-    @classmethod
-    def set_relationships(cls, value: dict):
-        cls._relationships = value
+    def set_relationships(self, value: dict) -&gt; None:
+        self._relationships = value
 
     @property
-    def roles(self):
-        return [Role.get(i[&#39;id&#39;]) for i in self._relationships[&#39;roles&#39;][&#39;data&#39;]]
+    def roles(self) -&gt; list[Role]:
+        if self._roles:
+            return self._roles
+        self._roles = [Role.get(role[&#39;id&#39;]) for role in self._relationships[&#39;roles&#39;][&#39;data&#39;]]
+        return self._roles
 
     @classmethod
     def _get_endpoint(cls) -&gt; str:
@@ -375,7 +380,7 @@ class UserResponse(Response[User]):
             },
         )
 
-    def delete(self):
+    def delete(self) -&gt; None:
         &#34;&#34;&#34;Make specified user disabled.
 
         Returns:
@@ -413,9 +418,7 @@ class UserResponse(Response[User]):
         return self._picture
 
     @property
-    def groups(self):
-        from signals_notebook.users.group import GroupResponse
-
+    def groups(self) -&gt; list[Group]:
         if self._groups:
             return self._groups
 
@@ -537,24 +540,10 @@ def create(
     return cast(ResponseData, result.data).body</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.users.user.User.set_relationships"><code class="name flex">
-<span>def <span class="ident">set_relationships</span></span>(<span>value: dict)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@classmethod
-def set_relationships(cls, value: dict):
-    cls._relationships = value</code></pre>
-</details>
-</dd>
 </dl>
 <h3>Instance variables</h3>
 <dl>
-<dt id="signals_notebook.users.user.User.groups"><code class="name">var <span class="ident">groups</span></code></dt>
+<dt id="signals_notebook.users.user.User.groups"><code class="name">var <span class="ident">groups</span> : list</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -562,9 +551,7 @@ def set_relationships(cls, value: dict):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def groups(self):
-    from signals_notebook.users.group import GroupResponse
-
+def groups(self) -&gt; list[Group]:
     if self._groups:
         return self._groups
 
@@ -607,7 +594,7 @@ def picture(self) -&gt; Optional[File]:
     return self._picture</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.users.user.User.roles"><code class="name">var <span class="ident">roles</span></code></dt>
+<dt id="signals_notebook.users.user.User.roles"><code class="name">var <span class="ident">roles</span> : list</code></dt>
 <dd>
 <div class="desc"></div>
 <details class="source">
@@ -615,15 +602,18 @@ def picture(self) -&gt; Optional[File]:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def roles(self):
-    return [Role.get(i[&#39;id&#39;]) for i in self._relationships[&#39;roles&#39;][&#39;data&#39;]]</code></pre>
+def roles(self) -&gt; list[Role]:
+    if self._roles:
+        return self._roles
+    self._roles = [Role.get(role[&#39;id&#39;]) for role in self._relationships[&#39;roles&#39;][&#39;data&#39;]]
+    return self._roles</code></pre>
 </details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.users.user.User.delete"><code class="name flex">
-<span>def <span class="ident">delete</span></span>(<span>self)</span>
+<span>def <span class="ident">delete</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Make specified user disabled.</p>
@@ -632,7 +622,7 @@ def roles(self):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def delete(self):
+<pre><code class="python">def delete(self) -&gt; None:
     &#34;&#34;&#34;Make specified user disabled.
 
     Returns:
@@ -707,6 +697,19 @@ def roles(self):
             },
         },
     )</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.users.user.User.set_relationships"><code class="name flex">
+<span>def <span class="ident">set_relationships</span></span>(<span>self, value: dict) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_relationships(self, value: dict) -&gt; None:
+    self._relationships = value</code></pre>
 </details>
 </dd>
 </dl>

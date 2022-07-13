@@ -29,14 +29,16 @@
 <pre><code class="python">import json
 import logging
 from datetime import datetime
-from typing import cast, Generator, Literal
+from typing import cast, Generator, Literal, TYPE_CHECKING
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ObjectType, Response, ResponseData
-from signals_notebook.users.user import User
 
+
+if TYPE_CHECKING:
+    from signals_notebook.users.user import User
 
 log = logging.getLogger(__name__)
 
@@ -188,7 +190,7 @@ class Group(BaseModel):
         result = GroupMemberResponse(**response.json())
         return [cast(ResponseData, item).body for item in result.data]
 
-    def add_user(self, user: User, force: bool = True) -&gt; list[GroupMember]:
+    def add_user(self, user: &#39;User&#39;, force: bool = True) -&gt; list[GroupMember]:
         &#34;&#34;&#34;Add user to user group
 
         Args:
@@ -216,7 +218,7 @@ class Group(BaseModel):
         result = GroupMemberResponse(**response.json())
         return [cast(ResponseData, item).body for item in result.data]
 
-    def delete_user(self, user: User) -&gt; None:
+    def delete_user(self, user: &#39;User&#39;) -&gt; None:
         &#34;&#34;&#34;Delete user from user group.
 
         Args:
@@ -393,7 +395,7 @@ class GroupResponse(Response[Group]):
         result = GroupMemberResponse(**response.json())
         return [cast(ResponseData, item).body for item in result.data]
 
-    def add_user(self, user: User, force: bool = True) -&gt; list[GroupMember]:
+    def add_user(self, user: &#39;User&#39;, force: bool = True) -&gt; list[GroupMember]:
         &#34;&#34;&#34;Add user to user group
 
         Args:
@@ -421,7 +423,7 @@ class GroupResponse(Response[Group]):
         result = GroupMemberResponse(**response.json())
         return [cast(ResponseData, item).body for item in result.data]
 
-    def delete_user(self, user: User) -&gt; None:
+    def delete_user(self, user: &#39;User&#39;) -&gt; None:
         &#34;&#34;&#34;Delete user from user group.
 
         Args:
@@ -589,7 +591,7 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.users.group.Group.add_user"><code class="name flex">
-<span>def <span class="ident">add_user</span></span>(<span>self, user: <a title="signals_notebook.users.user.User" href="user.html#signals_notebook.users.user.User">User</a>, force: bool = True) ‑> list</span>
+<span>def <span class="ident">add_user</span></span>(<span>self, user: User, force: bool = True) ‑> list</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Add user to user group</p>
@@ -606,7 +608,7 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_user(self, user: User, force: bool = True) -&gt; list[GroupMember]:
+<pre><code class="python">def add_user(self, user: &#39;User&#39;, force: bool = True) -&gt; list[GroupMember]:
     &#34;&#34;&#34;Add user to user group
 
     Args:
@@ -662,7 +664,7 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 </details>
 </dd>
 <dt id="signals_notebook.users.group.Group.delete_user"><code class="name flex">
-<span>def <span class="ident">delete_user</span></span>(<span>self, user: <a title="signals_notebook.users.user.User" href="user.html#signals_notebook.users.user.User">User</a>) ‑> None</span>
+<span>def <span class="ident">delete_user</span></span>(<span>self, user: User)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Delete user from user group.</p>
@@ -676,7 +678,7 @@ def get_list(cls) -&gt; Generator[&#39;Group&#39;, None, None]:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def delete_user(self, user: User) -&gt; None:
+<pre><code class="python">def delete_user(self, user: &#39;User&#39;) -&gt; None:
     &#34;&#34;&#34;Delete user from user group.
 
     Args:

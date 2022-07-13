@@ -49,7 +49,11 @@ class UserStore:
             path=(&#39;users&#39;, user_id),
         )
         result = UserResponse(**response.json())
-        return cast(ResponseData, result.data).body_with_relationships
+
+        user = cast(ResponseData, result.data).body
+        user.set_relationships(result.data.relationships)  # type: ignore
+
+        return user
 
     @classmethod
     def get_list(
@@ -87,7 +91,12 @@ class UserStore:
             },
         )
         result = UserResponse(**response.json())
-        yield from [cast(ResponseData, item).body_with_relationships for item in result.data]
+
+        for item in result.data:
+            user = cast(ResponseData, item).body
+            user.set_relationships(item.relationships)  # type: ignore
+
+            yield user
 
         while result.links and result.links.next:
             response = api.call(
@@ -96,7 +105,12 @@ class UserStore:
             )
 
             result = UserResponse(**response.json())
-            yield from [cast(ResponseData, item).body_with_relationships for item in result.data]
+
+            for item in result.data:
+                user = cast(ResponseData, item).body
+                user.set_relationships(item.relationships)  # type: ignore
+
+                yield user
 
     @classmethod
     def get_current_user(cls) -&gt; Profile:
@@ -162,7 +176,11 @@ class UserStore:
             path=(&#39;users&#39;, user_id),
         )
         result = UserResponse(**response.json())
-        return cast(ResponseData, result.data).body_with_relationships
+
+        user = cast(ResponseData, result.data).body
+        user.set_relationships(result.data.relationships)  # type: ignore
+
+        return user
 
     @classmethod
     def get_list(
@@ -200,7 +218,12 @@ class UserStore:
             },
         )
         result = UserResponse(**response.json())
-        yield from [cast(ResponseData, item).body_with_relationships for item in result.data]
+
+        for item in result.data:
+            user = cast(ResponseData, item).body
+            user.set_relationships(item.relationships)  # type: ignore
+
+            yield user
 
         while result.links and result.links.next:
             response = api.call(
@@ -209,7 +232,12 @@ class UserStore:
             )
 
             result = UserResponse(**response.json())
-            yield from [cast(ResponseData, item).body_with_relationships for item in result.data]
+
+            for item in result.data:
+                user = cast(ResponseData, item).body
+                user.set_relationships(item.relationships)  # type: ignore
+
+                yield user
 
     @classmethod
     def get_current_user(cls) -&gt; Profile:
@@ -268,7 +296,11 @@ def get(cls, user_id: str) -&gt; User:
         path=(&#39;users&#39;, user_id),
     )
     result = UserResponse(**response.json())
-    return cast(ResponseData, result.data).body_with_relationships</code></pre>
+
+    user = cast(ResponseData, result.data).body
+    user.set_relationships(result.data.relationships)  # type: ignore
+
+    return user</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.users.user_store.UserStore.get_current_user"><code class="name flex">
@@ -363,7 +395,12 @@ def get_list(
         },
     )
     result = UserResponse(**response.json())
-    yield from [cast(ResponseData, item).body_with_relationships for item in result.data]
+
+    for item in result.data:
+        user = cast(ResponseData, item).body
+        user.set_relationships(item.relationships)  # type: ignore
+
+        yield user
 
     while result.links and result.links.next:
         response = api.call(
@@ -372,7 +409,12 @@ def get_list(
         )
 
         result = UserResponse(**response.json())
-        yield from [cast(ResponseData, item).body_with_relationships for item in result.data]</code></pre>
+
+        for item in result.data:
+            user = cast(ResponseData, item).body
+            user.set_relationships(item.relationships)  # type: ignore
+
+            yield user</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.users.user_store.UserStore.refresh"><code class="name flex">
