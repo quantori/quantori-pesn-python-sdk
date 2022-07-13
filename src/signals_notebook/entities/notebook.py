@@ -78,6 +78,7 @@ class Notebook(Container):
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler):
         from signals_notebook.item_mapper import ItemMapper
+
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
         notebook = cls.create(name='restore:' + metadata['name'], description=metadata['description'], force=True)
         child_entities_folders = fs_handler.list_subfolders(path)

@@ -135,12 +135,14 @@ class Experiment(Container):
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook):
         from signals_notebook.item_mapper import ItemMapper
+
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
         experiment = cls.create(
-            notebook=notebook, name=metadata['name'], description=metadata['description'],
-            force=True)
+            notebook=notebook, name=metadata['name'], description=metadata['description'], force=True
+        )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
             ItemMapper.get_item_class(child_entity_type).load(
-                fs_handler.join_path(path, child_entity), fs_handler, experiment)
+                fs_handler.join_path(path, child_entity), fs_handler, experiment
+            )
