@@ -128,7 +128,7 @@ class User(BaseModel):
             },
         )
 
-    def delete(self):
+    def delete(self) -> None:
         """Make specified user disabled.
 
         Returns:
