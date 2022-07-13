@@ -2,7 +2,8 @@ import json
 
 import arrow
 
-from signals_notebook.users.group import Group, GroupMember
+from signals_notebook.users.group import Group
+from signals_notebook.users.user import User
 
 
 def test_get_list(api_mock):
@@ -170,55 +171,80 @@ def test_delete(api_mock, group_factory):
     )
 
 
-def test_get_members(api_mock, group_factory):
+def test_get_members(api_mock, group_factory, get_response_object, mocker, user_factory):
     group = group_factory()
-    response = {
+    user = user_factory()
+    response_to_get_members = {
         'links': {'self': 'https://snb.perkinelmer.net/api/rest/v1.0/groups/103/members'},
         'data': [
             {
                 'type': 'user',
-                'id': '100',
+                'id': user.id,
                 'attributes': {
-                    'userId': '100',
-                    'userName': 'foo.bar@perkinelmer.com',
-                    'email': 'foo.bar@perkinelmer.com',
-                    'firstName': 'foo',
-                    'lastName': 'bar',
+                    'userId': user.id,
+                    'userName': user.username,
+                    'email': user.email,
+                    'firstName': user.first_name,
+                    'lastName': user.last_name,
                 },
                 'links': {'self': 'https://snb.perkinelmer.net/api/rest/v1.0/users/100'},
             },
-            {
-                'type': 'user',
-                'id': '101',
-                'attributes': {
-                    'userId': '101',
-                    'userName': 'test.test@perkinelmer.com',
-                    'email': 'test.test@perkinelmer.com',
-                    'firstName': 'test',
-                    'lastName': 'test',
-                },
-                'links': {'self': 'https://snb.perkinelmer.net/api/rest/v1.0/users/101'},
-            },
         ],
     }
-    api_mock.call.return_value.json.return_value = response
-
+    response_to_get_user = {
+        'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}'},
+        'data': {
+            'id': user.id,
+            'type': 'user',
+            'attributes': {
+                'isEnabled': True,
+                'userId': user.id,
+                'userName': user.username,
+                'email': user.email,
+                'firstName': user.first_name,
+                'lastName': user.last_name,
+                'alias': 'foo.bar',
+                'country': 'USA',
+                'organization': 'Perkinelmer',
+                'lastLoginAt': '2021-11-29T04:00:02.295Z',
+                'createdAt': '2020-07-17T21:48:33.262Z',
+            },
+            'relationships': {
+                'picture': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/picture'}},
+                'roles': {
+                    'data': [
+                        {'id': '1', 'type': 'role'},
+                    ]
+                },
+                'systemGroups': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/systemGroups'}},
+            },
+        },
+    }
+    api_mock.call.side_effect = [
+        get_response_object(response_to_get_members),
+        get_response_object(response_to_get_user),
+    ]
     group_members = group.get_members()
 
-    api_mock.call.assert_called_once_with(
-        method='GET',
-        path=('groups', group.id, 'members'),
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(
+                method='GET',
+                path=('groups', group.id, 'members'),
+            ),
+            mocker.call(
+                method='GET', path=('users', user.id)
+            ),
+        ]
     )
-
-    for item, raw_item in zip(group_members, response['data']):
-        assert isinstance(item, GroupMember)
-        assert item.user_id == raw_item['attributes']['userId']
-        assert item.user_name == raw_item['attributes']['userName']
-        assert item.first_name == raw_item['attributes']['firstName']
-        assert item.last_name == raw_item['attributes']['lastName']
+    assert isinstance(group_members[0], User)
+    assert group_members[0].username == response_to_get_user['data']['attributes']['userName']
+    assert group_members[0].email == response_to_get_user['data']['attributes']['email']
+    assert group_members[0].first_name == response_to_get_user['data']['attributes']['firstName']
+    assert group_members[0].last_name == response_to_get_user['data']['attributes']['lastName']
 
 
-def test_add_user(api_mock, user_factory, group_factory):
+def test_add_user(api_mock, user_factory, group_factory, get_response_object, mocker):
     group = group_factory(id=1)
     user = user_factory(id=1)
 
@@ -239,25 +265,84 @@ def test_add_user(api_mock, user_factory, group_factory):
             },
         ],
     }
-    api_mock.call.return_value.json.return_value = response
-
-    result = group.add_user(user)
-
-    api_mock.call.assert_called_once_with(
-        method='POST',
-        path=('groups', group.id, 'members'),
-        params={
-            'force': json.dumps(True),
+    response_to_get_members = {
+        'links': {'self': 'https://snb.perkinelmer.net/api/rest/v1.0/groups/103/members'},
+        'data': [
+            {
+                'type': 'user',
+                'id': user.id,
+                'attributes': {
+                    'userId': user.id,
+                    'userName': user.username,
+                    'email': user.email,
+                    'firstName': user.first_name,
+                    'lastName': user.last_name,
+                },
+                'links': {'self': 'https://snb.perkinelmer.net/api/rest/v1.0/users/100'},
+            },
+        ],
+    }
+    response_to_get_user = {
+        'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}'},
+        'data': {
+            'id': user.id,
+            'type': 'user',
+            'attributes': {
+                'isEnabled': True,
+                'userId': user.id,
+                'userName': user.username,
+                'email': user.email,
+                'firstName': user.first_name,
+                'lastName': user.last_name,
+                'alias': 'foo.bar',
+                'country': 'USA',
+                'organization': 'Perkinelmer',
+                'lastLoginAt': '2021-11-29T04:00:02.295Z',
+                'createdAt': '2020-07-17T21:48:33.262Z',
+            },
+            'relationships': {
+                'picture': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/picture'}},
+                'roles': {
+                    'data': [
+                        {'id': '1', 'type': 'role'},
+                    ]
+                },
+                'systemGroups': {'links': {'self': f'https://example.com/api/rest/v1.0/users/{user.id}/systemGroups'}},
+            },
         },
-        json={'data': {'attributes': {'userId': user.id}}},
-    )
+    }
+    api_mock.call.side_effect = [
+        get_response_object(response),
+        get_response_object(response_to_get_members),
+        get_response_object(response_to_get_user),
+    ]
 
-    for item, raw_item in zip(result, response['data']):
-        assert isinstance(item, GroupMember)
-        assert item.user_id == raw_item['attributes']['userId']
-        assert item.user_name == raw_item['attributes']['userName']
-        assert item.first_name == raw_item['attributes']['firstName']
-        assert item.last_name == raw_item['attributes']['lastName']
+    group_members = group.add_user(user)
+
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(
+                method='POST',
+                path=('groups', group.id, 'members'),
+                params={
+                    'force': json.dumps(True),
+                },
+                json={'data': {'attributes': {'userId': user.id}}},
+            ),
+            mocker.call(
+                method='GET',
+                path=('groups', group.id, 'members'),
+            ),
+            mocker.call(
+                method='GET', path=('users', user.id)
+            ),
+        ]
+    )
+    assert isinstance(group_members[0], User)
+    assert group_members[0].username == response_to_get_user['data']['attributes']['userName']
+    assert group_members[0].email == response_to_get_user['data']['attributes']['email']
+    assert group_members[0].first_name == response_to_get_user['data']['attributes']['firstName']
+    assert group_members[0].last_name == response_to_get_user['data']['attributes']['lastName']
 
 
 def test_delete_member(api_mock, group_factory, user_factory):
