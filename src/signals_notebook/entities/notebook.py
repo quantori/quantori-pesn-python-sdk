@@ -71,8 +71,11 @@ class Notebook(Container):
         )
 
     def dump(self, base_path: str, fs_handler: FSHandler):
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(self.dict()))
-        for child in self.get_children():
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps({k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}),
+        )
+        for child in self.get_children(order=None):
             child.dump(base_path + '/' + self.eid, fs_handler)
 
     @classmethod

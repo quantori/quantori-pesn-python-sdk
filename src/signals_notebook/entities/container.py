@@ -70,11 +70,7 @@ class Container(Entity, abc.ABC):
         log.debug('Get children for: %s', self.eid)
 
         params = {'order': order} if order else {}
-        response = api.call(
-            method='GET',
-            path=(self._get_endpoint(), self.eid, 'children'),
-            params=params
-        )
+        response = api.call(method='GET', path=(self._get_endpoint(), self.eid, 'children'), params=params)
 
         entity_classes = (*Entity.get_subclasses(), Entity)
 
@@ -92,6 +88,9 @@ class Container(Entity, abc.ABC):
             yield from [cast(ResponseData, item).body for item in result.data]
 
     def dump(self, base_path: str, fs_handler: FSHandler):
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(self.dict()))
-        for child in self.get_children():
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps({k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}),
+        )
+        for child in self.get_children(order=None):
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
