@@ -1,0 +1,101 @@
+import logging
+from typing import cast, ClassVar, Dict, List, Literal, Union
+from uuid import UUID
+
+from pydantic import Field, PrivateAttr
+
+from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import EntityType, File, Response, ResponseData
+from signals_notebook.entities.contentful_entity import ContentfulEntity
+from signals_notebook.entities.plates.plate_row import PlateRow
+
+log = logging.getLogger(__name__)
+
+
+class PlateContainerDataResponse(Response[PlateRow]):
+    pass
+
+
+class PlateContainer(ContentfulEntity):
+    type: Literal[EntityType.PLATE_CONTAINER] = Field(allow_mutation=False)
+    _rows: List[PlateRow] = PrivateAttr(default=[])
+    _rows_by_id: Dict[UUID, PlateRow] = PrivateAttr(default={})
+    _template_name: ClassVar = 'plate_container.html'
+
+    def __getitem__(self, index: Union[int, str, UUID]) -> PlateRow:
+        if not self._rows:
+            self._reload_data()
+
+        if isinstance(index, int):
+            return self._rows[index]
+
+        if isinstance(index, str):
+            return self._rows_by_id[UUID(index)]
+
+        if isinstance(index, UUID):
+            return self._rows_by_id[index]
+
+        log.exception('IndexError were caught. Invalid index')
+        raise IndexError('Invalid index')
+
+    def __iter__(self):
+        if not self._rows:
+            self._reload_data()
+
+        return self._rows.__iter__()
+
+    @classmethod
+    def _get_entity_type(cls) -> EntityType:
+        return EntityType.PLATE_CONTAINER
+
+    @classmethod
+    def _get_endpoint(cls) -> str:
+        return 'plates'
+
+    def _reload_data(self):
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Reload rows for Plate Container: %s', self.eid)
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'summary'),
+        )
+        result = PlateContainerDataResponse(**response.json())
+        self._rows = []
+        self._rows_by_id = {}
+        for item in result.data:
+            row = cast(PlateRow, cast(ResponseData, item).body)
+            assert row.id
+
+            self._rows.append(row)
+            self._rows_by_id[row.id] = row
+        log.debug('Data in Plate Container: %s were reloaded', self.eid)
+
+    # @classmethod
+    # def create(cls, *, container: Container, name: str, content: str = '', force: bool = True) -> Entity:
+    #     """Create PlateContainer Entity
+    #
+    #     Args:
+    #         container: Container where create new PlateContainer
+    #         name: file name
+    #         content: PlateContainer content
+    #         force: Force to post attachment
+    #
+    #     Returns:
+    #         PlateContainer
+    #     """
+    #     log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
+    #     return container.add_child(
+    #         name=name,
+    #         content=content.encode('utf-8'),
+    #         content_type='application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    #         force=force,
+    #     )
+
+    def get_content(self) -> File:
+        """Get PlateContainer content
+
+        Returns:
+            File
+        """
+        return super()._get_content()
