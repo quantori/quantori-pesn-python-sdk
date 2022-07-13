@@ -8,6 +8,7 @@ from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, File, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.plates.plate_row import PlateRow
+from signals_notebook.jinja_env import env
 
 log = logging.getLogger(__name__)
 
@@ -71,27 +72,6 @@ class PlateContainer(ContentfulEntity):
             self._rows_by_id[row.id] = row
         log.debug('Data in Plate Container: %s were reloaded', self.eid)
 
-    # @classmethod
-    # def create(cls, *, container: Container, name: str, content: str = '', force: bool = True) -> Entity:
-    #     """Create PlateContainer Entity
-    #
-    #     Args:
-    #         container: Container where create new PlateContainer
-    #         name: file name
-    #         content: PlateContainer content
-    #         force: Force to post attachment
-    #
-    #     Returns:
-    #         PlateContainer
-    #     """
-    #     log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
-    #     return container.add_child(
-    #         name=name,
-    #         content=content.encode('utf-8'),
-    #         content_type='application/vnd.openxmlformats-officedocument.presentationml.presentation',
-    #         force=force,
-    #     )
-
     def get_content(self) -> File:
         """Get PlateContainer content
 
@@ -99,3 +79,17 @@ class PlateContainer(ContentfulEntity):
             File
         """
         return super()._get_content()
+
+    def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered HTML in string format
+        """
+        if not self._rows:
+            self._reload_data()
+        template = env.get_template(self._template_name)
+        table_head = None
+        if self._rows:
+            table_head = self._rows[0]
+        return template.render(name=self.name, table_head=table_head, rows=self._rows)
