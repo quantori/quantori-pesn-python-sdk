@@ -10,98 +10,98 @@ from signals_notebook.entities.plates.plate_row import PlateRow
 @pytest.fixture()
 def plates_response():
     return {
-        "links": {
-            "self": "https://ex.com/api/rest/v1.0/plates/plateContainer:537d12b9-d8eb-46e8-b2e2-c50d1c01ba0a/summary"
+        'links': {
+            'self': 'https://ex.com/api/rest/v1.0/plates/plateContainer:537d12b9-d8eb-46e8-b2e2-c50d1c01ba0a/summary'
         },
-        "data": [
+        'data': [
             {
-                "type": "plateRow",
-                "id": "869491dc-bf8b-3c43-a225-629e2c10900a",
-                "attributes": {
-                    "id": "869491dc-bf8b-3c43-a225-629e2c10900a",
-                    "type": "plateRow",
-                    "cells": [
+                'type': 'plateRow',
+                'id': '869491dc-bf8b-3c43-a225-629e2c10900a',
+                'attributes': {
+                    'id': '869491dc-bf8b-3c43-a225-629e2c10900a',
+                    'type': 'plateRow',
+                    'cells': [
                         {
-                            "key": "76a7d17a-75b7-39a5-8549-05f073a064e3",
-                            "type": "TEXT",
-                            "name": "Well ID",
-                            "content": {"user": "A1", "value": "A1"},
+                            'key': '76a7d17a-75b7-39a5-8549-05f073a064e3',
+                            'type': 'TEXT',
+                            'name': 'Well ID',
+                            'content': {'user': 'A1', 'value': 'A1'},
                         },
                         {
-                            "key": "59f9b60c-a571-3c8e-982d-cdfe7e88e23c",
-                            "type": "TEXT",
-                            "name": "Row",
-                            "content": {"user": "A", "value": "A"},
+                            'key': '59f9b60c-a571-3c8e-982d-cdfe7e88e23c',
+                            'type': 'TEXT',
+                            'name': 'Row',
+                            'content': {'user': 'A', 'value': 'A'},
                         },
                         {
-                            "key": "b5ff1ac8-310e-3848-9367-a4b8f4dc7ecc",
-                            "type": "INTEGER",
-                            "name": "Column",
-                            "content": {"user": "1", "value": 1},
+                            'key': 'b5ff1ac8-310e-3848-9367-a4b8f4dc7ecc',
+                            'type': 'INTEGER',
+                            'name': 'Column',
+                            'content': {'user': '1', 'value': 1},
                         },
                         {
-                            "key": "5a79aad4-7b07-39f1-9634-a2669a149a5b",
-                            "type": "TEXT",
-                            "name": "Plate",
-                            "content": {"user": "Plate-1", "value": "Plate-1"},
+                            'key': '5a79aad4-7b07-39f1-9634-a2669a149a5b',
+                            'type': 'TEXT',
+                            'name': 'Plate',
+                            'content': {'user': 'Plate-1', 'value': 'Plate-1'},
                         },
                         {
-                            "key": "43a9fcf2-bf40-3ed0-ba54-204275f053df",
-                            "type": "INTEGER",
-                            "name": "Order",
-                            "content": {"user": "1", "value": 1},
+                            'key': '43a9fcf2-bf40-3ed0-ba54-204275f053df',
+                            'type': 'INTEGER',
+                            'name': 'Order',
+                            'content': {'user': '1', 'value': 1},
                         },
                         {
-                            "key": "f2053c2d-985d-3343-97e4-ae35b7fbe9d3",
-                            "type": "TEXT",
-                            "name": "Plate ID",
-                            "content": {},
+                            'key': 'f2053c2d-985d-3343-97e4-ae35b7fbe9d3',
+                            'type': 'TEXT',
+                            'name': 'Plate ID',
+                            'content': {},
                         },
                     ],
                 },
             },
             {
-                "type": "plateRow",
-                "id": "1b88b66a-598d-3552-bedc-aa468ea75776",
-                "attributes": {
-                    "id": "1b88b66a-598d-3552-bedc-aa468ea75776",
-                    "type": "plateRow",
-                    "cells": [
+                'type': 'plateRow',
+                'id': '1b88b66a-598d-3552-bedc-aa468ea75776',
+                'attributes': {
+                    'id': '1b88b66a-598d-3552-bedc-aa468ea75776',
+                    'type': 'plateRow',
+                    'cells': [
                         {
-                            "key": "76a7d17a-75b7-39a5-8549-05f073a064e3",
-                            "type": "TEXT",
-                            "name": "Well ID",
-                            "content": {"user": "A2", "value": "A2"},
+                            'key': '76a7d17a-75b7-39a5-8549-05f073a064e3',
+                            'type': 'TEXT',
+                            'name': 'Well ID',
+                            'content': {'user': 'A2', 'value': 'A2'},
                         },
                         {
-                            "key": "59f9b60c-a571-3c8e-982d-cdfe7e88e23c",
-                            "type": "TEXT",
-                            "name": "Row",
-                            "content": {"user": "A", "value": "A"},
+                            'key': '59f9b60c-a571-3c8e-982d-cdfe7e88e23c',
+                            'type': 'TEXT',
+                            'name': 'Row',
+                            'content': {'user': 'A', 'value': 'A'},
                         },
                         {
-                            "key": "b5ff1ac8-310e-3848-9367-a4b8f4dc7ecc",
-                            "type": "INTEGER",
-                            "name": "Column",
-                            "content": {"user": "2", "value": 2},
+                            'key': 'b5ff1ac8-310e-3848-9367-a4b8f4dc7ecc',
+                            'type': 'INTEGER',
+                            'name': 'Column',
+                            'content': {'user': '2', 'value': 2},
                         },
                         {
-                            "key": "5a79aad4-7b07-39f1-9634-a2669a149a5b",
-                            "type": "TEXT",
-                            "name": "Plate",
-                            "content": {"user": "Plate-1", "value": "Plate-1"},
+                            'key': '5a79aad4-7b07-39f1-9634-a2669a149a5b',
+                            'type': 'TEXT',
+                            'name': 'Plate',
+                            'content': {'user': 'Plate-1', 'value': 'Plate-1'},
                         },
                         {
-                            "key": "43a9fcf2-bf40-3ed0-ba54-204275f053df",
-                            "type": "INTEGER",
-                            "name": "Order",
-                            "content": {"user": "1", "value": 1},
+                            'key': '43a9fcf2-bf40-3ed0-ba54-204275f053df',
+                            'type': 'INTEGER',
+                            'name': 'Order',
+                            'content': {'user': '1', 'value': 1},
                         },
                         {
-                            "key": "f2053c2d-985d-3343-97e4-ae35b7fbe9d3",
-                            "type": "TEXT",
-                            "name": "Plate ID",
-                            "content": {},
+                            'key': 'f2053c2d-985d-3343-97e4-ae35b7fbe9d3',
+                            'type': 'TEXT',
+                            'name': 'Plate ID',
+                            'content': {},
                         },
                     ],
                 },
