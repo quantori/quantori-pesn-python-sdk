@@ -84,8 +84,11 @@ class PlateContainer(ContentfulEntity):
         """
         if not self._rows:
             self._reload_data()
-        template = env.get_template(self._template_name)
         table_head = None
         if self._rows:
             table_head = self._rows[0]
+
+        template = env.get_template(self._template_name)
+        log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
+
         return template.render(name=self.name, table_head=table_head, rows=self._rows)

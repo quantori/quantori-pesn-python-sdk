@@ -26,7 +26,7 @@ class ColumnDataType(str, Enum):
 
 class CellContent(GenericModel, Generic[CellContentType]):
     user: Optional[str]
-    value: CellContentType
+    value: Optional[CellContentType] = None
     values: Optional[List[CellContentType]] = None
 
     class Config:
