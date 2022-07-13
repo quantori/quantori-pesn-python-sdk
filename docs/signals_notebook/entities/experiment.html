@@ -163,15 +163,17 @@ class Experiment(Container):
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook):
         from signals_notebook.item_mapper import ItemMapper
+
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
         experiment = cls.create(
-            notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;],
-            force=True)
+            notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+        )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(&#39;:&#39;)[0]
             ItemMapper.get_item_class(child_entity_type).load(
-                fs_handler.join_path(path, child_entity), fs_handler, experiment)</code></pre>
+                fs_handler.join_path(path, child_entity), fs_handler, experiment
+            )</code></pre>
 </details>
 </section>
 <section>
@@ -321,15 +323,17 @@ class Experiment(Container):
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook):
         from signals_notebook.item_mapper import ItemMapper
+
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
         experiment = cls.create(
-            notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;],
-            force=True)
+            notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+        )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(&#39;:&#39;)[0]
             ItemMapper.get_item_class(child_entity_type).load(
-                fs_handler.join_path(path, child_entity), fs_handler, experiment)</code></pre>
+                fs_handler.join_path(path, child_entity), fs_handler, experiment
+            )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -445,15 +449,17 @@ def create(
 <pre><code class="python">@classmethod
 def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook):
     from signals_notebook.item_mapper import ItemMapper
+
     metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
     experiment = cls.create(
-        notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;],
-        force=True)
+        notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+    )
     child_entities_folders = fs_handler.list_subfolders(path)
     for child_entity in child_entities_folders:
         child_entity_type = child_entity.split(&#39;:&#39;)[0]
         ItemMapper.get_item_class(child_entity_type).load(
-            fs_handler.join_path(path, child_entity), fs_handler, experiment)</code></pre>
+            fs_handler.join_path(path, child_entity), fs_handler, experiment
+        )</code></pre>
 </details>
 </dd>
 </dl>

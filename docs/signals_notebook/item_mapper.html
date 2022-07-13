@@ -35,7 +35,8 @@ class ItemMapper:
     @staticmethod
     def get_item_class(item_name: str) -&gt; Type[&#39;Entity&#39;]:
         return [
-            subclass for subclass in Entity.get_subclasses()
+            subclass
+            for subclass in Entity.get_subclasses()
             if subclass._get_entity_type() and subclass._get_entity_type().value == item_name
         ][0]</code></pre>
 </details>
@@ -62,7 +63,8 @@ class ItemMapper:
     @staticmethod
     def get_item_class(item_name: str) -&gt; Type[&#39;Entity&#39;]:
         return [
-            subclass for subclass in Entity.get_subclasses()
+            subclass
+            for subclass in Entity.get_subclasses()
             if subclass._get_entity_type() and subclass._get_entity_type().value == item_name
         ][0]</code></pre>
 </details>
@@ -80,7 +82,8 @@ class ItemMapper:
 <pre><code class="python">@staticmethod
 def get_item_class(item_name: str) -&gt; Type[&#39;Entity&#39;]:
     return [
-        subclass for subclass in Entity.get_subclasses()
+        subclass
+        for subclass in Entity.get_subclasses()
         if subclass._get_entity_type() and subclass._get_entity_type().value == item_name
     ][0]</code></pre>
 </details>

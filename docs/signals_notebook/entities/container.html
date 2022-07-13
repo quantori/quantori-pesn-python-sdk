@@ -98,11 +98,7 @@ class Container(Entity, abc.ABC):
         log.debug(&#39;Get children for: %s&#39;, self.eid)
 
         params = {&#39;order&#39;: order} if order else {}
-        response = api.call(
-            method=&#39;GET&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;children&#39;),
-            params=params
-        )
+        response = api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), self.eid, &#39;children&#39;), params=params)
 
         entity_classes = (*Entity.get_subclasses(), Entity)
 
@@ -120,8 +116,11 @@ class Container(Entity, abc.ABC):
             yield from [cast(ResponseData, item).body for item in result.data]
 
     def dump(self, base_path: str, fs_handler: FSHandler):
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(self.dict()))
-        for child in self.get_children():
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+        )
+        for child in self.get_children(order=None):
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)</code></pre>
 </details>
 </section>
@@ -203,11 +202,7 @@ class Container(Entity, abc.ABC):
         log.debug(&#39;Get children for: %s&#39;, self.eid)
 
         params = {&#39;order&#39;: order} if order else {}
-        response = api.call(
-            method=&#39;GET&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;children&#39;),
-            params=params
-        )
+        response = api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), self.eid, &#39;children&#39;), params=params)
 
         entity_classes = (*Entity.get_subclasses(), Entity)
 
@@ -225,8 +220,11 @@ class Container(Entity, abc.ABC):
             yield from [cast(ResponseData, item).body for item in result.data]
 
     def dump(self, base_path: str, fs_handler: FSHandler):
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(self.dict()))
-        for child in self.get_children():
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+        )
+        for child in self.get_children(order=None):
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -348,8 +346,11 @@ class Container(Entity, abc.ABC):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler):
-    fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(self.dict()))
-    for child in self.get_children():
+    fs_handler.write(
+        fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+        json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+    )
+    for child in self.get_children(order=None):
         child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)</code></pre>
 </details>
 </dd>
@@ -374,11 +375,7 @@ class Container(Entity, abc.ABC):
     log.debug(&#39;Get children for: %s&#39;, self.eid)
 
     params = {&#39;order&#39;: order} if order else {}
-    response = api.call(
-        method=&#39;GET&#39;,
-        path=(self._get_endpoint(), self.eid, &#39;children&#39;),
-        params=params
-    )
+    response = api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), self.eid, &#39;children&#39;), params=params)
 
     entity_classes = (*Entity.get_subclasses(), Entity)
 
