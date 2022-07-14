@@ -35,6 +35,7 @@ class ObjectType(str, Enum):
     ATTRIBUTE = 'attribute'
     STOICHIOMETRY = 'stoichiometry'
     PROPERTY = 'property'
+    MATERIAL_TABLE = 'materialsTable'
 
 
 class EntityType(str, Enum):
@@ -55,6 +56,7 @@ class EntityType(str, Enum):
     SPOTFIRE = 'spotfiredxp'
     TODO_LIST = 'linkedTaskContainer'
     TASK = 'task'
+    MATERIAL_TABLE = 'materialsTable'
 
 
 class MaterialType(str, Enum):
