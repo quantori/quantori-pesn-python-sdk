@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import logging
+<pre><code class="python">import json
+import logging
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -35,6 +36,7 @@ from signals_notebook.common_types import EntityType, File
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -48,7 +50,7 @@ class Word(ContentfulEntity):
         return EntityType.WORD
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+    def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
         &#34;&#34;&#34;Create Word Entity
 
         Args:
@@ -63,7 +65,7 @@ class Word(ContentfulEntity):
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
-            content=content.encode(&#39;utf-8&#39;),
+            content=content,
             content_type=&#39;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#39;,
             force=force,
         )
@@ -74,7 +76,45 @@ class Word(ContentfulEntity):
         Returns:
             File
         &#34;&#34;&#34;
-        return super()._get_content()</code></pre>
+        return super()._get_content()
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump Word entity
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
+        content = self.get_content()
+        metadata = {
+            &#39;file_name&#39;: content.name,
+            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+        }
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        file_name = content.name
+        data = content.content
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+        &#34;&#34;&#34;Load Word entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            parent: Container where load Word entity
+
+        Returns:
+
+        &#34;&#34;&#34;
+        metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+        metadata = json.loads(fs_handler.read(metadata_path))
+        content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+        content = fs_handler.read(content_path)
+        cls.create(container=parent, name=metadata[&#39;name&#39;], content=content, force=True)</code></pre>
 </details>
 </section>
 <section>
@@ -106,7 +146,7 @@ class Word(ContentfulEntity):
         return EntityType.WORD
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+    def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
         &#34;&#34;&#34;Create Word Entity
 
         Args:
@@ -121,7 +161,7 @@ class Word(ContentfulEntity):
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
-            content=content.encode(&#39;utf-8&#39;),
+            content=content,
             content_type=&#39;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#39;,
             force=force,
         )
@@ -132,7 +172,45 @@ class Word(ContentfulEntity):
         Returns:
             File
         &#34;&#34;&#34;
-        return super()._get_content()</code></pre>
+        return super()._get_content()
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump Word entity
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
+        content = self.get_content()
+        metadata = {
+            &#39;file_name&#39;: content.name,
+            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+        }
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        file_name = content.name
+        data = content.content
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+        &#34;&#34;&#34;Load Word entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            parent: Container where load Word entity
+
+        Returns:
+
+        &#34;&#34;&#34;
+        metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+        metadata = json.loads(fs_handler.read(metadata_path))
+        content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+        content = fs_handler.read(content_path)
+        cls.create(container=parent, name=metadata[&#39;name&#39;], content=content, force=True)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -152,7 +230,7 @@ class Word(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.word.Word.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: str = '', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create Word Entity</p>
@@ -173,7 +251,7 @@ class Word(ContentfulEntity):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
     &#34;&#34;&#34;Create Word Entity
 
     Args:
@@ -188,15 +266,91 @@ def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, f
     log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
     return container.add_child(
         name=name,
-        content=content.encode(&#39;utf-8&#39;),
+        content=content,
         content_type=&#39;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#39;,
         force=force,
     )</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.entities.word.Word.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, parent: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load Word entity</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>content path</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+<dt><strong><code>parent</code></strong></dt>
+<dd>Container where load Word entity</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+    &#34;&#34;&#34;Load Word entity
+
+    Args:
+        path: content path
+        fs_handler: FSHandler
+        parent: Container where load Word entity
+
+    Returns:
+
+    &#34;&#34;&#34;
+    metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+    metadata = json.loads(fs_handler.read(metadata_path))
+    content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+    content = fs_handler.read(content_path)
+    cls.create(container=parent, name=metadata[&#39;name&#39;], content=content, force=True)</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="signals_notebook.entities.word.Word.dump"><code class="name flex">
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dump Word entity</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>base_path</code></strong></dt>
+<dd>content path where create dump</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    &#34;&#34;&#34;Dump Word entity
+
+    Args:
+        base_path: content path where create dump
+        fs_handler: FSHandler
+
+    Returns:
+
+    &#34;&#34;&#34;
+    content = self.get_content()
+    metadata = {
+        &#39;file_name&#39;: content.name,
+        **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+    }
+    fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+    file_name = content.name
+    data = content.content
+    fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.word.Word.get_content"><code class="name flex">
 <span>def <span class="ident">get_content</span></span>(<span>self) ‑> <a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a></span>
 </code></dt>
@@ -255,7 +409,9 @@ def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, f
 <h4><code><a title="signals_notebook.entities.word.Word" href="#signals_notebook.entities.word.Word">Word</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.entities.word.Word.create" href="#signals_notebook.entities.word.Word.create">create</a></code></li>
+<li><code><a title="signals_notebook.entities.word.Word.dump" href="#signals_notebook.entities.word.Word.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.word.Word.get_content" href="#signals_notebook.entities.word.Word.get_content">get_content</a></code></li>
+<li><code><a title="signals_notebook.entities.word.Word.load" href="#signals_notebook.entities.word.Word.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.word.Word.type" href="#signals_notebook.entities.word.Word.type">type</a></code></li>
 </ul>
 </li>
