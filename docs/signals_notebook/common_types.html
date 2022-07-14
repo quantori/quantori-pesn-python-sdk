@@ -67,6 +67,7 @@ class ObjectType(str, Enum):
     PROFILE = &#39;profile&#39;
     GROUP = &#39;group&#39;
     ROLE = &#39;role&#39;
+    PLATE_ROW = &#39;plateRow&#39;
 
 
 class EntityType(str, Enum):
@@ -87,6 +88,7 @@ class EntityType(str, Enum):
     SPOTFIRE = &#39;spotfiredxp&#39;
     TODO_LIST = &#39;linkedTaskContainer&#39;
     TASK = &#39;task&#39;
+    PLATE_CONTAINER = &#39;plateContainer&#39;
 
 
 class MaterialType(str, Enum):
@@ -1061,7 +1063,8 @@ def type(self) -&gt; Union[EntityType, str]:
     POWER_POINT = &#39;presentation&#39;
     SPOTFIRE = &#39;spotfiredxp&#39;
     TODO_LIST = &#39;linkedTaskContainer&#39;
-    TASK = &#39;task&#39;</code></pre>
+    TASK = &#39;task&#39;
+    PLATE_CONTAINER = &#39;plateContainer&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1099,6 +1102,10 @@ def type(self) -&gt; Union[EntityType, str]:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.EntityType.NOTEBOOK"><code class="name">var <span class="ident">NOTEBOOK</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.EntityType.PLATE_CONTAINER"><code class="name">var <span class="ident">PLATE_CONTAINER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1652,7 +1659,8 @@ def type(self) -&gt; MaterialType:
     USER = &#39;user&#39;
     PROFILE = &#39;profile&#39;
     GROUP = &#39;group&#39;
-    ROLE = &#39;role&#39;</code></pre>
+    ROLE = &#39;role&#39;
+    PLATE_ROW = &#39;plateRow&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1686,6 +1694,10 @@ def type(self) -&gt; MaterialType:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.ObjectType.MATERIAL"><code class="name">var <span class="ident">MATERIAL</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.PLATE_ROW"><code class="name">var <span class="ident">PLATE_ROW</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1747,6 +1759,7 @@ def type(self) -&gt; MaterialType:
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li><a title="signals_notebook.entities.entity.Response[Property]" href="entities/entity.html#signals_notebook.entities.entity.Response[Property]">Response[Property]</a></li>
+<li><a title="signals_notebook.entities.plates.plate_container.Response[PlateRow]" href="entities/plates/plate_container.html#signals_notebook.entities.plates.plate_container.Response[PlateRow]">Response[PlateRow]</a></li>
 <li><a title="signals_notebook.entities.samples.sample.Response[SampleCell]" href="entities/samples/sample.html#signals_notebook.entities.samples.sample.Response[SampleCell]">Response[SampleCell]</a></li>
 <li><a title="signals_notebook.entities.samples.samples_container.Response[Sample]" href="entities/samples/samples_container.html#signals_notebook.entities.samples.samples_container.Response[Sample]">Response[Sample]</a></li>
 <li><a title="signals_notebook.entities.stoichiometry.stoichiometry.Response[ColumnDefinitions]" href="entities/stoichiometry/stoichiometry.html#signals_notebook.entities.stoichiometry.stoichiometry.Response[ColumnDefinitions]">Response[ColumnDefinitions]</a></li>
@@ -1816,6 +1829,7 @@ def type(self) -&gt; MaterialType:
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
 <li>pydantic.generics.ResponseData[DataGrids]</li>
 <li>pydantic.generics.ResponseData[Group]</li>
+<li>pydantic.generics.ResponseData[PlateRow]</li>
 <li>pydantic.generics.ResponseData[Profile]</li>
 <li>pydantic.generics.ResponseData[Property]</li>
 <li>pydantic.generics.ResponseData[Role]</li>
@@ -1980,6 +1994,7 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.EntityType.GRID" href="#signals_notebook.common_types.EntityType.GRID">GRID</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.IMAGE_RESOURCE" href="#signals_notebook.common_types.EntityType.IMAGE_RESOURCE">IMAGE_RESOURCE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.NOTEBOOK" href="#signals_notebook.common_types.EntityType.NOTEBOOK">NOTEBOOK</a></code></li>
+<li><code><a title="signals_notebook.common_types.EntityType.PLATE_CONTAINER" href="#signals_notebook.common_types.EntityType.PLATE_CONTAINER">PLATE_CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.POWER_POINT" href="#signals_notebook.common_types.EntityType.POWER_POINT">POWER_POINT</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLE" href="#signals_notebook.common_types.EntityType.SAMPLE">SAMPLE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLES_CONTAINER" href="#signals_notebook.common_types.EntityType.SAMPLES_CONTAINER">SAMPLES_CONTAINER</a></code></li>
@@ -2039,6 +2054,7 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.ObjectType.ENTITY" href="#signals_notebook.common_types.ObjectType.ENTITY">ENTITY</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.GROUP" href="#signals_notebook.common_types.ObjectType.GROUP">GROUP</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.MATERIAL" href="#signals_notebook.common_types.ObjectType.MATERIAL">MATERIAL</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.PLATE_ROW" href="#signals_notebook.common_types.ObjectType.PLATE_ROW">PLATE_ROW</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROFILE" href="#signals_notebook.common_types.ObjectType.PROFILE">PROFILE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROPERTY" href="#signals_notebook.common_types.ObjectType.PROPERTY">PROPERTY</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.ROLE" href="#signals_notebook.common_types.ObjectType.ROLE">ROLE</a></code></li>

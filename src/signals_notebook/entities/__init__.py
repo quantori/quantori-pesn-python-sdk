@@ -17,3 +17,4 @@ from signals_notebook.entities.todo_list.todo_list import TodoList  # noqa
 from signals_notebook.entities.power_point import PowerPoint  # noqa
 from signals_notebook.entities.spotfire import Spotfire  # noqa
 from signals_notebook.entities.uploaded_resource import UploadedResource  # noqa
+from signals_notebook.entities.plates.plate_container import PlateContainer  # noqa
