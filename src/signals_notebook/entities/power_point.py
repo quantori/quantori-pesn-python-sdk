@@ -51,7 +51,7 @@ class PowerPoint(ContentfulEntity):
         return super()._get_content()
 
     def dump(self, base_path: str, fs_handler: FSHandler) -> None:
-        """Dump Word entity
+        """Dump PowerPoint entity
 
         Args:
             base_path: content path where create dump
@@ -72,12 +72,12 @@ class PowerPoint(ContentfulEntity):
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
-        """Load Word entity
+        """Load PowerPoint entity
 
         Args:
             path: content path
             fs_handler: FSHandler
-            parent: Container where load Word entity
+            parent: Container where load PowerPoint entity
 
         Returns:
 
