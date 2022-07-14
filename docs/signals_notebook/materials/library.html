@@ -27,10 +27,14 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import cgi
+import json
 import logging
 import time
+import io
+import zipfile
 from datetime import datetime
 from enum import Enum
+
 from typing import Any, cast, List, Literal, Optional, Union
 
 import requests
@@ -42,6 +46,7 @@ from signals_notebook.materials.asset import Asset
 from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.field import AssetConfig, BatchConfig
+from signals_notebook.utils.fs_handler import FSHandler
 
 MAX_MATERIAL_FILE_SIZE = 52428800
 
@@ -560,7 +565,41 @@ class Library(BaseMaterialEntity):
                 name=params[&#39;filename&#39;],
                 content=failure_report_reponse.content,
                 content_type=failure_report_reponse.headers.get(&#39;content-type&#39;),
-            )</code></pre>
+            )
+
+    def dump(self, base_path: str, fs_handler: FSHandler):
+        content = self.get_content()
+        metadata = {
+            &#39;file_name&#39;: content.name,
+            **{k: v for k, v in self.dict().items() if k in (&#39;library_name&#39;, &#39;asset_type_id&#39;, &#39;eid&#39;, &#39;name&#39;)},
+        }
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        file_name = content.name
+        data = content.content
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+
+    @staticmethod
+    def _generate_zip(my_file):
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, &#34;w&#34;, zipfile.ZIP_DEFLATED, False) as zip_file:
+            zip_file.writestr(f&#39;summary.{my_file.content_type}&#39;, my_file.content)
+
+        return zip_buffer
+
+    def load(self, path: str, fs_handler: FSHandler):
+        metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+        metadata = json.loads(fs_handler.read(metadata_path))
+
+        content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+        content_type = metadata[&#39;file_name&#39;].split(&#39;.&#39;)[-1]
+        content = fs_handler.read(content_path)
+
+        materials = File(content=content, name=&#39;test&#39;, content_type=content_type)
+
+        zip_buffer = self._generate_zip(materials)
+
+        self.bulk_import(File(name=&#39;test&#39;, content=zip_buffer.getvalue(), content_type=&#39;zip&#39;), import_type=&#39;zip&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -1344,7 +1383,41 @@ Adds ability to use properties with setters</p>
                 name=params[&#39;filename&#39;],
                 content=failure_report_reponse.content,
                 content_type=failure_report_reponse.headers.get(&#39;content-type&#39;),
-            )</code></pre>
+            )
+
+    def dump(self, base_path: str, fs_handler: FSHandler):
+        content = self.get_content()
+        metadata = {
+            &#39;file_name&#39;: content.name,
+            **{k: v for k, v in self.dict().items() if k in (&#39;library_name&#39;, &#39;asset_type_id&#39;, &#39;eid&#39;, &#39;name&#39;)},
+        }
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        file_name = content.name
+        data = content.content
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+
+    @staticmethod
+    def _generate_zip(my_file):
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, &#34;w&#34;, zipfile.ZIP_DEFLATED, False) as zip_file:
+            zip_file.writestr(f&#39;summary.{my_file.content_type}&#39;, my_file.content)
+
+        return zip_buffer
+
+    def load(self, path: str, fs_handler: FSHandler):
+        metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+        metadata = json.loads(fs_handler.read(metadata_path))
+
+        content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+        content_type = metadata[&#39;file_name&#39;].split(&#39;.&#39;)[-1]
+        content = fs_handler.read(content_path)
+
+        materials = File(content=content, name=&#39;test&#39;, content_type=content_type)
+
+        zip_buffer = self._generate_zip(materials)
+
+        self.bulk_import(File(name=&#39;test&#39;, content=zip_buffer.getvalue(), content_type=&#39;zip&#39;), import_type=&#39;zip&#39;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1656,6 +1729,27 @@ Max materials size: 50MB.</p>
     return cast(ResponseData, result.data).body</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.materials.library.Library.dump"><code class="name flex">
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler):
+    content = self.get_content()
+    metadata = {
+        &#39;file_name&#39;: content.name,
+        **{k: v for k, v in self.dict().items() if k in (&#39;library_name&#39;, &#39;asset_type_id&#39;, &#39;eid&#39;, &#39;name&#39;)},
+    }
+    fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+    file_name = content.name
+    data = content.content
+    fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.materials.library.Library.get_asset"><code class="name flex">
 <span>def <span class="ident">get_asset</span></span>(<span>self, name: str) ‑> <a title="signals_notebook.materials.asset.Asset" href="asset.html#signals_notebook.materials.asset.Asset">Asset</a></span>
 </code></dt>
@@ -1830,6 +1924,30 @@ Compounds/Reagents (SNB) will be exported to SD file, others will be exported to
     return File(
         name=params[&#39;filename&#39;], content=response.content, content_type=response.headers.get(&#39;content-type&#39;)
     )</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.materials.library.Library.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>self, path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load(self, path: str, fs_handler: FSHandler):
+    metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+    metadata = json.loads(fs_handler.read(metadata_path))
+
+    content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+    content_type = metadata[&#39;file_name&#39;].split(&#39;.&#39;)[-1]
+    content = fs_handler.read(content_path)
+
+    materials = File(content=content, name=&#39;test&#39;, content_type=content_type)
+
+    zip_buffer = self._generate_zip(materials)
+
+    self.bulk_import(File(name=&#39;test&#39;, content=zip_buffer.getvalue(), content_type=&#39;zip&#39;), import_type=&#39;zip&#39;)</code></pre>
 </details>
 </dd>
 </dl>
@@ -2068,11 +2186,13 @@ Compounds/Reagents (SNB) will be exported to SD file, others will be exported to
 <li><code><a title="signals_notebook.materials.library.Library.bulk_import" href="#signals_notebook.materials.library.Library.bulk_import">bulk_import</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.create_asset_with_batches" href="#signals_notebook.materials.library.Library.create_asset_with_batches">create_asset_with_batches</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.create_batch" href="#signals_notebook.materials.library.Library.create_batch">create_batch</a></code></li>
+<li><code><a title="signals_notebook.materials.library.Library.dump" href="#signals_notebook.materials.library.Library.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_asset" href="#signals_notebook.materials.library.Library.get_asset">get_asset</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_asset_batches" href="#signals_notebook.materials.library.Library.get_asset_batches">get_asset_batches</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_batch" href="#signals_notebook.materials.library.Library.get_batch">get_batch</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_content" href="#signals_notebook.materials.library.Library.get_content">get_content</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_list" href="#signals_notebook.materials.library.Library.get_list">get_list</a></code></li>
+<li><code><a title="signals_notebook.materials.library.Library.load" href="#signals_notebook.materials.library.Library.load">load</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.type" href="#signals_notebook.materials.library.Library.type">type</a></code></li>
 </ul>
 </li>
