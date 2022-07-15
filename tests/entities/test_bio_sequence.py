@@ -1,3 +1,5 @@
+import json
+
 import arrow
 import pytest
 
@@ -103,3 +105,44 @@ def test_get_html(biological_sequence_factory, snapshot, api_mock, bio_seq_conte
     bio_seq_html = bio_sequence.get_html()
 
     snapshot.assert_match(bio_seq_html)
+
+
+def test_dump(biological_sequence_factory, mocker, api_mock, bio_seq_content):
+    bio_sequence = biological_sequence_factory(name='name')
+    file_name = 'bio_sequence.gb'
+    content_type = 'biosequence/genbank'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = bio_seq_content
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'file_name': file_name,
+        **{k: v for k, v in bio_sequence.dict().items() if k in ('name', 'description', 'eid')},
+    }
+    bio_sequence.dump(base_path=base_path, fs_handler=fs_handler_mock)
+
+    join_path_call_1 = mocker.call(base_path, bio_sequence.eid, 'metadata.json')
+    join_path_call_2 = mocker.call(base_path, bio_sequence.eid, file_name)
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            join_path_call_1,
+            join_path_call_2,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
+            mocker.call(fs_handler_mock.join_path(), bio_seq_content),
+        ],
+        any_order=True,
+    )
+
+
+def test_load():
+    pass

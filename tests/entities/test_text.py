@@ -1,3 +1,5 @@
+import json
+
 import arrow
 import pytest
 
@@ -95,3 +97,45 @@ def test_get_html(text_factory, snapshot, api_mock):
     text_html = text.get_html()
 
     snapshot.assert_match(text_html)
+
+
+def test_dump(text_factory, mocker, api_mock):
+    text = text_factory(name='name')
+    file_name = 'Text.txt'
+    content = b'Some text'
+    content_type = 'text/plain'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'file_name': file_name,
+        **{k: v for k, v in text.dict().items() if k in ('name', 'description', 'eid')},
+    }
+    text.dump(base_path=base_path, fs_handler=fs_handler_mock)
+
+    join_path_call_1 = mocker.call(base_path, text.eid, 'metadata.json')
+    join_path_call_2 = mocker.call(base_path, text.eid, file_name)
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            join_path_call_1,
+            join_path_call_2,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
+            mocker.call(fs_handler_mock.join_path(), content),
+        ],
+        any_order=True,
+    )
+
+
+def test_load():
+    pass

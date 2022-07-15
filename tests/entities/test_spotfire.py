@@ -1,3 +1,5 @@
+import json
+
 import arrow
 import pytest
 
@@ -95,3 +97,45 @@ def test_get_html(spotfire_factory, snapshot, api_mock):
     spotfire_html = spotfire.get_html()
 
     snapshot.assert_match(spotfire_html)
+
+
+def test_dump(spotfire_factory, mocker, api_mock):
+    spotfire = spotfire_factory(name='name')
+    file_name = 'spotfire.dxp'
+    content = b'Some text'
+    content_type = 'application/vnd.spotfire.dxp'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'file_name': file_name,
+        **{k: v for k, v in spotfire.dict().items() if k in ('name', 'description', 'eid')},
+    }
+    spotfire.dump(base_path=base_path, fs_handler=fs_handler_mock)
+
+    join_path_call_1 = mocker.call(base_path, spotfire.eid, 'metadata.json')
+    join_path_call_2 = mocker.call(base_path, spotfire.eid, file_name)
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            join_path_call_1,
+            join_path_call_2,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
+            mocker.call(fs_handler_mock.join_path(), content),
+        ],
+        any_order=True,
+    )
+
+
+def test_load():
+    pass

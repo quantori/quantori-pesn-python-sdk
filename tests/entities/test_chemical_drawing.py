@@ -1,3 +1,5 @@
+import json
+
 import arrow
 import pytest
 
@@ -112,3 +114,45 @@ def test_get_html(api_mock, chemical_drawing_stoichiometry_mock, chemical_drawin
     chemical_drawing_html = chemical_drawing.get_html()
 
     snapshot.assert_match(chemical_drawing_html)
+
+
+def test_dump(api_mock, mocker, chemical_drawing_factory):
+    chemical_drawing = chemical_drawing_factory(name='name')
+    file_name = 'chemDraw.cdxml'
+    content = b'<?xml version="1.0" encoding="UTF-8" ?>'
+    content_type = 'chemical/x-cdxml'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+    api_mock.call.return_value.content = content
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'file_name': file_name,
+        **{k: v for k, v in chemical_drawing.dict().items() if k in ('name', 'description', 'eid')},
+    }
+    chemical_drawing.dump(base_path=base_path, fs_handler=fs_handler_mock)
+
+    join_path_call_1 = mocker.call(base_path, chemical_drawing.eid, 'metadata.json')
+    join_path_call_2 = mocker.call(base_path, chemical_drawing.eid, file_name)
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            join_path_call_1,
+            join_path_call_2,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
+            mocker.call(fs_handler_mock.join_path(), content),
+        ],
+        any_order=True,
+    )
+
+
+def test_load():
+    pass
