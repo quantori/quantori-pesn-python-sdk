@@ -75,6 +75,21 @@ class Attribute(BaseModel):
 
         log.debug('List of Attributes was got successfully.')
 
+    def delete(self) -> None:
+        """Delete an Attribute.
+
+        Returns:
+
+        """
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Disable Attributes: %s...', self.id)
+
+        api.call(
+            method='DELETE',
+            path=(self._get_endpoint(), self.id),
+        )
+        log.debug('Attribute: %s was disabled successfully', self.id)
+
     def __call__(self, value: str) -> str:
         if value not in self.options:
             log.exception('Incorrect attribute value')
