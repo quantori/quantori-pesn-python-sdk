@@ -4,7 +4,7 @@
     {% if data['name'].endswith('.csv') %}
     <a href="{{ data['content'] }}" download="{{ data['name'] }}">DOWNLOAD .CSV FILE</a>
     {% else %}
-    <a href="{{ data['content'] }}" download="{{ data['name'] }}.xlsx">DOWNLOAD .CSV FILE</a>
+    <a href="{{ data['content'] }}" download="{{ data['name'] }}.csv">DOWNLOAD .CSV FILE</a>
     {% endif %}
     {% endif %}
 </div>

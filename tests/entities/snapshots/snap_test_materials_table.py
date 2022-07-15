@@ -11,7 +11,7 @@ snapshots['test_get_html 1'] = '''<div style="margin: 10px 10px; padding: 6px 10
     <h2>name</h2>
     
     
-    <a href="data:text/csv;base64,U29tZSB0ZXh0" download="name.xlsx">DOWNLOAD .CSV FILE</a>
+    <a href="data:text/csv;base64,U29tZSB0ZXh0" download="name.csv">DOWNLOAD .CSV FILE</a>
     
     
 </div>'''
