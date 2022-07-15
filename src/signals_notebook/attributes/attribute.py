@@ -118,6 +118,34 @@ class Attribute(BaseModel):
         result = Response[cls](**response.json())
         return cast(ResponseData, result.data).body
 
+    def save(self) -> None:
+        """Update content of Attribute.
+
+        Returns:
+
+        """
+        api = SignalsNotebookApi.get_default_api()
+        api.call(
+            method='PATCH',
+            path=(
+                self._get_endpoint(),
+                self.id,
+            ),
+            json={
+                'data': {
+                    'type': ObjectType.ATTRIBUTE,
+                    'id': self.id,
+                    'attributes': self.dict(
+                        by_alias=True,
+                        include={
+                            'options',
+                        },
+                    )
+                },
+            },
+        )
+        log.debug('Attribute: %s was saved successfully', self.id)
+
     def delete(self) -> None:
         """Delete an Attribute.
 
