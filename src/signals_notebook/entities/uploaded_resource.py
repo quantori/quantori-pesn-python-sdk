@@ -25,7 +25,7 @@ class UploadedResource(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content: str = '',
+        content: bytes = b'',
         content_type: Optional[str] = None,
         force: bool = True,
     ) -> Entity:
@@ -44,7 +44,7 @@ class UploadedResource(ContentfulEntity):
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
-            content=content.encode('utf-8'),
+            content=content,
             content_type=content_type,
             force=force,
         )

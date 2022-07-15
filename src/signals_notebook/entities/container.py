@@ -91,10 +91,10 @@ class Container(Entity, abc.ABC):
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
 
-    def dump(self, base_path: str, fs_handler: FSHandler):
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps({k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}),
         )
-        for child in self.get_children(order=None):
+        for child in self.get_children():
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)

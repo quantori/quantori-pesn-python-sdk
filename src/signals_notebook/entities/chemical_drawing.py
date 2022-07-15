@@ -31,7 +31,7 @@ class ChemicalDrawing(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str,
+        content_type: str = 'application/octet-stream',
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:

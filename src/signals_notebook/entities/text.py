@@ -21,12 +21,21 @@ class Text(ContentfulEntity):
         return EntityType.TEXT
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: str = '', force: bool = True) -> Entity:
+    def create(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content_type: str = 'text/plain',
+        content: bytes = b'',
+        force: bool = True,
+    ) -> Entity:
         """Create Text entity
 
         Args:
             container: Container where create new Text
             name: file name
+            content_type: content type of Text entity
             content: Text content
             force: Force to post attachment
 
@@ -36,8 +45,8 @@ class Text(ContentfulEntity):
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
-            content=content.encode('utf-8'),
-            content_type='text/plain',
+            content=content,
+            content_type=content_type,
             force=force,
         )
 

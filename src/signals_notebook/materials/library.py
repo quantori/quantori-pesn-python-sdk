@@ -1,12 +1,11 @@
 import cgi
+import io
 import json
 import logging
 import time
-import io
 import zipfile
 from datetime import datetime
 from enum import Enum
-
 from typing import Any, cast, List, Literal, Optional, Union
 
 import requests
@@ -554,7 +553,7 @@ class Library(BaseMaterialEntity):
     def _generate_zip(my_file):
         zip_buffer = io.BytesIO()
 
-        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED, False) as zip_file:
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED, False) as zip_file:
             zip_file.writestr(f'summary.{my_file.content_type}', my_file.content)
 
         return zip_buffer
