@@ -366,7 +366,7 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def _is_file_ready(self, report_id: str) -> bool:
+    def _is_file_ready(self, report_id: str) -> dict[str, Any]:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
 
@@ -374,7 +374,16 @@ class Library(BaseMaterialEntity):
             method='GET',
             path=(self._get_endpoint(), 'bulkExport', 'reports', report_id),
         )
-        return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
+        response_attributes = response.json().get('data').get('attributes')
+        status = response_attributes.get('status')
+        error = response_attributes.get('error', None)
+
+        result = {
+            'success': response.status_code == 200 and status == 'COMPLETED',
+            'error': error.get('description') if error else None,
+        }
+
+        return result
 
     def _download_file(self, file_id: str) -> requests.Response:
         api = SignalsNotebookApi.get_default_api()
@@ -411,7 +420,10 @@ class Library(BaseMaterialEntity):
         response = None
 
         while time.time() - initial_time < timeout:
-            if self._is_file_ready(report_id):
+            result = self._is_file_ready(report_id)
+            if result['error'] == 'Nothing to export.':
+                return File(name=f'{self.name}_empty', content=b'The library is empty', content_type='csv')
+            if result['success'] and not result['error']:
                 response = self._download_file(file_id)
                 break
             else:
@@ -540,7 +552,7 @@ class Library(BaseMaterialEntity):
             )
 
     def dump(self, base_path: str, fs_handler: FSHandler):
-        content = self.get_content()
+        content = self.get_content(timeout=60)
         metadata = {
             'file_name': content.name,
             **{k: v for k, v in self.dict().items() if k in ('library_name', 'asset_type_id', 'eid', 'name')},
