@@ -663,31 +663,13 @@ def test_get_content_empty_library(library_factory, api_mock, get_response, mock
             },
         }
     }
-    file_id, report_id = response1['data']['attributes'].values()
-
 
     api_mock.call.side_effect = [get_response(response1), get_response(response2)]
 
-    result = library.get_content()
+    with pytest.raises(FileNotFoundError) as e:
+        library.get_content()
 
-    api_mock.call.assert_has_calls(
-        [
-            mocker.call(
-                method='POST',
-                path=('materials', library.name, 'bulkExport'),
-            ),
-            mocker.call(
-                method='GET',
-                path=('materials', 'bulkExport', 'reports', report_id),
-            ),
-        ],
-        any_order=False,
-    )
-
-    assert isinstance(result, File)
-    assert result.name == f'{library.name}_empty'
-    assert result.content == b'The library is empty'
-    assert result.content_type == 'text/csv'
+    assert str(e.value) == 'Library is empty'
 
 
 @pytest.mark.parametrize(

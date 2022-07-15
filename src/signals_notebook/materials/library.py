@@ -423,7 +423,7 @@ class Library(BaseMaterialEntity):
         while time.time() - initial_time < timeout:
             result = self._is_file_ready(report_id)
             if result['error'] == EXPORT_ERROR_LIBRARY_EMPTY:
-                return File(name=f'{self.name}_empty', content=b'The library is empty', content_type='text/csv')
+                raise FileNotFoundError('Library is empty')
             if result['success'] and not result['error']:
                 response = self._download_file(file_id)
                 break
@@ -553,15 +553,21 @@ class Library(BaseMaterialEntity):
             )
 
     def dump(self, base_path: str, fs_handler: FSHandler):
-        content = self.get_content(timeout=60)
         metadata = {
-            'file_name': content.name,
             **{k: v for k, v in self.dict().items() if k in ('library_name', 'asset_type_id', 'eid', 'name')},
         }
+        try:
+            content = self.get_content(timeout=60)
+            metadata['file_name'] = content.name
+            file_name = content.name
+            data = content.content
+            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        except FileNotFoundError:
+            metadata['error'] = 'Library is empty'
+        except TimeoutError:
+            metadata['error'] = 'Time is over to dump library'
+
         fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
-        file_name = content.name
-        data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
 
     @staticmethod
     def _generate_zip(my_file):
