@@ -31,7 +31,7 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = Image.create(container=container, name=file_name, content=content, file_extension='png', force=force)
+    result = Image.create(container=container, name=file_name, content=content, content_type='image/png', force=force)
 
     api_mock.call.assert_called_once_with(
         method='POST',

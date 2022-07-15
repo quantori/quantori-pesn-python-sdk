@@ -15,9 +15,9 @@ log = logging.getLogger(__name__)
 
 
 class ContentfulEntity(Entity, abc.ABC):
-    @abc.abstractmethod
+
     def get_content(self) -> File:
-        pass
+        raise NotImplementedError
 
     @classmethod
     @abc.abstractmethod

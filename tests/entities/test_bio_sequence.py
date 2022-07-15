@@ -37,7 +37,7 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force, bio_se
     api_mock.call.return_value.json.return_value = response
 
     result = BiologicalSequence.create(
-        container=container, name=file_name, content=bio_seq_content, file_extension='gb', force=force
+        container=container, name=file_name, content=bio_seq_content, content_type='biosequence/genbank', force=force
     )
 
     api_mock.call.assert_called_once_with(

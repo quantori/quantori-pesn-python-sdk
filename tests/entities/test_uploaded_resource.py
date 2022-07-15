@@ -18,7 +18,7 @@ from signals_notebook.entities import UploadedResource
 def test_create(api_mock, experiment_factory, eid_factory, digest, force, file_name, content_type, is_normal):
     container = experiment_factory(digest=digest)
     eid = eid_factory(type=EntityType.UPLOADED_RESOURCE)
-    content = 'Some text'
+    content = b'Some text'
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
@@ -54,7 +54,7 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force, file_n
         headers={
             'Content-Type': request_content_type if is_normal else 'application/octet-stream',
         },
-        data=content.encode('utf-8'),
+        data=content,
     )
 
     assert isinstance(result, UploadedResource)

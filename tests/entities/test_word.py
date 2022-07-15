@@ -10,7 +10,7 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force):
     container = experiment_factory(digest=digest)
     eid = eid_factory(type=EntityType.WORD)
     file_name = 'Test'
-    content = 'Some text'
+    content = b'Some text'
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
@@ -41,7 +41,7 @@ def test_create(api_mock, experiment_factory, eid_factory, digest, force):
         headers={
             'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         },
-        data=content.encode('utf-8'),
+        data=content,
     )
 
     assert isinstance(result, Word)
