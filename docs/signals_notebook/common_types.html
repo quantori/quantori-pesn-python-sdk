@@ -89,6 +89,7 @@ class EntityType(str, Enum):
     TODO_LIST = &#39;linkedTaskContainer&#39;
     TASK = &#39;task&#39;
     PLATE_CONTAINER = &#39;plateContainer&#39;
+    MATERIAL_TABLE = &#39;materialsTable&#39;
 
 
 class MaterialType(str, Enum):
@@ -1064,7 +1065,8 @@ def type(self) -&gt; Union[EntityType, str]:
     SPOTFIRE = &#39;spotfiredxp&#39;
     TODO_LIST = &#39;linkedTaskContainer&#39;
     TASK = &#39;task&#39;
-    PLATE_CONTAINER = &#39;plateContainer&#39;</code></pre>
+    PLATE_CONTAINER = &#39;plateContainer&#39;
+    MATERIAL_TABLE = &#39;materialsTable&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1098,6 +1100,10 @@ def type(self) -&gt; Union[EntityType, str]:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.EntityType.IMAGE_RESOURCE"><code class="name">var <span class="ident">IMAGE_RESOURCE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.EntityType.MATERIAL_TABLE"><code class="name">var <span class="ident">MATERIAL_TABLE</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1993,6 +1999,7 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.EntityType.EXPERIMENT" href="#signals_notebook.common_types.EntityType.EXPERIMENT">EXPERIMENT</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.GRID" href="#signals_notebook.common_types.EntityType.GRID">GRID</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.IMAGE_RESOURCE" href="#signals_notebook.common_types.EntityType.IMAGE_RESOURCE">IMAGE_RESOURCE</a></code></li>
+<li><code><a title="signals_notebook.common_types.EntityType.MATERIAL_TABLE" href="#signals_notebook.common_types.EntityType.MATERIAL_TABLE">MATERIAL_TABLE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.NOTEBOOK" href="#signals_notebook.common_types.EntityType.NOTEBOOK">NOTEBOOK</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.PLATE_CONTAINER" href="#signals_notebook.common_types.EntityType.PLATE_CONTAINER">PLATE_CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.POWER_POINT" href="#signals_notebook.common_types.EntityType.POWER_POINT">POWER_POINT</a></code></li>
