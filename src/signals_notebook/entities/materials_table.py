@@ -21,24 +21,6 @@ class MaterialsTable(ContentfulEntity):
     def _get_entity_type(cls) -> EntityType:
         return EntityType.MATERIAL_TABLE
 
-    @classmethod
-    def create(
-        cls,
-        *,
-        container: Container,
-        name: str,
-        content: bytes = b'',
-        file_extension: str = '',
-        force: bool = True,
-    ) -> Entity:
-        file_extension = file_extension.replace('.', '')
-        content_type = 'application/json'
-        return container.add_child(
-            name=name,
-            content=content,
-            content_type=content_type,
-            force=force,
-        )
 
     def get_content(self) -> File:
         return super()._get_content()
@@ -52,33 +34,3 @@ class MaterialsTable(ContentfulEntity):
     #     log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
     #
     #     return template.render(data=data)
-
-
-#
-# {
-#     "type": "materialsTable",
-#     "name": "Materials Table{*}",
-#     "flags": {"isTemplate": false, "isSystem": false},
-#     "layout": "{\"id\":\"4b6cb8d3-fb25-4d4f-95de-25ff8c600766\"}",
-#     "ancestors": [
-#         {
-#             "type": "journal",
-#             "eid": "journal:4deff948-163e-4e75-bbb2-b9f219eace5e",
-#             "name": "Example notebook created by SDK",
-#             "digest": "16635134",
-#             "fields": {
-#                 "Description": "Delete if you see this in UI",
-#                 "My Notebook Field 1 (SK)": "",
-#                 "My Notebook Field 2 (SK)": "",
-#                 "Name": "Example notebook created by SDK",
-#             },
-#             "flags": {},
-#         },
-#         {
-#             "eid": "experiment:1cf65229-dea3-4bdb-b6c5-daf8565e39a0",
-#             "name": "TEST SDK",
-#             "type": "experiment",
-#             "digest": "86256909",
-#         },
-#     ],
-# }
