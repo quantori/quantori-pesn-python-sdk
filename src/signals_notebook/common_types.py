@@ -61,6 +61,7 @@ class EntityType(str, Enum):
     TODO_LIST = 'linkedTaskContainer'
     TASK = 'task'
     PLATE_CONTAINER = 'plateContainer'
+    MATERIAL_TABLE = 'materialsTable'
 
 
 class MaterialType(str, Enum):
