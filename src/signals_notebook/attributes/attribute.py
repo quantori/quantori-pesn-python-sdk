@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 
 class AttributeOption(BaseModel):
-    id: str
+    id: Optional[str]
     key: str
     value: str
 
@@ -21,9 +21,6 @@ class Attribute(BaseModel):
     id: AttrID
     name: str
     _options: Optional[list[AttributeOption]] = PrivateAttr(default=[])
-
-    class Meta:
-        frozen = True
 
     @classmethod
     def _get_endpoint(cls) -> str:
@@ -172,6 +169,9 @@ class Attribute(BaseModel):
         Returns:
             Attribute
         """
+        if self._options:
+            return self._options
+
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -182,7 +182,7 @@ class Attribute(BaseModel):
         result = Response[AttributeOption](**response.json())  # type: ignore
         log.debug('Get Attribute with ID: %s', id)
 
-        return cast(ResponseData, result.data).body
+        return [cast(ResponseData, item).body for item in result.data]
 
     def __call__(self, value: str) -> str:
         if value not in self.options:
