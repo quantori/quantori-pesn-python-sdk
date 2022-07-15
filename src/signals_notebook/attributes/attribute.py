@@ -4,9 +4,15 @@ from typing import cast, Optional, Literal, Generator
 from pydantic import BaseModel
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import AttrID, Response, ResponseData
+from signals_notebook.common_types import AttrID, Response, ResponseData, ObjectType
 
 log = logging.getLogger(__name__)
+
+
+class AttributeOption(BaseModel):
+    id: str
+    key: str
+    value: str
 
 
 class Attribute(BaseModel):
@@ -74,6 +80,43 @@ class Attribute(BaseModel):
             yield from [cast(ResponseData, item).body for item in result.data]
 
         log.debug('List of Attributes was got successfully.')
+
+    @classmethod
+    def create(
+        cls,
+        name: str,
+        type: str,
+        description: str,
+        options: Optional[list[AttributeOption]] = None,
+    ) -> 'Attribute':
+        """Create new Attribute
+
+        Returns:
+            Attribute
+        """
+        api = SignalsNotebookApi.get_default_api()
+
+        log.debug('Create Attribute: %s...', cls.__name__)
+
+        response = api.call(
+            method='POST',
+            path=(cls._get_endpoint(),),
+            json={
+                'data': {
+                    'type': ObjectType.ATTRIBUTE,
+                    'attributes': {
+                        'name': name,
+                        'type': type,
+                        'description': description,
+                        'options': [option.id for option in options] if options else [],
+                    },
+                }
+            },
+        )
+        log.debug('User: %s was created.', cls.__name__)
+
+        result = Response[cls](**response.json())
+        return cast(ResponseData, result.data).body
 
     def delete(self) -> None:
         """Delete an Attribute.
