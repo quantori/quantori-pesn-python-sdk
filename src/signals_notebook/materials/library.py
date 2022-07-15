@@ -21,6 +21,7 @@ from signals_notebook.materials.field import AssetConfig, BatchConfig
 from signals_notebook.utils.fs_handler import FSHandler
 
 MAX_MATERIAL_FILE_SIZE = 52428800
+EXPORT_ERROR_LIBRARY_EMPTY = 'Nothing to export.'
 
 log = logging.getLogger(__name__)
 
@@ -421,8 +422,8 @@ class Library(BaseMaterialEntity):
 
         while time.time() - initial_time < timeout:
             result = self._is_file_ready(report_id)
-            if result['error'] == 'Nothing to export.':
-                return File(name=f'{self.name}_empty', content=b'The library is empty', content_type='csv')
+            if result['error'] == EXPORT_ERROR_LIBRARY_EMPTY:
+                return File(name=f'{self.name}_empty', content=b'The library is empty', content_type='text/csv')
             if result['success'] and not result['error']:
                 response = self._download_file(file_id)
                 break

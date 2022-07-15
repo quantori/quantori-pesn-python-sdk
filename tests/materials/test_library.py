@@ -687,7 +687,7 @@ def test_get_content_empty_library(library_factory, api_mock, get_response, mock
     assert isinstance(result, File)
     assert result.name == f'{library.name}_empty'
     assert result.content == b'The library is empty'
-    assert result.content_type == 'csv'
+    assert result.content_type == 'text/csv'
 
 
 @pytest.mark.parametrize(
