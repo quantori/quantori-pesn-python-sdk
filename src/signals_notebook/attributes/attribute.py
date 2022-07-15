@@ -17,7 +17,7 @@ class AttributeOption(BaseModel):
 
 
 class Attribute(BaseModel):
-    type: Literal['choice', 'attribute']
+    type: str
     id: AttrID
     name: str
     _options: Optional[list[AttributeOption]] = PrivateAttr(default=[])
@@ -122,6 +122,7 @@ class Attribute(BaseModel):
         Returns:
 
         """
+        # TODO: Update options doesn't work. Check the reason of second api to update options
         api = SignalsNotebookApi.get_default_api()
         api.call(
             method='PATCH',
