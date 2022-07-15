@@ -27,24 +27,28 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import logging
-from typing import cast, List, Literal
+from typing import cast, Optional, Literal, Generator
 
 from pydantic import BaseModel
+from pydantic.fields import PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import AttrID, Response, ResponseData
+from signals_notebook.common_types import AttrID, Response, ResponseData, ObjectType
 
 log = logging.getLogger(__name__)
 
 
+class AttributeOption(BaseModel):
+    id: Optional[str]
+    key: str
+    value: str
+
+
 class Attribute(BaseModel):
-    type: Literal[&#39;choice&#39;]
+    type: str
     id: AttrID
     name: str
-    options: List[str]
-
-    class Meta:
-        frozen = True
+    _options: Optional[list[AttributeOption]] = PrivateAttr(default=[])
 
     @classmethod
     def _get_endpoint(cls) -&gt; str:
@@ -71,6 +75,143 @@ class Attribute(BaseModel):
         log.debug(&#39;Get Attribute with ID: %s&#39;, id)
 
         return cast(ResponseData, result.data).body
+
+    @classmethod
+    def get_list(
+        cls,
+    ) -&gt; Generator[&#39;Attribute&#39;, None, None]:
+        &#34;&#34;&#34;Get all Attributes.
+
+        Returns:
+            Generator
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Get List of Attributes&#39;)
+
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(cls._get_endpoint(),),
+        )
+        result = Response[cls](**response.json())  # type: ignore
+
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+        while result.links and result.links.next:
+            response = api.call(
+                method=&#39;GET&#39;,
+                path=result.links.next,
+            )
+
+            result = Response[cls](**response.json())  # type: ignore
+            yield from [cast(ResponseData, item).body for item in result.data]
+
+        log.debug(&#39;List of Attributes was got successfully.&#39;)
+
+    @classmethod
+    def create(
+        cls,
+        name: str,
+        type: str,
+        description: str,
+        options: Optional[list[AttributeOption]] = None,
+    ) -&gt; &#39;Attribute&#39;:
+        &#34;&#34;&#34;Create new Attribute
+
+        Returns:
+            Attribute
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+
+        log.debug(&#39;Create Attribute: %s...&#39;, cls.__name__)
+
+        response = api.call(
+            method=&#39;POST&#39;,
+            path=(cls._get_endpoint(),),
+            json={
+                &#39;data&#39;: {
+                    &#39;type&#39;: ObjectType.ATTRIBUTE,
+                    &#39;attributes&#39;: {
+                        &#39;name&#39;: name,
+                        &#39;type&#39;: type,
+                        &#39;description&#39;: description,
+                        &#39;options&#39;: [option.id for option in options] if options else [],
+                    },
+                }
+            },
+        )
+        log.debug(&#39;User: %s was created.&#39;, cls.__name__)
+
+        result = Response[cls](**response.json())
+        return cast(ResponseData, result.data).body
+
+    def save(self) -&gt; None:
+        &#34;&#34;&#34;Update content of Attribute.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        # TODO: Update options doesn&#39;t work. Check the reason of second api to update options
+        api = SignalsNotebookApi.get_default_api()
+        api.call(
+            method=&#39;PATCH&#39;,
+            path=(
+                self._get_endpoint(),
+                self.id,
+            ),
+            json={
+                &#39;data&#39;: {
+                    &#39;type&#39;: ObjectType.ATTRIBUTE,
+                    &#39;id&#39;: self.id,
+                    &#39;attributes&#39;: self.dict(
+                        by_alias=True,
+                        include={
+                            &#39;options&#39;,
+                        },
+                    )
+                },
+            },
+        )
+        log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)
+
+    def delete(self) -&gt; None:
+        &#34;&#34;&#34;Delete an Attribute.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Disable Attributes: %s...&#39;, self.id)
+
+        api.call(
+            method=&#39;DELETE&#39;,
+            path=(self._get_endpoint(), self.id),
+        )
+        log.debug(&#39;Attribute: %s was disabled successfully&#39;, self.id)
+
+    @property
+    def options(self) -&gt; Optional[list[AttributeOption]]:
+        &#34;&#34;&#34;Get Attribute options
+
+        Args:
+            id: AttrID
+
+        Returns:
+            Attribute
+        &#34;&#34;&#34;
+        if self._options:
+            return self._options
+
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), self.id, &#39;options&#39;),
+        )
+
+        result = Response[AttributeOption](**response.json())  # type: ignore
+        log.debug(&#39;Get Attribute with ID: %s&#39;, id)
+
+        return [cast(ResponseData, item).body for item in result.data]
 
     def __call__(self, value: str) -&gt; str:
         if value not in self.options:
@@ -101,13 +242,10 @@ class Attribute(BaseModel):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Attribute(BaseModel):
-    type: Literal[&#39;choice&#39;]
+    type: str
     id: AttrID
     name: str
-    options: List[str]
-
-    class Meta:
-        frozen = True
+    _options: Optional[list[AttributeOption]] = PrivateAttr(default=[])
 
     @classmethod
     def _get_endpoint(cls) -&gt; str:
@@ -135,6 +273,143 @@ class Attribute(BaseModel):
 
         return cast(ResponseData, result.data).body
 
+    @classmethod
+    def get_list(
+        cls,
+    ) -&gt; Generator[&#39;Attribute&#39;, None, None]:
+        &#34;&#34;&#34;Get all Attributes.
+
+        Returns:
+            Generator
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Get List of Attributes&#39;)
+
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(cls._get_endpoint(),),
+        )
+        result = Response[cls](**response.json())  # type: ignore
+
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+        while result.links and result.links.next:
+            response = api.call(
+                method=&#39;GET&#39;,
+                path=result.links.next,
+            )
+
+            result = Response[cls](**response.json())  # type: ignore
+            yield from [cast(ResponseData, item).body for item in result.data]
+
+        log.debug(&#39;List of Attributes was got successfully.&#39;)
+
+    @classmethod
+    def create(
+        cls,
+        name: str,
+        type: str,
+        description: str,
+        options: Optional[list[AttributeOption]] = None,
+    ) -&gt; &#39;Attribute&#39;:
+        &#34;&#34;&#34;Create new Attribute
+
+        Returns:
+            Attribute
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+
+        log.debug(&#39;Create Attribute: %s...&#39;, cls.__name__)
+
+        response = api.call(
+            method=&#39;POST&#39;,
+            path=(cls._get_endpoint(),),
+            json={
+                &#39;data&#39;: {
+                    &#39;type&#39;: ObjectType.ATTRIBUTE,
+                    &#39;attributes&#39;: {
+                        &#39;name&#39;: name,
+                        &#39;type&#39;: type,
+                        &#39;description&#39;: description,
+                        &#39;options&#39;: [option.id for option in options] if options else [],
+                    },
+                }
+            },
+        )
+        log.debug(&#39;User: %s was created.&#39;, cls.__name__)
+
+        result = Response[cls](**response.json())
+        return cast(ResponseData, result.data).body
+
+    def save(self) -&gt; None:
+        &#34;&#34;&#34;Update content of Attribute.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        # TODO: Update options doesn&#39;t work. Check the reason of second api to update options
+        api = SignalsNotebookApi.get_default_api()
+        api.call(
+            method=&#39;PATCH&#39;,
+            path=(
+                self._get_endpoint(),
+                self.id,
+            ),
+            json={
+                &#39;data&#39;: {
+                    &#39;type&#39;: ObjectType.ATTRIBUTE,
+                    &#39;id&#39;: self.id,
+                    &#39;attributes&#39;: self.dict(
+                        by_alias=True,
+                        include={
+                            &#39;options&#39;,
+                        },
+                    )
+                },
+            },
+        )
+        log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)
+
+    def delete(self) -&gt; None:
+        &#34;&#34;&#34;Delete an Attribute.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Disable Attributes: %s...&#39;, self.id)
+
+        api.call(
+            method=&#39;DELETE&#39;,
+            path=(self._get_endpoint(), self.id),
+        )
+        log.debug(&#39;Attribute: %s was disabled successfully&#39;, self.id)
+
+    @property
+    def options(self) -&gt; Optional[list[AttributeOption]]:
+        &#34;&#34;&#34;Get Attribute options
+
+        Args:
+            id: AttrID
+
+        Returns:
+            Attribute
+        &#34;&#34;&#34;
+        if self._options:
+            return self._options
+
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), self.id, &#39;options&#39;),
+        )
+
+        result = Response[AttributeOption](**response.json())  # type: ignore
+        log.debug(&#39;Get Attribute with ID: %s&#39;, id)
+
+        return [cast(ResponseData, item).body for item in result.data]
+
     def __call__(self, value: str) -&gt; str:
         if value not in self.options:
             log.exception(&#39;Incorrect attribute value&#39;)
@@ -149,10 +424,6 @@ class Attribute(BaseModel):
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.attributes.attribute.Attribute.Meta"><code class="name">var <span class="ident">Meta</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
 <dt id="signals_notebook.attributes.attribute.Attribute.id"><code class="name">var <span class="ident">id</span> : <a title="signals_notebook.common_types.AttrID" href="../common_types.html#signals_notebook.common_types.AttrID">AttrID</a></code></dt>
 <dd>
 <div class="desc"></div>
@@ -161,17 +432,62 @@ class Attribute(BaseModel):
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.attributes.attribute.Attribute.options"><code class="name">var <span class="ident">options</span> : List[str]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.attributes.attribute.Attribute.type"><code class="name">var <span class="ident">type</span> : Literal['choice']</code></dt>
+<dt id="signals_notebook.attributes.attribute.Attribute.type"><code class="name">var <span class="ident">type</span> : str</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
 <dl>
+<dt id="signals_notebook.attributes.attribute.Attribute.create"><code class="name flex">
+<span>def <span class="ident">create</span></span>(<span>name: str, type: str, description: str, options: Optional[list] = None) ‑> <a title="signals_notebook.attributes.attribute.Attribute" href="#signals_notebook.attributes.attribute.Attribute">Attribute</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create new Attribute</p>
+<h2 id="returns">Returns</h2>
+<p>Attribute</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def create(
+    cls,
+    name: str,
+    type: str,
+    description: str,
+    options: Optional[list[AttributeOption]] = None,
+) -&gt; &#39;Attribute&#39;:
+    &#34;&#34;&#34;Create new Attribute
+
+    Returns:
+        Attribute
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+
+    log.debug(&#39;Create Attribute: %s...&#39;, cls.__name__)
+
+    response = api.call(
+        method=&#39;POST&#39;,
+        path=(cls._get_endpoint(),),
+        json={
+            &#39;data&#39;: {
+                &#39;type&#39;: ObjectType.ATTRIBUTE,
+                &#39;attributes&#39;: {
+                    &#39;name&#39;: name,
+                    &#39;type&#39;: type,
+                    &#39;description&#39;: description,
+                    &#39;options&#39;: [option.id for option in options] if options else [],
+                },
+            }
+        },
+    )
+    log.debug(&#39;User: %s was created.&#39;, cls.__name__)
+
+    result = Response[cls](**response.json())
+    return cast(ResponseData, result.data).body</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.attributes.attribute.Attribute.get"><code class="name flex">
 <span>def <span class="ident">get</span></span>(<span>id: <a title="signals_notebook.common_types.AttrID" href="../common_types.html#signals_notebook.common_types.AttrID">AttrID</a>) ‑> <a title="signals_notebook.attributes.attribute.Attribute" href="#signals_notebook.attributes.attribute.Attribute">Attribute</a></span>
 </code></dt>
@@ -211,6 +527,198 @@ def get(cls, id: AttrID) -&gt; &#39;Attribute&#39;:
     return cast(ResponseData, result.data).body</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.attributes.attribute.Attribute.get_list"><code class="name flex">
+<span>def <span class="ident">get_list</span></span>(<span>) ‑> Generator[<a title="signals_notebook.attributes.attribute.Attribute" href="#signals_notebook.attributes.attribute.Attribute">Attribute</a>, None, None]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get all Attributes.</p>
+<h2 id="returns">Returns</h2>
+<p>Generator</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def get_list(
+    cls,
+) -&gt; Generator[&#39;Attribute&#39;, None, None]:
+    &#34;&#34;&#34;Get all Attributes.
+
+    Returns:
+        Generator
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    log.debug(&#39;Get List of Attributes&#39;)
+
+    response = api.call(
+        method=&#39;GET&#39;,
+        path=(cls._get_endpoint(),),
+    )
+    result = Response[cls](**response.json())  # type: ignore
+
+    yield from [cast(ResponseData, item).body for item in result.data]
+
+    while result.links and result.links.next:
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=result.links.next,
+        )
+
+        result = Response[cls](**response.json())  # type: ignore
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+    log.debug(&#39;List of Attributes was got successfully.&#39;)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="signals_notebook.attributes.attribute.Attribute.options"><code class="name">var <span class="ident">options</span> : Optional[list]</code></dt>
+<dd>
+<div class="desc"><p>Get Attribute options</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>id</code></strong></dt>
+<dd>AttrID</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Attribute</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def options(self) -&gt; Optional[list[AttributeOption]]:
+    &#34;&#34;&#34;Get Attribute options
+
+    Args:
+        id: AttrID
+
+    Returns:
+        Attribute
+    &#34;&#34;&#34;
+    if self._options:
+        return self._options
+
+    api = SignalsNotebookApi.get_default_api()
+
+    response = api.call(
+        method=&#39;GET&#39;,
+        path=(self._get_endpoint(), self.id, &#39;options&#39;),
+    )
+
+    result = Response[AttributeOption](**response.json())  # type: ignore
+    log.debug(&#39;Get Attribute with ID: %s&#39;, id)
+
+    return [cast(ResponseData, item).body for item in result.data]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.attributes.attribute.Attribute.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Delete an Attribute.</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self) -&gt; None:
+    &#34;&#34;&#34;Delete an Attribute.
+
+    Returns:
+
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    log.debug(&#39;Disable Attributes: %s...&#39;, self.id)
+
+    api.call(
+        method=&#39;DELETE&#39;,
+        path=(self._get_endpoint(), self.id),
+    )
+    log.debug(&#39;Attribute: %s was disabled successfully&#39;, self.id)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.attributes.attribute.Attribute.save"><code class="name flex">
+<span>def <span class="ident">save</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Update content of Attribute.</p>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save(self) -&gt; None:
+    &#34;&#34;&#34;Update content of Attribute.
+
+    Returns:
+
+    &#34;&#34;&#34;
+    # TODO: Update options doesn&#39;t work. Check the reason of second api to update options
+    api = SignalsNotebookApi.get_default_api()
+    api.call(
+        method=&#39;PATCH&#39;,
+        path=(
+            self._get_endpoint(),
+            self.id,
+        ),
+        json={
+            &#39;data&#39;: {
+                &#39;type&#39;: ObjectType.ATTRIBUTE,
+                &#39;id&#39;: self.id,
+                &#39;attributes&#39;: self.dict(
+                    by_alias=True,
+                    include={
+                        &#39;options&#39;,
+                    },
+                )
+            },
+        },
+    )
+    log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.attributes.attribute.AttributeOption"><code class="flex name class">
+<span>class <span class="ident">AttributeOption</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AttributeOption(BaseModel):
+    id: Optional[str]
+    key: str
+    value: str</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.id"><code class="name">var <span class="ident">id</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.key"><code class="name">var <span class="ident">key</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.value"><code class="name">var <span class="ident">value</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -232,12 +740,23 @@ def get(cls, id: AttrID) -&gt; &#39;Attribute&#39;:
 <li>
 <h4><code><a title="signals_notebook.attributes.attribute.Attribute" href="#signals_notebook.attributes.attribute.Attribute">Attribute</a></code></h4>
 <ul class="two-column">
-<li><code><a title="signals_notebook.attributes.attribute.Attribute.Meta" href="#signals_notebook.attributes.attribute.Attribute.Meta">Meta</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Attribute.create" href="#signals_notebook.attributes.attribute.Attribute.create">create</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Attribute.delete" href="#signals_notebook.attributes.attribute.Attribute.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.Attribute.get" href="#signals_notebook.attributes.attribute.Attribute.get">get</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Attribute.get_list" href="#signals_notebook.attributes.attribute.Attribute.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.Attribute.id" href="#signals_notebook.attributes.attribute.Attribute.id">id</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.Attribute.name" href="#signals_notebook.attributes.attribute.Attribute.name">name</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.Attribute.options" href="#signals_notebook.attributes.attribute.Attribute.options">options</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Attribute.save" href="#signals_notebook.attributes.attribute.Attribute.save">save</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.Attribute.type" href="#signals_notebook.attributes.attribute.Attribute.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.attributes.attribute.AttributeOption" href="#signals_notebook.attributes.attribute.AttributeOption">AttributeOption</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.id" href="#signals_notebook.attributes.attribute.AttributeOption.id">id</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.key" href="#signals_notebook.attributes.attribute.AttributeOption.key">key</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.value" href="#signals_notebook.attributes.attribute.AttributeOption.value">value</a></code></li>
 </ul>
 </li>
 </ul>
