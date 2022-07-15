@@ -40,7 +40,6 @@ class ObjectType(str, Enum):
     GROUP = 'group'
     ROLE = 'role'
     PLATE_ROW = 'plateRow'
-    MATERIAL_TABLE = 'materialsTable'
 
 
 class EntityType(str, Enum):
