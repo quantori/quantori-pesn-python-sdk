@@ -2,6 +2,7 @@ import logging
 from typing import cast, Optional, Literal, Generator
 
 from pydantic import BaseModel
+from pydantic.fields import PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import AttrID, Response, ResponseData, ObjectType
@@ -19,7 +20,7 @@ class Attribute(BaseModel):
     type: Literal['choice', 'attribute']
     id: AttrID
     name: str
-    options: Optional[list[str]]
+    _options: Optional[list[AttributeOption]] = PrivateAttr(default=[])
 
     class Meta:
         frozen = True
@@ -160,6 +161,28 @@ class Attribute(BaseModel):
             path=(self._get_endpoint(), self.id),
         )
         log.debug('Attribute: %s was disabled successfully', self.id)
+
+    @property
+    def options(self) -> Optional[list[AttributeOption]]:
+        """Get Attribute options
+
+        Args:
+            id: AttrID
+
+        Returns:
+            Attribute
+        """
+        api = SignalsNotebookApi.get_default_api()
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.id, 'options'),
+        )
+
+        result = Response[AttributeOption](**response.json())  # type: ignore
+        log.debug('Get Attribute with ID: %s', id)
+
+        return cast(ResponseData, result.data).body
 
     def __call__(self, value: str) -> str:
         if value not in self.options:
