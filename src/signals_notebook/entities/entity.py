@@ -301,5 +301,9 @@ class Entity(BaseModel):
 
         return template.render(data=data)
 
-    def dump(self, *args, **kwargs):
+    def dump(self, *args, **kwargs) -> None:
         log.error('Dumping Entity %s: not implemented!' % str(self))
+
+    @classmethod
+    def load(cls, *args, **kwargs) -> None:
+        log.error('Loading Entity: not implemented!')

@@ -1,4 +1,4 @@
-from typing import Protocol, List, Union
+from typing import List, Protocol, Union
 
 
 class FSHandler(Protocol):
