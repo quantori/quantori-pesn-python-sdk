@@ -631,6 +631,47 @@ def test_get_content_timeout(library_factory, api_mock, get_response):
     assert str(e.value) == 'Time is over to get file'
 
 
+def test_get_content_empty_library(library_factory, api_mock, get_response, mocker):
+    library = library_factory()
+
+    response1 = {
+        'data': {
+            'type': 'bulkExportReport',
+            'id': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9',
+            'attributes': {'fileId': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9', 'reportId': '62b58331d8bb040577c1850d'},
+        }
+    }
+
+    response2 = {
+        'data': {
+            'type': 'materialBulkExportReport',
+            'id': '62b58331d8bb040577c1850d',
+            'attributes': {
+                'id': '62b58331d8bb040577c1850d',
+                'libraryName': library.name,
+                'createdAt': '2022-06-24T09:26:09.723014517Z',
+                'startedAt': '2022-06-24T09:26:09.724814132Z',
+                'completedAt': '2022-06-24T09:26:10.786280759Z',
+                'modifiedAtSecsSinceEpoch': 0,
+                'status': 'FAILED',
+                'fileId': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9',
+                'count': 5,
+                'total': 5,
+                "error": {
+                    "description": "Nothing to export."
+                }
+            },
+        }
+    }
+
+    api_mock.call.side_effect = [get_response(response1), get_response(response2)]
+
+    with pytest.raises(FileNotFoundError) as e:
+        library.get_content()
+
+    assert str(e.value) == 'Library is empty'
+
+
 @pytest.mark.parametrize(
     'rule',
     [

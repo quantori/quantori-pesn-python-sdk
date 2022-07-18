@@ -21,6 +21,7 @@ from signals_notebook.materials.field import AssetConfig, BatchConfig
 from signals_notebook.utils.fs_handler import FSHandler
 
 MAX_MATERIAL_FILE_SIZE = 52428800
+EXPORT_ERROR_LIBRARY_EMPTY = 'Nothing to export.'
 
 log = logging.getLogger(__name__)
 
@@ -366,7 +367,7 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def _is_file_ready(self, report_id: str) -> bool:
+    def _is_file_ready(self, report_id: str) -> dict[str, Any]:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
 
@@ -374,7 +375,16 @@ class Library(BaseMaterialEntity):
             method='GET',
             path=(self._get_endpoint(), 'bulkExport', 'reports', report_id),
         )
-        return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
+        response_attributes = response.json().get('data').get('attributes')
+        status = response_attributes.get('status')
+        error = response_attributes.get('error', None)
+
+        result = {
+            'success': response.status_code == 200 and status == 'COMPLETED',
+            'error': error.get('description') if error else None,
+        }
+
+        return result
 
     def _download_file(self, file_id: str) -> requests.Response:
         api = SignalsNotebookApi.get_default_api()
@@ -411,7 +421,10 @@ class Library(BaseMaterialEntity):
         response = None
 
         while time.time() - initial_time < timeout:
-            if self._is_file_ready(report_id):
+            result = self._is_file_ready(report_id)
+            if result['error'] == EXPORT_ERROR_LIBRARY_EMPTY:
+                raise FileNotFoundError('Library is empty')
+            if result['success'] and not result['error']:
                 response = self._download_file(file_id)
                 break
             else:
@@ -540,15 +553,21 @@ class Library(BaseMaterialEntity):
             )
 
     def dump(self, base_path: str, fs_handler: FSHandler):
-        content = self.get_content()
         metadata = {
-            'file_name': content.name,
             **{k: v for k, v in self.dict().items() if k in ('library_name', 'asset_type_id', 'eid', 'name')},
         }
+        try:
+            content = self.get_content(timeout=60)
+            metadata['file_name'] = content.name
+            file_name = content.name
+            data = content.content
+            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        except FileNotFoundError:
+            metadata['error'] = 'Library is empty'
+        except TimeoutError:
+            metadata['error'] = 'Time is over to dump library'
+
         fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
-        file_name = content.name
-        data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
 
     @staticmethod
     def _generate_zip(my_file):
