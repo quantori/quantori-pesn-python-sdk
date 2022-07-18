@@ -190,6 +190,7 @@ def test_load(
     metadata = {
         'file_name': file_name,
         'name': file_name,
+        'content_type': content_type,
     }
     api_mock.call.return_value.json.return_value = response
     fs_handler_mock.read.side_effect = [json.dumps(metadata), content]
@@ -215,13 +216,13 @@ def test_load(
 
     api_mock.call.assert_called_once_with(
         method='POST',
-        path=('entities', container.eid, 'children', f'{file_name}.bin'),
+        path=('entities', container.eid, 'children', f'{file_name}.{file_extension}'),
         params={
             'digest': None,
             'force': 'true',
         },
         headers={
-            'Content-Type': 'application/octet-stream',
+            'Content-Type': content_type,
         },
         data=content,
     )

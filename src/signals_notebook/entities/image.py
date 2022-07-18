@@ -28,7 +28,7 @@ class Image(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b'',
-        content_type: str = 'image/png',
+        content_type: str = None,
         force: bool = True,
     ) -> Entity:
         """Create Image Entity

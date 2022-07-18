@@ -108,5 +108,9 @@ class ContentfulEntity(Entity, abc.ABC):
         metadata_path = fs_handler.join_path(path, 'metadata.json')
         metadata = json.loads(fs_handler.read(metadata_path))
         content_path = fs_handler.join_path(path, metadata['file_name'])
+        content_type = metadata.get('content_type')
         content = fs_handler.read(content_path)
-        cls.create(container=parent, name=metadata['name'], content=content, force=True)
+        if content_type:
+            cls.create(container=parent, name=metadata['name'], content=content, content_type=content_type, force=True)
+        else:
+            cls.create(container=parent, name=metadata['name'], content=content, force=True)

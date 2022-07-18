@@ -142,7 +142,15 @@ def test_dump(image_factory, mocker, api_mock):
     )
 
 
-def test_load(api_mock, experiment_factory, eid_factory, mocker):
+@pytest.mark.parametrize(
+    'content_type, file_extension',
+    [
+        ('image/png', 'png'),
+        ('image/jpeg', 'jpg'),
+        ('image/svg+xml', 'svg'),
+    ],
+)
+def test_load(api_mock, experiment_factory, eid_factory, mocker, content_type, file_extension):
     container = experiment_factory()
     eid = eid_factory(type=EntityType.IMAGE_RESOURCE)
     file_name = 'image'
@@ -168,6 +176,7 @@ def test_load(api_mock, experiment_factory, eid_factory, mocker):
     metadata = {
         'file_name': file_name,
         'name': file_name,
+        'content_type': content_type
     }
     api_mock.call.return_value.json.return_value = response
     fs_handler_mock.read.side_effect = [json.dumps(metadata), content]
@@ -193,13 +202,13 @@ def test_load(api_mock, experiment_factory, eid_factory, mocker):
 
     api_mock.call.assert_called_once_with(
         method='POST',
-        path=('entities', container.eid, 'children', f'{file_name}.png'),
+        path=('entities', container.eid, 'children', f'{file_name}.{file_extension}'),
         params={
             'digest': None,
             'force': 'true',
         },
         headers={
-            'Content-Type': 'image/png',
+            'Content-Type': content_type,
         },
         data=content,
     )

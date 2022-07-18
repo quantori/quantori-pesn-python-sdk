@@ -147,7 +147,7 @@ def test_dump(biological_sequence_factory, mocker, api_mock, bio_seq_content):
 def test_load(api_mock, experiment_factory, eid_factory, mocker, bio_seq_content):
     container = experiment_factory()
     eid = eid_factory(type=EntityType.BIO_SEQUENCE)
-    file_name = 'bio_sequence'
+    file_name = 'bio_sequence.gb'
 
     response = {
         'links': {'self': f'https://example.com/{eid}'},
@@ -195,7 +195,7 @@ def test_load(api_mock, experiment_factory, eid_factory, mocker, bio_seq_content
 
     api_mock.call.assert_called_once_with(
         method='POST',
-        path=('entities', container.eid, 'children', f'{file_name}.gb'),
+        path=('entities', container.eid, 'children', f'{file_name}'),
         params={
             'digest': None,
             'force': 'true',
