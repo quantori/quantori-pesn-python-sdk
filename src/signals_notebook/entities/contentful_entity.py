@@ -86,6 +86,7 @@ class ContentfulEntity(Entity, abc.ABC):
         content = self.get_content()
         metadata = {
             'file_name': content.name,
+            'content_type': content.content_type,
             **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
         }
         fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
