@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -9,6 +10,10 @@ from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 
 log = logging.getLogger(__name__)
+
+
+class SpotfireContentType(str, Enum):
+    DXP = 'application/vnd.spotfire.dxp'
 
 
 class Spotfire(ContentfulEntity):
@@ -25,7 +30,7 @@ class Spotfire(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = 'application/vnd.spotfire.dxp',
+        content_type: str = SpotfireContentType.DXP,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:

@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -10,6 +11,18 @@ from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
 
 log = logging.getLogger(__name__)
+
+
+class BiologicalSequenceContentType(str, Enum):
+    FA = 'biosequence/fasta'
+    FAA = 'biosequence/fasta'
+    FASTA = 'biosequence/fasta'
+    GB = 'biosequence/genbank'
+    GBK = 'biosequence/genbank'
+    GP = 'biosequence/genbank'
+    SW = 'chemical/x-swissprot'
+    DNA = 'application/vnd.snapgene.dna'
+    PROT = 'application/vnd.snapgene.protein'
 
 
 class BiologicalSequence(ContentfulEntity):

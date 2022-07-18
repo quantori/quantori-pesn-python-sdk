@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -10,6 +11,10 @@ from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
 
 log = logging.getLogger(__name__)
+
+
+class TextContentType(str, Enum):
+    TXT = 'text/plain'
 
 
 class Text(ContentfulEntity):
@@ -26,7 +31,7 @@ class Text(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = 'text/plain',
+        content_type: str = TextContentType.TXT,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:

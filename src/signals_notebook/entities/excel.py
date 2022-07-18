@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -9,6 +10,15 @@ from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 
 log = logging.getLogger(__name__)
+
+
+class ExcelContentType(str, Enum):
+    XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    XLTX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.template'
+    XLSM = 'application/vnd.ms-excel.sheet.macroEnabled.12'
+    XLTM = 'application/vnd.ms-excel.template.macroEnabled.12'
+    XLS = 'application/vnd.ms-excel'
+    CSV = 'text/csv'
 
 
 class Excel(ContentfulEntity):
@@ -25,7 +35,7 @@ class Excel(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        content_type: str = ExcelContentType.XLSX,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:

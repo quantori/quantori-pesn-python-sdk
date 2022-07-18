@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -9,6 +10,14 @@ from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 
 log = logging.getLogger(__name__)
+
+
+class WordContentType(str, Enum):
+    DOCX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    DOTX = 'application/vnd.openxmlformats-officedocument.wordprocessingml.template'
+    DOCM = 'application/vnd.ms-word.document.macroEnabled.12'
+    DOTM = 'application/vnd.ms-word.template.macroEnabled.12'
+    DOC = 'application/msword'
 
 
 class Word(ContentfulEntity):
@@ -25,7 +34,7 @@ class Word(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        content_type: str = WordContentType.DOCX,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:

@@ -2,6 +2,7 @@ import abc
 import cgi
 import json
 import logging
+from enum import Enum
 from typing import Optional
 
 from signals_notebook.api import SignalsNotebookApi
@@ -12,6 +13,10 @@ from signals_notebook.jinja_env import env
 from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
+
+
+class ContentType(str, Enum):
+    DEFAULT = 'application/octet-stream'
 
 
 class ContentfulEntity(Entity, abc.ABC):
@@ -30,7 +35,7 @@ class ContentfulEntity(Entity, abc.ABC):
         *,
         container: Container,
         name: str,
-        content_type: str = 'application/octet-stream',
+        content_type: str = ContentType.DEFAULT,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:

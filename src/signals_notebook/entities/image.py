@@ -1,5 +1,6 @@
 import base64 as b64
 import logging
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -11,6 +12,15 @@ from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
 
 log = logging.getLogger(__name__)
+
+
+class ImageContentType(str, Enum):
+    TIFF = '"image/tiff'
+    TIF = 'image/tiff'
+    PNG = 'image/png'
+    JPG = 'image/jpeg'
+    GIF = 'image/gif'
+    BMP = 'image/bmp'
 
 
 class Image(ContentfulEntity):
