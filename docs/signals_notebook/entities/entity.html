@@ -329,8 +329,12 @@ class Entity(BaseModel):
 
         return template.render(data=data)
 
-    def dump(self, *args, **kwargs):
-        log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))</code></pre>
+    def dump(self, *args, **kwargs) -&gt; None:
+        log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))
+
+    @classmethod
+    def load(cls, *args, **kwargs) -&gt; None:
+        log.error(&#39;Loading Entity: not implemented!&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -584,8 +588,12 @@ class Entity(BaseModel):
 
         return template.render(data=data)
 
-    def dump(self, *args, **kwargs):
-        log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))</code></pre>
+    def dump(self, *args, **kwargs) -&gt; None:
+        log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))
+
+    @classmethod
+    def load(cls, *args, **kwargs) -&gt; None:
+        log.error(&#39;Loading Entity: not implemented!&#39;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -704,6 +712,20 @@ def get_template_name(cls) -&gt; str:
     return cls._template_name</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.entities.entity.Entity.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>*args, **kwargs) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def load(cls, *args, **kwargs) -&gt; None:
+    log.error(&#39;Loading Entity: not implemented!&#39;)</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.entity.Entity.set_template_name"><code class="name flex">
 <span>def <span class="ident">set_template_name</span></span>(<span>template_name: str) ‑> None</span>
 </code></dt>
@@ -782,7 +804,7 @@ def short_description(self) -&gt; EntityShortDescription:
 </details>
 </dd>
 <dt id="signals_notebook.entities.entity.Entity.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, *args, **kwargs)</span>
+<span>def <span class="ident">dump</span></span>(<span>self, *args, **kwargs) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -790,7 +812,7 @@ def short_description(self) -&gt; EntityShortDescription:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, *args, **kwargs):
+<pre><code class="python">def dump(self, *args, **kwargs) -&gt; None:
     log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))</code></pre>
 </details>
 </dd>
@@ -1144,6 +1166,7 @@ def representation_for_update(self) -&gt; dict[str, dict]:
 <li><code><a title="signals_notebook.entities.entity.Entity.get_list" href="#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_subclasses" href="#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_template_name" href="#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Entity.load" href="#signals_notebook.entities.entity.Entity.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.name" href="#signals_notebook.entities.entity.Entity.name">name</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.refresh" href="#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.save" href="#signals_notebook.entities.entity.Entity.save">save</a></code></li>

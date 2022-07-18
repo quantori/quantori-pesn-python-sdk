@@ -119,12 +119,12 @@ class Container(Entity, abc.ABC):
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
 
-    def dump(self, base_path: str, fs_handler: FSHandler):
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
             json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
         )
-        for child in self.get_children(order=None):
+        for child in self.get_children():
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)</code></pre>
 </details>
 </section>
@@ -227,12 +227,12 @@ class Container(Entity, abc.ABC):
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
 
-    def dump(self, base_path: str, fs_handler: FSHandler):
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
             json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
         )
-        for child in self.get_children(order=None):
+        for child in self.get_children():
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -349,7 +349,7 @@ class Container(Entity, abc.ABC):
 </details>
 </dd>
 <dt id="signals_notebook.entities.container.Container.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>)</span>
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -357,12 +357,12 @@ class Container(Entity, abc.ABC):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler):
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
     fs_handler.write(
         fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
         json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
     )
-    for child in self.get_children(order=None):
+    for child in self.get_children():
         child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)</code></pre>
 </details>
 </dd>

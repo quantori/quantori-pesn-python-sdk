@@ -26,8 +26,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import json
-import logging
+<pre><code class="python">import logging
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -36,7 +35,6 @@ from signals_notebook.common_types import EntityType, File
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
-from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -50,12 +48,21 @@ class Spotfire(ContentfulEntity):
         return EntityType.SPOTFIRE
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
+    def create(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content_type: str = &#39;application/vnd.spotfire.dxp&#39;,
+        content: bytes = b&#39;&#39;,
+        force: bool = True,
+    ) -&gt; Entity:
         &#34;&#34;&#34;Create Spotfiredxp Entity
 
         Args:
             container: Container where create new Excel
             name: file name
+            content_type: content type of Spotfire entity
             content: Excel content
             force: Force to post attachment
 
@@ -66,7 +73,7 @@ class Spotfire(ContentfulEntity):
         return container.add_child(
             name=name,
             content=content,
-            content_type=&#39;application/vnd.spotfire.dxp&#39;,
+            content_type=content_type,
             force=force,
         )
 
@@ -76,26 +83,7 @@ class Spotfire(ContentfulEntity):
         Returns:
             File
         &#34;&#34;&#34;
-        return super()._get_content()
-
-    def dump(self, base_path: str, fs_handler: FSHandler):
-        content = self.get_content()
-        metadata = {
-            &#39;file_name&#39;: content.name,
-            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
-        }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
-        file_name = content.name
-        data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
-
-    @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container):
-        metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
-        metadata = json.loads(fs_handler.read(metadata_path))
-        content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
-        content = fs_handler.read(content_path)
-        cls.create(container=parent, name=metadata[&#39;name&#39;], content=content, force=True)</code></pre>
+        return super()._get_content()</code></pre>
 </details>
 </section>
 <section>
@@ -127,12 +115,21 @@ class Spotfire(ContentfulEntity):
         return EntityType.SPOTFIRE
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
+    def create(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content_type: str = &#39;application/vnd.spotfire.dxp&#39;,
+        content: bytes = b&#39;&#39;,
+        force: bool = True,
+    ) -&gt; Entity:
         &#34;&#34;&#34;Create Spotfiredxp Entity
 
         Args:
             container: Container where create new Excel
             name: file name
+            content_type: content type of Spotfire entity
             content: Excel content
             force: Force to post attachment
 
@@ -143,7 +140,7 @@ class Spotfire(ContentfulEntity):
         return container.add_child(
             name=name,
             content=content,
-            content_type=&#39;application/vnd.spotfire.dxp&#39;,
+            content_type=content_type,
             force=force,
         )
 
@@ -153,26 +150,7 @@ class Spotfire(ContentfulEntity):
         Returns:
             File
         &#34;&#34;&#34;
-        return super()._get_content()
-
-    def dump(self, base_path: str, fs_handler: FSHandler):
-        content = self.get_content()
-        metadata = {
-            &#39;file_name&#39;: content.name,
-            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
-        }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
-        file_name = content.name
-        data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
-
-    @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container):
-        metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
-        metadata = json.loads(fs_handler.read(metadata_path))
-        content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
-        content = fs_handler.read(content_path)
-        cls.create(container=parent, name=metadata[&#39;name&#39;], content=content, force=True)</code></pre>
+        return super()._get_content()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -192,7 +170,7 @@ class Spotfire(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.spotfire.Spotfire.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = 'application/vnd.spotfire.dxp', content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create Spotfiredxp Entity</p>
@@ -202,6 +180,8 @@ class Spotfire(ContentfulEntity):
 <dd>Container where create new Excel</dd>
 <dt><strong><code>name</code></strong></dt>
 <dd>file name</dd>
+<dt><strong><code>content_type</code></strong></dt>
+<dd>content type of Spotfire entity</dd>
 <dt><strong><code>content</code></strong></dt>
 <dd>Excel content</dd>
 <dt><strong><code>force</code></strong></dt>
@@ -214,12 +194,21 @@ class Spotfire(ContentfulEntity):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;, force: bool = True) -&gt; Entity:
+def create(
+    cls,
+    *,
+    container: Container,
+    name: str,
+    content_type: str = &#39;application/vnd.spotfire.dxp&#39;,
+    content: bytes = b&#39;&#39;,
+    force: bool = True,
+) -&gt; Entity:
     &#34;&#34;&#34;Create Spotfiredxp Entity
 
     Args:
         container: Container where create new Excel
         name: file name
+        content_type: content type of Spotfire entity
         content: Excel content
         force: Force to post attachment
 
@@ -230,53 +219,14 @@ def create(cls, *, container: Container, name: str, content: bytes = b&#39;&#39;
     return container.add_child(
         name=name,
         content=content,
-        content_type=&#39;application/vnd.spotfire.dxp&#39;,
+        content_type=content_type,
         force=force,
     )</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.spotfire.Spotfire.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, parent: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@classmethod
-def load(cls, path: str, fs_handler: FSHandler, parent: Container):
-    metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
-    metadata = json.loads(fs_handler.read(metadata_path))
-    content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
-    content = fs_handler.read(content_path)
-    cls.create(container=parent, name=metadata[&#39;name&#39;], content=content, force=True)</code></pre>
 </details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="signals_notebook.entities.spotfire.Spotfire.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>)</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler):
-    content = self.get_content()
-    metadata = {
-        &#39;file_name&#39;: content.name,
-        **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
-    }
-    fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
-    file_name = content.name
-    data = content.content
-    fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)</code></pre>
-</details>
-</dd>
 <dt id="signals_notebook.entities.spotfire.Spotfire.get_content"><code class="name flex">
 <span>def <span class="ident">get_content</span></span>(<span>self) ‑> <a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a></span>
 </code></dt>
@@ -303,10 +253,12 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container):
 <li><code><b><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></b></code>:
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.dump" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_list" href="entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_subclasses" href="entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_template_name" href="entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.load" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.refresh" href="entity.html#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.save" href="entity.html#signals_notebook.entities.entity.Entity.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.set_template_name" href="entity.html#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>
@@ -335,9 +287,7 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container):
 <h4><code><a title="signals_notebook.entities.spotfire.Spotfire" href="#signals_notebook.entities.spotfire.Spotfire">Spotfire</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.entities.spotfire.Spotfire.create" href="#signals_notebook.entities.spotfire.Spotfire.create">create</a></code></li>
-<li><code><a title="signals_notebook.entities.spotfire.Spotfire.dump" href="#signals_notebook.entities.spotfire.Spotfire.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.spotfire.Spotfire.get_content" href="#signals_notebook.entities.spotfire.Spotfire.get_content">get_content</a></code></li>
-<li><code><a title="signals_notebook.entities.spotfire.Spotfire.load" href="#signals_notebook.entities.spotfire.Spotfire.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.spotfire.Spotfire.type" href="#signals_notebook.entities.spotfire.Spotfire.type">type</a></code></li>
 </ul>
 </li>
