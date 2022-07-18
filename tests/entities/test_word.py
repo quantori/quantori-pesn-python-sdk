@@ -114,6 +114,7 @@ def test_dump(word_factory, api_mock, mocker):
     base_path = './'
     metadata = {
         'file_name': file_name,
+        'content_type': content_type,
         **{k: v for k, v in word.dict().items() if k in ('name', 'description', 'eid')},
     }
     word.dump(base_path=base_path, fs_handler=fs_handler_mock)

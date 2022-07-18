@@ -121,6 +121,7 @@ def test_dump(biological_sequence_factory, mocker, api_mock, bio_seq_content):
     base_path = './'
     metadata = {
         'file_name': file_name,
+        'content_type': content_type,
         **{k: v for k, v in bio_sequence.dict().items() if k in ('name', 'description', 'eid')},
     }
     bio_sequence.dump(base_path=base_path, fs_handler=fs_handler_mock)
@@ -205,4 +206,3 @@ def test_load(api_mock, experiment_factory, eid_factory, mocker, bio_seq_content
         },
         data=bio_seq_content,
     )
-

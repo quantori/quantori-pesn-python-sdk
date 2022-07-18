@@ -114,6 +114,7 @@ def test_dump(api_mock, power_point_factory, mocker):
     base_path = './'
     metadata = {
         'file_name': file_name,
+        'content_type': content_type,
         **{k: v for k, v in power_point.dict().items() if k in ('name', 'description', 'eid')},
     }
     power_point.dump(base_path=base_path, fs_handler=fs_handler_mock)
