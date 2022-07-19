@@ -1,11 +1,11 @@
 import logging
-from typing import cast, Optional, Literal, Generator
+from typing import cast, Generator, Optional
 
 from pydantic import BaseModel
 from pydantic.fields import PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import AttrID, Response, ResponseData, ObjectType
+from signals_notebook.common_types import AttrID, ObjectType, Response, ResponseData
 
 log = logging.getLogger(__name__)
 
@@ -16,11 +16,15 @@ class AttributeOption(BaseModel):
     value: str
 
 
+class AttributeOptionResponse(Response[AttributeOption]):
+    pass
+
+
 class Attribute(BaseModel):
     type: str
     id: AttrID
     name: str
-    _options: Optional[list[AttributeOption]] = PrivateAttr(default=[])
+    _options: list[AttributeOption] = PrivateAttr(default=[])
 
     @classmethod
     def _get_endpoint(cls) -> str:
@@ -43,7 +47,7 @@ class Attribute(BaseModel):
             path=(cls._get_endpoint(), id),
         )
 
-        result = Response[cls](**response.json())  # type: ignore
+        result = AttributeResponse(**response.json())
         log.debug('Get Attribute with ID: %s', id)
 
         return cast(ResponseData, result.data).body
@@ -55,7 +59,7 @@ class Attribute(BaseModel):
         """Get all Attributes.
 
         Returns:
-            Generator
+           list of available Attributes
         """
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get List of Attributes')
@@ -64,7 +68,7 @@ class Attribute(BaseModel):
             method='GET',
             path=(cls._get_endpoint(),),
         )
-        result = Response[cls](**response.json())  # type: ignore
+        result = AttributeResponse(**response.json())
 
         yield from [cast(ResponseData, item).body for item in result.data]
 
@@ -74,7 +78,7 @@ class Attribute(BaseModel):
                 path=result.links.next,
             )
 
-            result = Response[cls](**response.json())  # type: ignore
+            result = AttributeResponse(**response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
 
         log.debug('List of Attributes was got successfully.')
@@ -88,6 +92,12 @@ class Attribute(BaseModel):
         options: Optional[list[AttributeOption]] = None,
     ) -> 'Attribute':
         """Create new Attribute
+
+        Args:
+            name: name of new Attribute
+            type: type of new Attribute
+            description: description of new Attribute
+            options: list of available options for created Attribute
 
         Returns:
             Attribute
@@ -113,11 +123,11 @@ class Attribute(BaseModel):
         )
         log.debug('User: %s was created.', cls.__name__)
 
-        result = Response[cls](**response.json())
+        result = AttributeResponse(**response.json())
         return cast(ResponseData, result.data).body
 
     def save(self) -> None:
-        """Update content of Attribute.
+        """Update content of Attribute by id.
 
         Returns:
 
@@ -146,7 +156,7 @@ class Attribute(BaseModel):
         log.debug('Attribute: %s was saved successfully', self.id)
 
     def delete(self) -> None:
-        """Delete an Attribute.
+        """Delete an Attribute by id.
 
         Returns:
 
@@ -161,14 +171,11 @@ class Attribute(BaseModel):
         log.debug('Attribute: %s was disabled successfully', self.id)
 
     @property
-    def options(self) -> Optional[list[AttributeOption]]:
+    def options(self) -> list[AttributeOption]:
         """Get Attribute options
 
-        Args:
-            id: AttrID
-
         Returns:
-            Attribute
+            list[AttributeOption]
         """
         if self._options:
             return self._options
@@ -180,7 +187,7 @@ class Attribute(BaseModel):
             path=(self._get_endpoint(), self.id, 'options'),
         )
 
-        result = Response[AttributeOption](**response.json())  # type: ignore
+        result = AttributeOptionResponse(**response.json())
         log.debug('Get Attribute with ID: %s', id)
 
         return [cast(ResponseData, item).body for item in result.data]
@@ -191,3 +198,7 @@ class Attribute(BaseModel):
             raise ValueError('Incorrect attribute value')
 
         return value
+
+
+class AttributeResponse(Response[Attribute]):
+    pass
