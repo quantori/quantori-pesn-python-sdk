@@ -37,7 +37,7 @@ class Image(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b'',
-        content_type: Optional[str] = None,
+        content_type: str = None,
         force: bool = True,
     ) -> Entity:
         """Create Image Entity
