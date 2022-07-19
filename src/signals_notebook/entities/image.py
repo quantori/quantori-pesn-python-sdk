@@ -14,16 +14,14 @@ from signals_notebook.jinja_env import env
 log = logging.getLogger(__name__)
 
 
-class ImageContentType(str, Enum):
-    TIFF = '"image/tiff'
-    TIF = 'image/tiff'
-    PNG = 'image/png'
-    JPG = 'image/jpeg'
-    GIF = 'image/gif'
-    BMP = 'image/bmp'
-
-
 class Image(ContentfulEntity):
+    class ContentType(str, Enum):
+        TIFF = 'image/tiff'
+        PNG = 'image/png'
+        JPG = 'image/jpeg'
+        GIF = 'image/gif'
+        BMP = 'image/bmp'
+
     type: Literal[EntityType.IMAGE_RESOURCE] = Field(allow_mutation=False)
     _template_name: ClassVar = 'image.html'
 
@@ -53,6 +51,7 @@ class Image(ContentfulEntity):
         Returns:
             Image
         """
+        cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,

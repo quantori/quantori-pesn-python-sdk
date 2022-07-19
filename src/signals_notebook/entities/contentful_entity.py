@@ -15,11 +15,9 @@ from signals_notebook.utils import FSHandler
 log = logging.getLogger(__name__)
 
 
-class ContentType(str, Enum):
-    DEFAULT = 'application/octet-stream'
-
-
 class ContentfulEntity(Entity, abc.ABC):
+    class ContentType(str, Enum):
+        BYTES = 'application/octet-stream'
 
     def get_content(self) -> File:
         raise NotImplementedError
@@ -35,7 +33,7 @@ class ContentfulEntity(Entity, abc.ABC):
         *,
         container: Container,
         name: str,
-        content_type: str = ContentType.DEFAULT,
+        content_type: str = ContentType.BYTES,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:

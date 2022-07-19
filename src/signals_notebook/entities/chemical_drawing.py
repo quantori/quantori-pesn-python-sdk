@@ -15,17 +15,16 @@ from signals_notebook.jinja_env import env
 log = logging.getLogger(__name__)
 
 
-class ChemicalDrawingContentType(str, Enum):
-    CDX = 'chemical/x-cdx'
-    CDXML = 'chemical/x-cdxml'
-    SDF = 'chemical/x-mdl-sdfile'
-    MOL = 'chemical/x-mdl-molfile'
-    RXN = 'chemical/x-mdl-rxnfile'
-    SW = 'chemical/x-swissprot'
-    CSV = 'text/csv'
-
-
 class ChemicalDrawing(ContentfulEntity):
+    class ContentType(str, Enum):
+        CDX = 'chemical/x-cdx'
+        CDXML = 'chemical/x-cdxml'
+        SDF = 'chemical/x-mdl-sdfile'
+        MOL = 'chemical/x-mdl-molfile'
+        RXN = 'chemical/x-mdl-rxnfile'
+        SW = 'chemical/x-swissprot'
+        CSV = 'text/csv'
+
     type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
     _template_name: ClassVar = 'chemical_drawing.html'
 
@@ -58,6 +57,7 @@ class ChemicalDrawing(ContentfulEntity):
         Returns:
             ChemicalDrawing
         """
+        cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,

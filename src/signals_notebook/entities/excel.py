@@ -12,16 +12,15 @@ from signals_notebook.entities.contentful_entity import ContentfulEntity
 log = logging.getLogger(__name__)
 
 
-class ExcelContentType(str, Enum):
-    XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-    XLTX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.template'
-    XLSM = 'application/vnd.ms-excel.sheet.macroEnabled.12'
-    XLTM = 'application/vnd.ms-excel.template.macroEnabled.12'
-    XLS = 'application/vnd.ms-excel'
-    CSV = 'text/csv'
-
-
 class Excel(ContentfulEntity):
+    class ContentType(str, Enum):
+        XLSX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        XLTX = 'application/vnd.openxmlformats-officedocument.spreadsheetml.template'
+        XLSM = 'application/vnd.ms-excel.sheet.macroEnabled.12'
+        XLTM = 'application/vnd.ms-excel.template.macroEnabled.12'
+        XLS = 'application/vnd.ms-excel'
+        CSV = 'text/csv'
+
     type: Literal[EntityType.EXCEL] = Field(allow_mutation=False)
     _template_name: ClassVar = 'excel.html'
 
@@ -35,7 +34,7 @@ class Excel(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = ExcelContentType.XLSX,
+        content_type: str = ContentType.XLSX,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:
@@ -51,6 +50,7 @@ class Excel(ContentfulEntity):
         Returns:
             Excel
         """
+        cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,

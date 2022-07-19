@@ -13,11 +13,10 @@ from signals_notebook.jinja_env import env
 log = logging.getLogger(__name__)
 
 
-class TextContentType(str, Enum):
-    TXT = 'text/plain'
-
-
 class Text(ContentfulEntity):
+    class ContentType(str, Enum):
+        TXT = 'text/plain'
+
     type: Literal[EntityType.TEXT] = Field(allow_mutation=False)
     _template_name: ClassVar = 'text.html'
 
@@ -31,7 +30,7 @@ class Text(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = TextContentType.TXT,
+        content_type: str = ContentType.TXT,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:
@@ -47,6 +46,7 @@ class Text(ContentfulEntity):
         Returns:
             Text
         """
+        cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
