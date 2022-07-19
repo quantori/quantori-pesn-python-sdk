@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -12,6 +13,9 @@ log = logging.getLogger(__name__)
 
 
 class Spotfire(ContentfulEntity):
+    class ContentType(str, Enum):
+        DXP = 'application/vnd.spotfire.dxp'
+
     type: Literal[EntityType.SPOTFIRE] = Field(allow_mutation=False)
     _template_name: ClassVar = 'spotfire.html'
 
@@ -25,7 +29,7 @@ class Spotfire(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = 'application/vnd.spotfire.dxp',
+        content_type: str = ContentType.DXP,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:
@@ -41,6 +45,7 @@ class Spotfire(ContentfulEntity):
         Returns:
             Spotfiredxp
         """
+        cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,

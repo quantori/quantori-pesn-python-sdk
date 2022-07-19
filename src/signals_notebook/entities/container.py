@@ -2,6 +2,7 @@ import abc
 import json
 import logging
 import mimetypes
+import os
 from typing import cast, Generator, Optional, Union
 
 from signals_notebook.api import SignalsNotebookApi
@@ -40,7 +41,7 @@ class Container(Entity, abc.ABC):
 
         if content_type:
             extension = mimetypes.guess_extension(content_type)
-            file_name = f'{name}{extension}'
+            file_name = f'{os.path.splitext(name)[0]}{extension}'
         else:
             content_type = mimetypes.guess_type(name)[0]
             file_name = name

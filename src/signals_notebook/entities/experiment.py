@@ -133,7 +133,7 @@ class Experiment(Container):
         return template.render(data=data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook):
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))

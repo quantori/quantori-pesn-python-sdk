@@ -114,6 +114,7 @@ def test_dump(text_factory, mocker, api_mock):
     base_path = './'
     metadata = {
         'file_name': file_name,
+        'content_type': content_type,
         **{k: v for k, v in text.dict().items() if k in ('name', 'description', 'eid')},
     }
     text.dump(base_path=base_path, fs_handler=fs_handler_mock)

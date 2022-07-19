@@ -114,6 +114,7 @@ def test_dump(spotfire_factory, mocker, api_mock):
     base_path = './'
     metadata = {
         'file_name': file_name,
+        'content_type': content_type,
         **{k: v for k, v in spotfire.dict().items() if k in ('name', 'description', 'eid')},
     }
     spotfire.dump(base_path=base_path, fs_handler=fs_handler_mock)

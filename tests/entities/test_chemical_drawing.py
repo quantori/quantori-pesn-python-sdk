@@ -131,6 +131,7 @@ def test_dump(api_mock, mocker, chemical_drawing_factory):
     base_path = './'
     metadata = {
         'file_name': file_name,
+        'content_type': content_type,
         **{k: v for k, v in chemical_drawing.dict().items() if k in ('name', 'description', 'eid')},
     }
     chemical_drawing.dump(base_path=base_path, fs_handler=fs_handler_mock)

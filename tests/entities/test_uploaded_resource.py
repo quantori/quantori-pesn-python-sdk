@@ -126,6 +126,7 @@ def test_dump(uploaded_resource_factory, mocker, api_mock):
     base_path = './'
     metadata = {
         'file_name': file_name,
+        'content_type': content_type,
         **{k: v for k, v in uploaded_resource.dict().items() if k in ('name', 'description', 'eid')},
     }
     uploaded_resource.dump(base_path=base_path, fs_handler=fs_handler_mock)
@@ -212,4 +213,3 @@ def test_load(api_mock, experiment_factory, eid_factory, mocker):
         },
         data=content,
     )
-

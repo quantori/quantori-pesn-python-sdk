@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -12,6 +13,15 @@ log = logging.getLogger(__name__)
 
 
 class PowerPoint(ContentfulEntity):
+    class ContentType(str, Enum):
+        PPTX = 'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        PPSX = 'application/vnd.openxmlformats-officedocument.presentationml.slideshow'
+        POTX = 'application/vnd.openxmlformats-officedocument.presentationml.template'
+        PPTM = 'application/vnd.ms-powerpoint.presentation.macroEnabled.12'
+        PPSM = 'application/vnd.ms-powerpoint.slideshow.macroEnabled.12'
+        POTM = 'application/vnd.ms-powerpoint.presentation.macroEnabled.12'
+        PPT = 'application/vnd.ms-powerpoint'
+
     type: Literal[EntityType.POWER_POINT] = Field(allow_mutation=False)
     _template_name: ClassVar = 'power_point.html'
 
@@ -25,7 +35,7 @@ class PowerPoint(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+        content_type: str = ContentType.PPTX,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:
@@ -41,6 +51,7 @@ class PowerPoint(ContentfulEntity):
         Returns:
             PowerPoint
         """
+        cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,

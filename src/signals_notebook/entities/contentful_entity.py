@@ -2,6 +2,7 @@ import abc
 import cgi
 import json
 import logging
+from enum import Enum
 from typing import Optional
 
 from signals_notebook.api import SignalsNotebookApi
@@ -15,6 +16,8 @@ log = logging.getLogger(__name__)
 
 
 class ContentfulEntity(Entity, abc.ABC):
+    class ContentType(str, Enum):
+        BYTES = 'application/octet-stream'
 
     def get_content(self) -> File:
         raise NotImplementedError
@@ -30,7 +33,7 @@ class ContentfulEntity(Entity, abc.ABC):
         *,
         container: Container,
         name: str,
-        content_type: str = 'application/octet-stream',
+        content_type: str = ContentType.BYTES,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:

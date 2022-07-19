@@ -1,6 +1,7 @@
 import base64 as b64
 import logging
-from typing import ClassVar, Literal
+from enum import Enum
+from typing import ClassVar, Literal, Optional
 
 from pydantic import Field
 
@@ -14,6 +15,14 @@ log = logging.getLogger(__name__)
 
 
 class Image(ContentfulEntity):
+    class ContentType(str, Enum):
+        TIFF = 'image/tiff'
+        PNG = 'image/png'
+        JPG = 'image/jpeg'
+        GIF = 'image/gif'
+        BMP = 'image/bmp'
+        SVG = 'image/svg+xml'
+
     type: Literal[EntityType.IMAGE_RESOURCE] = Field(allow_mutation=False)
     _template_name: ClassVar = 'image.html'
 
@@ -43,6 +52,8 @@ class Image(ContentfulEntity):
         Returns:
             Image
         """
+        if content_type:
+            cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
