@@ -2,8 +2,7 @@ name: Pull request
 
 on:
   pull_request:
-    types:
-      - opened
+    branches: [ main ]
 
 jobs:
   build:
