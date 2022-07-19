@@ -1,5 +1,5 @@
 import logging
-from typing import cast, Generator, Optional
+from typing import cast, Generator, Optional, Union
 
 from pydantic import BaseModel
 from pydantic.fields import PrivateAttr
@@ -25,6 +25,27 @@ class Attribute(BaseModel):
     id: AttrID
     name: str
     _options: list[AttributeOption] = PrivateAttr(default=[])
+    _options_by_id: dict[str, AttributeOption] = PrivateAttr(default={})
+
+    def __getitem__(self, index: Union[int, str]) -> AttributeOption:
+        if not self._options:
+            self._reload_options()
+
+        if isinstance(index, int):
+            return self._options[index]
+
+        if isinstance(index, str):
+            return self._options_by_id[index]
+
+        raise IndexError('Invalid index')
+
+    def __iter__(self):
+        if not self._options:
+            self._reload_options()
+        return self._options.__iter__()
+
+    def __len__(self):
+        return len(self._options)
 
     @classmethod
     def _get_endpoint(cls) -> str:
@@ -53,9 +74,7 @@ class Attribute(BaseModel):
         return cast(ResponseData, result.data).body
 
     @classmethod
-    def get_list(
-        cls,
-    ) -> Generator['Attribute', None, None]:
+    def get_list(cls) -> Generator['Attribute', None, None]:
         """Get all Attributes.
 
         Returns:
@@ -121,7 +140,7 @@ class Attribute(BaseModel):
                 }
             },
         )
-        log.debug('User: %s was created.', cls.__name__)
+        log.debug('Attribute: %s was created.', cls.__name__)
 
         result = AttributeResponse(**response.json())
         return cast(ResponseData, result.data).body
@@ -149,7 +168,7 @@ class Attribute(BaseModel):
                         include={
                             'options',
                         },
-                    )
+                    ),
                 },
             },
         )
@@ -162,24 +181,17 @@ class Attribute(BaseModel):
 
         """
         api = SignalsNotebookApi.get_default_api()
-        log.debug('Disable Attributes: %s...', self.id)
+        log.debug('Delete Attribute: %s...', self.id)
 
         api.call(
             method='DELETE',
             path=(self._get_endpoint(), self.id),
         )
-        log.debug('Attribute: %s was disabled successfully', self.id)
+        log.debug('Attribute: %s was deleted successfully', self.id)
 
-    @property
-    def options(self) -> list[AttributeOption]:
-        """Get Attribute options
-
-        Returns:
-            list[AttributeOption]
-        """
-        if self._options:
-            return self._options
-
+    def _reload_options(self):
+        self._options = []
+        self._options_by_id = {}
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -188,16 +200,25 @@ class Attribute(BaseModel):
         )
 
         result = AttributeOptionResponse(**response.json())
-        log.debug('Get Attribute with ID: %s', id)
+        options = [cast(ResponseData, item).body for item in result.data]
 
-        return [cast(ResponseData, item).body for item in result.data]
+        for item in options:
+            option = cast(AttributeOption, item)
+            assert option.key
 
-    def __call__(self, value: str) -> str:
-        if value not in self.options:
-            log.exception('Incorrect attribute value')
-            raise ValueError('Incorrect attribute value')
+            self._options.append(option)
+            self._options_by_id[option.key] = option
 
-        return value
+    @property
+    def options(self) -> list[AttributeOption]:
+        """Get Attribute options
+
+        Returns:
+            list[AttributeOption]
+        """
+        if not self._options:
+            self._reload_options()
+        return self._options
 
 
 class AttributeResponse(Response[Attribute]):
