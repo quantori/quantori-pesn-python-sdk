@@ -1,7 +1,7 @@
 import base64 as b64
 import logging
 from enum import Enum
-from typing import ClassVar, Literal
+from typing import ClassVar, Literal, Optional
 
 from pydantic import Field
 
@@ -21,6 +21,7 @@ class Image(ContentfulEntity):
         JPG = 'image/jpeg'
         GIF = 'image/gif'
         BMP = 'image/bmp'
+        SVG = 'image/svg+xml'
 
     type: Literal[EntityType.IMAGE_RESOURCE] = Field(allow_mutation=False)
     _template_name: ClassVar = 'image.html'
@@ -36,7 +37,7 @@ class Image(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b'',
-        content_type: str = None,
+        content_type: Optional[str] = None,
         force: bool = True,
     ) -> Entity:
         """Create Image Entity
@@ -51,7 +52,8 @@ class Image(ContentfulEntity):
         Returns:
             Image
         """
-        cls.ContentType(content_type)
+        if content_type is not None:
+            cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,

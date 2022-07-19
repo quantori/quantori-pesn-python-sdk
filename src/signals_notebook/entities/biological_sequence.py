@@ -50,7 +50,8 @@ class BiologicalSequence(ContentfulEntity):
         Returns:
             BiologicalSequence
         """
-        cls.ContentType(content_type)
+        if content_type is not None:
+            cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,

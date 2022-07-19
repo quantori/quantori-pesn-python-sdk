@@ -23,6 +23,7 @@ class ChemicalDrawing(ContentfulEntity):
         MOL = 'chemical/x-mdl-molfile'
         RXN = 'chemical/x-mdl-rxnfile'
         SW = 'chemical/x-swissprot'
+        SVG = 'image/svg+xml'
         CSV = 'text/csv'
 
     type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
@@ -57,7 +58,8 @@ class ChemicalDrawing(ContentfulEntity):
         Returns:
             ChemicalDrawing
         """
-        cls.ContentType(content_type)
+        if content_type is not None:
+            cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
