@@ -1,6 +1,6 @@
 import logging
 from enum import Enum
-from typing import cast, Generator, Optional, Union, Any
+from typing import cast, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel
 from pydantic.fields import PrivateAttr
@@ -11,10 +11,21 @@ from signals_notebook.common_types import AttrID, ObjectType, Response, Response
 log = logging.getLogger(__name__)
 
 
-class Actions(str, Enum):
+class Action(str, Enum):
     UPDATE: str = 'update'
     DELETE: str = 'delete'
     CREATE: str = 'create'
+
+
+class _Attributes(BaseModel):
+    action: Action
+    value: Optional[str]
+
+
+class _OptionRepresentation(BaseModel):
+    id: Optional[str]
+    type: Literal[ObjectType.ATTRIBUTE_OPTION] = ObjectType.ATTRIBUTE_OPTION
+    attributes: _Attributes
 
 
 class AttributeOption(BaseModel):
@@ -27,54 +38,83 @@ class AttributeOption(BaseModel):
 
     @property
     def is_changed(self) -> bool:
+        """Checking if Option was changed
+
+        Returns:
+            bool
+        """
         _ = self.is_created
         return self._is_changed
 
     def set_value(self, new_value: str) -> None:
+        """Set new value
+
+        Args:
+            new_value: new value of Option value field
+
+        Returns:
+
+        """
+        if self.value == new_value:
+            return
         self.value = new_value
         self._is_created = False
         self._is_changed = True
 
     @property
     def is_deleted(self) -> bool:
+        """Checking if Option was marked for deletion
+
+        Returns:
+            bool
+        """
         _ = self.is_created
         return self._is_deleted
 
     def delete(self) -> None:
+        """Mark Option to delete
+
+        Returns:
+            bool
+        """
         self._is_created = False
         self._is_deleted = True
 
     def switch_created(self) -> None:
+        """Switch value for is_created field
+
+        Returns:
+            bool
+        """
         self._is_created = not self._is_created
 
     @property
     def is_created(self) -> bool:
+        """Checking if Option was marked for creation
+
+        Returns:
+            bool
+        """
         if self._is_created:
             self._is_deleted = False
             self._is_changed = False
         return self._is_created
 
     @property
-    def representation(self) -> Optional[dict[str, Any]]:
+    def representation(self) -> Optional[_OptionRepresentation]:
+        """Change Option view for update
+
+        Returns:
+            Optional[_OptionRepresentation]
+        """
         if self.is_deleted:
-            return {'id': self.id, 'type': ObjectType.ATTRIBUTE_OPTION, 'attributes': {'action': Actions.DELETE}}
+            return _OptionRepresentation(id=str(self.id), attributes=_Attributes(action=Action.DELETE))
         if self.is_created:
-            return {
-                'type': ObjectType.ATTRIBUTE_OPTION,
-                'attributes': {
-                    'action': Actions.CREATE,
-                    'value': self.value,
-                },
-            }
+            return _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=self.value))
         if self.is_changed:
-            return {
-                'id': self.id,
-                'type': ObjectType.ATTRIBUTE_OPTION,
-                'attributes': {
-                    'action': Actions.UPDATE,
-                    'value': self.value,
-                },
-            }
+            return _OptionRepresentation(
+                id=str(self.id), attributes=_Attributes(action=Action.UPDATE, value=self.value)
+            )
         return None
 
 
@@ -208,6 +248,14 @@ class Attribute(BaseModel):
         return cast(ResponseData, result.data).body
 
     def append(self, option: AttributeOption) -> None:
+        """Update content of Attribute by id.
+
+        Args:
+            option: AttributeOption which will be added to option list in Attribute
+
+        Returns:
+
+        """
         assert option.key
         option.switch_created()
         self._options.append(option)
@@ -224,7 +272,7 @@ class Attribute(BaseModel):
         options = []
         for option in self._options:
             if option.representation:
-                options.append(option.representation)
+                options.append(option.representation.dict(exclude_none=True))
 
         if not options:
             log.debug('Attribute: %s was saved successfully', self.id)
