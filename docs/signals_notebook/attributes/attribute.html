@@ -27,7 +27,8 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import logging
-from typing import cast, Generator, Optional, Union
+from enum import Enum
+from typing import cast, Generator, Optional, Union, Any
 
 from pydantic import BaseModel
 from pydantic.fields import PrivateAttr
@@ -38,10 +39,71 @@ from signals_notebook.common_types import AttrID, ObjectType, Response, Response
 log = logging.getLogger(__name__)
 
 
+class Actions(str, Enum):
+    UPDATE: str = &#39;update&#39;
+    DELETE: str = &#39;delete&#39;
+    CREATE: str = &#39;create&#39;
+
+
 class AttributeOption(BaseModel):
     id: Optional[str]
     key: str
     value: str
+    _is_deleted: bool = PrivateAttr(default=False)
+    _is_changed: bool = PrivateAttr(default=False)
+    _is_created: bool = PrivateAttr(default=False)
+
+    @property
+    def is_changed(self) -&gt; bool:
+        _ = self.is_created
+        return self._is_changed
+
+    def set_value(self, new_value: str) -&gt; None:
+        self.value = new_value
+        self._is_created = False
+        self._is_changed = True
+
+    @property
+    def is_deleted(self) -&gt; bool:
+        _ = self.is_created
+        return self._is_deleted
+
+    def delete(self) -&gt; None:
+        self._is_created = False
+        self._is_deleted = True
+
+    def switch_created(self) -&gt; None:
+        self._is_created = not self._is_created
+
+    @property
+    def is_created(self) -&gt; bool:
+        if self._is_created:
+            self._is_deleted = False
+            self._is_changed = False
+        return self._is_created
+
+    @property
+    def representation(self) -&gt; Optional[dict[str, Any]]:
+        if self.is_deleted:
+            return {&#39;id&#39;: self.id, &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION, &#39;attributes&#39;: {&#39;action&#39;: Actions.DELETE}}
+        if self.is_created:
+            return {
+                &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
+                &#39;attributes&#39;: {
+                    &#39;action&#39;: Actions.CREATE,
+                    &#39;value&#39;: self.value,
+                },
+            }
+        if self.is_changed:
+            return {
+                &#39;id&#39;: self.id,
+                &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
+                &#39;attributes&#39;: {
+                    &#39;action&#39;: Actions.UPDATE,
+                    &#39;value&#39;: self.value,
+                },
+            }
+        return None
 
 
 class AttributeOptionResponse(Response[AttributeOption]):
@@ -173,33 +235,36 @@ class Attribute(BaseModel):
         result = AttributeResponse(**response.json())
         return cast(ResponseData, result.data).body
 
+    def append(self, option: AttributeOption) -&gt; None:
+        assert option.key
+        option.switch_created()
+        self._options.append(option)
+        self._options_by_id[option.key] = option
+        self.save()
+        option.switch_created()
+
     def save(self) -&gt; None:
         &#34;&#34;&#34;Update content of Attribute by id.
 
         Returns:
 
         &#34;&#34;&#34;
-        # TODO: Update options doesn&#39;t work. Check the reason of second api to update options
+        options = []
+        for option in self._options:
+            if option.representation:
+                options.append(option.representation)
+
+        if not options:
+            log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)
+            return
+
         api = SignalsNotebookApi.get_default_api()
         api.call(
             method=&#39;PATCH&#39;,
-            path=(
-                self._get_endpoint(),
-                self.id,
-            ),
-            json={
-                &#39;data&#39;: {
-                    &#39;type&#39;: ObjectType.ATTRIBUTE,
-                    &#39;id&#39;: self.id,
-                    &#39;attributes&#39;: self.dict(
-                        by_alias=True,
-                        include={
-                            &#39;options&#39;,
-                        },
-                    ),
-                },
-            },
+            path=(self._get_endpoint(), self.id, &#39;options&#39;),
+            json={&#39;data&#39;: options},
         )
+        self._reload_options()
         log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)
 
     def delete(self) -&gt; None:
@@ -228,14 +293,16 @@ class Attribute(BaseModel):
         )
 
         result = AttributeOptionResponse(**response.json())
-        options = [cast(ResponseData, item).body for item in result.data]
 
-        for item in options:
-            option = cast(AttributeOption, item)
-            assert option.key
+        for item in result.data:
+            body = cast(ResponseData, item).body
+            option = cast(AttributeOption, body)
+            assert item.eid
+            if not option.id:
+                option.id = item.eid
 
             self._options.append(option)
-            self._options_by_id[option.key] = option
+            self._options_by_id[option.id] = option
 
     @property
     def options(self) -&gt; list[AttributeOption]:
@@ -262,6 +329,42 @@ class AttributeResponse(Response[Attribute]):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
+<dt id="signals_notebook.attributes.attribute.Actions"><code class="flex name class">
+<span>class <span class="ident">Actions</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Actions(str, Enum):
+    UPDATE: str = &#39;update&#39;
+    DELETE: str = &#39;delete&#39;
+    CREATE: str = &#39;create&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.str</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.attributes.attribute.Actions.CREATE"><code class="name">var <span class="ident">CREATE</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.attributes.attribute.Actions.DELETE"><code class="name">var <span class="ident">DELETE</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.attributes.attribute.Actions.UPDATE"><code class="name">var <span class="ident">UPDATE</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
 <dt id="signals_notebook.attributes.attribute.Attribute"><code class="flex name class">
 <span>class <span class="ident">Attribute</span></span>
 <span>(</span><span>**data: Any)</span>
@@ -398,33 +501,36 @@ class AttributeResponse(Response[Attribute]):
         result = AttributeResponse(**response.json())
         return cast(ResponseData, result.data).body
 
+    def append(self, option: AttributeOption) -&gt; None:
+        assert option.key
+        option.switch_created()
+        self._options.append(option)
+        self._options_by_id[option.key] = option
+        self.save()
+        option.switch_created()
+
     def save(self) -&gt; None:
         &#34;&#34;&#34;Update content of Attribute by id.
 
         Returns:
 
         &#34;&#34;&#34;
-        # TODO: Update options doesn&#39;t work. Check the reason of second api to update options
+        options = []
+        for option in self._options:
+            if option.representation:
+                options.append(option.representation)
+
+        if not options:
+            log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)
+            return
+
         api = SignalsNotebookApi.get_default_api()
         api.call(
             method=&#39;PATCH&#39;,
-            path=(
-                self._get_endpoint(),
-                self.id,
-            ),
-            json={
-                &#39;data&#39;: {
-                    &#39;type&#39;: ObjectType.ATTRIBUTE,
-                    &#39;id&#39;: self.id,
-                    &#39;attributes&#39;: self.dict(
-                        by_alias=True,
-                        include={
-                            &#39;options&#39;,
-                        },
-                    ),
-                },
-            },
+            path=(self._get_endpoint(), self.id, &#39;options&#39;),
+            json={&#39;data&#39;: options},
         )
+        self._reload_options()
         log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)
 
     def delete(self) -&gt; None:
@@ -453,14 +559,16 @@ class AttributeResponse(Response[Attribute]):
         )
 
         result = AttributeOptionResponse(**response.json())
-        options = [cast(ResponseData, item).body for item in result.data]
 
-        for item in options:
-            option = cast(AttributeOption, item)
-            assert option.key
+        for item in result.data:
+            body = cast(ResponseData, item).body
+            option = cast(AttributeOption, body)
+            assert item.eid
+            if not option.id:
+                option.id = item.eid
 
             self._options.append(option)
-            self._options_by_id[option.key] = option
+            self._options_by_id[option.id] = option
 
     @property
     def options(self) -&gt; list[AttributeOption]:
@@ -668,6 +776,24 @@ def options(self) -&gt; list[AttributeOption]:
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="signals_notebook.attributes.attribute.Attribute.append"><code class="name flex">
+<span>def <span class="ident">append</span></span>(<span>self, option: <a title="signals_notebook.attributes.attribute.AttributeOption" href="#signals_notebook.attributes.attribute.AttributeOption">AttributeOption</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def append(self, option: AttributeOption) -&gt; None:
+    assert option.key
+    option.switch_created()
+    self._options.append(option)
+    self._options_by_id[option.key] = option
+    self.save()
+    option.switch_created()</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.attributes.attribute.Attribute.delete"><code class="name flex">
 <span>def <span class="ident">delete</span></span>(<span>self) ‑> None</span>
 </code></dt>
@@ -710,27 +836,22 @@ def options(self) -&gt; list[AttributeOption]:
     Returns:
 
     &#34;&#34;&#34;
-    # TODO: Update options doesn&#39;t work. Check the reason of second api to update options
+    options = []
+    for option in self._options:
+        if option.representation:
+            options.append(option.representation)
+
+    if not options:
+        log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)
+        return
+
     api = SignalsNotebookApi.get_default_api()
     api.call(
         method=&#39;PATCH&#39;,
-        path=(
-            self._get_endpoint(),
-            self.id,
-        ),
-        json={
-            &#39;data&#39;: {
-                &#39;type&#39;: ObjectType.ATTRIBUTE,
-                &#39;id&#39;: self.id,
-                &#39;attributes&#39;: self.dict(
-                    by_alias=True,
-                    include={
-                        &#39;options&#39;,
-                    },
-                ),
-            },
-        },
+        path=(self._get_endpoint(), self.id, &#39;options&#39;),
+        json={&#39;data&#39;: options},
     )
+    self._reload_options()
     log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)</code></pre>
 </details>
 </dd>
@@ -750,7 +871,62 @@ def options(self) -&gt; list[AttributeOption]:
 <pre><code class="python">class AttributeOption(BaseModel):
     id: Optional[str]
     key: str
-    value: str</code></pre>
+    value: str
+    _is_deleted: bool = PrivateAttr(default=False)
+    _is_changed: bool = PrivateAttr(default=False)
+    _is_created: bool = PrivateAttr(default=False)
+
+    @property
+    def is_changed(self) -&gt; bool:
+        _ = self.is_created
+        return self._is_changed
+
+    def set_value(self, new_value: str) -&gt; None:
+        self.value = new_value
+        self._is_created = False
+        self._is_changed = True
+
+    @property
+    def is_deleted(self) -&gt; bool:
+        _ = self.is_created
+        return self._is_deleted
+
+    def delete(self) -&gt; None:
+        self._is_created = False
+        self._is_deleted = True
+
+    def switch_created(self) -&gt; None:
+        self._is_created = not self._is_created
+
+    @property
+    def is_created(self) -&gt; bool:
+        if self._is_created:
+            self._is_deleted = False
+            self._is_changed = False
+        return self._is_created
+
+    @property
+    def representation(self) -&gt; Optional[dict[str, Any]]:
+        if self.is_deleted:
+            return {&#39;id&#39;: self.id, &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION, &#39;attributes&#39;: {&#39;action&#39;: Actions.DELETE}}
+        if self.is_created:
+            return {
+                &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
+                &#39;attributes&#39;: {
+                    &#39;action&#39;: Actions.CREATE,
+                    &#39;value&#39;: self.value,
+                },
+            }
+        if self.is_changed:
+            return {
+                &#39;id&#39;: self.id,
+                &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
+                &#39;attributes&#39;: {
+                    &#39;action&#39;: Actions.UPDATE,
+                    &#39;value&#39;: self.value,
+                },
+            }
+        return None</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -770,6 +946,126 @@ def options(self) -&gt; list[AttributeOption]:
 <dt id="signals_notebook.attributes.attribute.AttributeOption.value"><code class="name">var <span class="ident">value</span> : str</code></dt>
 <dd>
 <div class="desc"></div>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_changed(self) -&gt; bool:
+    _ = self.is_created
+    return self._is_changed</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.is_created"><code class="name">var <span class="ident">is_created</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_created(self) -&gt; bool:
+    if self._is_created:
+        self._is_deleted = False
+        self._is_changed = False
+    return self._is_created</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.is_deleted"><code class="name">var <span class="ident">is_deleted</span> : bool</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def is_deleted(self) -&gt; bool:
+    _ = self.is_created
+    return self._is_deleted</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.representation"><code class="name">var <span class="ident">representation</span> : Optional[dict]</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def representation(self) -&gt; Optional[dict[str, Any]]:
+    if self.is_deleted:
+        return {&#39;id&#39;: self.id, &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION, &#39;attributes&#39;: {&#39;action&#39;: Actions.DELETE}}
+    if self.is_created:
+        return {
+            &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
+            &#39;attributes&#39;: {
+                &#39;action&#39;: Actions.CREATE,
+                &#39;value&#39;: self.value,
+            },
+        }
+    if self.is_changed:
+        return {
+            &#39;id&#39;: self.id,
+            &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
+            &#39;attributes&#39;: {
+                &#39;action&#39;: Actions.UPDATE,
+                &#39;value&#39;: self.value,
+            },
+        }
+    return None</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self) -&gt; None:
+    self._is_created = False
+    self._is_deleted = True</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.set_value"><code class="name flex">
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: str) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_value(self, new_value: str) -&gt; None:
+    self.value = new_value
+    self._is_created = False
+    self._is_changed = True</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.switch_created"><code class="name flex">
+<span>def <span class="ident">switch_created</span></span>(<span>self) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def switch_created(self) -&gt; None:
+    self._is_created = not self._is_created</code></pre>
+</details>
 </dd>
 </dl>
 </dd>
@@ -930,8 +1226,17 @@ def options(self) -&gt; list[AttributeOption]:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
+<h4><code><a title="signals_notebook.attributes.attribute.Actions" href="#signals_notebook.attributes.attribute.Actions">Actions</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.attributes.attribute.Actions.CREATE" href="#signals_notebook.attributes.attribute.Actions.CREATE">CREATE</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Actions.DELETE" href="#signals_notebook.attributes.attribute.Actions.DELETE">DELETE</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Actions.UPDATE" href="#signals_notebook.attributes.attribute.Actions.UPDATE">UPDATE</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="signals_notebook.attributes.attribute.Attribute" href="#signals_notebook.attributes.attribute.Attribute">Attribute</a></code></h4>
 <ul class="two-column">
+<li><code><a title="signals_notebook.attributes.attribute.Attribute.append" href="#signals_notebook.attributes.attribute.Attribute.append">append</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.Attribute.create" href="#signals_notebook.attributes.attribute.Attribute.create">create</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.Attribute.delete" href="#signals_notebook.attributes.attribute.Attribute.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.Attribute.get" href="#signals_notebook.attributes.attribute.Attribute.get">get</a></code></li>
@@ -945,9 +1250,16 @@ def options(self) -&gt; list[AttributeOption]:
 </li>
 <li>
 <h4><code><a title="signals_notebook.attributes.attribute.AttributeOption" href="#signals_notebook.attributes.attribute.AttributeOption">AttributeOption</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.delete" href="#signals_notebook.attributes.attribute.AttributeOption.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.AttributeOption.id" href="#signals_notebook.attributes.attribute.AttributeOption.id">id</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.is_changed" href="#signals_notebook.attributes.attribute.AttributeOption.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.is_created" href="#signals_notebook.attributes.attribute.AttributeOption.is_created">is_created</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.is_deleted" href="#signals_notebook.attributes.attribute.AttributeOption.is_deleted">is_deleted</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.AttributeOption.key" href="#signals_notebook.attributes.attribute.AttributeOption.key">key</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.representation" href="#signals_notebook.attributes.attribute.AttributeOption.representation">representation</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.set_value" href="#signals_notebook.attributes.attribute.AttributeOption.set_value">set_value</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.switch_created" href="#signals_notebook.attributes.attribute.AttributeOption.switch_created">switch_created</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.AttributeOption.value" href="#signals_notebook.attributes.attribute.AttributeOption.value">value</a></code></li>
 </ul>
 </li>
