@@ -1,5 +1,6 @@
 import logging
-from typing import cast, Generator, Optional, Union
+from enum import Enum
+from typing import cast, Generator, Optional, Union, Any
 
 from pydantic import BaseModel
 from pydantic.fields import PrivateAttr
@@ -10,10 +11,71 @@ from signals_notebook.common_types import AttrID, ObjectType, Response, Response
 log = logging.getLogger(__name__)
 
 
+class Actions(str, Enum):
+    UPDATE: str = 'update'
+    DELETE: str = 'delete'
+    CREATE: str = 'create'
+
+
 class AttributeOption(BaseModel):
     id: Optional[str]
     key: str
     value: str
+    _is_deleted: bool = PrivateAttr(default=False)
+    _is_changed: bool = PrivateAttr(default=False)
+    _is_created: bool = PrivateAttr(default=False)
+
+    @property
+    def is_changed(self) -> bool:
+        _ = self.is_created
+        return self._is_changed
+
+    def set_value(self, new_value: str) -> None:
+        self.value = new_value
+        self._is_created = False
+        self._is_changed = True
+
+    @property
+    def is_deleted(self) -> bool:
+        _ = self.is_created
+        return self._is_deleted
+
+    def delete(self) -> None:
+        self._is_created = False
+        self._is_deleted = True
+
+    def switch_created(self) -> None:
+        self._is_created = not self._is_created
+
+    @property
+    def is_created(self) -> bool:
+        if self._is_created:
+            self._is_deleted = False
+            self._is_changed = False
+        return self._is_created
+
+    @property
+    def representation(self) -> Optional[dict[str, Any]]:
+        if self.is_deleted:
+            return {'id': self.id, 'type': ObjectType.ATTRIBUTE_OPTION, 'attributes': {'action': Actions.DELETE}}
+        if self.is_created:
+            return {
+                'type': ObjectType.ATTRIBUTE_OPTION,
+                'attributes': {
+                    'action': Actions.CREATE,
+                    'value': self.value,
+                },
+            }
+        if self.is_changed:
+            return {
+                'id': self.id,
+                'type': ObjectType.ATTRIBUTE_OPTION,
+                'attributes': {
+                    'action': Actions.UPDATE,
+                    'value': self.value,
+                },
+            }
+        return None
 
 
 class AttributeOptionResponse(Response[AttributeOption]):
@@ -145,33 +207,36 @@ class Attribute(BaseModel):
         result = AttributeResponse(**response.json())
         return cast(ResponseData, result.data).body
 
+    def append(self, option: AttributeOption) -> None:
+        assert option.key
+        option.switch_created()
+        self._options.append(option)
+        self._options_by_id[option.key] = option
+        self.save()
+        option.switch_created()
+
     def save(self) -> None:
         """Update content of Attribute by id.
 
         Returns:
 
         """
-        # TODO: Update options doesn't work. Check the reason of second api to update options
+        options = []
+        for option in self._options:
+            if option.representation:
+                options.append(option.representation)
+
+        if not options:
+            log.debug('Attribute: %s was saved successfully', self.id)
+            return
+
         api = SignalsNotebookApi.get_default_api()
         api.call(
             method='PATCH',
-            path=(
-                self._get_endpoint(),
-                self.id,
-            ),
-            json={
-                'data': {
-                    'type': ObjectType.ATTRIBUTE,
-                    'id': self.id,
-                    'attributes': self.dict(
-                        by_alias=True,
-                        include={
-                            'options',
-                        },
-                    ),
-                },
-            },
+            path=(self._get_endpoint(), self.id, 'options'),
+            json={'data': options},
         )
+        self._reload_options()
         log.debug('Attribute: %s was saved successfully', self.id)
 
     def delete(self) -> None:
@@ -200,14 +265,16 @@ class Attribute(BaseModel):
         )
 
         result = AttributeOptionResponse(**response.json())
-        options = [cast(ResponseData, item).body for item in result.data]
 
-        for item in options:
-            option = cast(AttributeOption, item)
-            assert option.key
+        for item in result.data:
+            body = cast(ResponseData, item).body
+            option = cast(AttributeOption, body)
+            assert item.eid
+            if not option.id:
+                option.id = item.eid
 
             self._options.append(option)
-            self._options_by_id[option.key] = option
+            self._options_by_id[option.id] = option
 
     @property
     def options(self) -> list[AttributeOption]:
