@@ -147,6 +147,8 @@ class Attribute(BaseModel):
         return self._options.__iter__()
 
     def __len__(self):
+        if not self._options:
+            self._reload_options()
         return len(self._options)
 
     @classmethod
