@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">import logging
 from enum import Enum
-from typing import cast, Generator, Optional, Union, Any
+from typing import cast, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel
 from pydantic.fields import PrivateAttr
@@ -39,10 +39,21 @@ from signals_notebook.common_types import AttrID, ObjectType, Response, Response
 log = logging.getLogger(__name__)
 
 
-class Actions(str, Enum):
+class Action(str, Enum):
     UPDATE: str = &#39;update&#39;
     DELETE: str = &#39;delete&#39;
     CREATE: str = &#39;create&#39;
+
+
+class _Attributes(BaseModel):
+    action: Action
+    value: Optional[str]
+
+
+class _OptionRepresentation(BaseModel):
+    id: Optional[str]
+    type: Literal[ObjectType.ATTRIBUTE_OPTION] = ObjectType.ATTRIBUTE_OPTION
+    attributes: _Attributes
 
 
 class AttributeOption(BaseModel):
@@ -55,54 +66,83 @@ class AttributeOption(BaseModel):
 
     @property
     def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if Option was changed
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         _ = self.is_created
         return self._is_changed
 
     def set_value(self, new_value: str) -&gt; None:
+        &#34;&#34;&#34;Set new value
+
+        Args:
+            new_value: new value of Option value field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self.value == new_value:
+            return
         self.value = new_value
         self._is_created = False
         self._is_changed = True
 
     @property
     def is_deleted(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if Option was marked for deletion
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         _ = self.is_created
         return self._is_deleted
 
     def delete(self) -&gt; None:
+        &#34;&#34;&#34;Mark Option to delete
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         self._is_created = False
         self._is_deleted = True
 
     def switch_created(self) -&gt; None:
+        &#34;&#34;&#34;Switch value for is_created field
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         self._is_created = not self._is_created
 
     @property
     def is_created(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if Option was marked for creation
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         if self._is_created:
             self._is_deleted = False
             self._is_changed = False
         return self._is_created
 
     @property
-    def representation(self) -&gt; Optional[dict[str, Any]]:
+    def representation(self) -&gt; Optional[_OptionRepresentation]:
+        &#34;&#34;&#34;Change Option view for update
+
+        Returns:
+            Optional[_OptionRepresentation]
+        &#34;&#34;&#34;
         if self.is_deleted:
-            return {&#39;id&#39;: self.id, &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION, &#39;attributes&#39;: {&#39;action&#39;: Actions.DELETE}}
+            return _OptionRepresentation(id=str(self.id), attributes=_Attributes(action=Action.DELETE))
         if self.is_created:
-            return {
-                &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
-                &#39;attributes&#39;: {
-                    &#39;action&#39;: Actions.CREATE,
-                    &#39;value&#39;: self.value,
-                },
-            }
+            return _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=self.value))
         if self.is_changed:
-            return {
-                &#39;id&#39;: self.id,
-                &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
-                &#39;attributes&#39;: {
-                    &#39;action&#39;: Actions.UPDATE,
-                    &#39;value&#39;: self.value,
-                },
-            }
+            return _OptionRepresentation(
+                id=str(self.id), attributes=_Attributes(action=Action.UPDATE, value=self.value)
+            )
         return None
 
 
@@ -236,6 +276,14 @@ class Attribute(BaseModel):
         return cast(ResponseData, result.data).body
 
     def append(self, option: AttributeOption) -&gt; None:
+        &#34;&#34;&#34;Update content of Attribute by id.
+
+        Args:
+            option: AttributeOption which will be added to option list in Attribute
+
+        Returns:
+
+        &#34;&#34;&#34;
         assert option.key
         option.switch_created()
         self._options.append(option)
@@ -252,7 +300,7 @@ class Attribute(BaseModel):
         options = []
         for option in self._options:
             if option.representation:
-                options.append(option.representation)
+                options.append(option.representation.dict(exclude_none=True))
 
         if not options:
             log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)
@@ -329,8 +377,8 @@ class AttributeResponse(Response[Attribute]):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="signals_notebook.attributes.attribute.Actions"><code class="flex name class">
-<span>class <span class="ident">Actions</span></span>
+<dt id="signals_notebook.attributes.attribute.Action"><code class="flex name class">
+<span>class <span class="ident">Action</span></span>
 <span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
 </code></dt>
 <dd>
@@ -339,7 +387,7 @@ class AttributeResponse(Response[Attribute]):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Actions(str, Enum):
+<pre><code class="python">class Action(str, Enum):
     UPDATE: str = &#39;update&#39;
     DELETE: str = &#39;delete&#39;
     CREATE: str = &#39;create&#39;</code></pre>
@@ -351,15 +399,15 @@ class AttributeResponse(Response[Attribute]):
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.attributes.attribute.Actions.CREATE"><code class="name">var <span class="ident">CREATE</span> : str</code></dt>
+<dt id="signals_notebook.attributes.attribute.Action.CREATE"><code class="name">var <span class="ident">CREATE</span> : str</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.attributes.attribute.Actions.DELETE"><code class="name">var <span class="ident">DELETE</span> : str</code></dt>
+<dt id="signals_notebook.attributes.attribute.Action.DELETE"><code class="name">var <span class="ident">DELETE</span> : str</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.attributes.attribute.Actions.UPDATE"><code class="name">var <span class="ident">UPDATE</span> : str</code></dt>
+<dt id="signals_notebook.attributes.attribute.Action.UPDATE"><code class="name">var <span class="ident">UPDATE</span> : str</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -502,6 +550,14 @@ class AttributeResponse(Response[Attribute]):
         return cast(ResponseData, result.data).body
 
     def append(self, option: AttributeOption) -&gt; None:
+        &#34;&#34;&#34;Update content of Attribute by id.
+
+        Args:
+            option: AttributeOption which will be added to option list in Attribute
+
+        Returns:
+
+        &#34;&#34;&#34;
         assert option.key
         option.switch_created()
         self._options.append(option)
@@ -518,7 +574,7 @@ class AttributeResponse(Response[Attribute]):
         options = []
         for option in self._options:
             if option.representation:
-                options.append(option.representation)
+                options.append(option.representation.dict(exclude_none=True))
 
         if not options:
             log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)
@@ -780,12 +836,26 @@ def options(self) -&gt; list[AttributeOption]:
 <span>def <span class="ident">append</span></span>(<span>self, option: <a title="signals_notebook.attributes.attribute.AttributeOption" href="#signals_notebook.attributes.attribute.AttributeOption">AttributeOption</a>) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Update content of Attribute by id.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>option</code></strong></dt>
+<dd>AttributeOption which will be added to option list in Attribute</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def append(self, option: AttributeOption) -&gt; None:
+    &#34;&#34;&#34;Update content of Attribute by id.
+
+    Args:
+        option: AttributeOption which will be added to option list in Attribute
+
+    Returns:
+
+    &#34;&#34;&#34;
     assert option.key
     option.switch_created()
     self._options.append(option)
@@ -839,7 +909,7 @@ def options(self) -&gt; list[AttributeOption]:
     options = []
     for option in self._options:
         if option.representation:
-            options.append(option.representation)
+            options.append(option.representation.dict(exclude_none=True))
 
     if not options:
         log.debug(&#39;Attribute: %s was saved successfully&#39;, self.id)
@@ -878,54 +948,83 @@ def options(self) -&gt; list[AttributeOption]:
 
     @property
     def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if Option was changed
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         _ = self.is_created
         return self._is_changed
 
     def set_value(self, new_value: str) -&gt; None:
+        &#34;&#34;&#34;Set new value
+
+        Args:
+            new_value: new value of Option value field
+
+        Returns:
+
+        &#34;&#34;&#34;
+        if self.value == new_value:
+            return
         self.value = new_value
         self._is_created = False
         self._is_changed = True
 
     @property
     def is_deleted(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if Option was marked for deletion
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         _ = self.is_created
         return self._is_deleted
 
     def delete(self) -&gt; None:
+        &#34;&#34;&#34;Mark Option to delete
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         self._is_created = False
         self._is_deleted = True
 
     def switch_created(self) -&gt; None:
+        &#34;&#34;&#34;Switch value for is_created field
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         self._is_created = not self._is_created
 
     @property
     def is_created(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if Option was marked for creation
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         if self._is_created:
             self._is_deleted = False
             self._is_changed = False
         return self._is_created
 
     @property
-    def representation(self) -&gt; Optional[dict[str, Any]]:
+    def representation(self) -&gt; Optional[_OptionRepresentation]:
+        &#34;&#34;&#34;Change Option view for update
+
+        Returns:
+            Optional[_OptionRepresentation]
+        &#34;&#34;&#34;
         if self.is_deleted:
-            return {&#39;id&#39;: self.id, &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION, &#39;attributes&#39;: {&#39;action&#39;: Actions.DELETE}}
+            return _OptionRepresentation(id=str(self.id), attributes=_Attributes(action=Action.DELETE))
         if self.is_created:
-            return {
-                &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
-                &#39;attributes&#39;: {
-                    &#39;action&#39;: Actions.CREATE,
-                    &#39;value&#39;: self.value,
-                },
-            }
+            return _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=self.value))
         if self.is_changed:
-            return {
-                &#39;id&#39;: self.id,
-                &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
-                &#39;attributes&#39;: {
-                    &#39;action&#39;: Actions.UPDATE,
-                    &#39;value&#39;: self.value,
-                },
-            }
+            return _OptionRepresentation(
+                id=str(self.id), attributes=_Attributes(action=Action.UPDATE, value=self.value)
+            )
         return None</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -952,26 +1051,40 @@ def options(self) -&gt; list[AttributeOption]:
 <dl>
 <dt id="signals_notebook.attributes.attribute.AttributeOption.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Checking if Option was changed</p>
+<h2 id="returns">Returns</h2>
+<p>bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def is_changed(self) -&gt; bool:
+    &#34;&#34;&#34;Checking if Option was changed
+
+    Returns:
+        bool
+    &#34;&#34;&#34;
     _ = self.is_created
     return self._is_changed</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.attributes.attribute.AttributeOption.is_created"><code class="name">var <span class="ident">is_created</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Checking if Option was marked for creation</p>
+<h2 id="returns">Returns</h2>
+<p>bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def is_created(self) -&gt; bool:
+    &#34;&#34;&#34;Checking if Option was marked for creation
+
+    Returns:
+        bool
+    &#34;&#34;&#34;
     if self._is_created:
         self._is_deleted = False
         self._is_changed = False
@@ -980,45 +1093,48 @@ def is_created(self) -&gt; bool:
 </dd>
 <dt id="signals_notebook.attributes.attribute.AttributeOption.is_deleted"><code class="name">var <span class="ident">is_deleted</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Checking if Option was marked for deletion</p>
+<h2 id="returns">Returns</h2>
+<p>bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def is_deleted(self) -&gt; bool:
+    &#34;&#34;&#34;Checking if Option was marked for deletion
+
+    Returns:
+        bool
+    &#34;&#34;&#34;
     _ = self.is_created
     return self._is_deleted</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.attributes.attribute.AttributeOption.representation"><code class="name">var <span class="ident">representation</span> : Optional[dict]</code></dt>
+<dt id="signals_notebook.attributes.attribute.AttributeOption.representation"><code class="name">var <span class="ident">representation</span> : Optional[signals_notebook.attributes.attribute._OptionRepresentation]</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Change Option view for update</p>
+<h2 id="returns">Returns</h2>
+<p>Optional[_OptionRepresentation]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def representation(self) -&gt; Optional[dict[str, Any]]:
+def representation(self) -&gt; Optional[_OptionRepresentation]:
+    &#34;&#34;&#34;Change Option view for update
+
+    Returns:
+        Optional[_OptionRepresentation]
+    &#34;&#34;&#34;
     if self.is_deleted:
-        return {&#39;id&#39;: self.id, &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION, &#39;attributes&#39;: {&#39;action&#39;: Actions.DELETE}}
+        return _OptionRepresentation(id=str(self.id), attributes=_Attributes(action=Action.DELETE))
     if self.is_created:
-        return {
-            &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
-            &#39;attributes&#39;: {
-                &#39;action&#39;: Actions.CREATE,
-                &#39;value&#39;: self.value,
-            },
-        }
+        return _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=self.value))
     if self.is_changed:
-        return {
-            &#39;id&#39;: self.id,
-            &#39;type&#39;: ObjectType.ATTRIBUTE_OPTION,
-            &#39;attributes&#39;: {
-                &#39;action&#39;: Actions.UPDATE,
-                &#39;value&#39;: self.value,
-            },
-        }
+        return _OptionRepresentation(
+            id=str(self.id), attributes=_Attributes(action=Action.UPDATE, value=self.value)
+        )
     return None</code></pre>
 </details>
 </dd>
@@ -1029,12 +1145,19 @@ def representation(self) -&gt; Optional[dict[str, Any]]:
 <span>def <span class="ident">delete</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Mark Option to delete</p>
+<h2 id="returns">Returns</h2>
+<p>bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def delete(self) -&gt; None:
+    &#34;&#34;&#34;Mark Option to delete
+
+    Returns:
+        bool
+    &#34;&#34;&#34;
     self._is_created = False
     self._is_deleted = True</code></pre>
 </details>
@@ -1043,12 +1166,28 @@ def representation(self) -&gt; Optional[dict[str, Any]]:
 <span>def <span class="ident">set_value</span></span>(<span>self, new_value: str) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set new value</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of Option value field</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_value(self, new_value: str) -&gt; None:
+    &#34;&#34;&#34;Set new value
+
+    Args:
+        new_value: new value of Option value field
+
+    Returns:
+
+    &#34;&#34;&#34;
+    if self.value == new_value:
+        return
     self.value = new_value
     self._is_created = False
     self._is_changed = True</code></pre>
@@ -1058,12 +1197,19 @@ def representation(self) -&gt; Optional[dict[str, Any]]:
 <span>def <span class="ident">switch_created</span></span>(<span>self) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Switch value for is_created field</p>
+<h2 id="returns">Returns</h2>
+<p>bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def switch_created(self) -&gt; None:
+    &#34;&#34;&#34;Switch value for is_created field
+
+    Returns:
+        bool
+    &#34;&#34;&#34;
     self._is_created = not self._is_created</code></pre>
 </details>
 </dd>
@@ -1226,11 +1372,11 @@ def representation(self) -&gt; Optional[dict[str, Any]]:
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="signals_notebook.attributes.attribute.Actions" href="#signals_notebook.attributes.attribute.Actions">Actions</a></code></h4>
+<h4><code><a title="signals_notebook.attributes.attribute.Action" href="#signals_notebook.attributes.attribute.Action">Action</a></code></h4>
 <ul class="">
-<li><code><a title="signals_notebook.attributes.attribute.Actions.CREATE" href="#signals_notebook.attributes.attribute.Actions.CREATE">CREATE</a></code></li>
-<li><code><a title="signals_notebook.attributes.attribute.Actions.DELETE" href="#signals_notebook.attributes.attribute.Actions.DELETE">DELETE</a></code></li>
-<li><code><a title="signals_notebook.attributes.attribute.Actions.UPDATE" href="#signals_notebook.attributes.attribute.Actions.UPDATE">UPDATE</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Action.CREATE" href="#signals_notebook.attributes.attribute.Action.CREATE">CREATE</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Action.DELETE" href="#signals_notebook.attributes.attribute.Action.DELETE">DELETE</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Action.UPDATE" href="#signals_notebook.attributes.attribute.Action.UPDATE">UPDATE</a></code></li>
 </ul>
 </li>
 <li>
