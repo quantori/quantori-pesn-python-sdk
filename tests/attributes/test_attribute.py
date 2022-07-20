@@ -1,6 +1,7 @@
 import pytest
 
 from signals_notebook.attributes import Attribute, AttributeOption
+from signals_notebook.attributes.attribute import Action
 from signals_notebook.common_types import AttrID, ObjectType
 
 
@@ -29,47 +30,47 @@ def attribute_response():
 @pytest.fixture()
 def attributes_response():
     return {
-        "data": [
+        'data': [
             {
-                "type": "entity",
-                "id": "attribute:18",
-                "links": {"self": "https://example.com/api/rest/v1.0/entities/attribute:18"},
-                "attributes": {
-                    "id": "attribute:18",
-                    "eid": "attribute:18",
-                    "name": "Inventory Security",
-                    "type": "attribute",
-                    "digest": "0",
-                    "fields": {},
-                    "flags": {"canEdit": True},
+                'type': 'entity',
+                'id': 'attribute:18',
+                'links': {'self': 'https://example.com/api/rest/v1.0/entities/attribute:18'},
+                'attributes': {
+                    'id': 'attribute:18',
+                    'eid': 'attribute:18',
+                    'name': 'Inventory Security',
+                    'type': 'attribute',
+                    'digest': '0',
+                    'fields': {},
+                    'flags': {'canEdit': True},
                 },
             },
             {
-                "type": "entity",
-                "id": "attribute:4",
-                "links": {"self": "https://example.com/api/rest/v1.0/entities/attribute:4"},
-                "attributes": {
-                    "id": "attribute:4",
-                    "eid": "attribute:4",
-                    "name": "Material Library Type",
-                    "type": "attribute",
-                    "digest": "0",
-                    "fields": {},
+                'type': 'entity',
+                'id': 'attribute:4',
+                'links': {'self': 'https://example.com/api/rest/v1.0/entities/attribute:4'},
+                'attributes': {
+                    'id': 'attribute:4',
+                    'eid': 'attribute:4',
+                    'name': 'Material Library Type',
+                    'type': 'attribute',
+                    'digest': '0',
+                    'fields': {},
                 },
             },
             {
-                "type": "entity",
-                "id": "attribute:26",
-                "links": {"self": "https://example.com/api/rest/v1.0/entities/attribute:26"},
-                "attributes": {
-                    "id": "attribute:26",
-                    "eid": "attribute:26",
-                    "name": "newAttribute",
-                    "description": "Test",
-                    "type": "attribute",
-                    "digest": "0",
-                    "fields": {},
-                    "flags": {"canEdit": True},
+                'type': 'entity',
+                'id': 'attribute:26',
+                'links': {'self': 'https://example.com/api/rest/v1.0/entities/attribute:26'},
+                'attributes': {
+                    'id': 'attribute:26',
+                    'eid': 'attribute:26',
+                    'name': 'newAttribute',
+                    'description': 'Test',
+                    'type': 'attribute',
+                    'digest': '0',
+                    'fields': {},
+                    'flags': {'canEdit': True},
                 },
             },
         ]
@@ -79,16 +80,67 @@ def attributes_response():
 @pytest.fixture()
 def options_response():
     return {
-        "links": {
-            "self": "https://example.com/api/rest/v1.0/attributes/attribute:18/options?page[offset]=0&page[limit]=20",
-            "first": "https://example.com/api/rest/v1.0/attributes/attribute:18/options?page[offset]=0&page[limit]=20",
+        'links': {
+            'self': 'https://example.com/api/rest/v1.0/attributes/attribute:18/options?page[offset]=0&page[limit]=20',
+            'first': 'https://example.com/api/rest/v1.0/attributes/attribute:18/options?page[offset]=0&page[limit]=20',
         },
-        "data": [
-            {"type": "option", "id": "ladflklsjdf", "attributes": {"key": "ladflklsjdf", "value": "ladflklsjdf"}},
-            {"type": "option", "id": "option2", "attributes": {"key": "option2", "value": "option2"}},
-            {"type": "option", "id": "option3", "attributes": {"key": "option3", "value": "option3"}},
+        'data': [
+            {'type': 'option', 'id': 'ladflklsjdf', 'attributes': {'key': 'ladflklsjdf', 'value': 'ladflklsjdf'}},
+            {'type': 'option', 'id': 'option2', 'attributes': {'key': 'option2', 'value': 'option2'}},
+            {'type': 'option', 'id': 'option3', 'attributes': {'key': 'option3', 'value': 'option3'}},
         ],
     }
+
+
+@pytest.fixture()
+def options_response_for_update():
+    def wrapper(value: str):
+        return {
+            'links': {
+                'self': 'https://ex.com/api/rest/v1.0/attributes/attribute:18/options?page[offset]=0&page[limit]=20',
+                'first': 'https://ex.com/api/rest/v1.0/attributes/attribute:18/options?page[offset]=0&page[limit]=20',
+            },
+            'data': [
+                {'type': 'option', 'id': 'ladflklsjdf', 'attributes': {'key': 'ladflklsjdf', 'value': 'ladflklsjdf'}},
+                {'type': 'option', 'id': 'option2', 'attributes': {'key': 'option2', 'value': value}},
+                {'type': 'option', 'id': 'option3', 'attributes': {'key': 'option3', 'value': 'option3'}},
+            ],
+        }
+
+    return wrapper
+
+
+@pytest.fixture()
+def options_response_for_delete():
+    return {
+        'links': {
+            'self': 'https://example.com/api/rest/v1.0/attributes/attribute:18/options?page[offset]=0&page[limit]=20',
+            'first': 'https://example.com/api/rest/v1.0/attributes/attribute:18/options?page[offset]=0&page[limit]=20',
+        },
+        'data': [
+            {'type': 'option', 'id': 'ladflklsjdf', 'attributes': {'key': 'ladflklsjdf', 'value': 'ladflklsjdf'}},
+            {'type': 'option', 'id': 'option3', 'attributes': {'key': 'option3', 'value': 'option3'}},
+        ],
+    }
+
+
+@pytest.fixture()
+def options_response_for_create():
+    def wrapper(value: str):
+        return {
+            'links': {
+                'self': 'https://ex.com/api/rest/v1.0/attributes/attribute:18/options?page[offset]=0&page[limit]=20',
+                'first': 'https://ex.com/api/rest/v1.0/attributes/attribute:18/options?page[offset]=0&page[limit]=20',
+            },
+            'data': [
+                {'type': 'option', 'id': 'ladflklsjdf', 'attributes': {'key': 'ladflklsjdf', 'value': 'ladflklsjdf'}},
+                {'type': 'option', 'id': 'option2', 'attributes': {'key': 'option2', 'value': 'option2'}},
+                {'type': 'option', 'id': 'option3', 'attributes': {'key': 'option3', 'value': 'option3'}},
+                {'type': 'option', 'id': value, 'attributes': {'key': value, 'value': value}},
+            ],
+        }
+
+    return wrapper
 
 
 def test_get(attr_id_factory, api_mock, attribute_response):
@@ -151,12 +203,138 @@ def test_create(api_mock, attr_id_factory, attribute_option_factory, attribute_r
     assert new_attribute.id == _id
 
 
-def test_append(api_mock):
-    pass
+def test_add_option(
+    api_mock,
+    options_response,
+    attribute_factory,
+    get_response_object,
+    options_response_for_create,
+    mocker,
+):
+    attribute = attribute_factory()
+    option_value = 'GOGOGOGOGO'
+
+    assert attribute._options == []
+    assert attribute._options_by_id == {}
+
+    api_mock.call.return_value.json.return_value = options_response
+    _ = attribute.options
+
+    assert attribute._options != []
+    assert attribute._options_by_id != {}
+
+    create_response = options_response_for_create(option_value)
+    api_mock.call.side_effect = [get_response_object(create_response), get_response_object(create_response)]
+    attribute.add_option(value=option_value)
+
+    api_mock.call.return_value.json.return_value = create_response
+    assert len(attribute) == 4
+    assert isinstance(attribute[option_value], AttributeOption)
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(method='GET', path=('attributes', attribute.id, 'options')),
+            mocker.call(
+                method='PATCH',
+                path=('attributes', attribute.id, 'options'),
+                json={
+                    'data': [
+                        {
+                            'type': ObjectType.ATTRIBUTE_OPTION,
+                            'attributes': {'action': Action.CREATE, 'value': option_value},
+                        }
+                    ]
+                },
+            ),
+            mocker.call(method='GET', path=('attributes', attribute.id, 'options')),
+        ],
+        any_order=True,
+    )
 
 
-def test_save(api_mock):
-    pass
+def test_delete_option(
+    api_mock, options_response, attribute_factory, get_response_object, options_response_for_delete, mocker
+):
+    attribute = attribute_factory()
+    option_id = 'option2'
+
+    assert attribute._options == []
+    assert attribute._options_by_id == {}
+
+    api_mock.call.return_value.json.return_value = options_response
+    _ = attribute.options
+
+    assert attribute._options != []
+    assert attribute._options_by_id != {}
+
+    delete_response = options_response_for_delete
+    api_mock.call.side_effect = [get_response_object(delete_response), get_response_object(delete_response)]
+    attribute.delete_option(id=option_id)
+
+    assert len(attribute) == 2
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(method='GET', path=('attributes', attribute.id, 'options')),
+            mocker.call(
+                method='PATCH',
+                path=('attributes', attribute.id, 'options'),
+                json={
+                    'data': [
+                        {
+                            'id': option_id,
+                            'type': ObjectType.ATTRIBUTE_OPTION,
+                            'attributes': {'action': Action.DELETE},
+                        }
+                    ]
+                },
+            ),
+            mocker.call(method='GET', path=('attributes', attribute.id, 'options')),
+        ],
+        any_order=True,
+    )
+
+
+def test_update_option(
+    api_mock, options_response, attribute_factory, get_response_object, options_response_for_update, mocker
+):
+    attribute = attribute_factory()
+    option_id = 'option2'
+    option_value = 'GOGOGOGOGO'
+
+    assert attribute._options == []
+    assert attribute._options_by_id == {}
+
+    api_mock.call.return_value.json.return_value = options_response
+    _ = attribute.options
+
+    assert len(attribute) == 3
+    assert attribute._options != []
+    assert attribute._options_by_id != {}
+
+    update_response = options_response_for_update(option_value)
+    api_mock.call.side_effect = [get_response_object(update_response), get_response_object(update_response)]
+    attribute.update_option(id=option_id, value=option_value)
+
+    assert len(attribute) == 3
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(method='GET', path=('attributes', attribute.id, 'options')),
+            mocker.call(
+                method='PATCH',
+                path=('attributes', attribute.id, 'options'),
+                json={
+                    'data': [
+                        {
+                            'id': option_id,
+                            'type': ObjectType.ATTRIBUTE_OPTION,
+                            'attributes': {'action': Action.UPDATE, 'value': option_value},
+                        }
+                    ]
+                },
+            ),
+            mocker.call(method='GET', path=('attributes', attribute.id, 'options')),
+        ],
+        any_order=True,
+    )
 
 
 def test_delete(api_mock, attr_id_factory, attribute_factory):

@@ -32,90 +32,6 @@ class AttributeOption(BaseModel):
     id: Optional[str]
     key: str
     value: str
-    _is_deleted: bool = PrivateAttr(default=False)
-    _is_changed: bool = PrivateAttr(default=False)
-    _is_created: bool = PrivateAttr(default=False)
-
-    @property
-    def is_changed(self) -> bool:
-        """Checking if Option was changed
-
-        Returns:
-            bool
-        """
-        _ = self.is_created
-        return self._is_changed
-
-    def set_value(self, new_value: str) -> None:
-        """Set new value
-
-        Args:
-            new_value: new value of Option value field
-
-        Returns:
-
-        """
-        if self.value == new_value:
-            return
-        self.value = new_value
-        self._is_created = False
-        self._is_changed = True
-
-    @property
-    def is_deleted(self) -> bool:
-        """Checking if Option was marked for deletion
-
-        Returns:
-            bool
-        """
-        _ = self.is_created
-        return self._is_deleted
-
-    def delete(self) -> None:
-        """Mark Option to delete
-
-        Returns:
-            bool
-        """
-        self._is_created = False
-        self._is_deleted = True
-
-    def switch_created(self) -> None:
-        """Switch value for is_created field
-
-        Returns:
-            bool
-        """
-        self._is_created = not self._is_created
-
-    @property
-    def is_created(self) -> bool:
-        """Checking if Option was marked for creation
-
-        Returns:
-            bool
-        """
-        if self._is_created:
-            self._is_deleted = False
-            self._is_changed = False
-        return self._is_created
-
-    @property
-    def representation(self) -> Optional[_OptionRepresentation]:
-        """Change Option view for update
-
-        Returns:
-            Optional[_OptionRepresentation]
-        """
-        if self.is_deleted:
-            return _OptionRepresentation(id=str(self.id), attributes=_Attributes(action=Action.DELETE))
-        if self.is_created:
-            return _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=self.value))
-        if self.is_changed:
-            return _OptionRepresentation(
-                id=str(self.id), attributes=_Attributes(action=Action.UPDATE, value=self.value)
-            )
-        return None
 
 
 class AttributeOptionResponse(Response[AttributeOption]):
@@ -249,46 +165,6 @@ class Attribute(BaseModel):
         result = AttributeResponse(**response.json())
         return cast(ResponseData, result.data).body
 
-    def append(self, option: AttributeOption) -> None:
-        """Update content of Attribute by id.
-
-        Args:
-            option: AttributeOption which will be added to option list in Attribute
-
-        Returns:
-
-        """
-        assert option.key
-        option.switch_created()
-        self._options.append(option)
-        self._options_by_id[option.key] = option
-        self.save()
-        option.switch_created()
-
-    def save(self) -> None:
-        """Update content of Attribute by id.
-
-        Returns:
-
-        """
-        options = []
-        for option in self._options:
-            if option.representation:
-                options.append(option.representation.dict(exclude_none=True))
-
-        if not options:
-            log.debug('Attribute: %s was saved successfully', self.id)
-            return
-
-        api = SignalsNotebookApi.get_default_api()
-        api.call(
-            method='PATCH',
-            path=(self._get_endpoint(), self.id, 'options'),
-            json={'data': options},
-        )
-        self._reload_options()
-        log.debug('Attribute: %s was saved successfully', self.id)
-
     def delete(self) -> None:
         """Delete an Attribute by id.
 
@@ -303,6 +179,56 @@ class Attribute(BaseModel):
             path=(self._get_endpoint(), self.id),
         )
         log.debug('Attribute: %s was deleted successfully', self.id)
+
+    def add_option(self, value: str) -> None:
+        """Update option of Attribute by id.
+
+        Args:
+            value: AttributeOption value which will be added to option list in Attribute
+
+        Returns:
+
+        """
+        option = _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=value))
+        log.debug('Creating Option: %s...', self.id)
+        self._patch_options(option)
+
+    def delete_option(self, id: str) -> None:
+        """Delete option of Attribute by id.
+
+        Args:
+            id: AttributeOption id which will be deleted from Attribute's option list
+
+        Returns:
+
+        """
+        option = _OptionRepresentation(id=str(id), attributes=_Attributes(action=Action.DELETE))
+        log.debug('Deleting Option: %s...', self.id)
+        self._patch_options(option)
+
+    def update_option(self, id: str, value: str) -> None:
+        """Update option of Attribute by id.
+
+        Args:
+            id: AttributeOption id
+            value: AttributeOption value which will be updated
+
+        Returns:
+
+        """
+        option = _OptionRepresentation(id=id, attributes=_Attributes(action=Action.UPDATE, value=value))
+        log.debug('Patching Option: %s...', self.id)
+        self._patch_options(option)
+
+    def _patch_options(self, option: _OptionRepresentation) -> None:
+        api = SignalsNotebookApi.get_default_api()
+        api.call(
+            method='PATCH',
+            path=(self._get_endpoint(), self.id, 'options'),
+            json={'data': [option.dict(exclude_none=True)]},
+        )
+        self._reload_options()
+        log.debug('Attribute: %s was reloaded successfully', self.id)
 
     def _reload_options(self):
         self._options = []
