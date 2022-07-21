@@ -28,10 +28,10 @@
 </summary>
 <pre><code class="python">import logging
 from enum import Enum
-from typing import cast, Generator, Literal, Optional, Union
+from typing import cast, Generator, Literal, Optional
 
 from pydantic import BaseModel
-from pydantic.fields import Field, PrivateAttr
+from pydantic.fields import PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import AttrID, ObjectType, Response, ResponseData
@@ -40,9 +40,9 @@ log = logging.getLogger(__name__)
 
 
 class Action(str, Enum):
-    UPDATE: str = &#39;update&#39;
-    DELETE: str = &#39;delete&#39;
-    CREATE: str = &#39;create&#39;
+    UPDATE = &#39;update&#39;
+    DELETE = &#39;delete&#39;
+    CREATE = &#39;create&#39;
 
 
 class _Attributes(BaseModel):
@@ -57,7 +57,6 @@ class _OptionRepresentation(BaseModel):
 
 
 class _AttributeOption(BaseModel):
-    id: str = Field(alias=&#39;key&#39;)
     value: str
 
 
@@ -69,20 +68,11 @@ class Attribute(BaseModel):
     type: str
     id: AttrID
     name: str
-    _options: list[tuple[str, Optional[str]]] = PrivateAttr(default=[])
-    _options_by_id: dict[str, tuple[str, Optional[str]]] = PrivateAttr(default={})
+    _options: list[str] = PrivateAttr(default=[])
 
-    def __getitem__(self, index: Union[int, str]) -&gt; tuple[str, Optional[str]]:
-        if not self._options:
-            self._reload_options()
-
-        if isinstance(index, int):
-            return self._options[index]
-
-        if isinstance(index, str):
-            return self._options_by_id[index]
-
-        raise IndexError(&#39;Invalid index&#39;)
+    def __init__(self, *args, **kwargs):
+        self._options = kwargs.pop(&#39;options&#39;, [])
+        super().__init__(*args, **kwargs)
 
     def __iter__(self):
         if not self._options:
@@ -233,17 +223,17 @@ class Attribute(BaseModel):
         log.debug(&#39;Deleting Option: %s...&#39;, self.id)
         self._patch_options(option)
 
-    def update_option(self, id: str, value: str) -&gt; None:
+    def update_option(self, old_option: str, new_option: str) -&gt; None:
         &#34;&#34;&#34;Update option of Attribute by id.
 
         Args:
-            id: AttributeOption id
+            old_option: AttributeOption id
             value: AttributeOption value which will be updated
 
         Returns:
 
         &#34;&#34;&#34;
-        option = _OptionRepresentation(id=id, attributes=_Attributes(action=Action.UPDATE, value=value))
+        option = _OptionRepresentation(id=old_option, attributes=_Attributes(action=Action.UPDATE, value=new_option))
         log.debug(&#39;Patching Option: %s...&#39;, self.id)
         self._patch_options(option)
 
@@ -259,7 +249,6 @@ class Attribute(BaseModel):
 
     def _reload_options(self):
         self._options = []
-        self._options_by_id = {}
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -272,12 +261,11 @@ class Attribute(BaseModel):
         for item in result.data:
             body = cast(ResponseData, item).body
             option = cast(_AttributeOption, body)
-            assert option.id
-            self._options.append((option.id, option.value))
-            self._options_by_id[option.id] = (option.id, option.value)
+
+            self._options.append(option.value)
 
     @property
-    def options(self) -&gt; list[tuple[str, Optional[str]]]:
+    def options(self) -&gt; list[str]:
         &#34;&#34;&#34;Get Attribute options
 
         Returns:
@@ -312,9 +300,9 @@ class AttributeResponse(Response[Attribute]):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Action(str, Enum):
-    UPDATE: str = &#39;update&#39;
-    DELETE: str = &#39;delete&#39;
-    CREATE: str = &#39;create&#39;</code></pre>
+    UPDATE = &#39;update&#39;
+    DELETE = &#39;delete&#39;
+    CREATE = &#39;create&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -323,15 +311,15 @@ class AttributeResponse(Response[Attribute]):
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.attributes.attribute.Action.CREATE"><code class="name">var <span class="ident">CREATE</span> : str</code></dt>
+<dt id="signals_notebook.attributes.attribute.Action.CREATE"><code class="name">var <span class="ident">CREATE</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.attributes.attribute.Action.DELETE"><code class="name">var <span class="ident">DELETE</span> : str</code></dt>
+<dt id="signals_notebook.attributes.attribute.Action.DELETE"><code class="name">var <span class="ident">DELETE</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.attributes.attribute.Action.UPDATE"><code class="name">var <span class="ident">UPDATE</span> : str</code></dt>
+<dt id="signals_notebook.attributes.attribute.Action.UPDATE"><code class="name">var <span class="ident">UPDATE</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -339,7 +327,7 @@ class AttributeResponse(Response[Attribute]):
 </dd>
 <dt id="signals_notebook.attributes.attribute.Attribute"><code class="flex name class">
 <span>class <span class="ident">Attribute</span></span>
-<span>(</span><span>**data: Any)</span>
+<span>(</span><span>*args, **kwargs)</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
@@ -352,20 +340,11 @@ class AttributeResponse(Response[Attribute]):
     type: str
     id: AttrID
     name: str
-    _options: list[tuple[str, Optional[str]]] = PrivateAttr(default=[])
-    _options_by_id: dict[str, tuple[str, Optional[str]]] = PrivateAttr(default={})
+    _options: list[str] = PrivateAttr(default=[])
 
-    def __getitem__(self, index: Union[int, str]) -&gt; tuple[str, Optional[str]]:
-        if not self._options:
-            self._reload_options()
-
-        if isinstance(index, int):
-            return self._options[index]
-
-        if isinstance(index, str):
-            return self._options_by_id[index]
-
-        raise IndexError(&#39;Invalid index&#39;)
+    def __init__(self, *args, **kwargs):
+        self._options = kwargs.pop(&#39;options&#39;, [])
+        super().__init__(*args, **kwargs)
 
     def __iter__(self):
         if not self._options:
@@ -516,17 +495,17 @@ class AttributeResponse(Response[Attribute]):
         log.debug(&#39;Deleting Option: %s...&#39;, self.id)
         self._patch_options(option)
 
-    def update_option(self, id: str, value: str) -&gt; None:
+    def update_option(self, old_option: str, new_option: str) -&gt; None:
         &#34;&#34;&#34;Update option of Attribute by id.
 
         Args:
-            id: AttributeOption id
+            old_option: AttributeOption id
             value: AttributeOption value which will be updated
 
         Returns:
 
         &#34;&#34;&#34;
-        option = _OptionRepresentation(id=id, attributes=_Attributes(action=Action.UPDATE, value=value))
+        option = _OptionRepresentation(id=old_option, attributes=_Attributes(action=Action.UPDATE, value=new_option))
         log.debug(&#39;Patching Option: %s...&#39;, self.id)
         self._patch_options(option)
 
@@ -542,7 +521,6 @@ class AttributeResponse(Response[Attribute]):
 
     def _reload_options(self):
         self._options = []
-        self._options_by_id = {}
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -555,12 +533,11 @@ class AttributeResponse(Response[Attribute]):
         for item in result.data:
             body = cast(ResponseData, item).body
             option = cast(_AttributeOption, body)
-            assert option.id
-            self._options.append((option.id, option.value))
-            self._options_by_id[option.id] = (option.id, option.value)
+
+            self._options.append(option.value)
 
     @property
-    def options(self) -&gt; list[tuple[str, Optional[str]]]:
+    def options(self) -&gt; list[str]:
         &#34;&#34;&#34;Get Attribute options
 
         Returns:
@@ -751,7 +728,7 @@ def get_list(cls) -&gt; Generator[&#39;Attribute&#39;, None, None]:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def options(self) -&gt; list[tuple[str, Optional[str]]]:
+def options(self) -&gt; list[str]:
     &#34;&#34;&#34;Get Attribute options
 
     Returns:
@@ -850,13 +827,13 @@ def options(self) -&gt; list[tuple[str, Optional[str]]]:
 </details>
 </dd>
 <dt id="signals_notebook.attributes.attribute.Attribute.update_option"><code class="name flex">
-<span>def <span class="ident">update_option</span></span>(<span>self, id: str, value: str) ‑> None</span>
+<span>def <span class="ident">update_option</span></span>(<span>self, old_option: str, new_option: str) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Update option of Attribute by id.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>id</code></strong></dt>
+<dt><strong><code>old_option</code></strong></dt>
 <dd>AttributeOption id</dd>
 <dt><strong><code>value</code></strong></dt>
 <dd>AttributeOption value which will be updated</dd>
@@ -866,17 +843,17 @@ def options(self) -&gt; list[tuple[str, Optional[str]]]:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def update_option(self, id: str, value: str) -&gt; None:
+<pre><code class="python">def update_option(self, old_option: str, new_option: str) -&gt; None:
     &#34;&#34;&#34;Update option of Attribute by id.
 
     Args:
-        id: AttributeOption id
+        old_option: AttributeOption id
         value: AttributeOption value which will be updated
 
     Returns:
 
     &#34;&#34;&#34;
-    option = _OptionRepresentation(id=id, attributes=_Attributes(action=Action.UPDATE, value=value))
+    option = _OptionRepresentation(id=old_option, attributes=_Attributes(action=Action.UPDATE, value=new_option))
     log.debug(&#39;Patching Option: %s...&#39;, self.id)
     self._patch_options(option)</code></pre>
 </details>
