@@ -73,6 +73,7 @@ class Attribute(BaseModel):
     def __init__(self, *args, **kwargs):
         self._options = kwargs.pop(&#39;options&#39;, [])
         super().__init__(*args, **kwargs)
+        self.type = ObjectType.CHOICE
 
     def __iter__(self):
         if not self._options:
@@ -143,7 +144,6 @@ class Attribute(BaseModel):
     def create(
         cls,
         name: str,
-        type: str,
         description: str,
         options: list[str] = None,
     ) -&gt; &#39;Attribute&#39;:
@@ -151,7 +151,6 @@ class Attribute(BaseModel):
 
         Args:
             name: name of new Attribute
-            type: type of new Attribute
             description: description of new Attribute
             options: list of available id options for created Attribute
 
@@ -170,7 +169,7 @@ class Attribute(BaseModel):
                     &#39;type&#39;: ObjectType.ATTRIBUTE,
                     &#39;attributes&#39;: {
                         &#39;name&#39;: name,
-                        &#39;type&#39;: type,
+                        &#39;type&#39;: ObjectType.CHOICE,
                         &#39;description&#39;: description,
                         &#39;options&#39;: options or [],
                     },
@@ -197,38 +196,38 @@ class Attribute(BaseModel):
         )
         log.debug(&#39;Attribute: %s was deleted successfully&#39;, self.id)
 
-    def add_option(self, value: str) -&gt; None:
+    def add_option(self, option: str) -&gt; None:
         &#34;&#34;&#34;Update option of Attribute by id.
 
         Args:
-            value: AttributeOption value which will be added to option list in Attribute
+            option: option which will be added to option list in Attribute
 
         Returns:
 
         &#34;&#34;&#34;
-        option = _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=value))
+        new_option = _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=option))
         log.debug(&#39;Creating Option: %s...&#39;, self.id)
-        self._patch_options(option)
+        self._patch_options(new_option)
 
-    def delete_option(self, id: str) -&gt; None:
+    def delete_option(self, option: str) -&gt; None:
         &#34;&#34;&#34;Delete option of Attribute by id.
 
         Args:
-            id: AttributeOption id which will be deleted from Attribute&#39;s option list
+            option: option which will be deleted from Attribute&#39;s option list
 
         Returns:
 
         &#34;&#34;&#34;
-        option = _OptionRepresentation(id=str(id), attributes=_Attributes(action=Action.DELETE))
+        deleted_option = _OptionRepresentation(id=option, attributes=_Attributes(action=Action.DELETE))
         log.debug(&#39;Deleting Option: %s...&#39;, self.id)
-        self._patch_options(option)
+        self._patch_options(deleted_option)
 
     def update_option(self, old_option: str, new_option: str) -&gt; None:
         &#34;&#34;&#34;Update option of Attribute by id.
 
         Args:
-            old_option: AttributeOption id
-            value: AttributeOption value which will be updated
+            old_option: old option which will be updated
+            new_option: new option value
 
         Returns:
 
@@ -345,6 +344,7 @@ class AttributeResponse(Response[Attribute]):
     def __init__(self, *args, **kwargs):
         self._options = kwargs.pop(&#39;options&#39;, [])
         super().__init__(*args, **kwargs)
+        self.type = ObjectType.CHOICE
 
     def __iter__(self):
         if not self._options:
@@ -415,7 +415,6 @@ class AttributeResponse(Response[Attribute]):
     def create(
         cls,
         name: str,
-        type: str,
         description: str,
         options: list[str] = None,
     ) -&gt; &#39;Attribute&#39;:
@@ -423,7 +422,6 @@ class AttributeResponse(Response[Attribute]):
 
         Args:
             name: name of new Attribute
-            type: type of new Attribute
             description: description of new Attribute
             options: list of available id options for created Attribute
 
@@ -442,7 +440,7 @@ class AttributeResponse(Response[Attribute]):
                     &#39;type&#39;: ObjectType.ATTRIBUTE,
                     &#39;attributes&#39;: {
                         &#39;name&#39;: name,
-                        &#39;type&#39;: type,
+                        &#39;type&#39;: ObjectType.CHOICE,
                         &#39;description&#39;: description,
                         &#39;options&#39;: options or [],
                     },
@@ -469,38 +467,38 @@ class AttributeResponse(Response[Attribute]):
         )
         log.debug(&#39;Attribute: %s was deleted successfully&#39;, self.id)
 
-    def add_option(self, value: str) -&gt; None:
+    def add_option(self, option: str) -&gt; None:
         &#34;&#34;&#34;Update option of Attribute by id.
 
         Args:
-            value: AttributeOption value which will be added to option list in Attribute
+            option: option which will be added to option list in Attribute
 
         Returns:
 
         &#34;&#34;&#34;
-        option = _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=value))
+        new_option = _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=option))
         log.debug(&#39;Creating Option: %s...&#39;, self.id)
-        self._patch_options(option)
+        self._patch_options(new_option)
 
-    def delete_option(self, id: str) -&gt; None:
+    def delete_option(self, option: str) -&gt; None:
         &#34;&#34;&#34;Delete option of Attribute by id.
 
         Args:
-            id: AttributeOption id which will be deleted from Attribute&#39;s option list
+            option: option which will be deleted from Attribute&#39;s option list
 
         Returns:
 
         &#34;&#34;&#34;
-        option = _OptionRepresentation(id=str(id), attributes=_Attributes(action=Action.DELETE))
+        deleted_option = _OptionRepresentation(id=option, attributes=_Attributes(action=Action.DELETE))
         log.debug(&#39;Deleting Option: %s...&#39;, self.id)
-        self._patch_options(option)
+        self._patch_options(deleted_option)
 
     def update_option(self, old_option: str, new_option: str) -&gt; None:
         &#34;&#34;&#34;Update option of Attribute by id.
 
         Args:
-            old_option: AttributeOption id
-            value: AttributeOption value which will be updated
+            old_option: old option which will be updated
+            new_option: new option value
 
         Returns:
 
@@ -570,7 +568,7 @@ class AttributeResponse(Response[Attribute]):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.attributes.attribute.Attribute.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>name: str, type: str, description: str, options: list = None) ‑> <a title="signals_notebook.attributes.attribute.Attribute" href="#signals_notebook.attributes.attribute.Attribute">Attribute</a></span>
+<span>def <span class="ident">create</span></span>(<span>name: str, description: str, options: list = None) ‑> <a title="signals_notebook.attributes.attribute.Attribute" href="#signals_notebook.attributes.attribute.Attribute">Attribute</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create new Attribute</p>
@@ -578,8 +576,6 @@ class AttributeResponse(Response[Attribute]):
 <dl>
 <dt><strong><code>name</code></strong></dt>
 <dd>name of new Attribute</dd>
-<dt><strong><code>type</code></strong></dt>
-<dd>type of new Attribute</dd>
 <dt><strong><code>description</code></strong></dt>
 <dd>description of new Attribute</dd>
 <dt><strong><code>options</code></strong></dt>
@@ -595,7 +591,6 @@ class AttributeResponse(Response[Attribute]):
 def create(
     cls,
     name: str,
-    type: str,
     description: str,
     options: list[str] = None,
 ) -&gt; &#39;Attribute&#39;:
@@ -603,7 +598,6 @@ def create(
 
     Args:
         name: name of new Attribute
-        type: type of new Attribute
         description: description of new Attribute
         options: list of available id options for created Attribute
 
@@ -622,7 +616,7 @@ def create(
                 &#39;type&#39;: ObjectType.ATTRIBUTE,
                 &#39;attributes&#39;: {
                     &#39;name&#39;: name,
-                    &#39;type&#39;: type,
+                    &#39;type&#39;: ObjectType.CHOICE,
                     &#39;description&#39;: description,
                     &#39;options&#39;: options or [],
                 },
@@ -743,32 +737,32 @@ def options(self) -&gt; list[str]:
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.attributes.attribute.Attribute.add_option"><code class="name flex">
-<span>def <span class="ident">add_option</span></span>(<span>self, value: str) ‑> None</span>
+<span>def <span class="ident">add_option</span></span>(<span>self, option: str) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Update option of Attribute by id.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>value</code></strong></dt>
-<dd>AttributeOption value which will be added to option list in Attribute</dd>
+<dt><strong><code>option</code></strong></dt>
+<dd>option which will be added to option list in Attribute</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def add_option(self, value: str) -&gt; None:
+<pre><code class="python">def add_option(self, option: str) -&gt; None:
     &#34;&#34;&#34;Update option of Attribute by id.
 
     Args:
-        value: AttributeOption value which will be added to option list in Attribute
+        option: option which will be added to option list in Attribute
 
     Returns:
 
     &#34;&#34;&#34;
-    option = _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=value))
+    new_option = _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=option))
     log.debug(&#39;Creating Option: %s...&#39;, self.id)
-    self._patch_options(option)</code></pre>
+    self._patch_options(new_option)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.attributes.attribute.Attribute.delete"><code class="name flex">
@@ -798,32 +792,32 @@ def options(self) -&gt; list[str]:
 </details>
 </dd>
 <dt id="signals_notebook.attributes.attribute.Attribute.delete_option"><code class="name flex">
-<span>def <span class="ident">delete_option</span></span>(<span>self, id: str) ‑> None</span>
+<span>def <span class="ident">delete_option</span></span>(<span>self, option: str) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Delete option of Attribute by id.</p>
 <h2 id="args">Args</h2>
 <dl>
-<dt><strong><code>id</code></strong></dt>
-<dd>AttributeOption id which will be deleted from Attribute's option list</dd>
+<dt><strong><code>option</code></strong></dt>
+<dd>option which will be deleted from Attribute's option list</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def delete_option(self, id: str) -&gt; None:
+<pre><code class="python">def delete_option(self, option: str) -&gt; None:
     &#34;&#34;&#34;Delete option of Attribute by id.
 
     Args:
-        id: AttributeOption id which will be deleted from Attribute&#39;s option list
+        option: option which will be deleted from Attribute&#39;s option list
 
     Returns:
 
     &#34;&#34;&#34;
-    option = _OptionRepresentation(id=str(id), attributes=_Attributes(action=Action.DELETE))
+    deleted_option = _OptionRepresentation(id=option, attributes=_Attributes(action=Action.DELETE))
     log.debug(&#39;Deleting Option: %s...&#39;, self.id)
-    self._patch_options(option)</code></pre>
+    self._patch_options(deleted_option)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.attributes.attribute.Attribute.update_option"><code class="name flex">
@@ -834,9 +828,9 @@ def options(self) -&gt; list[str]:
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>old_option</code></strong></dt>
-<dd>AttributeOption id</dd>
-<dt><strong><code>value</code></strong></dt>
-<dd>AttributeOption value which will be updated</dd>
+<dd>old option which will be updated</dd>
+<dt><strong><code>new_option</code></strong></dt>
+<dd>new option value</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
@@ -847,8 +841,8 @@ def options(self) -&gt; list[str]:
     &#34;&#34;&#34;Update option of Attribute by id.
 
     Args:
-        old_option: AttributeOption id
-        value: AttributeOption value which will be updated
+        old_option: old option which will be updated
+        new_option: new option value
 
     Returns:
 
