@@ -240,7 +240,7 @@ class Attribute(BaseModel):
         """Get Attribute options
 
         Returns:
-            list[AttributeOption]
+            list[str]
         """
         if not self._options:
             self._reload_options()
