@@ -215,13 +215,11 @@ def test_add_option(
     option_value = 'GOGOGOGOGO'
 
     assert attribute._options == []
-    assert attribute._options_by_id == {}
 
     api_mock.call.return_value.json.return_value = options_response
     _ = attribute.options
 
     assert attribute._options != []
-    assert attribute._options_by_id != {}
 
     create_response = options_response_for_create(option_value)
     api_mock.call.side_effect = [get_response_object(create_response), get_response_object(create_response)]
@@ -229,7 +227,7 @@ def test_add_option(
 
     api_mock.call.return_value.json.return_value = create_response
     assert len(attribute) == 4
-    assert isinstance(attribute[option_value], tuple)
+
     api_mock.call.assert_has_calls(
         [
             mocker.call(method='GET', path=('attributes', attribute.id, 'options')),
@@ -258,13 +256,11 @@ def test_delete_option(
     option_id = 'option2'
 
     assert attribute._options == []
-    assert attribute._options_by_id == {}
 
     api_mock.call.return_value.json.return_value = options_response
     _ = attribute.options
 
     assert attribute._options != []
-    assert attribute._options_by_id != {}
 
     delete_response = options_response_for_delete
     api_mock.call.side_effect = [get_response_object(delete_response), get_response_object(delete_response)]
@@ -297,22 +293,20 @@ def test_update_option(
     api_mock, options_response, attribute_factory, get_response_object, options_response_for_update, mocker
 ):
     attribute = attribute_factory()
-    option_id = 'option2'
-    option_value = 'GOGOGOGOGO'
+    old_option = 'option2'
+    new_option = 'GOGOGOGOGO'
 
     assert attribute._options == []
-    assert attribute._options_by_id == {}
 
     api_mock.call.return_value.json.return_value = options_response
     _ = attribute.options
 
     assert len(attribute) == 3
     assert attribute._options != []
-    assert attribute._options_by_id != {}
 
-    update_response = options_response_for_update(option_value)
+    update_response = options_response_for_update(old_option)
     api_mock.call.side_effect = [get_response_object(update_response), get_response_object(update_response)]
-    attribute.update_option(id=option_id, value=option_value)
+    attribute.update_option(old_option=old_option, new_option=new_option)
 
     assert len(attribute) == 3
     api_mock.call.assert_has_calls(
@@ -324,9 +318,9 @@ def test_update_option(
                 json={
                     'data': [
                         {
-                            'id': option_id,
+                            'id': old_option,
                             'type': ObjectType.ATTRIBUTE_OPTION,
-                            'attributes': {'action': Action.UPDATE, 'value': option_value},
+                            'attributes': {'action': Action.UPDATE, 'value': new_option},
                         }
                     ]
                 },
@@ -352,60 +346,39 @@ def test_reload_options(api_mock, options_response, attribute_factory):
     attribute = attribute_factory()
 
     assert attribute._options == []
-    assert attribute._options_by_id == {}
 
     api_mock.call.return_value.json.return_value = options_response
     options = attribute.options
 
     assert attribute._options != []
-    assert attribute._options_by_id != {}
 
     for item in options:
-        assert isinstance(item, tuple)
-
-
-@pytest.mark.parametrize('index', [1, 0, 2, 'ladflklsjdf', 'option2', 'option3'])
-def test_getitem(api_mock, options_response, attribute_factory, index):
-    attribute = attribute_factory()
-
-    assert attribute._options == []
-    assert attribute._options_by_id == {}
-
-    api_mock.call.return_value.json.return_value = options_response
-
-    assert isinstance(attribute[index], tuple)
-
-    assert attribute._options != []
-    assert attribute._options_by_id != {}
+        assert isinstance(item, str)
 
 
 def test_iter(api_mock, options_response, attribute_factory):
     attribute = attribute_factory()
 
     assert attribute._options == []
-    assert attribute._options_by_id == {}
 
     api_mock.call.return_value.json.return_value = options_response
 
     for item in attribute:
-        assert isinstance(item, tuple)
+        assert isinstance(item, str)
 
     assert attribute._options != []
-    assert attribute._options_by_id != {}
 
 
 def test_len(api_mock, options_response, attribute_factory):
     attribute = attribute_factory()
 
     assert attribute._options == []
-    assert attribute._options_by_id == {}
 
     api_mock.call.return_value.json.return_value = options_response
 
     assert len(attribute) == 3
 
     for item in attribute:
-        assert isinstance(item, tuple)
+        assert isinstance(item, str)
 
     assert attribute._options != []
-    assert attribute._options_by_id != {}

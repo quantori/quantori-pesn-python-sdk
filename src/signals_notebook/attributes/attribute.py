@@ -1,9 +1,9 @@
 import logging
 from enum import Enum
-from typing import cast, Generator, Literal, Optional, Union
+from typing import cast, Generator, Literal, Optional
 
 from pydantic import BaseModel
-from pydantic.fields import Field, PrivateAttr
+from pydantic.fields import PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import AttrID, ObjectType, Response, ResponseData
@@ -12,9 +12,9 @@ log = logging.getLogger(__name__)
 
 
 class Action(str, Enum):
-    UPDATE: str = 'update'
-    DELETE: str = 'delete'
-    CREATE: str = 'create'
+    UPDATE = 'update'
+    DELETE = 'delete'
+    CREATE = 'create'
 
 
 class _Attributes(BaseModel):
@@ -29,7 +29,6 @@ class _OptionRepresentation(BaseModel):
 
 
 class _AttributeOption(BaseModel):
-    id: str = Field(alias='key')
     value: str
 
 
@@ -41,20 +40,11 @@ class Attribute(BaseModel):
     type: str
     id: AttrID
     name: str
-    _options: list[tuple[str, Optional[str]]] = PrivateAttr(default=[])
-    _options_by_id: dict[str, tuple[str, Optional[str]]] = PrivateAttr(default={})
+    _options: list[str] = PrivateAttr(default=[])
 
-    def __getitem__(self, index: Union[int, str]) -> tuple[str, Optional[str]]:
-        if not self._options:
-            self._reload_options()
-
-        if isinstance(index, int):
-            return self._options[index]
-
-        if isinstance(index, str):
-            return self._options_by_id[index]
-
-        raise IndexError('Invalid index')
+    def __init__(self, *args, **kwargs):
+        self._options = kwargs.pop('options', [])
+        super().__init__(*args, **kwargs)
 
     def __iter__(self):
         if not self._options:
@@ -205,17 +195,17 @@ class Attribute(BaseModel):
         log.debug('Deleting Option: %s...', self.id)
         self._patch_options(option)
 
-    def update_option(self, id: str, value: str) -> None:
+    def update_option(self, old_option: str, new_option: str) -> None:
         """Update option of Attribute by id.
 
         Args:
-            id: AttributeOption id
+            old_option: AttributeOption id
             value: AttributeOption value which will be updated
 
         Returns:
 
         """
-        option = _OptionRepresentation(id=id, attributes=_Attributes(action=Action.UPDATE, value=value))
+        option = _OptionRepresentation(id=old_option, attributes=_Attributes(action=Action.UPDATE, value=new_option))
         log.debug('Patching Option: %s...', self.id)
         self._patch_options(option)
 
@@ -231,7 +221,6 @@ class Attribute(BaseModel):
 
     def _reload_options(self):
         self._options = []
-        self._options_by_id = {}
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -244,12 +233,11 @@ class Attribute(BaseModel):
         for item in result.data:
             body = cast(ResponseData, item).body
             option = cast(_AttributeOption, body)
-            assert option.id
-            self._options.append((option.id, option.value))
-            self._options_by_id[option.id] = (option.id, option.value)
+
+            self._options.append(option.value)
 
     @property
-    def options(self) -> list[tuple[str, Optional[str]]]:
+    def options(self) -> list[str]:
         """Get Attribute options
 
         Returns:
