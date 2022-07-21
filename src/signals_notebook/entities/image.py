@@ -52,8 +52,7 @@ class Image(ContentfulEntity):
         Returns:
             Image
         """
-        if content_type:
-            cls.ContentType(content_type)
+        cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,

@@ -13,8 +13,7 @@ log = logging.getLogger(__name__)
 
 
 class UploadedResource(ContentfulEntity):
-    class ContentType(str, Enum):
-        BYTES = 'application/octet-stream'
+    ContentType = 'application/octet-stream'
 
     type: Literal[EntityType.UPLOADED_RESOURCE] = Field(allow_mutation=False)
     _template_name: ClassVar = 'uploaded_resource.html'
@@ -30,7 +29,7 @@ class UploadedResource(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b'',
-        content_type: Optional[str] = ContentType.BYTES,
+        content_type: str = ContentType,
         force: bool = True,
     ) -> Entity:
         """Create UploadedResource Entity
