@@ -631,7 +631,7 @@ def test_get_content_timeout(library_factory, api_mock, get_response):
     assert str(e.value) == 'Time is over to get file'
 
 
-def test_get_content_empty_library(library_factory, api_mock, get_response, mocker):
+def test_get_content_empty_library(library_factory, api_mock, get_response):
     library = library_factory()
 
     response1 = {
@@ -657,8 +657,8 @@ def test_get_content_empty_library(library_factory, api_mock, get_response, mock
                 'fileId': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9',
                 'count': 5,
                 'total': 5,
-                "error": {
-                    "description": "Nothing to export."
+                'error': {
+                    'description': 'Nothing to export.'
                 }
             },
         }

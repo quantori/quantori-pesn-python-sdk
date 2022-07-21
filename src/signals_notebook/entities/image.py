@@ -1,7 +1,7 @@
 import base64 as b64
 import logging
 from enum import Enum
-from typing import ClassVar, Literal, Optional
+from typing import ClassVar, Literal
 
 from pydantic import Field
 
@@ -37,7 +37,7 @@ class Image(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b'',
-        content_type: str = None,
+        content_type: str = ContentType.PNG,
         force: bool = True,
     ) -> Entity:
         """Create Image Entity

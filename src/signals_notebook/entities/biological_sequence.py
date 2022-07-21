@@ -17,6 +17,7 @@ class BiologicalSequence(ContentfulEntity):
     class ContentType(str, Enum):
         FASTA = 'biosequence/fasta'
         GB = 'biosequence/genbank'
+        GBK = 'biosequence/genpept'
         SW = 'chemical/x-swissprot'
         DNA = 'application/vnd.snapgene.dna'
         PROT = 'application/vnd.snapgene.protein'
@@ -35,7 +36,7 @@ class BiologicalSequence(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b'',
-        content_type: str = None,
+        content_type: str = ContentType.GB,
         force: bool = True,
     ) -> Entity:
         """Create BiologicalSequence Entity

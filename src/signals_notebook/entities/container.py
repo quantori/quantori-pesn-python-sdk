@@ -41,7 +41,10 @@ class Container(Entity, abc.ABC):
 
         if content_type:
             extension = mimetypes.guess_extension(content_type)
-            file_name = f'{os.path.splitext(name)[0]}{extension}'
+            if extension:
+                file_name = f'{os.path.splitext(name)[0]}{extension}'
+            else:
+                file_name = name
         else:
             content_type = mimetypes.guess_type(name)[0]
             file_name = name
