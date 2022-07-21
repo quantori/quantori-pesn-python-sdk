@@ -31,7 +31,7 @@ from enum import Enum
 from typing import cast, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel
-from pydantic.fields import PrivateAttr
+from pydantic.fields import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import AttrID, ObjectType, Response, ResponseData
@@ -56,13 +56,12 @@ class _OptionRepresentation(BaseModel):
     attributes: _Attributes
 
 
-class AttributeOption(BaseModel):
-    id: Optional[str]
-    key: str
+class _AttributeOption(BaseModel):
+    id: str = Field(alias=&#39;key&#39;)
     value: str
 
 
-class AttributeOptionResponse(Response[AttributeOption]):
+class _AttributeOptionResponse(Response[_AttributeOption]):
     pass
 
 
@@ -70,10 +69,10 @@ class Attribute(BaseModel):
     type: str
     id: AttrID
     name: str
-    _options: list[AttributeOption] = PrivateAttr(default=[])
-    _options_by_id: dict[str, AttributeOption] = PrivateAttr(default={})
+    _options: list[tuple[str, Optional[str]]] = PrivateAttr(default=[])
+    _options_by_id: dict[str, tuple[str, Optional[str]]] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[int, str]) -&gt; AttributeOption:
+    def __getitem__(self, index: Union[int, str]) -&gt; tuple[str, Optional[str]]:
         if not self._options:
             self._reload_options()
 
@@ -90,7 +89,7 @@ class Attribute(BaseModel):
             self._reload_options()
         return self._options.__iter__()
 
-    def __len__(self):
+    def __len__(self) -&gt; int:
         if not self._options:
             self._reload_options()
         return len(self._options)
@@ -156,7 +155,7 @@ class Attribute(BaseModel):
         name: str,
         type: str,
         description: str,
-        options: Optional[list[AttributeOption]] = None,
+        options: list[str] = None,
     ) -&gt; &#39;Attribute&#39;:
         &#34;&#34;&#34;Create new Attribute
 
@@ -164,7 +163,7 @@ class Attribute(BaseModel):
             name: name of new Attribute
             type: type of new Attribute
             description: description of new Attribute
-            options: list of available options for created Attribute
+            options: list of available id options for created Attribute
 
         Returns:
             Attribute
@@ -183,7 +182,7 @@ class Attribute(BaseModel):
                         &#39;name&#39;: name,
                         &#39;type&#39;: type,
                         &#39;description&#39;: description,
-                        &#39;options&#39;: [option.id for option in options] if options else [],
+                        &#39;options&#39;: options or [],
                     },
                 }
             },
@@ -268,20 +267,17 @@ class Attribute(BaseModel):
             path=(self._get_endpoint(), self.id, &#39;options&#39;),
         )
 
-        result = AttributeOptionResponse(**response.json())
+        result = _AttributeOptionResponse(**response.json())
 
         for item in result.data:
             body = cast(ResponseData, item).body
-            option = cast(AttributeOption, body)
-            assert item.eid
-            if not option.id:
-                option.id = item.eid
-
-            self._options.append(option)
-            self._options_by_id[option.id] = option
+            option = cast(_AttributeOption, body)
+            assert option.id
+            self._options.append((option.id, option.value))
+            self._options_by_id[option.id] = (option.id, option.value)
 
     @property
-    def options(self) -&gt; list[AttributeOption]:
+    def options(self) -&gt; list[tuple[str, Optional[str]]]:
         &#34;&#34;&#34;Get Attribute options
 
         Returns:
@@ -356,10 +352,10 @@ class AttributeResponse(Response[Attribute]):
     type: str
     id: AttrID
     name: str
-    _options: list[AttributeOption] = PrivateAttr(default=[])
-    _options_by_id: dict[str, AttributeOption] = PrivateAttr(default={})
+    _options: list[tuple[str, Optional[str]]] = PrivateAttr(default=[])
+    _options_by_id: dict[str, tuple[str, Optional[str]]] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[int, str]) -&gt; AttributeOption:
+    def __getitem__(self, index: Union[int, str]) -&gt; tuple[str, Optional[str]]:
         if not self._options:
             self._reload_options()
 
@@ -376,7 +372,7 @@ class AttributeResponse(Response[Attribute]):
             self._reload_options()
         return self._options.__iter__()
 
-    def __len__(self):
+    def __len__(self) -&gt; int:
         if not self._options:
             self._reload_options()
         return len(self._options)
@@ -442,7 +438,7 @@ class AttributeResponse(Response[Attribute]):
         name: str,
         type: str,
         description: str,
-        options: Optional[list[AttributeOption]] = None,
+        options: list[str] = None,
     ) -&gt; &#39;Attribute&#39;:
         &#34;&#34;&#34;Create new Attribute
 
@@ -450,7 +446,7 @@ class AttributeResponse(Response[Attribute]):
             name: name of new Attribute
             type: type of new Attribute
             description: description of new Attribute
-            options: list of available options for created Attribute
+            options: list of available id options for created Attribute
 
         Returns:
             Attribute
@@ -469,7 +465,7 @@ class AttributeResponse(Response[Attribute]):
                         &#39;name&#39;: name,
                         &#39;type&#39;: type,
                         &#39;description&#39;: description,
-                        &#39;options&#39;: [option.id for option in options] if options else [],
+                        &#39;options&#39;: options or [],
                     },
                 }
             },
@@ -554,20 +550,17 @@ class AttributeResponse(Response[Attribute]):
             path=(self._get_endpoint(), self.id, &#39;options&#39;),
         )
 
-        result = AttributeOptionResponse(**response.json())
+        result = _AttributeOptionResponse(**response.json())
 
         for item in result.data:
             body = cast(ResponseData, item).body
-            option = cast(AttributeOption, body)
-            assert item.eid
-            if not option.id:
-                option.id = item.eid
-
-            self._options.append(option)
-            self._options_by_id[option.id] = option
+            option = cast(_AttributeOption, body)
+            assert option.id
+            self._options.append((option.id, option.value))
+            self._options_by_id[option.id] = (option.id, option.value)
 
     @property
-    def options(self) -&gt; list[AttributeOption]:
+    def options(self) -&gt; list[tuple[str, Optional[str]]]:
         &#34;&#34;&#34;Get Attribute options
 
         Returns:
@@ -600,7 +593,7 @@ class AttributeResponse(Response[Attribute]):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.attributes.attribute.Attribute.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>name: str, type: str, description: str, options: Optional[list] = None) ‑> <a title="signals_notebook.attributes.attribute.Attribute" href="#signals_notebook.attributes.attribute.Attribute">Attribute</a></span>
+<span>def <span class="ident">create</span></span>(<span>name: str, type: str, description: str, options: list = None) ‑> <a title="signals_notebook.attributes.attribute.Attribute" href="#signals_notebook.attributes.attribute.Attribute">Attribute</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create new Attribute</p>
@@ -613,7 +606,7 @@ class AttributeResponse(Response[Attribute]):
 <dt><strong><code>description</code></strong></dt>
 <dd>description of new Attribute</dd>
 <dt><strong><code>options</code></strong></dt>
-<dd>list of available options for created Attribute</dd>
+<dd>list of available id options for created Attribute</dd>
 </dl>
 <h2 id="returns">Returns</h2>
 <p>Attribute</p></div>
@@ -627,7 +620,7 @@ def create(
     name: str,
     type: str,
     description: str,
-    options: Optional[list[AttributeOption]] = None,
+    options: list[str] = None,
 ) -&gt; &#39;Attribute&#39;:
     &#34;&#34;&#34;Create new Attribute
 
@@ -635,7 +628,7 @@ def create(
         name: name of new Attribute
         type: type of new Attribute
         description: description of new Attribute
-        options: list of available options for created Attribute
+        options: list of available id options for created Attribute
 
     Returns:
         Attribute
@@ -654,7 +647,7 @@ def create(
                     &#39;name&#39;: name,
                     &#39;type&#39;: type,
                     &#39;description&#39;: description,
-                    &#39;options&#39;: [option.id for option in options] if options else [],
+                    &#39;options&#39;: options or [],
                 },
             }
         },
@@ -758,7 +751,7 @@ def get_list(cls) -&gt; Generator[&#39;Attribute&#39;, None, None]:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
-def options(self) -&gt; list[AttributeOption]:
+def options(self) -&gt; list[tuple[str, Optional[str]]]:
     &#34;&#34;&#34;Get Attribute options
 
     Returns:
@@ -890,78 +883,6 @@ def options(self) -&gt; list[AttributeOption]:
 </dd>
 </dl>
 </dd>
-<dt id="signals_notebook.attributes.attribute.AttributeOption"><code class="flex name class">
-<span>class <span class="ident">AttributeOption</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class AttributeOption(BaseModel):
-    id: Optional[str]
-    key: str
-    value: str</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.attributes.attribute.AttributeOption.id"><code class="name">var <span class="ident">id</span> : Optional[str]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.attributes.attribute.AttributeOption.key"><code class="name">var <span class="ident">key</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.attributes.attribute.AttributeOption.value"><code class="name">var <span class="ident">value</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.attributes.attribute.AttributeOptionResponse"><code class="flex name class">
-<span>class <span class="ident">AttributeOptionResponse</span></span>
-<span>(</span><span>**kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class AttributeOptionResponse(Response[AttributeOption]):
-    pass</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="signals_notebook.attributes.attribute.Response[AttributeOption]" href="#signals_notebook.attributes.attribute.Response[AttributeOption]">Response[AttributeOption]</a></li>
-<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
-<li>pydantic.generics.GenericModel</li>
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-<li>typing.Generic</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.attributes.attribute.AttributeOptionResponse.data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.attributes.attribute.AttributeOption" href="#signals_notebook.attributes.attribute.AttributeOption">AttributeOption</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.attributes.attribute.AttributeOption" href="#signals_notebook.attributes.attribute.AttributeOption">AttributeOption</a>]]]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.attributes.attribute.AttributeOptionResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
 <dt id="signals_notebook.attributes.attribute.AttributeResponse"><code class="flex name class">
 <span>class <span class="ident">AttributeResponse</span></span>
 <span>(</span><span>**kwargs)</span>
@@ -997,41 +918,6 @@ def options(self) -&gt; list[AttributeOption]:
 </dd>
 </dl>
 </dd>
-<dt id="signals_notebook.attributes.attribute.Response[AttributeOption]"><code class="flex name class">
-<span>class <span class="ident">Response[AttributeOption]</span></span>
-<span>(</span><span>**kwargs)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
-<li>pydantic.generics.GenericModel</li>
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-<li>typing.Generic</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="signals_notebook.attributes.attribute.AttributeOptionResponse" href="#signals_notebook.attributes.attribute.AttributeOptionResponse">AttributeOptionResponse</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.attributes.attribute.Response[AttributeOption].Config"><code class="name">var <span class="ident">Config</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.attributes.attribute.Response[AttributeOption].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.attributes.attribute.AttributeOption" href="#signals_notebook.attributes.attribute.AttributeOption">AttributeOption</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.attributes.attribute.AttributeOption" href="#signals_notebook.attributes.attribute.AttributeOption">AttributeOption</a>]]]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.attributes.attribute.Response[AttributeOption].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
 <dt id="signals_notebook.attributes.attribute.Response[Attribute]"><code class="flex name class">
 <span>class <span class="ident">Response[Attribute]</span></span>
 <span>(</span><span>**kwargs)</span>
@@ -1062,6 +948,41 @@ def options(self) -&gt; list[AttributeOption]:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.attributes.attribute.Response[Attribute].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.attributes.attribute.Response[_AttributeOption]"><code class="flex name class">
+<span>class <span class="ident">Response[_AttributeOption]</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li>signals_notebook.attributes.attribute._AttributeOptionResponse</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.attributes.attribute.Response[_AttributeOption].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.attributes.attribute.Response[_AttributeOption].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[_AttributeOption], List[pydantic.generics.ResponseData[_AttributeOption]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.attributes.attribute.Response[_AttributeOption].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1108,33 +1029,10 @@ def options(self) -&gt; list[AttributeOption]:
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.attributes.attribute.AttributeOption" href="#signals_notebook.attributes.attribute.AttributeOption">AttributeOption</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.id" href="#signals_notebook.attributes.attribute.AttributeOption.id">id</a></code></li>
-<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.key" href="#signals_notebook.attributes.attribute.AttributeOption.key">key</a></code></li>
-<li><code><a title="signals_notebook.attributes.attribute.AttributeOption.value" href="#signals_notebook.attributes.attribute.AttributeOption.value">value</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="signals_notebook.attributes.attribute.AttributeOptionResponse" href="#signals_notebook.attributes.attribute.AttributeOptionResponse">AttributeOptionResponse</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.attributes.attribute.AttributeOptionResponse.data" href="#signals_notebook.attributes.attribute.AttributeOptionResponse.data">data</a></code></li>
-<li><code><a title="signals_notebook.attributes.attribute.AttributeOptionResponse.links" href="#signals_notebook.attributes.attribute.AttributeOptionResponse.links">links</a></code></li>
-</ul>
-</li>
-<li>
 <h4><code><a title="signals_notebook.attributes.attribute.AttributeResponse" href="#signals_notebook.attributes.attribute.AttributeResponse">AttributeResponse</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.attributes.attribute.AttributeResponse.data" href="#signals_notebook.attributes.attribute.AttributeResponse.data">data</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.AttributeResponse.links" href="#signals_notebook.attributes.attribute.AttributeResponse.links">links</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="signals_notebook.attributes.attribute.Response[AttributeOption]" href="#signals_notebook.attributes.attribute.Response[AttributeOption]">Response[AttributeOption]</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.attributes.attribute.Response[AttributeOption].Config" href="#signals_notebook.attributes.attribute.Response[AttributeOption].Config">Config</a></code></li>
-<li><code><a title="signals_notebook.attributes.attribute.Response[AttributeOption].data" href="#signals_notebook.attributes.attribute.Response[AttributeOption].data">data</a></code></li>
-<li><code><a title="signals_notebook.attributes.attribute.Response[AttributeOption].links" href="#signals_notebook.attributes.attribute.Response[AttributeOption].links">links</a></code></li>
 </ul>
 </li>
 <li>
@@ -1143,6 +1041,14 @@ def options(self) -&gt; list[AttributeOption]:
 <li><code><a title="signals_notebook.attributes.attribute.Response[Attribute].Config" href="#signals_notebook.attributes.attribute.Response[Attribute].Config">Config</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.Response[Attribute].data" href="#signals_notebook.attributes.attribute.Response[Attribute].data">data</a></code></li>
 <li><code><a title="signals_notebook.attributes.attribute.Response[Attribute].links" href="#signals_notebook.attributes.attribute.Response[Attribute].links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.attributes.attribute.Response[_AttributeOption]" href="#signals_notebook.attributes.attribute.Response[_AttributeOption]">Response[_AttributeOption]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.attributes.attribute.Response[_AttributeOption].Config" href="#signals_notebook.attributes.attribute.Response[_AttributeOption].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Response[_AttributeOption].data" href="#signals_notebook.attributes.attribute.Response[_AttributeOption].data">data</a></code></li>
+<li><code><a title="signals_notebook.attributes.attribute.Response[_AttributeOption].links" href="#signals_notebook.attributes.attribute.Response[_AttributeOption].links">links</a></code></li>
 </ul>
 </li>
 </ul>
