@@ -155,7 +155,7 @@ def test_get(attr_id_factory, api_mock, attribute_response):
     api_mock.call.assert_called_once_with(method='GET', path=('attributes', _id))
 
     assert isinstance(result, Attribute)
-    assert result.type == 'choice'
+    assert result.type == ObjectType.ATTRIBUTE
     assert result.name == response['data']['attributes']['name']
     assert result.id == _id
 
@@ -179,7 +179,7 @@ def test_create(api_mock, attr_id_factory, attribute_response):
 
     name = 'test327'
     description = 'descriptions'
-    new_attribute = Attribute.create(name=name, type='choice', description=description, options=[option_id])
+    new_attribute = Attribute.create(name=name, description=description, options=[option_id])
 
     api_mock.call.assert_called_once_with(
         method='POST',
@@ -189,7 +189,7 @@ def test_create(api_mock, attr_id_factory, attribute_response):
                 'type': ObjectType.ATTRIBUTE,
                 'attributes': {
                     'name': name,
-                    'type': 'choice',
+                    'type': ObjectType.CHOICE,
                     'description': description,
                     'options': [option_id],
                 },
@@ -198,7 +198,7 @@ def test_create(api_mock, attr_id_factory, attribute_response):
     )
 
     assert isinstance(new_attribute, Attribute)
-    assert new_attribute.type == 'choice'
+    assert new_attribute.type == ObjectType.ATTRIBUTE
     assert new_attribute.name == response['data']['attributes']['name']
     assert new_attribute.id == _id
 
@@ -212,7 +212,7 @@ def test_add_option(
     mocker,
 ):
     attribute = attribute_factory()
-    option_value = 'GOGOGOGOGO'
+    option = 'GOGOGOGOGO'
 
     assert attribute._options == []
 
@@ -221,9 +221,9 @@ def test_add_option(
 
     assert attribute._options != []
 
-    create_response = options_response_for_create(option_value)
+    create_response = options_response_for_create(option)
     api_mock.call.side_effect = [get_response_object(create_response), get_response_object(create_response)]
-    attribute.add_option(value=option_value)
+    attribute.add_option(option=option)
 
     api_mock.call.return_value.json.return_value = create_response
     assert len(attribute) == 4
@@ -238,7 +238,7 @@ def test_add_option(
                     'data': [
                         {
                             'type': ObjectType.ATTRIBUTE_OPTION,
-                            'attributes': {'action': Action.CREATE, 'value': option_value},
+                            'attributes': {'action': Action.CREATE, 'value': option},
                         }
                     ]
                 },
@@ -253,7 +253,7 @@ def test_delete_option(
     api_mock, options_response, attribute_factory, get_response_object, options_response_for_delete, mocker
 ):
     attribute = attribute_factory()
-    option_id = 'option2'
+    option = 'option2'
 
     assert attribute._options == []
 
@@ -264,7 +264,7 @@ def test_delete_option(
 
     delete_response = options_response_for_delete
     api_mock.call.side_effect = [get_response_object(delete_response), get_response_object(delete_response)]
-    attribute.delete_option(id=option_id)
+    attribute.delete_option(option=option)
 
     assert len(attribute) == 2
     api_mock.call.assert_has_calls(
@@ -276,7 +276,7 @@ def test_delete_option(
                 json={
                     'data': [
                         {
-                            'id': option_id,
+                            'id': option,
                             'type': ObjectType.ATTRIBUTE_OPTION,
                             'attributes': {'action': Action.DELETE},
                         }

@@ -41,10 +41,15 @@ class Attribute(BaseModel):
     id: AttrID
     name: str
     _options: list[str] = PrivateAttr(default=[])
+    _is_changeable = PrivateAttr(default=True)
 
     def __init__(self, *args, **kwargs):
         self._options = kwargs.pop('options', [])
         super().__init__(*args, **kwargs)
+
+        if self.type not in [ObjectType.CHOICE, ObjectType.ATTRIBUTE]:
+            self._is_changeable = False
+        self.type = ObjectType.ATTRIBUTE
 
     def __iter__(self):
         if not self._options:
@@ -115,7 +120,6 @@ class Attribute(BaseModel):
     def create(
         cls,
         name: str,
-        type: str,
         description: str,
         options: list[str] = None,
     ) -> 'Attribute':
@@ -123,7 +127,6 @@ class Attribute(BaseModel):
 
         Args:
             name: name of new Attribute
-            type: type of new Attribute
             description: description of new Attribute
             options: list of available id options for created Attribute
 
@@ -142,7 +145,7 @@ class Attribute(BaseModel):
                     'type': ObjectType.ATTRIBUTE,
                     'attributes': {
                         'name': name,
-                        'type': type,
+                        'type': ObjectType.CHOICE,
                         'description': description,
                         'options': options or [],
                     },
@@ -160,6 +163,8 @@ class Attribute(BaseModel):
         Returns:
 
         """
+        if not self._is_changeable:
+            raise PermissionError('Cannot delete system attribute')
         api = SignalsNotebookApi.get_default_api()
         log.debug('Delete Attribute: %s...', self.id)
 
@@ -169,42 +174,48 @@ class Attribute(BaseModel):
         )
         log.debug('Attribute: %s was deleted successfully', self.id)
 
-    def add_option(self, value: str) -> None:
+    def add_option(self, option: str) -> None:
         """Update option of Attribute by id.
 
         Args:
-            value: AttributeOption value which will be added to option list in Attribute
+            option: option which will be added to option list in Attribute
 
         Returns:
 
         """
-        option = _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=value))
+        if not self._is_changeable:
+            raise PermissionError('Cannot add option to system attribute')
+        new_option = _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=option))
         log.debug('Creating Option: %s...', self.id)
-        self._patch_options(option)
+        self._patch_options(new_option)
 
-    def delete_option(self, id: str) -> None:
+    def delete_option(self, option: str) -> None:
         """Delete option of Attribute by id.
 
         Args:
-            id: AttributeOption id which will be deleted from Attribute's option list
+            option: option which will be deleted from Attribute's option list
 
         Returns:
 
         """
-        option = _OptionRepresentation(id=str(id), attributes=_Attributes(action=Action.DELETE))
+        if not self._is_changeable:
+            raise PermissionError('Cannot delete option from system attribute')
+        deleted_option = _OptionRepresentation(id=option, attributes=_Attributes(action=Action.DELETE))
         log.debug('Deleting Option: %s...', self.id)
-        self._patch_options(option)
+        self._patch_options(deleted_option)
 
     def update_option(self, old_option: str, new_option: str) -> None:
         """Update option of Attribute by id.
 
         Args:
-            old_option: AttributeOption id
-            value: AttributeOption value which will be updated
+            old_option: old option which will be updated
+            new_option: new option value
 
         Returns:
 
         """
+        if not self._is_changeable:
+            raise PermissionError('Cannot update option of system attribute')
         option = _OptionRepresentation(id=old_option, attributes=_Attributes(action=Action.UPDATE, value=new_option))
         log.debug('Patching Option: %s...', self.id)
         self._patch_options(option)
