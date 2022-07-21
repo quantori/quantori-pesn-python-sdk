@@ -41,15 +41,11 @@ class Attribute(BaseModel):
     id: AttrID
     name: str
     _options: list[str] = PrivateAttr(default=[])
-    _is_changeable = PrivateAttr(default=True)
 
     def __init__(self, *args, **kwargs):
         self._options = kwargs.pop('options', [])
         super().__init__(*args, **kwargs)
-
-        if self.type not in [ObjectType.CHOICE, ObjectType.ATTRIBUTE]:
-            self._is_changeable = False
-        self.type = ObjectType.ATTRIBUTE
+        self.type = ObjectType.CHOICE
 
     def __iter__(self):
         if not self._options:
@@ -163,8 +159,6 @@ class Attribute(BaseModel):
         Returns:
 
         """
-        if not self._is_changeable:
-            raise PermissionError('Cannot delete system attribute')
         api = SignalsNotebookApi.get_default_api()
         log.debug('Delete Attribute: %s...', self.id)
 
@@ -183,8 +177,6 @@ class Attribute(BaseModel):
         Returns:
 
         """
-        if not self._is_changeable:
-            raise PermissionError('Cannot add option to system attribute')
         new_option = _OptionRepresentation(attributes=_Attributes(action=Action.CREATE, value=option))
         log.debug('Creating Option: %s...', self.id)
         self._patch_options(new_option)
@@ -198,8 +190,6 @@ class Attribute(BaseModel):
         Returns:
 
         """
-        if not self._is_changeable:
-            raise PermissionError('Cannot delete option from system attribute')
         deleted_option = _OptionRepresentation(id=option, attributes=_Attributes(action=Action.DELETE))
         log.debug('Deleting Option: %s...', self.id)
         self._patch_options(deleted_option)
@@ -214,8 +204,6 @@ class Attribute(BaseModel):
         Returns:
 
         """
-        if not self._is_changeable:
-            raise PermissionError('Cannot update option of system attribute')
         option = _OptionRepresentation(id=old_option, attributes=_Attributes(action=Action.UPDATE, value=new_option))
         log.debug('Patching Option: %s...', self.id)
         self._patch_options(option)

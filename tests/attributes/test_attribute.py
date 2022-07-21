@@ -155,7 +155,7 @@ def test_get(attr_id_factory, api_mock, attribute_response):
     api_mock.call.assert_called_once_with(method='GET', path=('attributes', _id))
 
     assert isinstance(result, Attribute)
-    assert result.type == ObjectType.ATTRIBUTE
+    assert result.type == ObjectType.CHOICE
     assert result.name == response['data']['attributes']['name']
     assert result.id == _id
 
@@ -198,7 +198,7 @@ def test_create(api_mock, attr_id_factory, attribute_response):
     )
 
     assert isinstance(new_attribute, Attribute)
-    assert new_attribute.type == ObjectType.ATTRIBUTE
+    assert new_attribute.type == ObjectType.CHOICE
     assert new_attribute.name == response['data']['attributes']['name']
     assert new_attribute.id == _id
 
