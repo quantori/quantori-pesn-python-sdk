@@ -3,7 +3,7 @@ from enum import Enum
 from typing import cast, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel
-from pydantic.fields import PrivateAttr
+from pydantic.fields import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import AttrID, ObjectType, Response, ResponseData
@@ -28,13 +28,12 @@ class _OptionRepresentation(BaseModel):
     attributes: _Attributes
 
 
-class AttributeOption(BaseModel):
-    id: Optional[str]
-    key: str
+class _AttributeOption(BaseModel):
+    id: str = Field(alias='key')
     value: str
 
 
-class AttributeOptionResponse(Response[AttributeOption]):
+class _AttributeOptionResponse(Response[_AttributeOption]):
     pass
 
 
@@ -42,10 +41,10 @@ class Attribute(BaseModel):
     type: str
     id: AttrID
     name: str
-    _options: list[AttributeOption] = PrivateAttr(default=[])
-    _options_by_id: dict[str, AttributeOption] = PrivateAttr(default={})
+    _options: list[tuple[str, Optional[str]]] = PrivateAttr(default=[])
+    _options_by_id: dict[str, tuple[str, Optional[str]]] = PrivateAttr(default={})
 
-    def __getitem__(self, index: Union[int, str]) -> AttributeOption:
+    def __getitem__(self, index: Union[int, str]) -> tuple[str, Optional[str]]:
         if not self._options:
             self._reload_options()
 
@@ -62,7 +61,7 @@ class Attribute(BaseModel):
             self._reload_options()
         return self._options.__iter__()
 
-    def __len__(self):
+    def __len__(self) -> int:
         if not self._options:
             self._reload_options()
         return len(self._options)
@@ -128,7 +127,7 @@ class Attribute(BaseModel):
         name: str,
         type: str,
         description: str,
-        options: Optional[list[AttributeOption]] = None,
+        options: list[str] = None,
     ) -> 'Attribute':
         """Create new Attribute
 
@@ -136,7 +135,7 @@ class Attribute(BaseModel):
             name: name of new Attribute
             type: type of new Attribute
             description: description of new Attribute
-            options: list of available options for created Attribute
+            options: list of available id options for created Attribute
 
         Returns:
             Attribute
@@ -155,7 +154,7 @@ class Attribute(BaseModel):
                         'name': name,
                         'type': type,
                         'description': description,
-                        'options': [option.id for option in options] if options else [],
+                        'options': options or [],
                     },
                 }
             },
@@ -240,20 +239,17 @@ class Attribute(BaseModel):
             path=(self._get_endpoint(), self.id, 'options'),
         )
 
-        result = AttributeOptionResponse(**response.json())
+        result = _AttributeOptionResponse(**response.json())
 
         for item in result.data:
             body = cast(ResponseData, item).body
-            option = cast(AttributeOption, body)
-            assert item.eid
-            if not option.id:
-                option.id = item.eid
-
-            self._options.append(option)
-            self._options_by_id[option.id] = option
+            option = cast(_AttributeOption, body)
+            assert option.id
+            self._options.append((option.id, option.value))
+            self._options_by_id[option.id] = (option.id, option.value)
 
     @property
-    def options(self) -> list[AttributeOption]:
+    def options(self) -> list[tuple[str, Optional[str]]]:
         """Get Attribute options
 
         Returns:

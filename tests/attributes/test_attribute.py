@@ -1,6 +1,6 @@
 import pytest
 
-from signals_notebook.attributes import Attribute, AttributeOption
+from signals_notebook.attributes import Attribute
 from signals_notebook.attributes.attribute import Action
 from signals_notebook.common_types import AttrID, ObjectType
 
@@ -171,15 +171,15 @@ def test_get_list(api_mock, attributes_response):
     api_mock.call.assert_called_once_with(method='GET', path=('attributes',))
 
 
-def test_create(api_mock, attr_id_factory, attribute_option_factory, attribute_response):
+def test_create(api_mock, attr_id_factory, attribute_response):
     _id = attr_id_factory()
-    option = attribute_option_factory()
+    option_id = 'HEY'
     response = attribute_response(_id)
     api_mock.call.return_value.json.return_value = response
 
     name = 'test327'
     description = 'descriptions'
-    new_attribute = Attribute.create(name=name, type='choice', description=description, options=[option])
+    new_attribute = Attribute.create(name=name, type='choice', description=description, options=[option_id])
 
     api_mock.call.assert_called_once_with(
         method='POST',
@@ -191,7 +191,7 @@ def test_create(api_mock, attr_id_factory, attribute_option_factory, attribute_r
                     'name': name,
                     'type': 'choice',
                     'description': description,
-                    'options': [option.id],
+                    'options': [option_id],
                 },
             }
         },
@@ -229,7 +229,7 @@ def test_add_option(
 
     api_mock.call.return_value.json.return_value = create_response
     assert len(attribute) == 4
-    assert isinstance(attribute[option_value], AttributeOption)
+    assert isinstance(attribute[option_value], tuple)
     api_mock.call.assert_has_calls(
         [
             mocker.call(method='GET', path=('attributes', attribute.id, 'options')),
@@ -361,7 +361,7 @@ def test_reload_options(api_mock, options_response, attribute_factory):
     assert attribute._options_by_id != {}
 
     for item in options:
-        assert isinstance(item, AttributeOption)
+        assert isinstance(item, tuple)
 
 
 @pytest.mark.parametrize('index', [1, 0, 2, 'ladflklsjdf', 'option2', 'option3'])
@@ -373,7 +373,7 @@ def test_getitem(api_mock, options_response, attribute_factory, index):
 
     api_mock.call.return_value.json.return_value = options_response
 
-    assert isinstance(attribute[index], AttributeOption)
+    assert isinstance(attribute[index], tuple)
 
     assert attribute._options != []
     assert attribute._options_by_id != {}
@@ -388,7 +388,7 @@ def test_iter(api_mock, options_response, attribute_factory):
     api_mock.call.return_value.json.return_value = options_response
 
     for item in attribute:
-        assert isinstance(item, AttributeOption)
+        assert isinstance(item, tuple)
 
     assert attribute._options != []
     assert attribute._options_by_id != {}
@@ -405,7 +405,7 @@ def test_len(api_mock, options_response, attribute_factory):
     assert len(attribute) == 3
 
     for item in attribute:
-        assert isinstance(item, AttributeOption)
+        assert isinstance(item, tuple)
 
     assert attribute._options != []
     assert attribute._options_by_id != {}

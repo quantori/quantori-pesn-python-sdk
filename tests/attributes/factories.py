@@ -1,6 +1,6 @@
 import factory
 
-from signals_notebook.attributes import Attribute, AttributeOption
+from signals_notebook.attributes import Attribute
 from signals_notebook.common_types import AttrID, ObjectType
 
 
@@ -26,12 +26,3 @@ class AttributeFactory(factory.Factory):
 
     class Meta:
         model = Attribute
-
-
-class AttributeOptionFactory(factory.Factory):
-    id = factory.Sequence(lambda n: n + 1)
-    key = factory.Faker('word')
-    value = factory.Faker('word')
-
-    class Meta:
-        model = AttributeOption

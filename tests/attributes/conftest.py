@@ -1,11 +1,10 @@
 import pytest
 from pytest_factoryboy import register
 
-from tests.attributes.factories import AttributeFactory, AttributeOptionFactory, AttrIDFactory
+from tests.attributes.factories import AttributeFactory, AttrIDFactory
 
 register(AttrIDFactory)
 register(AttributeFactory)
-register(AttributeOptionFactory)
 
 
 @pytest.fixture()

@@ -1,1 +1,1 @@
-from signals_notebook.attributes.attribute import Attribute, AttributeOption  # noqa
+from signals_notebook.attributes.attribute import Attribute  # noqa
