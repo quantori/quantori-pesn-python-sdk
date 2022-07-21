@@ -68,6 +68,8 @@ class ObjectType(str, Enum):
     GROUP = &#39;group&#39;
     ROLE = &#39;role&#39;
     PLATE_ROW = &#39;plateRow&#39;
+    ATTRIBUTE_OPTION = &#39;option&#39;
+    CHOICE = &#39;choice&#39;
 
 
 class EntityType(str, Enum):
@@ -1666,7 +1668,9 @@ def type(self) -&gt; MaterialType:
     PROFILE = &#39;profile&#39;
     GROUP = &#39;group&#39;
     ROLE = &#39;role&#39;
-    PLATE_ROW = &#39;plateRow&#39;</code></pre>
+    PLATE_ROW = &#39;plateRow&#39;
+    ATTRIBUTE_OPTION = &#39;option&#39;
+    CHOICE = &#39;choice&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1684,6 +1688,14 @@ def type(self) -&gt; MaterialType:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.ObjectType.ATTRIBUTE"><code class="name">var <span class="ident">ATTRIBUTE</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.ATTRIBUTE_OPTION"><code class="name">var <span class="ident">ATTRIBUTE_OPTION</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.CHOICE"><code class="name">var <span class="ident">CHOICE</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1764,6 +1776,8 @@ def type(self) -&gt; MaterialType:
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="signals_notebook.attributes.attribute.Response[Attribute]" href="attributes/attribute.html#signals_notebook.attributes.attribute.Response[Attribute]">Response[Attribute]</a></li>
+<li><a title="signals_notebook.attributes.attribute.Response[_AttributeOption]" href="attributes/attribute.html#signals_notebook.attributes.attribute.Response[_AttributeOption]">Response[_AttributeOption]</a></li>
 <li><a title="signals_notebook.entities.entity.Response[Property]" href="entities/entity.html#signals_notebook.entities.entity.Response[Property]">Response[Property]</a></li>
 <li><a title="signals_notebook.entities.plates.plate_container.Response[PlateRow]" href="entities/plates/plate_container.html#signals_notebook.entities.plates.plate_container.Response[PlateRow]">Response[PlateRow]</a></li>
 <li><a title="signals_notebook.entities.samples.sample.Response[SampleCell]" href="entities/samples/sample.html#signals_notebook.entities.samples.sample.Response[SampleCell]">Response[SampleCell]</a></li>
@@ -1830,6 +1844,7 @@ def type(self) -&gt; MaterialType:
 <h3>Subclasses</h3>
 <ul class="hlist">
 <li>pydantic.generics.ResponseData[Asset]</li>
+<li>pydantic.generics.ResponseData[Attribute]</li>
 <li>pydantic.generics.ResponseData[Batch]</li>
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
 <li>pydantic.generics.ResponseData[ColumnDefinitions]</li>
@@ -1845,6 +1860,7 @@ def type(self) -&gt; MaterialType:
 <li>pydantic.generics.ResponseData[TaskCell]</li>
 <li>pydantic.generics.ResponseData[Union[Library, Asset, Batch]]</li>
 <li>pydantic.generics.ResponseData[User]</li>
+<li>pydantic.generics.ResponseData[_AttributeOption]</li>
 <li>pydantic.generics.ResponseData[_LibraryListData]</li>
 </ul>
 <h3>Class variables</h3>
@@ -2057,6 +2073,8 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.ObjectType.ADT_ROW" href="#signals_notebook.common_types.ObjectType.ADT_ROW">ADT_ROW</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.ASSET_TYPE" href="#signals_notebook.common_types.ObjectType.ASSET_TYPE">ASSET_TYPE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.ATTRIBUTE" href="#signals_notebook.common_types.ObjectType.ATTRIBUTE">ATTRIBUTE</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.ATTRIBUTE_OPTION" href="#signals_notebook.common_types.ObjectType.ATTRIBUTE_OPTION">ATTRIBUTE_OPTION</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.CHOICE" href="#signals_notebook.common_types.ObjectType.CHOICE">CHOICE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.COLUMN_DEFINITIONS" href="#signals_notebook.common_types.ObjectType.COLUMN_DEFINITIONS">COLUMN_DEFINITIONS</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.ENTITY" href="#signals_notebook.common_types.ObjectType.ENTITY">ENTITY</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.GROUP" href="#signals_notebook.common_types.ObjectType.GROUP">GROUP</a></code></li>

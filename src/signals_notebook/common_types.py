@@ -40,6 +40,8 @@ class ObjectType(str, Enum):
     GROUP = 'group'
     ROLE = 'role'
     PLATE_ROW = 'plateRow'
+    ATTRIBUTE_OPTION = 'option'
+    CHOICE = 'choice'
 
 
 class EntityType(str, Enum):
