@@ -79,7 +79,7 @@ class PlateContainer(ContentfulEntity):
 
     def _reload_data(self):
         api = SignalsNotebookApi.get_default_api()
-        log.debug(&#39;Reload rows for Plate Container: %s&#39;, self.eid)
+        log.debug(&#39;Reloading rows for Plate Container: %s...&#39;, self.eid)
 
         response = api.call(
             method=&#39;GET&#39;,
@@ -176,7 +176,7 @@ class PlateContainer(ContentfulEntity):
 
     def _reload_data(self):
         api = SignalsNotebookApi.get_default_api()
-        log.debug(&#39;Reload rows for Plate Container: %s&#39;, self.eid)
+        log.debug(&#39;Reloading rows for Plate Container: %s...&#39;, self.eid)
 
         response = api.call(
             method=&#39;GET&#39;,
