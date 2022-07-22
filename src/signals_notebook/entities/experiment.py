@@ -103,7 +103,7 @@ class Experiment(Container):
 
     @cached_property
     def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
-        """"Fetch stoichiometry data of experiment
+        """ Fetch stoichiometry data of experiment
 
         Returns:
             Stoichiometry object or list of Stoichiometry objects
@@ -122,7 +122,7 @@ class Experiment(Container):
             'description': self.description,
             'edited_at': self.edited_at,
             'state': self.state,
-            'children': self.get_children()
+            'children': self.get_children(),
         }
 
         template = env.get_template(self._template_name)

@@ -10,6 +10,7 @@ from signals_notebook.entities import (
     Image,
     MaterialsTable,
     Notebook,
+    ParallelExperiment,
     PowerPoint,
     Spotfire,
     Text,
@@ -127,3 +128,10 @@ class MaterialTableFactory(EntityFactory):
         model = MaterialsTable
 
     type = EntityType.MATERIAL_TABLE
+
+
+class ParallelExperimentFactory(EntityFactory):
+    class Meta:
+        model = ParallelExperiment
+
+    type = EntityType.PARALLEL_EXPERIMENT
