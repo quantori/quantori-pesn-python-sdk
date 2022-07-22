@@ -48,12 +48,21 @@ class PowerPoint(ContentfulEntity):
         return EntityType.POWER_POINT
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+    def create(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content_type: str = &#39;application/vnd.openxmlformats-officedocument.presentationml.presentation&#39;,
+        content: bytes = b&#39;&#39;,
+        force: bool = True,
+    ) -&gt; Entity:
         &#34;&#34;&#34;Create PowerPoint Entity
 
         Args:
             container: Container where create new PowerPoint
             name: file name
+            content_type: content type of PowerPoint entity
             content: PowerPoint content
             force: Force to post attachment
 
@@ -63,8 +72,8 @@ class PowerPoint(ContentfulEntity):
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
-            content=content.encode(&#39;utf-8&#39;),
-            content_type=&#39;application/vnd.openxmlformats-officedocument.presentationml.presentation&#39;,
+            content=content,
+            content_type=content_type,
             force=force,
         )
 
@@ -106,12 +115,21 @@ class PowerPoint(ContentfulEntity):
         return EntityType.POWER_POINT
 
     @classmethod
-    def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+    def create(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content_type: str = &#39;application/vnd.openxmlformats-officedocument.presentationml.presentation&#39;,
+        content: bytes = b&#39;&#39;,
+        force: bool = True,
+    ) -&gt; Entity:
         &#34;&#34;&#34;Create PowerPoint Entity
 
         Args:
             container: Container where create new PowerPoint
             name: file name
+            content_type: content type of PowerPoint entity
             content: PowerPoint content
             force: Force to post attachment
 
@@ -121,8 +139,8 @@ class PowerPoint(ContentfulEntity):
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
-            content=content.encode(&#39;utf-8&#39;),
-            content_type=&#39;application/vnd.openxmlformats-officedocument.presentationml.presentation&#39;,
+            content=content,
+            content_type=content_type,
             force=force,
         )
 
@@ -152,7 +170,7 @@ class PowerPoint(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.power_point.PowerPoint.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: str = '', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = 'application/vnd.openxmlformats-officedocument.presentationml.presentation', content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create PowerPoint Entity</p>
@@ -162,6 +180,8 @@ class PowerPoint(ContentfulEntity):
 <dd>Container where create new PowerPoint</dd>
 <dt><strong><code>name</code></strong></dt>
 <dd>file name</dd>
+<dt><strong><code>content_type</code></strong></dt>
+<dd>content type of PowerPoint entity</dd>
 <dt><strong><code>content</code></strong></dt>
 <dd>PowerPoint content</dd>
 <dt><strong><code>force</code></strong></dt>
@@ -174,12 +194,21 @@ class PowerPoint(ContentfulEntity):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, force: bool = True) -&gt; Entity:
+def create(
+    cls,
+    *,
+    container: Container,
+    name: str,
+    content_type: str = &#39;application/vnd.openxmlformats-officedocument.presentationml.presentation&#39;,
+    content: bytes = b&#39;&#39;,
+    force: bool = True,
+) -&gt; Entity:
     &#34;&#34;&#34;Create PowerPoint Entity
 
     Args:
         container: Container where create new PowerPoint
         name: file name
+        content_type: content type of PowerPoint entity
         content: PowerPoint content
         force: Force to post attachment
 
@@ -189,8 +218,8 @@ def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, f
     log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
     return container.add_child(
         name=name,
-        content=content.encode(&#39;utf-8&#39;),
-        content_type=&#39;application/vnd.openxmlformats-officedocument.presentationml.presentation&#39;,
+        content=content,
+        content_type=content_type,
         force=force,
     )</code></pre>
 </details>
@@ -224,10 +253,12 @@ def create(cls, *, container: Container, name: str, content: str = &#39;&#39;, f
 <li><code><b><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></b></code>:
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.dump" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_list" href="entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_subclasses" href="entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_template_name" href="entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.load" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.refresh" href="entity.html#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.save" href="entity.html#signals_notebook.entities.entity.Entity.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.set_template_name" href="entity.html#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>

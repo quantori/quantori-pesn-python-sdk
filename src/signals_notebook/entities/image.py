@@ -1,6 +1,6 @@
 import base64 as b64
 import logging
-import mimetypes
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -15,6 +15,14 @@ log = logging.getLogger(__name__)
 
 
 class Image(ContentfulEntity):
+    class ContentType(str, Enum):
+        TIFF = 'image/tiff'
+        PNG = 'image/png'
+        JPG = 'image/jpeg'
+        GIF = 'image/gif'
+        BMP = 'image/bmp'
+        SVG = 'image/svg+xml'
+
     type: Literal[EntityType.IMAGE_RESOURCE] = Field(allow_mutation=False)
     _template_name: ClassVar = 'image.html'
 
@@ -29,7 +37,7 @@ class Image(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b'',
-        file_extension: str = '',
+        content_type: str = ContentType.PNG,
         force: bool = True,
     ) -> Entity:
         """Create Image Entity
@@ -37,17 +45,15 @@ class Image(ContentfulEntity):
         Args:
             container: Container where create new Image
             name: file name
+            content_type: content type of Image entity
             content: Image content
-            file_extension: Image extension
             force: Force to post attachment
 
         Returns:
             Image
         """
+        cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
-
-        file_extension = file_extension.replace('.', '')
-        content_type = mimetypes.types_map.get(f'.{file_extension}', 'application/octet-stream')
         return container.add_child(
             name=name,
             content=content,

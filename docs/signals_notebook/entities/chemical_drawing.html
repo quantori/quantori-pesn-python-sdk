@@ -59,7 +59,7 @@ class ChemicalDrawing(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str,
+        content_type: str = None,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -158,7 +158,7 @@ class ChemicalDrawing(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str,
+        content_type: str = None,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -241,7 +241,7 @@ class ChemicalDrawing(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = None, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create ChemicalDrawing Entity</p>
@@ -270,7 +270,7 @@ def create(
     *,
     container: Container,
     name: str,
-    content_type: str,
+    content_type: str = None,
     content: bytes = b&#39;&#39;,
     force: bool = True,
 ) -&gt; Entity:
@@ -375,10 +375,12 @@ def create(
 <li><code><b><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></b></code>:
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.dump" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_list" href="entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_subclasses" href="entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_template_name" href="entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.load" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.refresh" href="entity.html#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.save" href="entity.html#signals_notebook.entities.entity.Entity.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.set_template_name" href="entity.html#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>

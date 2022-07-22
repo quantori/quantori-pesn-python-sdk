@@ -27,7 +27,6 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import logging
-import mimetypes
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -56,11 +55,22 @@ class BiologicalSequence(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b&#39;&#39;,
-        file_extension: str = &#39;&#39;,
+        content_type: str = None,
         force: bool = True,
     ) -&gt; Entity:
-        file_extension = file_extension.replace(&#39;.&#39;, &#39;&#39;)
-        content_type = mimetypes.types_map.get(f&#39;.{file_extension}&#39;, &#39;biosequence/genbank&#39;)
+        &#34;&#34;&#34;Create BiologicalSequence Entity
+
+        Args:
+            container: Container where create new BiologicalSequence
+            name: file name
+            content_type: content type of BiologicalSequence entity
+            content: BiologicalSequence content
+            force: Force to post attachment
+
+        Returns:
+            BiologicalSequence
+        &#34;&#34;&#34;
+        log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
             content=content,
@@ -69,9 +79,19 @@ class BiologicalSequence(ContentfulEntity):
         )
 
     def get_content(self) -&gt; File:
+        &#34;&#34;&#34;Get BiologicalSequence content
+
+        Returns:
+            File
+        &#34;&#34;&#34;
         return super()._get_content()
 
     def get_html(self) -&gt; str:
+        &#34;&#34;&#34;Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        &#34;&#34;&#34;
         data = {&#39;name&#39;: self.name}
         file = self.get_content()
         data[&#39;bio_sequence&#39;] = &#39;data:{};base64,{}&#39;.format(file.content_type, file.base64.decode(&#39;ascii&#39;))
@@ -117,11 +137,22 @@ class BiologicalSequence(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b&#39;&#39;,
-        file_extension: str = &#39;&#39;,
+        content_type: str = None,
         force: bool = True,
     ) -&gt; Entity:
-        file_extension = file_extension.replace(&#39;.&#39;, &#39;&#39;)
-        content_type = mimetypes.types_map.get(f&#39;.{file_extension}&#39;, &#39;biosequence/genbank&#39;)
+        &#34;&#34;&#34;Create BiologicalSequence Entity
+
+        Args:
+            container: Container where create new BiologicalSequence
+            name: file name
+            content_type: content type of BiologicalSequence entity
+            content: BiologicalSequence content
+            force: Force to post attachment
+
+        Returns:
+            BiologicalSequence
+        &#34;&#34;&#34;
+        log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
             content=content,
@@ -130,9 +161,19 @@ class BiologicalSequence(ContentfulEntity):
         )
 
     def get_content(self) -&gt; File:
+        &#34;&#34;&#34;Get BiologicalSequence content
+
+        Returns:
+            File
+        &#34;&#34;&#34;
         return super()._get_content()
 
     def get_html(self) -&gt; str:
+        &#34;&#34;&#34;Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        &#34;&#34;&#34;
         data = {&#39;name&#39;: self.name}
         file = self.get_content()
         data[&#39;bio_sequence&#39;] = &#39;data:{};base64,{}&#39;.format(file.content_type, file.base64.decode(&#39;ascii&#39;))
@@ -160,10 +201,25 @@ class BiologicalSequence(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.biological_sequence.BiologicalSequence.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: bytes = b'', file_extension: str = '', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: bytes = b'', content_type: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Create BiologicalSequence Entity</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>container</code></strong></dt>
+<dd>Container where create new BiologicalSequence</dd>
+<dt><strong><code>name</code></strong></dt>
+<dd>file name</dd>
+<dt><strong><code>content_type</code></strong></dt>
+<dd>content type of BiologicalSequence entity</dd>
+<dt><strong><code>content</code></strong></dt>
+<dd>BiologicalSequence content</dd>
+<dt><strong><code>force</code></strong></dt>
+<dd>Force to post attachment</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>BiologicalSequence</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -175,11 +231,22 @@ def create(
     container: Container,
     name: str,
     content: bytes = b&#39;&#39;,
-    file_extension: str = &#39;&#39;,
+    content_type: str = None,
     force: bool = True,
 ) -&gt; Entity:
-    file_extension = file_extension.replace(&#39;.&#39;, &#39;&#39;)
-    content_type = mimetypes.types_map.get(f&#39;.{file_extension}&#39;, &#39;biosequence/genbank&#39;)
+    &#34;&#34;&#34;Create BiologicalSequence Entity
+
+    Args:
+        container: Container where create new BiologicalSequence
+        name: file name
+        content_type: content type of BiologicalSequence entity
+        content: BiologicalSequence content
+        force: Force to post attachment
+
+    Returns:
+        BiologicalSequence
+    &#34;&#34;&#34;
+    log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
     return container.add_child(
         name=name,
         content=content,
@@ -195,12 +262,19 @@ def create(
 <span>def <span class="ident">get_content</span></span>(<span>self) ‑> <a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get BiologicalSequence content</p>
+<h2 id="returns">Returns</h2>
+<p>File</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_content(self) -&gt; File:
+    &#34;&#34;&#34;Get BiologicalSequence content
+
+    Returns:
+        File
+    &#34;&#34;&#34;
     return super()._get_content()</code></pre>
 </details>
 </dd>
@@ -210,10 +284,12 @@ def create(
 <li><code><b><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></b></code>:
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.dump" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_list" href="entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_subclasses" href="entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_template_name" href="entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.load" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.refresh" href="entity.html#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.save" href="entity.html#signals_notebook.entities.entity.Entity.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.set_template_name" href="entity.html#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>
