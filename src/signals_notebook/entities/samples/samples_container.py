@@ -1,4 +1,5 @@
 import csv
+import logging
 from io import StringIO
 from typing import cast, ClassVar, Dict, Generator, List, Literal, Union
 from uuid import UUID
@@ -10,6 +11,8 @@ from signals_notebook.common_types import EID, EntityType, File, Response, Respo
 from signals_notebook.entities import Sample
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
+
+log = logging.getLogger(__name__)
 
 
 class SamplesContainerResponse(Response[Sample]):
@@ -35,6 +38,7 @@ class SamplesContainer(ContentfulEntity):
         if isinstance(index, EID):
             return self._samples_by_id[index]
 
+        log.exception('IndexError were caught. Invalid index')
         raise IndexError('Invalid index')
 
     def __iter__(self):
@@ -47,9 +51,16 @@ class SamplesContainer(ContentfulEntity):
         return EntityType.SAMPLES_CONTAINER
 
     def get_content(self) -> File:
+        """Get SamplesContainer content
+
+        Returns:
+            File
+        """
         return super()._get_content()
 
     def _reload_samples(self) -> None:
+        log.debug('Reloading samples for Samples Container: %s...', self.eid)
+
         self._samples = []
         self._samples_by_id = {}
         for item in self._get_samples():
@@ -58,8 +69,10 @@ class SamplesContainer(ContentfulEntity):
 
             self._samples.append(item)
             self._samples_by_id[sample.eid] = sample
+        log.debug('Data in Samples Container: %s were reloaded', self.eid)
 
     def _get_samples(self) -> Generator[Sample, None, None]:
+        log.debug('Getting samples for Samples Container: %s...', self.eid)
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -79,17 +92,35 @@ class SamplesContainer(ContentfulEntity):
 
             result = SamplesContainerResponse(**response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
+        log.debug('Samples for SamplesContainer: %s were got successfully.', self.eid)
 
     def save(self, force: bool = True) -> None:
+        """Save SamplesContainer content.
+
+        Args:
+            force: Force to update content without doing digest check.
+
+        Returns:
+
+        """
+        log.debug('Saving SamplesContainer: %s...', self.eid)
         for item in self._samples:
             item.save(force=force)
         self._reload_samples()
+        log.debug('SamplesContainer: %s were saved successfully.', self.eid)
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered HTML in string format
+        """
         file = self.get_content()
         content = StringIO(file.content.decode('utf-8'))
         csv_data = list(csv.reader(content))
         table_head = csv_data[0]
         rows = csv_data[1:]
         template = env.get_template(self._template_name)
+        log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
+
         return template.render(name=self.name, table_head=table_head, rows=rows)

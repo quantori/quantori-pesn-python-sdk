@@ -1,4 +1,5 @@
 import json
+import logging
 from typing import cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
@@ -19,6 +20,8 @@ from signals_notebook.entities.samples.cell import SampleCell
 
 if TYPE_CHECKING:
     from signals_notebook.entities import SamplesContainer
+
+log = logging.getLogger(__name__)
 
 
 class _SampleAttributes(BaseModel):
@@ -65,6 +68,7 @@ class Sample(Entity):
         if isinstance(index, UUID):
             return self._cells_by_id[index]
 
+        log.exception('IndexError were caught. Invalid index')
         raise IndexError('Invalid index')
 
     def __iter__(self):
@@ -81,6 +85,7 @@ class Sample(Entity):
         return 'samples'
 
     def _reload_cells(self) -> None:
+        log.debug('Reloading cells for Sample: %s...', self.eid)
         self._cells = []
         self._cells_by_id = {}
 
@@ -101,8 +106,18 @@ class Sample(Entity):
 
             self._cells.append(sample_cell)
             self._cells_by_id[sample_cell.id] = sample_cell
+        log.debug('Cells for Sample: %s were reloaded', self.eid)
 
     def save(self, force: bool = True) -> None:
+        """Save Sample.
+
+        Args:
+            force: Force to update content without doing digest check.
+
+        Returns:
+
+        """
+        log.debug('Saving Sample: %s...', self.eid)
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
@@ -125,6 +140,7 @@ class Sample(Entity):
             },
         )
         self._reload_cells()
+        log.debug('Sample: %s were saved successfully.', self.eid)
 
     @classmethod
     def create(
@@ -136,6 +152,22 @@ class Sample(Entity):
         digest: str = None,
         force: bool = True,
     ) -> 'Sample':
+        """Create Sample Entity
+
+        Args:
+            cells: Sample's data
+            template: template for Sample creation
+            ancestors: Container or SamplesContainer where create new Sample
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+                If the parameter 'force' is true, this parameter is optional.
+                If the parameter 'force' is false, this parameter is required.
+            force: Force to create without doing digest check
+
+        Returns:
+            Sample
+        """
+        log.debug('Create Sample: %s ', cls.__name__)
+
         relationships = None
         if template or ancestors:
             relationships = _SampleRelationships(
