@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from typing import ClassVar, Literal, Optional
 
 from pydantic import Field
@@ -12,6 +13,8 @@ log = logging.getLogger(__name__)
 
 
 class UploadedResource(ContentfulEntity):
+    ContentType = 'application/octet-stream'
+
     type: Literal[EntityType.UPLOADED_RESOURCE] = Field(allow_mutation=False)
     _template_name: ClassVar = 'uploaded_resource.html'
 
@@ -26,7 +29,7 @@ class UploadedResource(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b'',
-        content_type: Optional[str] = None,
+        content_type: str = ContentType,
         force: bool = True,
     ) -> Entity:
         """Create UploadedResource Entity

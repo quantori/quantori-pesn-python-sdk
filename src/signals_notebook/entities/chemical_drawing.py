@@ -42,7 +42,7 @@ class ChemicalDrawing(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = None,
+        content_type: str = ContentType.SVG,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:
