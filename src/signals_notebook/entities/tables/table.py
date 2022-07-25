@@ -7,7 +7,7 @@ import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import DataList, EntityType, Response, ResponseData, EID
+from signals_notebook.common_types import DataList, EntityType, Response, ResponseData
 from signals_notebook.entities import EntityStore
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
@@ -313,12 +313,12 @@ class Table(ContentfulEntity):
         api = SignalsNotebookApi.get_default_api()
         log.debug('Create Entity: %s...', cls.__name__)
         request = {
-            "data": {
-                "type": EntityType.GRID,
-                "attributes": {"name": name},
-                "relationships": {
-                    "ancestors": {"data": [{"type": EntityType.EXPERIMENT, "id": container.eid}]},
-                    "template": {"data": {"type": EntityType.GRID, "id": template}},
+            'data': {
+                'type': EntityType.GRID,
+                'attributes': {'name': name},
+                'relationships': {
+                    'ancestors': {'data': [{'type': EntityType.EXPERIMENT, 'id': container.eid}]},
+                    'template': {'data': {'type': EntityType.GRID, 'id': template}},
                 },
             }
         }
@@ -339,7 +339,7 @@ class Table(ContentfulEntity):
         return cast(ResponseData, result.data).body
 
     def dump(self, base_path: str, fs_handler: FSHandler) -> None:
-        content = self._get_content()
+        content = self.get_content()
         column_definitions = self.get_column_definitions_list()
         rows = []
         for item in self:
