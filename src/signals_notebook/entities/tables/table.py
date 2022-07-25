@@ -7,11 +7,14 @@ import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import DataList, EntityType, Response, ResponseData
+from signals_notebook.common_types import DataList, EntityType, Response, ResponseData, EID
+from signals_notebook.entities import EntityStore
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import Cell, CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -296,3 +299,157 @@ class Table(ContentfulEntity):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
+
+    @classmethod
+    def creation(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        template: str,
+        digest: str = None,
+        force: bool = True,
+    ) -> 'Table':
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Create Entity: %s...', cls.__name__)
+        request = {
+            "data": {
+                "type": EntityType.GRID,
+                "attributes": {"name": name},
+                "relationships": {
+                    "ancestors": {"data": [{"type": EntityType.EXPERIMENT, "id": container.eid}]},
+                    "template": {"data": {"type": EntityType.GRID, "id": template}},
+                },
+            }
+        }
+
+        response = api.call(
+            method='POST',
+            path=(cls._get_endpoint(),),
+            params={
+                'digest': digest,
+                'force': json.dumps(force),
+            },
+            json=request,
+        )
+        log.debug('Entity: %s was created.', cls.__name__)
+
+        result = Response[cls](**response.json())  # type: ignore
+
+        return cast(ResponseData, result.data).body
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+        content = self._get_content()
+        column_definitions = self.get_column_definitions_list()
+        rows = []
+        for item in self:
+            row = {}
+            for cell in item:
+                row[cell.name] = cell.content.dict()
+            rows.append(row)
+
+        metadata = {
+            'file_name': content.name,
+            'content_type': content.content_type,
+            'columns': [item.title for item in column_definitions],
+            'rows': rows,
+            **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
+        }
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str))
+        file_name = content.name
+        data = content.content
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
+        # metadata_path = fs_handler.join_path(path, 'metadata.json')
+        # metadata = json.loads(fs_handler.read(metadata_path))
+        metadata = {
+            "file_name": "All+Table+Column+Types+%28SK%29.csv",
+            "content_type": "text/csv",
+            "columns": [
+                "Col. Text",
+                "Col. Date/Time",
+                "Col. Number",
+                "Col. Number w/Unit",
+                "Col. Ext. Hyperlink",
+                "Col. Autotext List",
+                "Col. Checkbox",
+                "Col. Internal Reference",
+                "Col. List",
+                "Col. Integer",
+                "Col. Multi Select List",
+                "Col. Attribute List",
+                "Col. Multi Attribute List",
+            ],
+            "rows": [
+                {
+                    "Col. List": {"value": "Option 2", "values": None, "type": None, "display": None},
+                    "Col. Attribute List": {"value": "Option 2", "values": None, "type": None, "display": None},
+                    "Col. Multi Select List": {
+                        "value": "Multi Option 2, Multi Option 3, Multi Option 1",
+                        "values": ["Multi Option 2", "Multi Option 3", "Multi Option 1"],
+                        "type": None,
+                        "display": None,
+                    },
+                },
+                {
+                    "Col. Number": {"value": 3.0, "values": None, "type": None, "display": "3"},
+                    "Col. Autotext List": {
+                        "value": "Autotext list option 1",
+                        "values": None,
+                        "type": None,
+                        "display": None,
+                    },
+                    "Col. Checkbox": {"value": True, "values": None, "type": None, "display": None},
+                    "Col. Date/Time": {
+                        "value": "2022-07-25 21:00:00+00:00",
+                        "values": None,
+                        "type": None,
+                        "display": None,
+                    },
+                    "Col. Text": {"value": "sfdadf", "values": None, "type": None, "display": None},
+                },
+                {
+                    "Col. Number": {"value": 2.0, "values": None, "type": None, "display": "2"},
+                    "Col. Number w/Unit": {"value": 2323.0, "values": None, "type": None, "display": "2323 \u00b0C"},
+                    "Col. Text": {"value": "sdfsdf", "values": None, "type": None, "display": None},
+                },
+            ],
+            "eid": "grid:79a8e820-3293-4e38-bf06-9a75a60c123b",
+            "name": "All Table Column Types (SK) adljfhsdkjfn",
+            "description": ""
+        }
+        # content_path = fs_handler.join_path(path, metadata['file_name'])
+        content_type = metadata.get('content_type')
+        # content = fs_handler.read(content_path)
+        content = b'id,ext_title,ext_field1,User Number Column\r\n,3,,234234\r\n,,,234234\r\n,5,,\r\n'
+        column_definitions = metadata.get('columns')
+        rows = metadata.get('rows')
+        templates = EntityStore.get_list(
+            include_types=[EntityType.GRID], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+
+        file_creation = True
+        for item in templates:
+            template = cast('Table', item)
+            template_column_definitions = template.get_column_definitions_list()
+            template_columns = [item.title for item in template_column_definitions]
+            if set(template_columns) == set(column_definitions):
+                file_creation = False
+                table = cls.creation(container=parent, name=metadata['name'], template=template.eid)
+                for row in rows:
+                    table.add_row(row)
+                table.save()
+                break
+
+        if file_creation:
+            if content_type:
+                cls.create(
+                    container=parent, name=metadata['name'], content=content, content_type=content_type, force=True
+                )
+            else:
+                cls.create(container=parent, name=metadata['name'], content=content, force=True)
+
+    def get_content(self):
+        return super().get_content()
