@@ -30,6 +30,7 @@
 import json
 import logging
 import mimetypes
+import os
 from typing import cast, Generator, Optional, Union
 
 from signals_notebook.api import SignalsNotebookApi
@@ -68,7 +69,7 @@ class Container(Entity, abc.ABC):
 
         if content_type:
             extension = mimetypes.guess_extension(content_type)
-            file_name = f&#39;{name}{extension}&#39;
+            file_name = f&#39;{os.path.splitext(name)[0]}{extension}&#39; if extension else name
         else:
             content_type = mimetypes.guess_type(name)[0]
             file_name = name
@@ -176,7 +177,7 @@ class Container(Entity, abc.ABC):
 
         if content_type:
             extension = mimetypes.guess_extension(content_type)
-            file_name = f&#39;{name}{extension}&#39;
+            file_name = f&#39;{os.path.splitext(name)[0]}{extension}&#39; if extension else name
         else:
             content_type = mimetypes.guess_type(name)[0]
             file_name = name
@@ -323,7 +324,7 @@ class Container(Entity, abc.ABC):
 
     if content_type:
         extension = mimetypes.guess_extension(content_type)
-        file_name = f&#39;{name}{extension}&#39;
+        file_name = f&#39;{os.path.splitext(name)[0]}{extension}&#39; if extension else name
     else:
         content_type = mimetypes.guess_type(name)[0]
         file_name = name
