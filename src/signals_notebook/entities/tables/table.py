@@ -362,68 +362,11 @@ class Table(ContentfulEntity):
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
-        # metadata_path = fs_handler.join_path(path, 'metadata.json')
-        # metadata = json.loads(fs_handler.read(metadata_path))
-        metadata = {
-            "file_name": "All+Table+Column+Types+%28SK%29.csv",
-            "content_type": "text/csv",
-            "columns": [
-                "Col. Text",
-                "Col. Date/Time",
-                "Col. Number",
-                "Col. Number w/Unit",
-                "Col. Ext. Hyperlink",
-                "Col. Autotext List",
-                "Col. Checkbox",
-                "Col. Internal Reference",
-                "Col. List",
-                "Col. Integer",
-                "Col. Multi Select List",
-                "Col. Attribute List",
-                "Col. Multi Attribute List",
-            ],
-            "rows": [
-                {
-                    "Col. List": {"value": "Option 2", "values": None, "type": None, "display": None},
-                    "Col. Attribute List": {"value": "Option 2", "values": None, "type": None, "display": None},
-                    "Col. Multi Select List": {
-                        "value": "Multi Option 2, Multi Option 3, Multi Option 1",
-                        "values": ["Multi Option 2", "Multi Option 3", "Multi Option 1"],
-                        "type": None,
-                        "display": None,
-                    },
-                },
-                {
-                    "Col. Number": {"value": 3.0, "values": None, "type": None, "display": "3"},
-                    "Col. Autotext List": {
-                        "value": "Autotext list option 1",
-                        "values": None,
-                        "type": None,
-                        "display": None,
-                    },
-                    "Col. Checkbox": {"value": True, "values": None, "type": None, "display": None},
-                    "Col. Date/Time": {
-                        "value": "2022-07-25 21:00:00+00:00",
-                        "values": None,
-                        "type": None,
-                        "display": None,
-                    },
-                    "Col. Text": {"value": "sfdadf", "values": None, "type": None, "display": None},
-                },
-                {
-                    "Col. Number": {"value": 2.0, "values": None, "type": None, "display": "2"},
-                    "Col. Number w/Unit": {"value": 2323.0, "values": None, "type": None, "display": "2323 \u00b0C"},
-                    "Col. Text": {"value": "sdfsdf", "values": None, "type": None, "display": None},
-                },
-            ],
-            "eid": "grid:79a8e820-3293-4e38-bf06-9a75a60c123b",
-            "name": "All Table Column Types (SK) adljfhsdkjfn",
-            "description": ""
-        }
-        # content_path = fs_handler.join_path(path, metadata['file_name'])
+        metadata_path = fs_handler.join_path(path, 'metadata.json')
+        metadata = json.loads(fs_handler.read(metadata_path))
+        content_path = fs_handler.join_path(path, metadata['file_name'])
         content_type = metadata.get('content_type')
-        # content = fs_handler.read(content_path)
-        content = b'id,ext_title,ext_field1,User Number Column\r\n,3,,234234\r\n,,,234234\r\n,5,,\r\n'
+        content = fs_handler.read(content_path)
         column_definitions = metadata.get('columns')
         rows = metadata.get('rows')
         templates = EntityStore.get_list(
