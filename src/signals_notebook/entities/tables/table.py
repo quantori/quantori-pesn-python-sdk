@@ -8,7 +8,7 @@ from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import DataList, EntityType, Response, ResponseData
-from signals_notebook.entities import EntityStore
+from signals_notebook.entities import EntityStore, Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import Cell, CellContentDict, ColumnDefinitions, GenericColumnDefinition
@@ -395,4 +395,34 @@ class Table(ContentfulEntity):
                 cls.create(container=parent, name=metadata['name'], content=content, force=True)
 
     def get_content(self):
-        return super().get_content()
+        return super()._get_content()
+
+    @classmethod
+    def create(
+            cls,
+            *,
+            container: Container,
+            name: str,
+            content: bytes = b'',
+            content_type: str = 'text/csv',
+            force: bool = True,
+    ) -> Entity:
+        """Create Table Entity
+
+        Args:
+            container: Container where create new Table
+            name: file name
+            content: Table content
+            content_type: Table content type
+            force: Force to post attachment
+
+        Returns:
+            Table
+        """
+        log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
+        return container.add_child(
+            name=name,
+            content=content,
+            content_type=content_type,
+            force=force,
+        )
