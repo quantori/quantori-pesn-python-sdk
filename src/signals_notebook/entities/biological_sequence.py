@@ -41,7 +41,7 @@ class BiologicalSequence(ContentfulEntity):
             force: Force to post attachment
 
         Returns:
-           BiologicalSequence
+            BiologicalSequence
         """
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
 
