@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import csv
+import logging
 from io import StringIO
 from typing import cast, ClassVar, Dict, Generator, List, Literal, Union
 from uuid import UUID
@@ -38,6 +39,8 @@ from signals_notebook.common_types import EID, EntityType, File, Response, Respo
 from signals_notebook.entities import Sample
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
+
+log = logging.getLogger(__name__)
 
 
 class SamplesContainerResponse(Response[Sample]):
@@ -63,6 +66,7 @@ class SamplesContainer(ContentfulEntity):
         if isinstance(index, EID):
             return self._samples_by_id[index]
 
+        log.exception(&#39;IndexError were caught. Invalid index&#39;)
         raise IndexError(&#39;Invalid index&#39;)
 
     def __iter__(self):
@@ -75,9 +79,16 @@ class SamplesContainer(ContentfulEntity):
         return EntityType.SAMPLES_CONTAINER
 
     def get_content(self) -&gt; File:
+        &#34;&#34;&#34;Get SamplesContainer content
+
+        Returns:
+            File
+        &#34;&#34;&#34;
         return super()._get_content()
 
     def _reload_samples(self) -&gt; None:
+        log.debug(&#39;Reloading samples for Samples Container: %s...&#39;, self.eid)
+
         self._samples = []
         self._samples_by_id = {}
         for item in self._get_samples():
@@ -86,8 +97,10 @@ class SamplesContainer(ContentfulEntity):
 
             self._samples.append(item)
             self._samples_by_id[sample.eid] = sample
+        log.debug(&#39;Data in Samples Container: %s were reloaded&#39;, self.eid)
 
     def _get_samples(self) -&gt; Generator[Sample, None, None]:
+        log.debug(&#39;Getting samples for Samples Container: %s...&#39;, self.eid)
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -107,19 +120,37 @@ class SamplesContainer(ContentfulEntity):
 
             result = SamplesContainerResponse(**response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
+        log.debug(&#39;Samples for SamplesContainer: %s were got successfully.&#39;, self.eid)
 
     def save(self, force: bool = True) -&gt; None:
+        &#34;&#34;&#34;Save SamplesContainer content.
+
+        Args:
+            force: Force to update content without doing digest check.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        log.debug(&#39;Saving SamplesContainer: %s...&#39;, self.eid)
         for item in self._samples:
             item.save(force=force)
         self._reload_samples()
+        log.debug(&#39;SamplesContainer: %s were saved successfully.&#39;, self.eid)
 
     def get_html(self) -&gt; str:
+        &#34;&#34;&#34;Get in HTML format
+
+        Returns:
+            Rendered HTML in string format
+        &#34;&#34;&#34;
         file = self.get_content()
         content = StringIO(file.content.decode(&#39;utf-8&#39;))
         csv_data = list(csv.reader(content))
         table_head = csv_data[0]
         rows = csv_data[1:]
         template = env.get_template(self._template_name)
+        log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
         return template.render(name=self.name, table_head=table_head, rows=rows)</code></pre>
 </details>
 </section>
@@ -197,6 +228,7 @@ class SamplesContainer(ContentfulEntity):
         if isinstance(index, EID):
             return self._samples_by_id[index]
 
+        log.exception(&#39;IndexError were caught. Invalid index&#39;)
         raise IndexError(&#39;Invalid index&#39;)
 
     def __iter__(self):
@@ -209,9 +241,16 @@ class SamplesContainer(ContentfulEntity):
         return EntityType.SAMPLES_CONTAINER
 
     def get_content(self) -&gt; File:
+        &#34;&#34;&#34;Get SamplesContainer content
+
+        Returns:
+            File
+        &#34;&#34;&#34;
         return super()._get_content()
 
     def _reload_samples(self) -&gt; None:
+        log.debug(&#39;Reloading samples for Samples Container: %s...&#39;, self.eid)
+
         self._samples = []
         self._samples_by_id = {}
         for item in self._get_samples():
@@ -220,8 +259,10 @@ class SamplesContainer(ContentfulEntity):
 
             self._samples.append(item)
             self._samples_by_id[sample.eid] = sample
+        log.debug(&#39;Data in Samples Container: %s were reloaded&#39;, self.eid)
 
     def _get_samples(self) -&gt; Generator[Sample, None, None]:
+        log.debug(&#39;Getting samples for Samples Container: %s...&#39;, self.eid)
         api = SignalsNotebookApi.get_default_api()
 
         response = api.call(
@@ -241,19 +282,37 @@ class SamplesContainer(ContentfulEntity):
 
             result = SamplesContainerResponse(**response.json())
             yield from [cast(ResponseData, item).body for item in result.data]
+        log.debug(&#39;Samples for SamplesContainer: %s were got successfully.&#39;, self.eid)
 
     def save(self, force: bool = True) -&gt; None:
+        &#34;&#34;&#34;Save SamplesContainer content.
+
+        Args:
+            force: Force to update content without doing digest check.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        log.debug(&#39;Saving SamplesContainer: %s...&#39;, self.eid)
         for item in self._samples:
             item.save(force=force)
         self._reload_samples()
+        log.debug(&#39;SamplesContainer: %s were saved successfully.&#39;, self.eid)
 
     def get_html(self) -&gt; str:
+        &#34;&#34;&#34;Get in HTML format
+
+        Returns:
+            Rendered HTML in string format
+        &#34;&#34;&#34;
         file = self.get_content()
         content = StringIO(file.content.decode(&#39;utf-8&#39;))
         csv_data = list(csv.reader(content))
         table_head = csv_data[0]
         rows = csv_data[1:]
         template = env.get_template(self._template_name)
+        log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
         return template.render(name=self.name, table_head=table_head, rows=rows)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -277,13 +336,79 @@ class SamplesContainer(ContentfulEntity):
 <span>def <span class="ident">get_content</span></span>(<span>self) ‑> <a title="signals_notebook.common_types.File" href="../../common_types.html#signals_notebook.common_types.File">File</a></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get SamplesContainer content</p>
+<h2 id="returns">Returns</h2>
+<p>File</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_content(self) -&gt; File:
+    &#34;&#34;&#34;Get SamplesContainer content
+
+    Returns:
+        File
+    &#34;&#34;&#34;
     return super()._get_content()</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.samples.samples_container.SamplesContainer.get_html"><code class="name flex">
+<span>def <span class="ident">get_html</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get in HTML format</p>
+<h2 id="returns">Returns</h2>
+<p>Rendered HTML in string format</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_html(self) -&gt; str:
+    &#34;&#34;&#34;Get in HTML format
+
+    Returns:
+        Rendered HTML in string format
+    &#34;&#34;&#34;
+    file = self.get_content()
+    content = StringIO(file.content.decode(&#39;utf-8&#39;))
+    csv_data = list(csv.reader(content))
+    table_head = csv_data[0]
+    rows = csv_data[1:]
+    template = env.get_template(self._template_name)
+    log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
+    return template.render(name=self.name, table_head=table_head, rows=rows)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.samples.samples_container.SamplesContainer.save"><code class="name flex">
+<span>def <span class="ident">save</span></span>(<span>self, force: bool = True) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save SamplesContainer content.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>force</code></strong></dt>
+<dd>Force to update content without doing digest check.</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save(self, force: bool = True) -&gt; None:
+    &#34;&#34;&#34;Save SamplesContainer content.
+
+    Args:
+        force: Force to update content without doing digest check.
+
+    Returns:
+
+    &#34;&#34;&#34;
+    log.debug(&#39;Saving SamplesContainer: %s...&#39;, self.eid)
+    for item in self._samples:
+        item.save(force=force)
+    self._reload_samples()
+    log.debug(&#39;SamplesContainer: %s were saved successfully.&#39;, self.eid)</code></pre>
 </details>
 </dd>
 </dl>
@@ -292,12 +417,10 @@ class SamplesContainer(ContentfulEntity):
 <li><code><b><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></b></code>:
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="../entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
-<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_list" href="../entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_subclasses" href="../entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.refresh" href="../entity.html#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
-<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.save" href="../entity.html#signals_notebook.entities.entity.Entity.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.set_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.short_description" href="../entity.html#signals_notebook.entities.entity.Entity.short_description">short_description</a></code></li>
 </ul>
@@ -367,6 +490,8 @@ class SamplesContainer(ContentfulEntity):
 <h4><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer" href="#signals_notebook.entities.samples.samples_container.SamplesContainer">SamplesContainer</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer.get_content" href="#signals_notebook.entities.samples.samples_container.SamplesContainer.get_content">get_content</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer.get_html" href="#signals_notebook.entities.samples.samples_container.SamplesContainer.get_html">get_html</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer.save" href="#signals_notebook.entities.samples.samples_container.SamplesContainer.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer.type" href="#signals_notebook.entities.samples.samples_container.SamplesContainer.type">type</a></code></li>
 </ul>
 </li>

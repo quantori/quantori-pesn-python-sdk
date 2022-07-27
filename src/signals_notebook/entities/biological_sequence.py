@@ -31,6 +31,20 @@ class BiologicalSequence(ContentfulEntity):
         file_extension: str = '',
         force: bool = True,
     ) -> Entity:
+        """Create BiologicalSequence Entity
+
+        Args:
+            container: Container where create new BiologicalSequence
+            name: file name
+            content: BiologicalSequence content
+            file_extension: BiologicalSequence extension
+            force: Force to post attachment
+
+        Returns:
+            BiologicalSequence
+        """
+        log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
+
         file_extension = file_extension.replace('.', '')
         content_type = mimetypes.types_map.get(f'.{file_extension}', 'biosequence/genbank')
         return container.add_child(
@@ -44,6 +58,11 @@ class BiologicalSequence(ContentfulEntity):
         return super()._get_content()
 
     def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        """
         data = {'name': self.name}
         file = self.get_content()
         data['bio_sequence'] = 'data:{};base64,{}'.format(file.content_type, file.base64.decode('ascii'))
