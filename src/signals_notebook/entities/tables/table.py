@@ -12,6 +12,7 @@ from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import Cell, CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -296,3 +297,31 @@ class Table(ContentfulEntity):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+
+        try:
+            for item in templates:
+                template = cast('Table', item)
+                content = template._get_content()
+                column_definitions = template.get_column_definitions_list()
+                metadata = {
+                    'file_name': content.name,
+                    'content_type': content.content_type,
+                    'columns': [item.title for item in column_definitions],
+                    **{k: v for k, v in template.dict().items() if k in ('name', 'description', 'eid')},
+                }
+                fs_handler.write(
+                    fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
+                    json.dumps(metadata),
+                )
+        except TypeError:
+            pass

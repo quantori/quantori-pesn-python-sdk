@@ -18,6 +18,7 @@ from signals_notebook.common_types import (
     ResponseData,
 )
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 ChildClass = TypeVar('ChildClass', bound='Entity')
 CellValueType = TypeVar('CellValueType')
@@ -307,3 +308,21 @@ class Entity(BaseModel):
     @classmethod
     def load(cls, *args, **kwargs) -> None:
         log.error('Loading Entity: not implemented!')
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler):
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+        try:
+            for template in templates:
+                fs_handler.write(
+                    fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
+                    json.dumps({k: v for k, v in template.dict().items() if k in ('name', 'description', 'eid')}),
+                )
+        except TypeError:
+            pass
