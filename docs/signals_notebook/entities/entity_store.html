@@ -35,6 +35,7 @@ from typing import cast, Generator, List, Union
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EID, EntityType, Response, ResponseData
 from signals_notebook.entities import Entity
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -184,7 +185,13 @@ class EntityStore:
                 &#39;force&#39;: json.dumps(force),
             },
         )
-        log.debug(&#39;Entity: %s was deleted from EntityStore successfully&#39;, eid)</code></pre>
+        log.debug(&#39;Entity: %s was deleted from EntityStore successfully&#39;, eid)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+
+        for item in Entity.get_subclasses():
+            item.dump_templates(base_path, fs_handler)</code></pre>
 </details>
 </section>
 <section>
@@ -350,7 +357,13 @@ class EntityStore:
                 &#39;force&#39;: json.dumps(force),
             },
         )
-        log.debug(&#39;Entity: %s was deleted from EntityStore successfully&#39;, eid)</code></pre>
+        log.debug(&#39;Entity: %s was deleted from EntityStore successfully&#39;, eid)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+
+        for item in Entity.get_subclasses():
+            item.dump_templates(base_path, fs_handler)</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -408,6 +421,22 @@ def delete(cls, eid: EID, digest: str = None, force: bool = True) -&gt; None:
         },
     )
     log.debug(&#39;Entity: %s was deleted from EntityStore successfully&#39;, eid)</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.entity_store.EntityStore.dump_templates"><code class="name flex">
+<span>def <span class="ident">dump_templates</span></span>(<span>base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+
+    for item in Entity.get_subclasses():
+        item.dump_templates(base_path, fs_handler)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.entity_store.EntityStore.get"><code class="name flex">
@@ -591,9 +620,10 @@ def refresh(cls, entity: Entity) -&gt; None:
 <ul>
 <li>
 <h4><code><a title="signals_notebook.entities.entity_store.EntityStore" href="#signals_notebook.entities.entity_store.EntityStore">EntityStore</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="signals_notebook.entities.entity_store.EntityStore.IncludeOptions" href="#signals_notebook.entities.entity_store.EntityStore.IncludeOptions">IncludeOptions</a></code></li>
 <li><code><a title="signals_notebook.entities.entity_store.EntityStore.delete" href="#signals_notebook.entities.entity_store.EntityStore.delete">delete</a></code></li>
+<li><code><a title="signals_notebook.entities.entity_store.EntityStore.dump_templates" href="#signals_notebook.entities.entity_store.EntityStore.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.entity_store.EntityStore.get" href="#signals_notebook.entities.entity_store.EntityStore.get">get</a></code></li>
 <li><code><a title="signals_notebook.entities.entity_store.EntityStore.get_list" href="#signals_notebook.entities.entity_store.EntityStore.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.entity_store.EntityStore.refresh" href="#signals_notebook.entities.entity_store.EntityStore.refresh">refresh</a></code></li>
