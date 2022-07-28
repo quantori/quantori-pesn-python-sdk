@@ -86,7 +86,7 @@ class ContentfulEntity(Entity, abc.ABC):
         Returns:
 
         """
-        content = self.get_content()
+        content = self._get_content()
         metadata = {
             'file_name': content.name,
             'content_type': content.content_type,
