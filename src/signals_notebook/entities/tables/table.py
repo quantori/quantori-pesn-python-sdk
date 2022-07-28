@@ -40,9 +40,6 @@ class Table(Entity):
         JSON = 'application/json'
         CSV = 'text/csv'
 
-        def __repr__(self):
-            return str(self.value)
-
     type: Literal[EntityType.GRID] = Field(allow_mutation=False)
     _rows: List[Row] = PrivateAttr(default=[])
     _rows_by_id: Dict[UUID, Row] = PrivateAttr(default={})
