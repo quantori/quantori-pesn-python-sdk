@@ -30,6 +30,7 @@
 import cgi
 import json
 import logging
+from enum import Enum
 from typing import Optional
 
 from signals_notebook.api import SignalsNotebookApi
@@ -43,6 +44,8 @@ log = logging.getLogger(__name__)
 
 
 class ContentfulEntity(Entity, abc.ABC):
+    class ContentType(str, Enum):
+        BYTES = &#39;application/octet-stream&#39;
 
     def get_content(self) -&gt; File:
         raise NotImplementedError
@@ -58,7 +61,7 @@ class ContentfulEntity(Entity, abc.ABC):
         *,
         container: Container,
         name: str,
-        content_type: str = &#39;application/octet-stream&#39;,
+        content_type: str = ContentType.BYTES,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -166,6 +169,8 @@ class ContentfulEntity(Entity, abc.ABC):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class ContentfulEntity(Entity, abc.ABC):
+    class ContentType(str, Enum):
+        BYTES = &#39;application/octet-stream&#39;
 
     def get_content(self) -&gt; File:
         raise NotImplementedError
@@ -181,7 +186,7 @@ class ContentfulEntity(Entity, abc.ABC):
         *,
         container: Container,
         name: str,
-        content_type: str = &#39;application/octet-stream&#39;,
+        content_type: str = ContentType.BYTES,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -291,6 +296,10 @@ class ContentfulEntity(Entity, abc.ABC):
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType"><code class="name">var <span class="ident">ContentType</span></code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+</dd>
 <dt id="signals_notebook.entities.contentful_entity.ContentfulEntity.created_at"><code class="name">var <span class="ident">created_at</span> : datetime.datetime</code></dt>
 <dd>
 <div class="desc"></div>
@@ -323,7 +332,7 @@ class ContentfulEntity(Entity, abc.ABC):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.contentful_entity.ContentfulEntity.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = 'application/octet-stream', content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = ContentType.BYTES, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -337,7 +346,7 @@ def create(
     *,
     container: Container,
     name: str,
-    content_type: str = &#39;application/octet-stream&#39;,
+    content_type: str = ContentType.BYTES,
     content: bytes = b&#39;&#39;,
     force: bool = True,
 ) -&gt; Entity:
@@ -505,6 +514,7 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
 <li>
 <h4><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></code></h4>
 <ul class="two-column">
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType" href="#signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType">ContentType</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.create" href="#signals_notebook.entities.contentful_entity.ContentfulEntity.create">create</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.created_at" href="#signals_notebook.entities.contentful_entity.ContentfulEntity.created_at">created_at</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.description" href="#signals_notebook.entities.contentful_entity.ContentfulEntity.description">description</a></code></li>

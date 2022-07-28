@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import logging
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -40,6 +41,13 @@ log = logging.getLogger(__name__)
 
 
 class Word(ContentfulEntity):
+    class ContentType(str, Enum):
+        DOCX = &#39;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#39;
+        DOTX = &#39;application/vnd.openxmlformats-officedocument.wordprocessingml.template&#39;
+        DOCM = &#39;application/vnd.ms-word.document.macroEnabled.12&#39;
+        DOTM = &#39;application/vnd.ms-word.template.macroEnabled.12&#39;
+        DOC = &#39;application/msword&#39;
+
     type: Literal[EntityType.WORD] = Field(allow_mutation=False)
     _template_name: ClassVar = &#39;word.html&#39;
 
@@ -53,7 +61,7 @@ class Word(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = &#39;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#39;,
+        content_type: str = ContentType.DOCX,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -69,6 +77,7 @@ class Word(ContentfulEntity):
         Returns:
 
         &#34;&#34;&#34;
+        cls.ContentType(content_type)
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -107,6 +116,13 @@ class Word(ContentfulEntity):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Word(ContentfulEntity):
+    class ContentType(str, Enum):
+        DOCX = &#39;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#39;
+        DOTX = &#39;application/vnd.openxmlformats-officedocument.wordprocessingml.template&#39;
+        DOCM = &#39;application/vnd.ms-word.document.macroEnabled.12&#39;
+        DOTM = &#39;application/vnd.ms-word.template.macroEnabled.12&#39;
+        DOC = &#39;application/msword&#39;
+
     type: Literal[EntityType.WORD] = Field(allow_mutation=False)
     _template_name: ClassVar = &#39;word.html&#39;
 
@@ -120,7 +136,7 @@ class Word(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = &#39;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#39;,
+        content_type: str = ContentType.DOCX,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -136,6 +152,7 @@ class Word(ContentfulEntity):
         Returns:
 
         &#34;&#34;&#34;
+        cls.ContentType(content_type)
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -170,7 +187,7 @@ class Word(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.word.Word.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = ContentType.DOCX, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create Word Entity</p>
@@ -198,7 +215,7 @@ def create(
     *,
     container: Container,
     name: str,
-    content_type: str = &#39;application/vnd.openxmlformats-officedocument.wordprocessingml.document&#39;,
+    content_type: str = ContentType.DOCX,
     content: bytes = b&#39;&#39;,
     force: bool = True,
 ) -&gt; Entity:
@@ -214,6 +231,7 @@ def create(
     Returns:
 
     &#34;&#34;&#34;
+    cls.ContentType(content_type)
     log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
     return container.add_child(
         name=name,
@@ -251,6 +269,7 @@ def create(
 <ul class="hlist">
 <li><code><b><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></b></code>:
 <ul class="hlist">
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType">ContentType</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.dump" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>

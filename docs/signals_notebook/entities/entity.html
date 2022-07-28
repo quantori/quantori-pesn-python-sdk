@@ -46,6 +46,7 @@ from signals_notebook.common_types import (
     ResponseData,
 )
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 ChildClass = TypeVar(&#39;ChildClass&#39;, bound=&#39;Entity&#39;)
 CellValueType = TypeVar(&#39;CellValueType&#39;)
@@ -334,7 +335,25 @@ class Entity(BaseModel):
 
     @classmethod
     def load(cls, *args, **kwargs) -&gt; None:
-        log.error(&#39;Loading Entity: not implemented!&#39;)</code></pre>
+        log.error(&#39;Loading Entity: not implemented!&#39;)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler):
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+        try:
+            for template in templates:
+                fs_handler.write(
+                    fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
+                    json.dumps({k: v for k, v in template.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+                )
+        except TypeError:
+            pass</code></pre>
 </details>
 </section>
 <section>
@@ -593,7 +612,25 @@ class Entity(BaseModel):
 
     @classmethod
     def load(cls, *args, **kwargs) -&gt; None:
-        log.error(&#39;Loading Entity: not implemented!&#39;)</code></pre>
+        log.error(&#39;Loading Entity: not implemented!&#39;)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler):
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+        try:
+            for template in templates:
+                fs_handler.write(
+                    fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
+                    json.dumps({k: v for k, v in template.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+                )
+        except TypeError:
+            pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -644,6 +681,34 @@ class Entity(BaseModel):
 </dl>
 <h3>Static methods</h3>
 <dl>
+<dt id="signals_notebook.entities.entity.Entity.dump_templates"><code class="name flex">
+<span>def <span class="ident">dump_templates</span></span>(<span>base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def dump_templates(cls, base_path: str, fs_handler: FSHandler):
+    from signals_notebook.entities import EntityStore
+
+    entity_type = cls._get_entity_type()
+
+    templates = EntityStore.get_list(
+        include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+    )
+    try:
+        for template in templates:
+            fs_handler.write(
+                fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
+                json.dumps({k: v for k, v in template.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+            )
+    except TypeError:
+        pass</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.entity.Entity.get_list"><code class="name flex">
 <span>def <span class="ident">get_list</span></span>(<span>) ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
 </code></dt>
@@ -1160,6 +1225,7 @@ def representation_for_update(self) -&gt; dict[str, dict]:
 <li><code><a title="signals_notebook.entities.entity.Entity.description" href="#signals_notebook.entities.entity.Entity.description">description</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.digest" href="#signals_notebook.entities.entity.Entity.digest">digest</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.dump" href="#signals_notebook.entities.entity.Entity.dump">dump</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Entity.dump_templates" href="#signals_notebook.entities.entity.Entity.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.edited_at" href="#signals_notebook.entities.entity.Entity.edited_at">edited_at</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.eid" href="#signals_notebook.entities.entity.Entity.eid">eid</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_html" href="#signals_notebook.entities.entity.Entity.get_html">get_html</a></code></li>

@@ -11,6 +11,7 @@ from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -104,3 +105,18 @@ class ChemicalDrawing(ContentfulEntity):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+        try:
+            for template in templates:
+                template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
+        except TypeError:
+            pass

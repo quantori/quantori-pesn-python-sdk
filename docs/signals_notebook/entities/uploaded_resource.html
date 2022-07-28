@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import logging
+from enum import Enum
 from typing import ClassVar, Literal, Optional
 
 from pydantic import Field
@@ -54,7 +55,7 @@ class UploadedResource(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b&#39;&#39;,
-        content_type: Optional[str] = None,
+        content_type: str = &#39;application/octet-stream&#39;,
         force: bool = True,
     ) -&gt; Entity:
         &#34;&#34;&#34;Create UploadedResource Entity
@@ -121,7 +122,7 @@ class UploadedResource(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b&#39;&#39;,
-        content_type: Optional[str] = None,
+        content_type: str = &#39;application/octet-stream&#39;,
         force: bool = True,
     ) -&gt; Entity:
         &#34;&#34;&#34;Create UploadedResource Entity
@@ -170,7 +171,7 @@ class UploadedResource(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.uploaded_resource.UploadedResource.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: bytes = b'', content_type: Optional[str] = None, force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content: bytes = b'', content_type: str = 'application/octet-stream', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create UploadedResource Entity</p>
@@ -200,7 +201,7 @@ def create(
     container: Container,
     name: str,
     content: bytes = b&#39;&#39;,
-    content_type: Optional[str] = None,
+    content_type: str = &#39;application/octet-stream&#39;,
     force: bool = True,
 ) -&gt; Entity:
     &#34;&#34;&#34;Create UploadedResource Entity
@@ -252,6 +253,7 @@ def create(
 <ul class="hlist">
 <li><code><b><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></b></code>:
 <ul class="hlist">
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType">ContentType</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.dump" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>
