@@ -1,9 +1,13 @@
 import cgi
+import csv
 import json
 import logging
+from enum import Enum
+from io import StringIO
 from typing import Any, cast, Dict, List, Literal, Union
 from uuid import UUID
 
+import pandas
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
@@ -32,6 +36,13 @@ class ChangeTableDataRequest(DataList[ChangeRowRequest]):
 
 
 class Table(Entity):
+    class ContentType(str, Enum):
+        JSON = 'application/json'
+        CSV = 'text/csv'
+
+        def __repr__(self):
+            return str(self.value)
+
     type: Literal[EntityType.GRID] = Field(allow_mutation=False)
     _rows: List[Row] = PrivateAttr(default=[])
     _rows_by_id: Dict[UUID, Row] = PrivateAttr(default={})
@@ -278,7 +289,7 @@ class Table(Entity):
         container: Container,
         name: str,
         content: bytes = b'',
-        content_type: str = 'text/csv',
+        content_type: str = ContentType.CSV.value,
         template: str = None,
         digest: str = None,
         force: bool = True,
@@ -320,11 +331,17 @@ class Table(Entity):
                 },
                 json=request,
             )
-            log.debug('Entity: %s was created.', cls.__name__)
-
             result = TableResponse(**response.json())
-            return cast(ResponseData, result.data).body
+            table = cast(ResponseData, result.data).body
+            log.debug('Entity: %s was created.', cls.__name__)
+            table_data = json.loads(content)
+            rows = table_data['data']
+            for row in rows:
+                table.add_row(row)
+            table.save()
+            return table
 
+        cls.ContentType(content_type)
         log.debug('There is no needful template. Table will be uploaded as *.csv File...')
         log.debug('Create table: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
@@ -334,7 +351,29 @@ class Table(Entity):
             force=force,
         )
 
-    def get_content(self) -> File:
+    def get_content(self, content_type: str = ContentType.CSV) -> File:
+        """Get Table content
+
+        Args:
+            content_type: Export resource format
+
+        Returns:
+
+        """
+        self.ContentType(content_type)
+        if content_type == self.ContentType.JSON:
+            rows = []
+            for item in self:
+                row = {}
+                for cell in item:
+                    row[cell.name] = cell.content.dict()
+                rows.append(row)
+            return File(
+                name=f'{self.name}.json',
+                content=json.dumps({'data': rows}, default=str).encode('utf-8'),
+                content_type=content_type,
+            )
+
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get content for: %s| %s', self.__class__.__name__, self.eid)
 
@@ -396,20 +435,13 @@ class Table(Entity):
         """
         log.debug('Dumping table: %s with name: %s...', self.eid, self.name)
 
-        content = self.get_content()
+        content = self.get_content(content_type=self.ContentType.JSON)
         column_definitions = self.get_column_definitions_list()
-        rows = []
-        for item in self:
-            row = {}
-            for cell in item:
-                row[cell.name] = cell.content.dict()
-            rows.append(row)
 
         metadata = {
             'file_name': content.name,
             'content_type': content.content_type,
             'columns': [item.title for item in column_definitions],
-            'rows': rows,
             **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
         }
         fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str))
@@ -437,7 +469,6 @@ class Table(Entity):
         content_type = metadata.get('content_type', 'text/csv')
         content = fs_handler.read(content_path)
         column_definitions = metadata.get('columns')
-        rows = metadata.get('rows')
         templates = EntityStore.get_list(
             include_types=[EntityType.GRID], include_options=[EntityStore.IncludeOptions.TEMPLATE]
         )
@@ -449,11 +480,13 @@ class Table(Entity):
             template_columns = [item.title for item in template_column_definitions]
             if set(template_columns) == set(column_definitions):
                 file_creation = False
-                new_table = cls.create(container=parent, name=metadata['name'], template=template.eid)
-                table = cast('Table', new_table)
-                for row in rows:
-                    table.add_row(row)
-                table.save()
+                cls.create(
+                    container=parent,
+                    name=metadata['name'],
+                    template=template.eid,
+                    content=content,
+                    content_type=content_type,
+                )
                 break
 
         if file_creation:
