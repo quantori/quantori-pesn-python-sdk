@@ -310,7 +310,7 @@ class Entity(BaseModel):
         log.error('Loading Entity: not implemented!')
 
     @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler):
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
         from signals_notebook.entities import EntityStore
 
         entity_type = cls._get_entity_type()
