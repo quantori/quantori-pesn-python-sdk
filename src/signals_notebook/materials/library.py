@@ -439,13 +439,13 @@ class Library(BaseMaterialEntity):
             name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
         )
 
-    def _is_import_job_completed(self, job_id: str) -> bool:
+    def _is_import_job_completed(self, job_id: str) -> requests.Response:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
 
-        response = api.call(method='GET', path=(self._get_endpoint(), 'bulkImport', 'jobs', job_id))
+        return api.call(method='GET', path=(self._get_endpoint(), 'bulkImport', 'jobs', job_id))
 
-        return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
+        # return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
 
     def _import_materials(
         self,
@@ -524,16 +524,22 @@ class Library(BaseMaterialEntity):
         initial_time = time.time()
 
         response = False
+        import_job_status = 'FAILED'
 
         while time.time() - initial_time < timeout:
-            if not self._is_import_job_completed(job_id):
+            completed_import_response = self._is_import_job_completed(job_id)
+            import_job_status = completed_import_response.json()['data']['attributes']['status']
+            import_response_code = completed_import_response.status_code
+
+            if import_response_code != 200 and import_job_status != 'COMPLETED':
                 time.sleep(period)
             else:
                 response = True
                 break
 
-        if not response:
-            log.debug('Time is over to import file')
+        log.debug('Time is over to import file')
+
+        if not response and import_job_status == 'FAILED':
 
             failure_report_reponse = api.call(
                 method='GET',
@@ -589,4 +595,6 @@ class Library(BaseMaterialEntity):
 
         zip_buffer = self._generate_zip(materials)
 
-        self.bulk_import(File(name='test', content=zip_buffer.getvalue(), content_type='zip'), import_type='zip')
+        self.bulk_import(
+            File(name='test', content=zip_buffer.getvalue(), content_type='zip'), import_type='zip', timeout=120
+        )
