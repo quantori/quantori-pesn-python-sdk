@@ -331,11 +331,12 @@ class Table(Entity):
             result = TableResponse(**response.json())
             table = cast(ResponseData, result.data).body
             log.debug('Entity: %s was created.', cls.__name__)
-            table_data = json.loads(content)
-            rows = table_data['data']
-            for row in rows:
-                table.add_row(row)
-            table.save()
+            if content:
+                table_data = json.loads(content)
+                rows = table_data['data']
+                for row in rows:
+                    table.add_row(row)
+                table.save()
             return table
 
         cls.ContentType(content_type)
