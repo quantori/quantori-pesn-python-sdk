@@ -533,6 +533,7 @@ class Library(BaseMaterialEntity):
                 time.sleep(period)
             else:
                 response = True
+                log.debug('Library import is completed')
                 break
 
         if not response and import_job_status == 'FAILED':
