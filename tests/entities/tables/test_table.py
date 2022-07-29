@@ -714,9 +714,7 @@ def test_get_content_csv(api_mock, table_factory, table_csv_content):
     assert result.content_type == content_type
 
 
-def test_get_content_json(
-    api_mock, table_factory, reload_data_response
-):
+def test_get_content_json(api_mock, table_factory, reload_data_response):
     table = table_factory(name='file')
     file_name = 'file.json'
     content_type = Table.ContentType.JSON.value
@@ -743,3 +741,114 @@ def test_get_content_json(
     assert result.name == file_name
     assert result.content_type == content_type
     assert result.content == json.dumps({'data': rows}, default=str).encode('utf-8')
+
+
+def test_dump(table_factory, mocker, api_mock, reload_data_response, column_definitions_response, get_response_object):
+    table = table_factory(name='name')
+    file_name = 'name.json'
+    content_type = 'application/json'
+    column_definitions = column_definitions_response
+
+    api_mock.call.side_effect = [
+        get_response_object(reload_data_response),
+        get_response_object(column_definitions_response),
+    ]
+
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'file_name': file_name,
+        'content_type': content_type,
+        'columns': ["Column 1", "Column 2"],
+        **{k: v for k, v in table.dict().items() if k in ('name', 'description', 'eid')},
+    }
+    table.dump(base_path=base_path, fs_handler=fs_handler_mock)
+
+    rows = []
+    for item in table:
+        row = {}
+        for cell in item:
+            row[cell.name] = cell.content.dict()
+        rows.append(row)
+    content = json.dumps({'data': rows}, default=str).encode('utf-8')
+
+    join_path_call_1 = mocker.call(base_path, table.eid, 'metadata.json')
+    join_path_call_2 = mocker.call(base_path, table.eid, file_name)
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            join_path_call_1,
+            join_path_call_2,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata, default=str)),
+            mocker.call(fs_handler_mock.join_path(), content),
+        ],
+        any_order=True,
+    )
+
+
+def test_load(api_mock, experiment_factory, eid_factory, mocker, table_json_content):
+    container = experiment_factory()
+    eid = eid_factory(type=EntityType.GRID)
+    file_name = 'bio_sequence.gb'
+
+    response = {
+        'links': {'self': f'https://example.com/{eid}'},
+        'data': {
+            'type': ObjectType.ENTITY,
+            'id': eid,
+            'attributes': {
+                'eid': eid,
+                'name': file_name,
+                'description': '',
+                'type': EntityType.GRID,
+                'createdAt': '2019-09-06T03:12:35.129Z',
+                'editedAt': '2019-09-06T15:22:47.309Z',
+                'digest': '222',
+            },
+        },
+    }
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'file_name': file_name,
+        'name': file_name,
+    }
+    api_mock.call.return_value.json.return_value = response
+    fs_handler_mock.read.side_effect = [json.dumps(metadata), table_json_content]
+    fs_handler_mock.join_path.side_effect = [base_path + 'metadata.json', base_path + file_name]
+
+    Table.load(path=base_path, fs_handler=fs_handler_mock, parent=container)
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            mocker.call(base_path, 'metadata.json'),
+            mocker.call(base_path, file_name),
+        ],
+        any_order=True,
+    )
+
+    fs_handler_mock.read.assert_has_calls(
+        [
+            mocker.call(base_path + 'metadata.json'),
+            mocker.call(base_path + file_name),
+        ],
+        any_order=True,
+    )
+
+    api_mock.call.assert_called_once_with(
+        method='POST',
+        path=('entities', container.eid, 'children', f'{file_name}'),
+        params={
+            'digest': None,
+            'force': 'true',
+        },
+        headers={
+            'Content-Type': 'application/json',
+        },
+        data=table_json_content,
+    )
