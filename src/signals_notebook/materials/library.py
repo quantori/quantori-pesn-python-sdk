@@ -439,7 +439,7 @@ class Library(BaseMaterialEntity):
             name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
         )
 
-    def _is_import_job_completed(self, job_id: str) -> requests.Response:
+    def _get_import_job_completed_response(self, job_id: str) -> requests.Response:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
 
@@ -525,7 +525,7 @@ class Library(BaseMaterialEntity):
         import_job_status = 'FAILED'
 
         while time.time() - initial_time < timeout:
-            completed_import_response = self._is_import_job_completed(job_id)
+            completed_import_response = self._get_import_job_completed_response(job_id)
             import_job_status = completed_import_response.json()['data']['attributes']['status']
             import_response_code = completed_import_response.status_code
 
