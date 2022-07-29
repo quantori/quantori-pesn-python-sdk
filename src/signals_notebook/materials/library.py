@@ -445,8 +445,6 @@ class Library(BaseMaterialEntity):
 
         return api.call(method='GET', path=(self._get_endpoint(), 'bulkImport', 'jobs', job_id))
 
-        # return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
-
     def _import_materials(
         self,
         materials: Union[File, list[dict[Literal[MaterialType.ASSET, MaterialType.BATCH], dict[str, Any]]]],
