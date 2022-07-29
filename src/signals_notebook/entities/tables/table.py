@@ -1,13 +1,10 @@
 import cgi
-import csv
 import json
 import logging
 from enum import Enum
-from io import StringIO
 from typing import Any, cast, Dict, List, Literal, Union
 from uuid import UUID
 
-import pandas
 import pandas as pd
 from pydantic import Field, PrivateAttr
 
@@ -464,7 +461,7 @@ class Table(Entity):
         metadata_path = fs_handler.join_path(path, 'metadata.json')
         metadata = json.loads(fs_handler.read(metadata_path))
         content_path = fs_handler.join_path(path, metadata['file_name'])
-        content_type = metadata.get('content_type', 'text/csv')
+        content_type = metadata.get('content_type', cls.ContentType.JSON.value)
         content = fs_handler.read(content_path)
         column_definitions = metadata.get('columns')
         templates = EntityStore.get_list(

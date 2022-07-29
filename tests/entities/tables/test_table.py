@@ -6,7 +6,7 @@ import arrow
 import pandas as pd
 import pytest
 
-from signals_notebook.common_types import EntityType, ObjectType, File
+from signals_notebook.common_types import EntityType, File, ObjectType
 from signals_notebook.entities import Table, UploadedResource
 from signals_notebook.entities.tables.cell import ColumnDataType, ColumnDefinition
 from signals_notebook.entities.tables.row import Row
@@ -85,21 +85,21 @@ def all_column_types_definitions_response():
 def table_response():
     def wrapper(table_name: str):
         return {
-            "links": {"self": "https://ex.com/api/rest/v1.0/entities/grid:4df4e044-1b32-400f-81dd-571bb2adac9f"},
-            "data": {
-                "type": "entity",
-                "id": "grid:4df4e044-1b32-400f-81dd-571bb2adac9f",
-                "links": {"self": "https://ex.com/api/rest/v1.0/entities/grid:4df4e044-1b32-400f-81dd-571bb2adac9f"},
-                "attributes": {
-                    "id": "grid:4df4e044-1b32-400f-81dd-571bb2adac9f",
-                    "eid": "grid:4df4e044-1b32-400f-81dd-571bb2adac9f",
-                    "name": table_name,
-                    "description": "",
-                    "createdAt": "2020-04-24T07:13:08.114Z",
-                    "editedAt": "2020-04-24T07:13:08.114Z",
-                    "type": "grid",
-                    "digest": "70068111",
-                    "fields": {"Description": {"value": ""}, "Name": {"value": "frank-table-template-1"}},
+            'links': {'self': 'https://ex.com/api/rest/v1.0/entities/grid:4df4e044-1b32-400f-81dd-571bb2adac9f'},
+            'data': {
+                'type': 'entity',
+                'id': 'grid:4df4e044-1b32-400f-81dd-571bb2adac9f',
+                'links': {'self': 'https://ex.com/api/rest/v1.0/entities/grid:4df4e044-1b32-400f-81dd-571bb2adac9f'},
+                'attributes': {
+                    'id': 'grid:4df4e044-1b32-400f-81dd-571bb2adac9f',
+                    'eid': 'grid:4df4e044-1b32-400f-81dd-571bb2adac9f',
+                    'name': table_name,
+                    'description': '',
+                    'createdAt': '2020-04-24T07:13:08.114Z',
+                    'editedAt': '2020-04-24T07:13:08.114Z',
+                    'type': 'grid',
+                    'digest': '70068111',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'frank-table-template-1'}},
                 },
             },
         }
@@ -747,7 +747,6 @@ def test_dump(table_factory, mocker, api_mock, reload_data_response, column_defi
     table = table_factory(name='name')
     file_name = 'name.json'
     content_type = 'application/json'
-    column_definitions = column_definitions_response
 
     api_mock.call.side_effect = [
         get_response_object(reload_data_response),
@@ -759,7 +758,7 @@ def test_dump(table_factory, mocker, api_mock, reload_data_response, column_defi
     metadata = {
         'file_name': file_name,
         'content_type': content_type,
-        'columns': ["Column 1", "Column 2"],
+        'columns': ['Column 1', 'Column 2'],
         **{k: v for k, v in table.dict().items() if k in ('name', 'description', 'eid')},
     }
     table.dump(base_path=base_path, fs_handler=fs_handler_mock)
@@ -791,10 +790,23 @@ def test_dump(table_factory, mocker, api_mock, reload_data_response, column_defi
     )
 
 
-def test_load(api_mock, experiment_factory, eid_factory, mocker, table_json_content):
+def test_load_table(
+    api_mock,
+    experiment_factory,
+    eid_factory,
+    mocker,
+    table_json_content,
+    get_response_object,
+    templates,
+    column_definitions_response,
+    table_response,
+    properties,
+    reload_data_response,
+    reload_data_response_square_table,
+):
     container = experiment_factory()
     eid = eid_factory(type=EntityType.GRID)
-    file_name = 'bio_sequence.gb'
+    file_name = 'name.json'
 
     response = {
         'links': {'self': f'https://example.com/{eid}'},
@@ -817,8 +829,25 @@ def test_load(api_mock, experiment_factory, eid_factory, mocker, table_json_cont
     metadata = {
         'file_name': file_name,
         'name': file_name,
+        'columns': ['Column 1', 'Column 2'],
     }
-    api_mock.call.return_value.json.return_value = response
+    response1 = table_response('table name')
+    response2 = column_definitions_response
+    response3 = properties
+    response4 = reload_data_response
+
+    api_mock.call.side_effect = [
+        get_response_object(templates),
+        get_response_object(column_definitions_response),
+        get_response_object(response1),
+        get_response_object(response2),
+        get_response_object(response3),
+        get_response_object(response3),
+        get_response_object(reload_data_response_square_table),
+        get_response_object(response4),
+        get_response_object(response),
+    ]
+
     fs_handler_mock.read.side_effect = [json.dumps(metadata), table_json_content]
     fs_handler_mock.join_path.side_effect = [base_path + 'metadata.json', base_path + file_name]
 
@@ -840,15 +869,115 @@ def test_load(api_mock, experiment_factory, eid_factory, mocker, table_json_cont
         any_order=True,
     )
 
-    api_mock.call.assert_called_once_with(
+    request = {
+        'data': {
+            'type': EntityType.GRID,
+            'attributes': {'name': 'name.json'},
+            'relationships': {
+                'ancestors': {'data': [{'type': EntityType.EXPERIMENT, 'id': container.eid}]},
+                'template': {'data': {'type': EntityType.GRID, 'id': 'grid:58726e57-a998-46f5-8b9e-b4760210ce74'}},
+            },
+        }
+    }
+    api_mock.call.assert_any_call(
         method='POST',
-        path=('entities', container.eid, 'children', f'{file_name}'),
+        path=('entities',),
+        params={
+            'digest': None,
+            'force': 'true',
+        },
+        json=request,
+    )
+
+
+@pytest.mark.parametrize(
+    'file_name, content_type',
+    [
+        ('name.csv', Table.ContentType.CSV),
+        ('name.json', Table.ContentType.JSON),
+    ],
+)
+def test_load_file(
+    api_mock,
+    experiment_factory,
+    eid_factory,
+    mocker,
+    table_json_content,
+    table_csv_content,
+    get_response_object,
+    templates,
+    column_definitions_response,
+    file_name,
+    content_type,
+):
+    container = experiment_factory()
+    eid = eid_factory(type=EntityType.GRID)
+
+    response = {
+        'links': {'self': f'https://example.com/{eid}'},
+        'data': {
+            'type': ObjectType.ENTITY,
+            'id': eid,
+            'attributes': {
+                'eid': eid,
+                'name': file_name,
+                'description': '',
+                'type': EntityType.GRID,
+                'createdAt': '2019-09-06T03:12:35.129Z',
+                'editedAt': '2019-09-06T15:22:47.309Z',
+                'digest': '222',
+            },
+        },
+    }
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'file_name': file_name,
+        'name': file_name,
+        'columns': ['Column 1', 'Column 2', 'Column 3'],
+        'content_type': content_type.value,
+    }
+    content = table_json_content if content_type == Table.ContentType.JSON else table_csv_content
+
+    api_mock.call.side_effect = [
+        get_response_object(templates),
+        get_response_object(column_definitions_response),
+        get_response_object(column_definitions_response),
+        get_response_object(column_definitions_response),
+        get_response_object(column_definitions_response),
+        get_response_object(response),
+    ]
+
+    fs_handler_mock.read.side_effect = [json.dumps(metadata), content]
+    fs_handler_mock.join_path.side_effect = [base_path + 'metadata.json', base_path + file_name]
+
+    Table.load(path=base_path, fs_handler=fs_handler_mock, parent=container)
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            mocker.call(base_path, 'metadata.json'),
+            mocker.call(base_path, file_name),
+        ],
+        any_order=True,
+    )
+
+    fs_handler_mock.read.assert_has_calls(
+        [
+            mocker.call(base_path + 'metadata.json'),
+            mocker.call(base_path + file_name),
+        ],
+        any_order=True,
+    )
+
+    api_mock.call.assert_any_call(
+        method='POST',
+        path=('entities', container.eid, 'children', file_name),
         params={
             'digest': None,
             'force': 'true',
         },
         headers={
-            'Content-Type': 'application/json',
+            'Content-Type': content_type,
         },
-        data=table_json_content,
+        data=content,
     )
