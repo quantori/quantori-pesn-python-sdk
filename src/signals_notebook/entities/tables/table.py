@@ -349,7 +349,7 @@ class Table(Entity):
             force=force,
         )
 
-    def get_content(self, content_type: str = ContentType.CSV) -> File:
+    def get_content(self, content_type: str = ContentType.CSV.value) -> File:
         """Get Table content
 
         Args:
@@ -359,7 +359,7 @@ class Table(Entity):
 
         """
         self.ContentType(content_type)
-        if content_type == self.ContentType.JSON:
+        if content_type == self.ContentType.JSON.value:
             rows = []
             for item in self:
                 row = {}
@@ -379,7 +379,7 @@ class Table(Entity):
             method='GET',
             path=(self._get_endpoint(), self.eid, 'export'),
             params={
-                'format': format,
+                'format': None,
             },
         )
 
