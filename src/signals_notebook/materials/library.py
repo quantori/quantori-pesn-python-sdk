@@ -535,9 +535,8 @@ class Library(BaseMaterialEntity):
                 response = True
                 break
 
-        log.debug('Time is over to import file')
-
         if not response and import_job_status == 'FAILED':
+            log.debug('Time is over to import file')
 
             failure_report_reponse = api.call(
                 method='GET',
