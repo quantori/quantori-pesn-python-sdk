@@ -35,11 +35,14 @@ import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import DataList, EntityType, Response, ResponseData
+from signals_notebook.common_types import DataList, EntityType, Response, ResponseData, EID
+from signals_notebook.entities import EntityStore
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import Cell, CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -323,7 +326,104 @@ class Table(ContentfulEntity):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(name=self.name, table_head=table_head, rows=rows)</code></pre>
+        return template.render(name=self.name, table_head=table_head, rows=rows)
+
+    @classmethod
+    def creation(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        template: str,
+        digest: str = None,
+        force: bool = True,
+    ) -&gt; &#39;Table&#39;:
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Create Entity: %s...&#39;, cls.__name__)
+        request = {
+            &#34;data&#34;: {
+                &#34;type&#34;: EntityType.GRID,
+                &#34;attributes&#34;: {&#34;name&#34;: name},
+                &#34;relationships&#34;: {
+                    &#34;ancestors&#34;: {&#34;data&#34;: [{&#34;type&#34;: EntityType.EXPERIMENT, &#34;id&#34;: container.eid}]},
+                    &#34;template&#34;: {&#34;data&#34;: {&#34;type&#34;: EntityType.GRID, &#34;id&#34;: template}},
+                },
+            }
+        }
+
+        response = api.call(
+            method=&#39;POST&#39;,
+            path=(cls._get_endpoint(),),
+            params={
+                &#39;digest&#39;: digest,
+                &#39;force&#39;: json.dumps(force),
+            },
+            json=request,
+        )
+        log.debug(&#39;Entity: %s was created.&#39;, cls.__name__)
+
+        result = Response[cls](**response.json())  # type: ignore
+
+        return cast(ResponseData, result.data).body
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+        content = self._get_content()
+        column_definitions = self.get_column_definitions_list()
+        rows = []
+        for item in self:
+            row = {}
+            for cell in item:
+                row[cell.name] = cell.content.dict()
+            rows.append(row)
+
+        metadata = {
+            &#39;file_name&#39;: content.name,
+            &#39;content_type&#39;: content.content_type,
+            &#39;columns&#39;: [item.title for item in column_definitions],
+            &#39;rows&#39;: rows,
+            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+        }
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata, default=str))
+        file_name = content.name
+        data = content.content
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+        metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+        metadata = json.loads(fs_handler.read(metadata_path))
+        content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+        content_type = metadata.get(&#39;content_type&#39;)
+        content = fs_handler.read(content_path)
+        column_definitions = metadata.get(&#39;columns&#39;)
+        rows = metadata.get(&#39;rows&#39;)
+        templates = EntityStore.get_list(
+            include_types=[EntityType.GRID], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+
+        file_creation = True
+        for item in templates:
+            template = cast(&#39;Table&#39;, item)
+            template_column_definitions = template.get_column_definitions_list()
+            template_columns = [item.title for item in template_column_definitions]
+            if set(template_columns) == set(column_definitions):
+                file_creation = False
+                table = cls.creation(container=parent, name=metadata[&#39;name&#39;], template=template.eid)
+                for row in rows:
+                    table.add_row(row)
+                table.save()
+                break
+
+        if file_creation:
+            if content_type:
+                cls.create(
+                    container=parent, name=metadata[&#39;name&#39;], content=content, content_type=content_type, force=True
+                )
+            else:
+                cls.create(container=parent, name=metadata[&#39;name&#39;], content=content, force=True)
+
+    def get_content(self):
+        return super().get_content()</code></pre>
 </details>
 </section>
 <section>
@@ -780,7 +880,104 @@ class Table(ContentfulEntity):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(name=self.name, table_head=table_head, rows=rows)</code></pre>
+        return template.render(name=self.name, table_head=table_head, rows=rows)
+
+    @classmethod
+    def creation(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        template: str,
+        digest: str = None,
+        force: bool = True,
+    ) -&gt; &#39;Table&#39;:
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Create Entity: %s...&#39;, cls.__name__)
+        request = {
+            &#34;data&#34;: {
+                &#34;type&#34;: EntityType.GRID,
+                &#34;attributes&#34;: {&#34;name&#34;: name},
+                &#34;relationships&#34;: {
+                    &#34;ancestors&#34;: {&#34;data&#34;: [{&#34;type&#34;: EntityType.EXPERIMENT, &#34;id&#34;: container.eid}]},
+                    &#34;template&#34;: {&#34;data&#34;: {&#34;type&#34;: EntityType.GRID, &#34;id&#34;: template}},
+                },
+            }
+        }
+
+        response = api.call(
+            method=&#39;POST&#39;,
+            path=(cls._get_endpoint(),),
+            params={
+                &#39;digest&#39;: digest,
+                &#39;force&#39;: json.dumps(force),
+            },
+            json=request,
+        )
+        log.debug(&#39;Entity: %s was created.&#39;, cls.__name__)
+
+        result = Response[cls](**response.json())  # type: ignore
+
+        return cast(ResponseData, result.data).body
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+        content = self._get_content()
+        column_definitions = self.get_column_definitions_list()
+        rows = []
+        for item in self:
+            row = {}
+            for cell in item:
+                row[cell.name] = cell.content.dict()
+            rows.append(row)
+
+        metadata = {
+            &#39;file_name&#39;: content.name,
+            &#39;content_type&#39;: content.content_type,
+            &#39;columns&#39;: [item.title for item in column_definitions],
+            &#39;rows&#39;: rows,
+            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+        }
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata, default=str))
+        file_name = content.name
+        data = content.content
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+        metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+        metadata = json.loads(fs_handler.read(metadata_path))
+        content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+        content_type = metadata.get(&#39;content_type&#39;)
+        content = fs_handler.read(content_path)
+        column_definitions = metadata.get(&#39;columns&#39;)
+        rows = metadata.get(&#39;rows&#39;)
+        templates = EntityStore.get_list(
+            include_types=[EntityType.GRID], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+
+        file_creation = True
+        for item in templates:
+            template = cast(&#39;Table&#39;, item)
+            template_column_definitions = template.get_column_definitions_list()
+            template_columns = [item.title for item in template_column_definitions]
+            if set(template_columns) == set(column_definitions):
+                file_creation = False
+                table = cls.creation(container=parent, name=metadata[&#39;name&#39;], template=template.eid)
+                for row in rows:
+                    table.add_row(row)
+                table.save()
+                break
+
+        if file_creation:
+            if content_type:
+                cls.create(
+                    container=parent, name=metadata[&#39;name&#39;], content=content, content_type=content_type, force=True
+                )
+            else:
+                cls.create(container=parent, name=metadata[&#39;name&#39;], content=content, force=True)
+
+    def get_content(self):
+        return super().get_content()</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -795,6 +992,57 @@ class Table(ContentfulEntity):
 <dt id="signals_notebook.entities.tables.table.Table.type"><code class="name">var <span class="ident">type</span> : Literal[<EntityType.GRID: 'grid'>]</code></dt>
 <dd>
 <div class="desc"></div>
+</dd>
+</dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.table.Table.creation"><code class="name flex">
+<span>def <span class="ident">creation</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="../container.html#signals_notebook.entities.container.Container">Container</a>, name: str, template: str, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.tables.table.Table" href="#signals_notebook.entities.tables.table.Table">Table</a></span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def creation(
+    cls,
+    *,
+    container: Container,
+    name: str,
+    template: str,
+    digest: str = None,
+    force: bool = True,
+) -&gt; &#39;Table&#39;:
+    api = SignalsNotebookApi.get_default_api()
+    log.debug(&#39;Create Entity: %s...&#39;, cls.__name__)
+    request = {
+        &#34;data&#34;: {
+            &#34;type&#34;: EntityType.GRID,
+            &#34;attributes&#34;: {&#34;name&#34;: name},
+            &#34;relationships&#34;: {
+                &#34;ancestors&#34;: {&#34;data&#34;: [{&#34;type&#34;: EntityType.EXPERIMENT, &#34;id&#34;: container.eid}]},
+                &#34;template&#34;: {&#34;data&#34;: {&#34;type&#34;: EntityType.GRID, &#34;id&#34;: template}},
+            },
+        }
+    }
+
+    response = api.call(
+        method=&#39;POST&#39;,
+        path=(cls._get_endpoint(),),
+        params={
+            &#39;digest&#39;: digest,
+            &#39;force&#39;: json.dumps(force),
+        },
+        json=request,
+    )
+    log.debug(&#39;Entity: %s was created.&#39;, cls.__name__)
+
+    result = Response[cls](**response.json())  # type: ignore
+
+    return cast(ResponseData, result.data).body</code></pre>
+</details>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1057,6 +1305,19 @@ class Table(ContentfulEntity):
     return column_definitions_map</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.entities.tables.table.Table.get_content"><code class="name flex">
+<span>def <span class="ident">get_content</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_content(self):
+    return super().get_content()</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.tables.table.Table.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>self, force: bool = True) ‑> None</span>
 </code></dt>
@@ -1113,6 +1374,7 @@ class Table(ContentfulEntity):
 <ul class="hlist">
 <li><code><b><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></b></code>:
 <ul class="hlist">
+<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType">ContentType</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="../entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.dump" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>
@@ -1220,10 +1482,12 @@ class Table(ContentfulEntity):
 <li><code><a title="signals_notebook.entities.tables.table.Table.add_row" href="#signals_notebook.entities.tables.table.Table.add_row">add_row</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.as_dataframe" href="#signals_notebook.entities.tables.table.Table.as_dataframe">as_dataframe</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.as_raw_data" href="#signals_notebook.entities.tables.table.Table.as_raw_data">as_raw_data</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.table.Table.creation" href="#signals_notebook.entities.tables.table.Table.creation">creation</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.delete_row_by_id" href="#signals_notebook.entities.tables.table.Table.delete_row_by_id">delete_row_by_id</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.get" href="#signals_notebook.entities.tables.table.Table.get">get</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.get_column_definitions_list" href="#signals_notebook.entities.tables.table.Table.get_column_definitions_list">get_column_definitions_list</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.get_column_definitions_map" href="#signals_notebook.entities.tables.table.Table.get_column_definitions_map">get_column_definitions_map</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.table.Table.get_content" href="#signals_notebook.entities.tables.table.Table.get_content">get_content</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.save" href="#signals_notebook.entities.tables.table.Table.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.type" href="#signals_notebook.entities.tables.table.Table.type">type</a></code></li>
 </ul>
