@@ -1,5 +1,7 @@
+import cgi
 import json
 import logging
+from enum import Enum
 from typing import Any, cast, Dict, List, Literal, Union
 from uuid import UUID
 
@@ -7,11 +9,13 @@ import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import DataList, EntityType, Response, ResponseData
-from signals_notebook.entities.contentful_entity import ContentfulEntity
+from signals_notebook.common_types import DataList, EntityType, File, Response, ResponseData
+from signals_notebook.entities import Entity, EntityStore
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.tables.cell import Cell, CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -28,7 +32,11 @@ class ChangeTableDataRequest(DataList[ChangeRowRequest]):
     pass
 
 
-class Table(ContentfulEntity):
+class Table(Entity):
+    class ContentType(str, Enum):
+        JSON = 'application/json'
+        CSV = 'text/csv'
+
     type: Literal[EntityType.GRID] = Field(allow_mutation=False)
     _rows: List[Row] = PrivateAttr(default=[])
     _rows_by_id: Dict[UUID, Row] = PrivateAttr(default={})
@@ -99,7 +107,7 @@ class Table(ContentfulEntity):
         """Get as data table
 
         Args:
-            use_labels: use cels names
+            use_labels: use cells names
 
         Returns:
             pd.DataFrame
@@ -146,7 +154,6 @@ class Table(ContentfulEntity):
         if isinstance(index, UUID):
             return self._rows_by_id[index]
 
-        log.exception('IndexError were caught. Invalid index')
         raise IndexError('Invalid index')
 
     def __iter__(self):
@@ -268,6 +275,114 @@ class Table(ContentfulEntity):
             log.debug('KeyError were caught. Default value returned')
             return default
 
+    def get_content(self, content_type: str = ContentType.CSV.value) -> File:
+        """Get Table content
+
+        Args:
+            content_type: Export resource format
+
+        Returns:
+
+        """
+        self.ContentType(content_type)
+        if content_type == self.ContentType.JSON.value:
+            rows = []
+            for item in self:
+                row = {}
+                for cell in item:
+                    row[cell.name] = cell.content.dict()
+                rows.append(row)
+            return File(
+                name=f'{self.name}.json',
+                content=json.dumps({'data': rows}, default=str).encode('utf-8'),
+                content_type=content_type,
+            )
+
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Get content for: %s| %s', self.__class__.__name__, self.eid)
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'export'),
+            params={
+                'format': None,
+            },
+        )
+
+        content_disposition = response.headers.get('content-disposition', '')
+        _, params = cgi.parse_header(content_disposition)
+
+        return File(
+            name=params['filename'],
+            content=response.content,
+            content_type=response.headers.get('content-type'),
+        )
+
+    @classmethod
+    def create(
+        cls,
+        *,
+        container: Container,
+        name: str,
+        content: List[Dict[str, CellContentDict]] = None,
+        template: str = None,
+        digest: str = None,
+        force: bool = True,
+    ) -> Entity:
+        """Create Table Entity
+
+        Args:
+            container: Container where create new Table
+            name: file name
+            content: Table content
+            template: template for table creation
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+            force: Force to post attachment
+
+        Returns:
+            Table
+        """
+        log.debug('Create Table: %s...', cls.__name__)
+        if template:
+            api = SignalsNotebookApi.get_default_api()
+            request = {
+                'data': {
+                    'type': EntityType.GRID,
+                    'attributes': {'name': name},
+                    'relationships': {
+                        'ancestors': {'data': [{'type': EntityType.EXPERIMENT, 'id': container.eid}]},
+                        'template': {'data': {'type': EntityType.GRID, 'id': template}},
+                    },
+                }
+            }
+
+            response = api.call(
+                method='POST',
+                path=(cls._get_endpoint(),),
+                params={
+                    'digest': digest,
+                    'force': json.dumps(force),
+                },
+                json=request,
+            )
+            result = TableResponse(**response.json())
+            table = cast(ResponseData, result.data).body
+            log.debug('Entity: %s was created.', cls.__name__)
+            if content:
+                for row in content:
+                    table.add_row(row)
+                table.save()
+            return table
+
+        log.debug('There is no needful template. Table will be uploaded as *.csv File...')
+        log.debug('Create table: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
+        return container.add_child(
+            name=name,
+            content=json.dumps({'data': content}, default=str).encode('utf-8'),
+            content_type=cls.ContentType.JSON,
+            force=force,
+        )
+
     def get_html(self) -> str:
         """Get in HTML format
 
@@ -296,3 +411,77 @@ class Table(ContentfulEntity):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump Table entity
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+        log.debug('Dumping table: %s with name: %s...', self.eid, self.name)
+
+        content = self.get_content(content_type=self.ContentType.JSON)
+        column_definitions = self.get_column_definitions_list()
+
+        metadata = {
+            'file_name': content.name,
+            'content_type': content.content_type,
+            'columns': [item.title for item in column_definitions],
+            **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
+        }
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str))
+        file_name = content.name
+        data = content.content
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        log.debug('Table: %s was dumped successfully', self.eid, self.name)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
+        """Load Table entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            parent: Container where load Table entity
+
+        Returns:
+
+        """
+        log.debug('Loading table from dump...')
+        metadata_path = fs_handler.join_path(path, 'metadata.json')
+        metadata = json.loads(fs_handler.read(metadata_path))
+        content_path = fs_handler.join_path(path, metadata['file_name'])
+        content_bytes = fs_handler.read(content_path)
+        content = json.loads(content_bytes)
+        rows = content['data']
+        column_definitions = metadata.get('columns')
+        templates = EntityStore.get_list(
+            include_types=[EntityType.GRID], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+
+        file_creation = True
+        for item in templates:
+            template = cast('Table', item)
+            template_column_definitions = template.get_column_definitions_list()
+            template_columns = [item.title for item in template_column_definitions]
+            if set(template_columns) == set(column_definitions):
+                file_creation = False
+                cls.create(
+                    container=parent,
+                    name=metadata['name'],
+                    template=template.eid,
+                    content=rows,
+                )
+                break
+
+        if file_creation:
+            cls.create(container=parent, name=metadata['name'], content=rows, force=True)
+        log.debug('Table was loaded to Container: %s', parent.eid)
+
+
+class TableResponse(Response[Table]):
+    pass
