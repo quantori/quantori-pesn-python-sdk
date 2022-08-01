@@ -578,6 +578,9 @@ def test_create_with_template_full_table(
     template = table_factory()
     experiment = experiment_factory()
     table_name = 'SUPERDUPERPUPERTABLE'
+    content = json.loads(table_json_content)
+    rows = content['data']
+
     response1 = table_response(table_name)
     response2 = column_definitions_response
     response3 = properties
@@ -598,7 +601,7 @@ def test_create_with_template_full_table(
         template=template.eid,
         digest=digest,
         force=force,
-        content=table_json_content,
+        content=rows,
     )
 
     request = {
@@ -633,19 +636,13 @@ def test_create_with_template_full_table(
     )
 
 
-@pytest.mark.parametrize(
-    'file_name, content_type',
-    [
-        ('file.csv', Table.ContentType.CSV),
-        ('file.json', Table.ContentType.JSON),
-    ],
-)
 def test_create_table_file(
-    api_mock, experiment_factory, eid_factory, file_name, content_type, table_csv_content, table_json_content
+    api_mock, experiment_factory, eid_factory, table_json_content
 ):
     container = experiment_factory()
     eid = eid_factory(type=EntityType.UPLOADED_RESOURCE)
-    content = table_json_content if content_type == Table.ContentType.JSON else table_csv_content
+    content = json.loads(table_json_content)['data']
+    file_name = 'file.json'
     response = {
         'links': {'self': f'https://example.com/{eid}'},
         'data': {
@@ -663,7 +660,7 @@ def test_create_table_file(
         },
     }
     api_mock.call.return_value.json.return_value = response
-    result = Table.create(container=container, name=file_name, content=content, content_type=content_type, force=True)
+    result = Table.create(container=container, name=file_name, content=content, force=True)
 
     api_mock.call.assert_called_once_with(
         method='POST',
@@ -673,9 +670,9 @@ def test_create_table_file(
             'force': 'true',
         },
         headers={
-            'Content-Type': content_type,
+            'Content-Type': Table.ContentType.JSON,
         },
-        data=content,
+        data=json.dumps({'data': content}, default=str).encode('utf-8'),
     )
 
     assert isinstance(result, UploadedResource)
@@ -890,13 +887,6 @@ def test_load_table(
     )
 
 
-@pytest.mark.parametrize(
-    'file_name, content_type',
-    [
-        ('name.csv', Table.ContentType.CSV),
-        ('name.json', Table.ContentType.JSON),
-    ],
-)
 def test_load_file(
     api_mock,
     experiment_factory,
@@ -907,11 +897,11 @@ def test_load_file(
     get_response_object,
     templates,
     column_definitions_response,
-    file_name,
-    content_type,
 ):
     container = experiment_factory()
     eid = eid_factory(type=EntityType.GRID)
+    file_name = 'name.json'
+    content_type = Table.ContentType.JSON
 
     response = {
         'links': {'self': f'https://example.com/{eid}'},
