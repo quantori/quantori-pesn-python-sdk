@@ -6,7 +6,7 @@ from typing import cast, ClassVar, Literal, Optional, Union, Generator
 from pydantic import Field, BaseModel
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EID, EntityType, Template, Ancestors, ResponseData, EntityCreationRequestPayload
+from signals_notebook.common_types import EID, EntityType, Template, Ancestors, ResponseData, EntityCreationRequestPayload, Response
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.experiment import Experiment
