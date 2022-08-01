@@ -146,7 +146,6 @@ class Table(ContentfulEntity):
         if isinstance(index, UUID):
             return self._rows_by_id[index]
 
-        log.exception('IndexError were caught. Invalid index')
         raise IndexError('Invalid index')
 
     def __iter__(self):

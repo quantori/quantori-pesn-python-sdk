@@ -71,7 +71,6 @@ class PlateRow(BaseModel):
         if isinstance(index, UUID):
             return self._cells_dict[index]
 
-        log.exception(&#39;IndexError were caught. Invalid index&#39;)
         raise IndexError(&#39;Invalid index&#39;)
 
     def __iter__(self):
@@ -131,7 +130,6 @@ class PlateRow(BaseModel):
         if isinstance(index, UUID):
             return self._cells_dict[index]
 
-        log.exception(&#39;IndexError were caught. Invalid index&#39;)
         raise IndexError(&#39;Invalid index&#39;)
 
     def __iter__(self):

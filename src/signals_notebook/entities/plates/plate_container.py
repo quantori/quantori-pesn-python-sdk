@@ -36,7 +36,6 @@ class PlateContainer(ContentfulEntity):
         if isinstance(index, UUID):
             return self._rows_by_id[index]
 
-        log.exception('IndexError were caught. Invalid index')
         raise IndexError('Invalid index')
 
     def __iter__(self):
@@ -51,7 +50,7 @@ class PlateContainer(ContentfulEntity):
 
     def _reload_data(self):
         api = SignalsNotebookApi.get_default_api()
-        log.debug('Reload rows for Plate Container: %s', self.eid)
+        log.debug('Reloading rows for Plate Container: %s...', self.eid)
 
         response = api.call(
             method='GET',
