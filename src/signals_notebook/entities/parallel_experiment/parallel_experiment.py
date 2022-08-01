@@ -1,11 +1,13 @@
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Union
+from typing import cast, ClassVar, Literal, Optional, Union, Generator
 
 from pydantic import Field, BaseModel
 
+from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EID, EntityType, Template, Ancestors, ResponseData, EntityCreationRequestPayload
+from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.experiment import Experiment
 from signals_notebook.entities.notebook import Notebook
@@ -101,16 +103,35 @@ class ParallelExperiment(Container):
             force=force,
             request=request,
         )
-    #
-    # @cached_property
-    # def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
-    #     """ Fetch stoichiometry data of parallel experiment
-    #
-    #     Returns:
-    #         Stoichiometry object or list of Stoichiometry objects
-    #     """
-    #     log.debug('Fetching data in Stoichiometry for: %s', self.eid)
-    #     return Stoichiometry.fetch_data(self.eid)
+
+    def get_children(self) -> Generator[Entity, None, None]:
+        """Get children of a specified entity.
+
+        Returns:
+            list of Entities
+        """
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Get children for: %s', self.eid)
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'children'),
+        )
+
+        entity_classes = (*Entity.get_subclasses(), Entity)
+
+        result = Response[Union[entity_classes]](**response.json())  # type: ignore
+
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+        while result.links and result.links.next:
+            response = api.call(
+                method='GET',
+                path=result.links.next,
+            )
+
+            result = Response[Union[entity_classes]](**response.json())  # type: ignore
+            yield from [cast(ResponseData, item).body for item in result.data]
 
     def get_html(self) -> str:
         """Get in HTML format
