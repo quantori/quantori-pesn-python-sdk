@@ -66,6 +66,7 @@ class EntityType(str, Enum):
     MATERIAL_TABLE = 'materialsTable'
     PARALLEL_EXPERIMENT = 'paraexp'
     SUB_EXPERIMENT = 'parasubexp'
+    SUB_EXPERIMENT_SUMMARY = 'paragrid'
 
 
 class MaterialType(str, Enum):

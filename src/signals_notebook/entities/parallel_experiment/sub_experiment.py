@@ -4,8 +4,8 @@ from typing import ClassVar, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
-from signals_notebook.entities import Entity
+from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template, File
+from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
 from signals_notebook.jinja_env import env
@@ -32,7 +32,7 @@ class _SubExperimentRequestPayload(EntityCreationRequestPayload[_SubExperimentRe
     pass
 
 
-class SubExperiment(Entity):
+class SubExperiment(ContentfulEntity):
     type: Literal[EntityType.SUB_EXPERIMENT] = Field(allow_mutation=False)
     # _template_name: ClassVar = 'chemical_drawing.html'
 
@@ -74,6 +74,14 @@ class SubExperiment(Entity):
             force=force,
             request=request,
         )
+
+    def get_content(self) -> File:
+        """Get Excel content
+
+        Returns:
+            File
+        """
+        return super()._get_content()
 
     # def get_html(self) -> str:
     #     """Get in HTML format
