@@ -38,7 +38,6 @@ class SamplesContainer(ContentfulEntity):
         if isinstance(index, EID):
             return self._samples_by_id[index]
 
-        log.exception('IndexError were caught. Invalid index')
         raise IndexError('Invalid index')
 
     def __iter__(self):
