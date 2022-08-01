@@ -401,3 +401,7 @@ def test_get_html(api_mock, get_column_definitions_list_mock, reload_data_respon
     table_html = table.get_html()
 
     snapshot.assert_match(table_html)
+
+
+def test_dump_templates(api_mock, mocker, column_definitions_response, templates, ):
+    pass
