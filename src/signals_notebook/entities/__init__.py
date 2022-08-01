@@ -19,4 +19,4 @@ from signals_notebook.entities.spotfire import Spotfire  # noqa
 from signals_notebook.entities.uploaded_resource import UploadedResource  # noqa
 from signals_notebook.entities.plates.plate_container import PlateContainer  # noqa
 from signals_notebook.entities.materials_table import MaterialsTable  # noqa
-from signals_notebook.entities.parallel_experiment import ParallelExperiment  # noqa
+from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment  # noqa
