@@ -35,7 +35,9 @@ import pandas as pd
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import DataList, EntityType, Response, ResponseData
+from signals_notebook.common_types import DataList, EntityType, Response, ResponseData, EID
+from signals_notebook.entities import EntityStore
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.tables.cell import Cell, CellContentDict, ColumnDefinitions, GenericColumnDefinition
 from signals_notebook.entities.tables.row import ChangeRowRequest, Row
@@ -324,35 +326,7 @@ class Table(ContentfulEntity):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(name=self.name, table_head=table_head, rows=rows)
-
-    @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
-        from signals_notebook.entities import EntityStore
-
-        entity_type = cls._get_entity_type()
-
-        templates = EntityStore.get_list(
-            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
-        )
-
-        try:
-            for item in templates:
-                template = cast(&#39;Table&#39;, item)
-                content = template._get_content()
-                column_definitions = template.get_column_definitions_list()
-                metadata = {
-                    &#39;file_name&#39;: content.name,
-                    &#39;content_type&#39;: content.content_type,
-                    &#39;columns&#39;: [item.title for item in column_definitions],
-                    **{k: v for k, v in template.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
-                }
-                fs_handler.write(
-                    fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
-                    json.dumps(metadata),
-                )
-        except TypeError:
-            pass</code></pre>
+        return template.render(name=self.name, table_head=table_head, rows=rows)</code></pre>
 </details>
 </section>
 <section>
@@ -809,35 +783,7 @@ class Table(ContentfulEntity):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(name=self.name, table_head=table_head, rows=rows)
-
-    @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
-        from signals_notebook.entities import EntityStore
-
-        entity_type = cls._get_entity_type()
-
-        templates = EntityStore.get_list(
-            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
-        )
-
-        try:
-            for item in templates:
-                template = cast(&#39;Table&#39;, item)
-                content = template._get_content()
-                column_definitions = template.get_column_definitions_list()
-                metadata = {
-                    &#39;file_name&#39;: content.name,
-                    &#39;content_type&#39;: content.content_type,
-                    &#39;columns&#39;: [item.title for item in column_definitions],
-                    **{k: v for k, v in template.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
-                }
-                fs_handler.write(
-                    fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
-                    json.dumps(metadata),
-                )
-        except TypeError:
-            pass</code></pre>
+        return template.render(name=self.name, table_head=table_head, rows=rows)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -852,47 +798,6 @@ class Table(ContentfulEntity):
 <dt id="signals_notebook.entities.tables.table.Table.type"><code class="name">var <span class="ident">type</span> : Literal[<EntityType.GRID: 'grid'>]</code></dt>
 <dd>
 <div class="desc"></div>
-</dd>
-</dl>
-<h3>Static methods</h3>
-<dl>
-<dt id="signals_notebook.entities.tables.table.Table.dump_templates"><code class="name flex">
-<span>def <span class="ident">dump_templates</span></span>(<span>base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@classmethod
-def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
-    from signals_notebook.entities import EntityStore
-
-    entity_type = cls._get_entity_type()
-
-    templates = EntityStore.get_list(
-        include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
-    )
-
-    try:
-        for item in templates:
-            template = cast(&#39;Table&#39;, item)
-            content = template._get_content()
-            column_definitions = template.get_column_definitions_list()
-            metadata = {
-                &#39;file_name&#39;: content.name,
-                &#39;content_type&#39;: content.content_type,
-                &#39;columns&#39;: [item.title for item in column_definitions],
-                **{k: v for k, v in template.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
-            }
-            fs_handler.write(
-                fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
-                json.dumps(metadata),
-            )
-    except TypeError:
-        pass</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -1155,6 +1060,19 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
     return column_definitions_map</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.entities.tables.table.Table.get_content"><code class="name flex">
+<span>def <span class="ident">get_content</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_content(self):
+    return super().get_content()</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.tables.table.Table.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>self, force: bool = True) ‑> None</span>
 </code></dt>
@@ -1319,11 +1237,13 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 <li><code><a title="signals_notebook.entities.tables.table.Table.add_row" href="#signals_notebook.entities.tables.table.Table.add_row">add_row</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.as_dataframe" href="#signals_notebook.entities.tables.table.Table.as_dataframe">as_dataframe</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.as_raw_data" href="#signals_notebook.entities.tables.table.Table.as_raw_data">as_raw_data</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.table.Table.creation" href="#signals_notebook.entities.tables.table.Table.creation">creation</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.delete_row_by_id" href="#signals_notebook.entities.tables.table.Table.delete_row_by_id">delete_row_by_id</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.dump_templates" href="#signals_notebook.entities.tables.table.Table.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.get" href="#signals_notebook.entities.tables.table.Table.get">get</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.get_column_definitions_list" href="#signals_notebook.entities.tables.table.Table.get_column_definitions_list">get_column_definitions_list</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.get_column_definitions_map" href="#signals_notebook.entities.tables.table.Table.get_column_definitions_map">get_column_definitions_map</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.table.Table.get_content" href="#signals_notebook.entities.tables.table.Table.get_content">get_content</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.save" href="#signals_notebook.entities.tables.table.Table.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.table.Table.type" href="#signals_notebook.entities.tables.table.Table.type">type</a></code></li>
 </ul>
