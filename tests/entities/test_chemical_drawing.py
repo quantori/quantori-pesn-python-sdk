@@ -12,9 +12,9 @@ def templates():
     return {
         "links": {
             "self": "https://ex.com/api/rest/v1.0/entities"
-                    "?includeTypes=chemicalDrawing&includeOptions=template&page[offset]=0&page[limit]=20",
+            "?includeTypes=chemicalDrawing&includeOptions=template&page[offset]=0&page[limit]=20",
             "first": "https://ex.com/api/rest/v1.0/entities"
-                     "?includeTypes=chemicalDrawing&includeOptions=template&page[offset]=0&page[limit]=20",
+            "?includeTypes=chemicalDrawing&includeOptions=template&page[offset]=0&page[limit]=20",
         },
         "data": [
             {
@@ -280,18 +280,23 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates):
     metadata = {
         'file_name': file_name,
         'content_type': content_type,
-        **{k: v for k, v in chemical_drawing.dict().items() if k in ('name', 'description', 'eid')},
+        'eid': template_eid,
+        'name': 'DEFAULT_CHEMICALDRAWING',
+        'description': "",
     }
+
     api_mock.call.return_value.json.return_value = templates
     chemical_drawing.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
 
-    join_path_call_1 = mocker.call(base_path, chemical_drawing.eid, 'metadata.json')
-    join_path_call_2 = mocker.call(base_path, chemical_drawing.eid, file_name)
+    join_path_call_1 = mocker.call(base_path, 'templates', chemical_drawing.type)
+    join_path_call_2 = mocker.call(fs_handler_mock.join_path(), template_eid, file_name)
+    join_path_call_3 = mocker.call(fs_handler_mock.join_path(), template_eid, 'metadata.json')
 
     fs_handler_mock.join_path.assert_has_calls(
         [
             join_path_call_1,
             join_path_call_2,
+            join_path_call_3,
         ],
         any_order=True,
     )
