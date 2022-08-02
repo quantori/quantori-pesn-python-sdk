@@ -9,9 +9,7 @@ from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EID, EntityType, Template, Ancestors, ResponseData, EntityCreationRequestPayload, Response
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
-from signals_notebook.entities.experiment import Experiment
 from signals_notebook.entities.notebook import Notebook
-from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
 from signals_notebook.jinja_env import env
 
 log = logging.getLogger(__name__)
@@ -97,7 +95,7 @@ class ParallelExperiment(Container):
             )
         )
 
-        log.debug('Creating Notebook for: %s', cls.__name__)
+        log.debug('Creating Parallel Experiment for: %s', cls.__name__)
         return super()._create(
             digest=digest,
             force=force,
@@ -105,7 +103,7 @@ class ParallelExperiment(Container):
         )
 
     def get_children(self) -> Generator[Entity, None, None]:
-        """Get children of a specified entity.
+        """Get children of Parallel Experiment.
 
         Returns:
             list of Entities
@@ -146,7 +144,6 @@ class ParallelExperiment(Container):
             'state': self.state,
             'children': self.get_children(),
         }
-
         template = env.get_template(self._template_name)
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
