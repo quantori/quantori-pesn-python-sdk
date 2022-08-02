@@ -1,8 +1,46 @@
+import json
+
 import arrow
 import pytest
 
 from signals_notebook.common_types import EID, EntityType, ObjectType
 from signals_notebook.entities.notebook import Notebook
+
+
+@pytest.fixture()
+def templates():
+    return {
+        "links": {
+            "self": "https://ex.com/api/rest/v1.0/"
+            "entities?includeTypes=journal&includeOptions=template&page[offset]=0&page[limit]=20",
+            "first": "https://ex.com/api/rest/v1.0/"
+            "entities?includeTypes=journal&includeOptions=template&page[offset]=0&page[limit]=20",
+        },
+        "data": [
+            {
+                "type": "entity",
+                "id": "journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f",
+                "links": {"self": "https://ex.com/api/rest/v1.0/entities/journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f"},
+                "attributes": {
+                    "id": "journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f",
+                    "eid": "journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f",
+                    "name": "DEFAULT_NOTEBOOK",
+                    "description": "",
+                    "createdAt": "2021-10-22T13:36:01.989Z",
+                    "editedAt": "2021-11-08T08:23:19.789Z",
+                    "type": "journal",
+                    "digest": "95590489",
+                    "fields": {
+                        "Description": {"value": ""},
+                        "My Notebook Field 1 (SK)": {"value": ""},
+                        "My Notebook Field 2 (SK)": {"value": ""},
+                        "Name": {"value": "DEFAULT_NOTEBOOK"},
+                    },
+                    "flags": {"canEdit": True},
+                },
+            }
+        ],
+    }
 
 
 @pytest.mark.parametrize('description', ['test description', None])
@@ -59,3 +97,36 @@ def test_create(api_mock, description, digest, force):
     assert result.description == response['data']['attributes']['description']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+
+
+def test_dump_templates(api_mock, mocker, notebook_factory, templates, get_response_object):
+    notebook = notebook_factory(name='name')
+    template_eid = templates['data'][0]['id']
+
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'eid': template_eid,
+        'name': 'DEFAULT_NOTEBOOK',
+        'description': "",
+    }
+
+    api_mock.call.side_effect = [get_response_object(templates), get_response_object('')]
+    notebook.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
+
+    join_path_call_1 = mocker.call(base_path, 'templates', notebook.type)
+    join_path_call_2 = mocker.call(fs_handler_mock.join_path(), template_eid, 'metadata.json')
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            join_path_call_1,
+            join_path_call_2,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
+        ],
+        any_order=True,
+    )

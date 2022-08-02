@@ -99,3 +99,19 @@ class Container(Entity, abc.ABC):
         )
         for child in self.get_children():
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+        try:
+            for template in templates:
+                print(template)
+                template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
+        except TypeError:
+            pass

@@ -52,3 +52,13 @@ register(UploadedResourceFactory)
 @pytest.fixture()
 def entity_store_mock(mocker):
     return mocker.patch('signals_notebook.entities.EntityStore')
+
+
+@pytest.fixture()
+def get_response_object(mocker):
+    def _f(response):
+        mock = mocker.Mock()
+        mock.json.return_value = response
+        return mock
+
+    return _f
