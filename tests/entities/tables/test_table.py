@@ -196,7 +196,7 @@ def properties():
 
 
 @pytest.fixture()
-def templates():
+def templates_dump():
     return {
         'links': {
             'self': 'https://ex.com/api/rest/v1.0/'
@@ -1003,10 +1003,10 @@ def test_load_file(
 
 
 def test_dump_templates(
-    api_mock, mocker, column_definitions_response, templates, get_response_object, reload_data_response
+    api_mock, mocker, column_definitions_response, templates_dump, get_response_object, reload_data_response
 ):
-    template_eid = templates['data'][0]['id']
-    template_name = templates['data'][0]['attributes']['name']
+    template_eid = templates_dump['data'][0]['id']
+    template_name = templates_dump['data'][0]['attributes']['name']
     entity_type = EntityType.GRID
 
     fs_handler_mock = mocker.MagicMock()
@@ -1021,7 +1021,7 @@ def test_dump_templates(
     }
 
     api_mock.call.side_effect = [
-        get_response_object(templates),
+        get_response_object(templates_dump),
         get_response_object(reload_data_response),
         get_response_object(column_definitions_response),
     ]
