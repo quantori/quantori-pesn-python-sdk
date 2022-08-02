@@ -21,30 +21,30 @@ def get_response_experiment(mocker):
 @pytest.fixture()
 def templates():
     return {
-        "links": {
-            "self": "https://ex.com/api/rest/v1.0/"
-            "entities?includeTypes=experiment&includeOptions=template&page[offset]=0&page[limit]=20",
-            "first": "https://ex.com/api/rest/v1.0/"
-            "entities?includeTypes=experiment&includeOptions=template&page[offset]=0&page[limit]=20",
+        'links': {
+            'self': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=experiment&includeOptions=template&page[offset]=0&page[limit]=20',
+            'first': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=experiment&includeOptions=template&page[offset]=0&page[limit]=20',
         },
-        "data": [
+        'data': [
             {
-                "type": "entity",
-                "id": "experiment:d4d25125-5665-4c89-b9b6-049b44e1355e",
-                "links": {
-                    "self": "https://ex.com/api/rest/v1.0/entities/experiment:d4d25125-5665-4c89-b9b6-049b44e1355e"
+                'type': 'entity',
+                'id': 'experiment:d4d25125-5665-4c89-b9b6-049b44e1355e',
+                'links': {
+                    'self': 'https://ex.com/api/rest/v1.0/entities/experiment:d4d25125-5665-4c89-b9b6-049b44e1355e'
                 },
-                "attributes": {
-                    "id": "experiment:d4d25125-5665-4c89-b9b6-049b44e1355e",
-                    "eid": "experiment:d4d25125-5665-4c89-b9b6-049b44e1355e",
-                    "name": "DEFAULT_EXPERIMENT",
-                    "description": "",
-                    "createdAt": "2021-10-22T13:36:01.730Z",
-                    "editedAt": "2022-07-27T07:25:41.960Z",
-                    "type": "experiment",
-                    "digest": "68929861",
-                    "fields": {"Description": {"value": ""}, "Name": {"value": "DEFAULT_EXPERIMENT"}},
-                    "flags": {"canEdit": True},
+                'attributes': {
+                    'id': 'experiment:d4d25125-5665-4c89-b9b6-049b44e1355e',
+                    'eid': 'experiment:d4d25125-5665-4c89-b9b6-049b44e1355e',
+                    'name': 'DEFAULT_EXPERIMENT',
+                    'description': '',
+                    'createdAt': '2021-10-22T13:36:01.730Z',
+                    'editedAt': '2022-07-27T07:25:41.960Z',
+                    'type': 'experiment',
+                    'digest': '68929861',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'DEFAULT_EXPERIMENT'}},
+                    'flags': {'canEdit': True},
                 },
             }
         ],
@@ -478,7 +478,7 @@ def test_dump_templates(api_mock, mocker, experiment_factory, templates, get_res
     metadata = {
         'eid': template_eid,
         'name': 'DEFAULT_EXPERIMENT',
-        'description': "",
+        'description': '',
     }
 
     api_mock.call.side_effect = [get_response_experiment(templates), get_response_experiment('')]

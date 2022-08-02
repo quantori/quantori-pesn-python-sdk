@@ -10,33 +10,33 @@ from signals_notebook.entities.notebook import Notebook
 @pytest.fixture()
 def templates():
     return {
-        "links": {
-            "self": "https://ex.com/api/rest/v1.0/"
-            "entities?includeTypes=journal&includeOptions=template&page[offset]=0&page[limit]=20",
-            "first": "https://ex.com/api/rest/v1.0/"
-            "entities?includeTypes=journal&includeOptions=template&page[offset]=0&page[limit]=20",
+        'links': {
+            'self': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=journal&includeOptions=template&page[offset]=0&page[limit]=20',
+            'first': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=journal&includeOptions=template&page[offset]=0&page[limit]=20',
         },
-        "data": [
+        'data': [
             {
-                "type": "entity",
-                "id": "journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f",
-                "links": {"self": "https://ex.com/api/rest/v1.0/entities/journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f"},
-                "attributes": {
-                    "id": "journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f",
-                    "eid": "journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f",
-                    "name": "DEFAULT_NOTEBOOK",
-                    "description": "",
-                    "createdAt": "2021-10-22T13:36:01.989Z",
-                    "editedAt": "2021-11-08T08:23:19.789Z",
-                    "type": "journal",
-                    "digest": "95590489",
-                    "fields": {
-                        "Description": {"value": ""},
-                        "My Notebook Field 1 (SK)": {"value": ""},
-                        "My Notebook Field 2 (SK)": {"value": ""},
-                        "Name": {"value": "DEFAULT_NOTEBOOK"},
+                'type': 'entity',
+                'id': 'journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f',
+                'links': {'self': 'https://ex.com/api/rest/v1.0/entities/journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f'},
+                'attributes': {
+                    'id': 'journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f',
+                    'eid': 'journal:cbabfd5e-b6d3-4a0b-b8ca-fb4abe40ff6f',
+                    'name': 'DEFAULT_NOTEBOOK',
+                    'description': '',
+                    'createdAt': '2021-10-22T13:36:01.989Z',
+                    'editedAt': '2021-11-08T08:23:19.789Z',
+                    'type': 'journal',
+                    'digest': '95590489',
+                    'fields': {
+                        'Description': {'value': ''},
+                        'My Notebook Field 1 (SK)': {'value': ''},
+                        'My Notebook Field 2 (SK)': {'value': ''},
+                        'Name': {'value': 'DEFAULT_NOTEBOOK'},
                     },
-                    "flags": {"canEdit": True},
+                    'flags': {'canEdit': True},
                 },
             }
         ],
@@ -108,7 +108,7 @@ def test_dump_templates(api_mock, mocker, notebook_factory, templates, get_respo
     metadata = {
         'eid': template_eid,
         'name': 'DEFAULT_NOTEBOOK',
-        'description': "",
+        'description': '',
     }
 
     api_mock.call.side_effect = [get_response_object(templates), get_response_object('')]

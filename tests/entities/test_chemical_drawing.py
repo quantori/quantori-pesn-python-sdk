@@ -10,30 +10,30 @@ from signals_notebook.entities import ChemicalDrawing, Entity
 @pytest.fixture()
 def templates():
     return {
-        "links": {
-            "self": "https://ex.com/api/rest/v1.0/entities"
-            "?includeTypes=chemicalDrawing&includeOptions=template&page[offset]=0&page[limit]=20",
-            "first": "https://ex.com/api/rest/v1.0/entities"
-            "?includeTypes=chemicalDrawing&includeOptions=template&page[offset]=0&page[limit]=20",
+        'links': {
+            'self': 'https://ex.com/api/rest/v1.0/entities'
+            '?includeTypes=chemicalDrawing&includeOptions=template&page[offset]=0&page[limit]=20',
+            'first': 'https://ex.com/api/rest/v1.0/entities'
+            '?includeTypes=chemicalDrawing&includeOptions=template&page[offset]=0&page[limit]=20',
         },
-        "data": [
+        'data': [
             {
-                "type": "entity",
-                "id": "chemicalDrawing:a530ffb5-1e31-4ee6-8138-5e12fc62959f",
-                "links": {
-                    "self": "https://ex.com/api/rest/v1.0/entities/chemicalDrawing:a530ffb5-1e31-4ee6-8138-5e12fc62959f"
+                'type': 'entity',
+                'id': 'chemicalDrawing:a530ffb5-1e31-4ee6-8138-5e12fc62959f',
+                'links': {
+                    'self': 'https://ex.com/api/rest/v1.0/entities/chemicalDrawing:a530ffb5-1e31-4ee6-8138-5e12fc62959f'
                 },
-                "attributes": {
-                    "id": "chemicalDrawing:a530ffb5-1e31-4ee6-8138-5e12fc62959f",
-                    "eid": "chemicalDrawing:a530ffb5-1e31-4ee6-8138-5e12fc62959f",
-                    "name": "DEFAULT_CHEMICALDRAWING",
-                    "description": "",
-                    "createdAt": "2021-10-22T13:36:02.942Z",
-                    "editedAt": "2022-07-16T10:21:09.015Z",
-                    "type": "chemicalDrawing",
-                    "digest": "62677800",
-                    "fields": {"Description": {"value": ""}, "Name": {"value": "DEFAULT_CHEMICALDRAWING"}},
-                    "flags": {"canEdit": True},
+                'attributes': {
+                    'id': 'chemicalDrawing:a530ffb5-1e31-4ee6-8138-5e12fc62959f',
+                    'eid': 'chemicalDrawing:a530ffb5-1e31-4ee6-8138-5e12fc62959f',
+                    'name': 'DEFAULT_CHEMICALDRAWING',
+                    'description': '',
+                    'createdAt': '2021-10-22T13:36:02.942Z',
+                    'editedAt': '2022-07-16T10:21:09.015Z',
+                    'type': 'chemicalDrawing',
+                    'digest': '62677800',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'DEFAULT_CHEMICALDRAWING'}},
+                    'flags': {'canEdit': True},
                 },
             }
         ],
@@ -282,7 +282,7 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates):
         'content_type': content_type,
         'eid': template_eid,
         'name': 'DEFAULT_CHEMICALDRAWING',
-        'description': "",
+        'description': '',
     }
 
     api_mock.call.return_value.json.return_value = templates

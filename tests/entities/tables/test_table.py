@@ -198,28 +198,28 @@ def properties():
 @pytest.fixture()
 def templates():
     return {
-        "links": {
-            "self": "https://ex.com/api/rest/v1.0/"
-            "entities?includeTypes=grid&includeOptions=template&page[offset]=0&page[limit]=20",
-            "first": "https://ex.com/api/rest/v1.0/"
-            "entities?includeTypes=grid&includeOptions=template&page[offset]=0&page[limit]=20",
+        'links': {
+            'self': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=grid&includeOptions=template&page[offset]=0&page[limit]=20',
+            'first': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=grid&includeOptions=template&page[offset]=0&page[limit]=20',
         },
-        "data": [
+        'data': [
             {
-                "type": "entity",
-                "id": "grid:58726e57-a998-46f5-8b9e-b4760210ce74",
-                "links": {"self": "https://ex.com/api/rest/v1.0/entities/grid:58726e57-a998-46f5-8b9e-b4760210ce74"},
-                "attributes": {
-                    "id": "grid:58726e57-a998-46f5-8b9e-b4760210ce74",
-                    "eid": "grid:58726e57-a998-46f5-8b9e-b4760210ce74",
-                    "name": "My Table Template 1 (SK)",
-                    "description": "",
-                    "createdAt": "2021-11-08T08:03:47.233Z",
-                    "editedAt": "2021-11-17T10:00:16.821Z",
-                    "type": "grid",
-                    "digest": "81353707",
-                    "fields": {"Description": {"value": ""}, "Name": {"value": "My Table Template 1 (SK)"}},
-                    "flags": {"canEdit": True},
+                'type': 'entity',
+                'id': 'grid:58726e57-a998-46f5-8b9e-b4760210ce74',
+                'links': {'self': 'https://ex.com/api/rest/v1.0/entities/grid:58726e57-a998-46f5-8b9e-b4760210ce74'},
+                'attributes': {
+                    'id': 'grid:58726e57-a998-46f5-8b9e-b4760210ce74',
+                    'eid': 'grid:58726e57-a998-46f5-8b9e-b4760210ce74',
+                    'name': 'My Table Template 1 (SK)',
+                    'description': '',
+                    'createdAt': '2021-11-08T08:03:47.233Z',
+                    'editedAt': '2021-11-17T10:00:16.821Z',
+                    'type': 'grid',
+                    'digest': '81353707',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'My Table Template 1 (SK)'}},
+                    'flags': {'canEdit': True},
                 },
             },
         ],
