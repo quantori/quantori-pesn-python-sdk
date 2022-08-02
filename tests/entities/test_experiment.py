@@ -1,4 +1,5 @@
 import datetime
+import json
 
 import arrow
 import pytest
@@ -15,6 +16,39 @@ def get_response_experiment(mocker):
         return mock
 
     return _f
+
+
+@pytest.fixture()
+def templates():
+    return {
+        'links': {
+            'self': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=experiment&includeOptions=template&page[offset]=0&page[limit]=20',
+            'first': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=experiment&includeOptions=template&page[offset]=0&page[limit]=20',
+        },
+        'data': [
+            {
+                'type': 'entity',
+                'id': 'experiment:d4d25125-5665-4c89-b9b6-049b44e1355e',
+                'links': {
+                    'self': 'https://ex.com/api/rest/v1.0/entities/experiment:d4d25125-5665-4c89-b9b6-049b44e1355e'
+                },
+                'attributes': {
+                    'id': 'experiment:d4d25125-5665-4c89-b9b6-049b44e1355e',
+                    'eid': 'experiment:d4d25125-5665-4c89-b9b6-049b44e1355e',
+                    'name': 'DEFAULT_EXPERIMENT',
+                    'description': '',
+                    'createdAt': '2021-10-22T13:36:01.730Z',
+                    'editedAt': '2022-07-27T07:25:41.960Z',
+                    'type': 'experiment',
+                    'digest': '68929861',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'DEFAULT_EXPERIMENT'}},
+                    'flags': {'canEdit': True},
+                },
+            }
+        ],
+    }
 
 
 @pytest.mark.parametrize('description', ['test description', None])
@@ -433,3 +467,36 @@ def test_get_html(api_mock, experiment_factory, snapshot):
     experiment_html = experiment.get_html()
 
     snapshot.assert_match(experiment_html)
+
+
+def test_dump_templates(api_mock, mocker, experiment_factory, templates, get_response_experiment):
+    experiment = experiment_factory(name='name')
+    template_eid = templates['data'][0]['id']
+
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'eid': template_eid,
+        'name': 'DEFAULT_EXPERIMENT',
+        'description': '',
+    }
+
+    api_mock.call.side_effect = [get_response_experiment(templates), get_response_experiment('')]
+    experiment.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
+
+    join_path_call_1 = mocker.call(base_path, 'templates', experiment.type)
+    join_path_call_2 = mocker.call(fs_handler_mock.join_path(), template_eid, 'metadata.json')
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            join_path_call_1,
+            join_path_call_2,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
+        ],
+        any_order=True,
+    )

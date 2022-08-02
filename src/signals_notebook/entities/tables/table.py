@@ -482,6 +482,43 @@ class Table(Entity):
             cls.create(container=parent, name=metadata['name'], content=rows, force=True)
         log.debug('Table was loaded to Container: %s', parent.eid)
 
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump Table templates
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+
+        try:
+            for item in templates:
+                template = cast('Table', item)
+                content = template.get_content(content_type=cls.ContentType.JSON)
+                column_definitions = template.get_column_definitions_list()
+                metadata = {
+                    'file_name': content.name,
+                    'content_type': content.content_type,
+                    'columns': [item.title for item in column_definitions],
+                    **{k: v for k, v in template.dict().items() if k in ('name', 'description', 'eid')},
+                }
+                fs_handler.write(
+                    fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
+                    json.dumps(metadata),
+                )
+        except TypeError:
+            pass
+
 
 class TableResponse(Response[Table]):
     pass
