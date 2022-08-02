@@ -338,7 +338,16 @@ class Entity(BaseModel):
         log.error(&#39;Loading Entity: not implemented!&#39;)
 
     @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler):
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump Entity templates
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
         from signals_notebook.entities import EntityStore
 
         entity_type = cls._get_entity_type()
@@ -615,7 +624,16 @@ class Entity(BaseModel):
         log.error(&#39;Loading Entity: not implemented!&#39;)
 
     @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler):
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump Entity templates
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
         from signals_notebook.entities import EntityStore
 
         entity_type = cls._get_entity_type()
@@ -642,6 +660,7 @@ class Entity(BaseModel):
 <li><a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a></li>
 <li><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></li>
 <li><a title="signals_notebook.entities.samples.sample.Sample" href="samples/sample.html#signals_notebook.entities.samples.sample.Sample">Sample</a></li>
+<li><a title="signals_notebook.entities.tables.table.Table" href="tables/table.html#signals_notebook.entities.tables.table.Table">Table</a></li>
 <li><a title="signals_notebook.entities.todo_list.task.Task" href="todo_list/task.html#signals_notebook.entities.todo_list.task.Task">Task</a></li>
 </ul>
 <h3>Class variables</h3>
@@ -682,16 +701,33 @@ class Entity(BaseModel):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.entity.Entity.dump_templates"><code class="name flex">
-<span>def <span class="ident">dump_templates</span></span>(<span>base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>)</span>
+<span>def <span class="ident">dump_templates</span></span>(<span>base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Dump Entity templates</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>base_path</code></strong></dt>
+<dd>content path where create templates dump</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def dump_templates(cls, base_path: str, fs_handler: FSHandler):
+def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+    &#34;&#34;&#34;Dump Entity templates
+
+    Args:
+        base_path: content path where create templates dump
+        fs_handler: FSHandler
+
+    Returns:
+
+    &#34;&#34;&#34;
     from signals_notebook.entities import EntityStore
 
     entity_type = cls._get_entity_type()
