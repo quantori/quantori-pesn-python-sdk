@@ -42,6 +42,7 @@ class ObjectType(str, Enum):
     PLATE_ROW = 'plateRow'
     ATTRIBUTE_OPTION = 'option'
     CHOICE = 'choice'
+    SUB_EXPERIMENT = 'subexpSummaryRow'
 
 
 class EntityType(str, Enum):
