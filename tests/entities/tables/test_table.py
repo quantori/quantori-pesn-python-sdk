@@ -195,6 +195,37 @@ def properties():
     }
 
 
+@pytest.fixture()
+def templates():
+    return {
+        "links": {
+            "self": "https://ex.com/api/rest/v1.0/"
+            "entities?includeTypes=grid&includeOptions=template&page[offset]=0&page[limit]=20",
+            "first": "https://ex.com/api/rest/v1.0/"
+            "entities?includeTypes=grid&includeOptions=template&page[offset]=0&page[limit]=20",
+        },
+        "data": [
+            {
+                "type": "entity",
+                "id": "grid:58726e57-a998-46f5-8b9e-b4760210ce74",
+                "links": {"self": "https://ex.com/api/rest/v1.0/entities/grid:58726e57-a998-46f5-8b9e-b4760210ce74"},
+                "attributes": {
+                    "id": "grid:58726e57-a998-46f5-8b9e-b4760210ce74",
+                    "eid": "grid:58726e57-a998-46f5-8b9e-b4760210ce74",
+                    "name": "My Table Template 1 (SK)",
+                    "description": "",
+                    "createdAt": "2021-11-08T08:03:47.233Z",
+                    "editedAt": "2021-11-17T10:00:16.821Z",
+                    "type": "grid",
+                    "digest": "81353707",
+                    "fields": {"Description": {"value": ""}, "Name": {"value": "My Table Template 1 (SK)"}},
+                    "flags": {"canEdit": True},
+                },
+            },
+        ],
+    }
+
+
 def test_reload_data(api_mock, reload_data_response, table):
     api_mock.call.return_value.json.return_value = reload_data_response
 
@@ -636,9 +667,7 @@ def test_create_with_template_full_table(
     )
 
 
-def test_create_table_file(
-    api_mock, experiment_factory, eid_factory, table_json_content
-):
+def test_create_table_file(api_mock, experiment_factory, eid_factory, table_json_content):
     container = experiment_factory()
     eid = eid_factory(type=EntityType.UPLOADED_RESOURCE)
     content = json.loads(table_json_content)['data']
@@ -973,5 +1002,32 @@ def test_load_file(
     )
 
 
-def test_dump_templates(api_mock, mocker, column_definitions_response, templates, ):
-    pass
+def test_dump_templates(
+    api_mock, mocker, column_definitions_response, templates, get_response_object, reload_data_response
+):
+    template_eid = templates['data'][0]['id']
+    template_name = templates['data'][0]['attributes']['name']
+    entity_type = EntityType.GRID
+
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'file_name': f'{template_name}.json',
+        'content_type': Table.ContentType.JSON.value,
+        'columns': ['Column 1', 'Column 2'],
+        'eid': template_eid,
+        'name': template_name,
+        'description': '',
+    }
+
+    api_mock.call.side_effect = [
+        get_response_object(templates),
+        get_response_object(reload_data_response),
+        get_response_object(column_definitions_response),
+    ]
+    Table.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
+
+    fs_handler_mock.join_path.assert_called_once_with(
+        base_path, 'templates', entity_type, f'metadata_{template_name}.json'
+    )
+    fs_handler_mock.write.assert_called_once_with(fs_handler_mock.join_path(), json.dumps(metadata))
