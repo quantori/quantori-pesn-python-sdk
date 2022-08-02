@@ -161,6 +161,15 @@ class EntityStore:
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump all templates from system
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
 
         for item in Entity.get_subclasses():
             item.dump_templates(base_path, fs_handler)

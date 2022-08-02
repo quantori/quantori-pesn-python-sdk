@@ -102,6 +102,15 @@ class Container(Entity, abc.ABC):
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump Container templates
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
         from signals_notebook.entities import EntityStore
 
         entity_type = cls._get_entity_type()
@@ -111,7 +120,6 @@ class Container(Entity, abc.ABC):
         )
         try:
             for template in templates:
-                print(template)
                 template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
         except TypeError:
             pass

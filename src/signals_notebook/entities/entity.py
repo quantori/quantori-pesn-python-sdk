@@ -311,6 +311,15 @@ class Entity(BaseModel):
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump Entity templates
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
         from signals_notebook.entities import EntityStore
 
         entity_type = cls._get_entity_type()
