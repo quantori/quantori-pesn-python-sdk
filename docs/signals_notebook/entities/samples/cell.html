@@ -45,19 +45,48 @@ class SampleCellContent(GenericModel, Generic[CellValueType]):
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -&gt; None:
+        &#34;&#34;&#34;Set new value
+
+        Args:
+            new_value: new value for value field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.value = new_value
         self._changed = True
 
     def set_values(self, new_values: List[CellValueType]) -&gt; None:
+        &#34;&#34;&#34;Set new values
+
+        Args:
+            new_values: new list of values for values field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.values = new_values
         self._changed = True
 
     def set_name(self, new_name: str) -&gt; None:
+        &#34;&#34;&#34;Set new name
+
+        Args:
+            new_name: new name for name field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.name = new_name
         self._changed = True
 
     @property
     def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Get is_changed value
+
+        Returns:
+            bool: True/False
+        &#34;&#34;&#34;
         return self._changed
 
 
@@ -77,32 +106,81 @@ class SampleCell(BaseModel):
     content: SampleCellContent = Field(default=SampleCellContent())
 
     def set_content_value(self, new_value: CellValueType) -&gt; None:
+        &#34;&#34;&#34;Set new content value
+
+        Args:
+            new_value: new value of SampleCellContent value field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.content.set_value(new_value)
 
     def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
+        &#34;&#34;&#34;Set new content values
+
+        Args:
+            new_values: new list of values of SampleCellContent values field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.content.set_values(new_values)
 
     def set_content_name(self, new_name: str) -&gt; None:
+        &#34;&#34;&#34;Set new content name
+
+        Args:
+            new_name: new name of SampleCellContent name field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.content.set_name(new_name)
 
     @property
     def content_value(self) -&gt; Optional[CellValueType]:
+        &#34;&#34;&#34;Get content value
+
+        Returns:
+            Optional[CellValueType]
+        &#34;&#34;&#34;
         return self.content.value
 
     @property
     def content_values(self) -&gt; Optional[List[CellValueType]]:
+        &#34;&#34;&#34;Get content values
+
+        Returns:
+            Optional[List[CellValueType]]
+        &#34;&#34;&#34;
         return self.content.values
 
     @property
     def content_name(self) -&gt; Optional[str]:
+        &#34;&#34;&#34;Get content name
+
+        Returns:
+            Optional[str]
+        &#34;&#34;&#34;
         return self.content.name
 
     @property
     def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if SampleCell has been modified
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         return False if self.content is None else self.content.is_changed
 
     @property
     def representation_for_update(self) -&gt; SampleCellBody:
+        &#34;&#34;&#34;Get representation of body for update
+
+        Returns:
+            SampleCellBody
+        &#34;&#34;&#34;
         return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
 </details>
 </section>
@@ -159,32 +237,81 @@ class SampleCell(BaseModel):
     content: SampleCellContent = Field(default=SampleCellContent())
 
     def set_content_value(self, new_value: CellValueType) -&gt; None:
+        &#34;&#34;&#34;Set new content value
+
+        Args:
+            new_value: new value of SampleCellContent value field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.content.set_value(new_value)
 
     def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
+        &#34;&#34;&#34;Set new content values
+
+        Args:
+            new_values: new list of values of SampleCellContent values field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.content.set_values(new_values)
 
     def set_content_name(self, new_name: str) -&gt; None:
+        &#34;&#34;&#34;Set new content name
+
+        Args:
+            new_name: new name of SampleCellContent name field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.content.set_name(new_name)
 
     @property
     def content_value(self) -&gt; Optional[CellValueType]:
+        &#34;&#34;&#34;Get content value
+
+        Returns:
+            Optional[CellValueType]
+        &#34;&#34;&#34;
         return self.content.value
 
     @property
     def content_values(self) -&gt; Optional[List[CellValueType]]:
+        &#34;&#34;&#34;Get content values
+
+        Returns:
+            Optional[List[CellValueType]]
+        &#34;&#34;&#34;
         return self.content.values
 
     @property
     def content_name(self) -&gt; Optional[str]:
+        &#34;&#34;&#34;Get content name
+
+        Returns:
+            Optional[str]
+        &#34;&#34;&#34;
         return self.content.name
 
     @property
     def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Checking if SampleCell has been modified
+
+        Returns:
+            bool
+        &#34;&#34;&#34;
         return False if self.content is None else self.content.is_changed
 
     @property
     def representation_for_update(self) -&gt; SampleCellBody:
+        &#34;&#34;&#34;Get representation of body for update
+
+        Returns:
+            SampleCellBody
+        &#34;&#34;&#34;
         return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -211,61 +338,96 @@ class SampleCell(BaseModel):
 <dl>
 <dt id="signals_notebook.entities.samples.cell.SampleCell.content_name"><code class="name">var <span class="ident">content_name</span> : Optional[str]</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get content name</p>
+<h2 id="returns">Returns</h2>
+<p>Optional[str]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def content_name(self) -&gt; Optional[str]:
+    &#34;&#34;&#34;Get content name
+
+    Returns:
+        Optional[str]
+    &#34;&#34;&#34;
     return self.content.name</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.samples.cell.SampleCell.content_value"><code class="name">var <span class="ident">content_value</span> : Optional[~CellValueType]</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get content value</p>
+<h2 id="returns">Returns</h2>
+<p>Optional[CellValueType]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def content_value(self) -&gt; Optional[CellValueType]:
+    &#34;&#34;&#34;Get content value
+
+    Returns:
+        Optional[CellValueType]
+    &#34;&#34;&#34;
     return self.content.value</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.samples.cell.SampleCell.content_values"><code class="name">var <span class="ident">content_values</span> : Optional[List[~CellValueType]]</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get content values</p>
+<h2 id="returns">Returns</h2>
+<p>Optional[List[CellValueType]]</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def content_values(self) -&gt; Optional[List[CellValueType]]:
+    &#34;&#34;&#34;Get content values
+
+    Returns:
+        Optional[List[CellValueType]]
+    &#34;&#34;&#34;
     return self.content.values</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.samples.cell.SampleCell.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Checking if SampleCell has been modified</p>
+<h2 id="returns">Returns</h2>
+<p>bool</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def is_changed(self) -&gt; bool:
+    &#34;&#34;&#34;Checking if SampleCell has been modified
+
+    Returns:
+        bool
+    &#34;&#34;&#34;
     return False if self.content is None else self.content.is_changed</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.samples.cell.SampleCell.representation_for_update"><code class="name">var <span class="ident">representation_for_update</span> : <a title="signals_notebook.entities.samples.cell.SampleCellBody" href="#signals_notebook.entities.samples.cell.SampleCellBody">SampleCellBody</a></code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get representation of body for update</p>
+<h2 id="returns">Returns</h2>
+<p>SampleCellBody</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def representation_for_update(self) -&gt; SampleCellBody:
+    &#34;&#34;&#34;Get representation of body for update
+
+    Returns:
+        SampleCellBody
+    &#34;&#34;&#34;
     return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
 </details>
 </dd>
@@ -276,12 +438,26 @@ def representation_for_update(self) -&gt; SampleCellBody:
 <span>def <span class="ident">set_content_name</span></span>(<span>self, new_name: str) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set new content name</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_name</code></strong></dt>
+<dd>new name of SampleCellContent name field</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_content_name(self, new_name: str) -&gt; None:
+    &#34;&#34;&#34;Set new content name
+
+    Args:
+        new_name: new name of SampleCellContent name field
+
+    Returns:
+
+    &#34;&#34;&#34;
     self.content.set_name(new_name)</code></pre>
 </details>
 </dd>
@@ -289,12 +465,26 @@ def representation_for_update(self) -&gt; SampleCellBody:
 <span>def <span class="ident">set_content_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set new content value</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value of SampleCellContent value field</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_content_value(self, new_value: CellValueType) -&gt; None:
+    &#34;&#34;&#34;Set new content value
+
+    Args:
+        new_value: new value of SampleCellContent value field
+
+    Returns:
+
+    &#34;&#34;&#34;
     self.content.set_value(new_value)</code></pre>
 </details>
 </dd>
@@ -302,12 +492,26 @@ def representation_for_update(self) -&gt; SampleCellBody:
 <span>def <span class="ident">set_content_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set new content values</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_values</code></strong></dt>
+<dd>new list of values of SampleCellContent values field</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
+    &#34;&#34;&#34;Set new content values
+
+    Args:
+        new_values: new list of values of SampleCellContent values field
+
+    Returns:
+
+    &#34;&#34;&#34;
     self.content.set_values(new_values)</code></pre>
 </details>
 </dd>
@@ -369,19 +573,48 @@ def representation_for_update(self) -&gt; SampleCellBody:
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -&gt; None:
+        &#34;&#34;&#34;Set new value
+
+        Args:
+            new_value: new value for value field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.value = new_value
         self._changed = True
 
     def set_values(self, new_values: List[CellValueType]) -&gt; None:
+        &#34;&#34;&#34;Set new values
+
+        Args:
+            new_values: new list of values for values field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.values = new_values
         self._changed = True
 
     def set_name(self, new_name: str) -&gt; None:
+        &#34;&#34;&#34;Set new name
+
+        Args:
+            new_name: new name for name field
+
+        Returns:
+
+        &#34;&#34;&#34;
         self.name = new_name
         self._changed = True
 
     @property
     def is_changed(self) -&gt; bool:
+        &#34;&#34;&#34;Get is_changed value
+
+        Returns:
+            bool: True/False
+        &#34;&#34;&#34;
         return self._changed</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -414,13 +647,23 @@ def representation_for_update(self) -&gt; SampleCellBody:
 <dl>
 <dt id="signals_notebook.entities.samples.cell.SampleCellContent.is_changed"><code class="name">var <span class="ident">is_changed</span> : bool</code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get is_changed value</p>
+<h2 id="returns">Returns</h2>
+<dl>
+<dt><code>bool</code></dt>
+<dd>True/False</dd>
+</dl></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@property
 def is_changed(self) -&gt; bool:
+    &#34;&#34;&#34;Get is_changed value
+
+    Returns:
+        bool: True/False
+    &#34;&#34;&#34;
     return self._changed</code></pre>
 </details>
 </dd>
@@ -431,12 +674,26 @@ def is_changed(self) -&gt; bool:
 <span>def <span class="ident">set_name</span></span>(<span>self, new_name: str) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set new name</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_name</code></strong></dt>
+<dd>new name for name field</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_name(self, new_name: str) -&gt; None:
+    &#34;&#34;&#34;Set new name
+
+    Args:
+        new_name: new name for name field
+
+    Returns:
+
+    &#34;&#34;&#34;
     self.name = new_name
     self._changed = True</code></pre>
 </details>
@@ -445,12 +702,26 @@ def is_changed(self) -&gt; bool:
 <span>def <span class="ident">set_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set new value</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_value</code></strong></dt>
+<dd>new value for value field</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_value(self, new_value: CellValueType) -&gt; None:
+    &#34;&#34;&#34;Set new value
+
+    Args:
+        new_value: new value for value field
+
+    Returns:
+
+    &#34;&#34;&#34;
     self.value = new_value
     self._changed = True</code></pre>
 </details>
@@ -459,12 +730,26 @@ def is_changed(self) -&gt; bool:
 <span>def <span class="ident">set_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Set new values</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>new_values</code></strong></dt>
+<dd>new list of values for values field</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def set_values(self, new_values: List[CellValueType]) -&gt; None:
+    &#34;&#34;&#34;Set new values
+
+    Args:
+        new_values: new list of values for values field
+
+    Returns:
+
+    &#34;&#34;&#34;
     self.values = new_values
     self._changed = True</code></pre>
 </details>

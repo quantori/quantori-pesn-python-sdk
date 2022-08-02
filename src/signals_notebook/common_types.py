@@ -39,6 +39,9 @@ class ObjectType(str, Enum):
     PROFILE = 'profile'
     GROUP = 'group'
     ROLE = 'role'
+    PLATE_ROW = 'plateRow'
+    ATTRIBUTE_OPTION = 'option'
+    CHOICE = 'choice'
 
 
 class EntityType(str, Enum):
@@ -59,6 +62,8 @@ class EntityType(str, Enum):
     SPOTFIRE = 'spotfiredxp'
     TODO_LIST = 'linkedTaskContainer'
     TASK = 'task'
+    PLATE_CONTAINER = 'plateContainer'
+    MATERIAL_TABLE = 'materialsTable'
 
 
 class MaterialType(str, Enum):
