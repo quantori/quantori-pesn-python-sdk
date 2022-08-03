@@ -74,7 +74,12 @@ class Row(BaseModel):
         return self.cells.__iter__()
 
     @property
-    def representation_for_update(self):
+    def representation_for_update(self) -> List[Dict[str, str]]:
+        """Present Row object as a request body to update values
+
+        Returns:
+            list of changed cells
+        """
         changed_cells = []
         for cell in self.cells:
             if cell.is_changed:

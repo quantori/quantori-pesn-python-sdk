@@ -55,7 +55,7 @@ class SubExperimentSummary(ContentfulEntity):
             self._reload_cells()
         return self._rows.__iter__()
 
-    def _reload_cells(self):
+    def _reload_cells(self) -> None:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Reloading data in Table: %s...', self.eid)
 
@@ -77,9 +77,9 @@ class SubExperimentSummary(ContentfulEntity):
             self._rows.append(subexp_row)
             self._rows_by_id[subexp_row.id] = subexp_row
 
-    def _is_update_ready(self, update_id) -> bool:
+    def _is_update_ready(self, update_id: str) -> bool:
         api = SignalsNotebookApi.get_default_api()
-        # log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
+        log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
 
         response = api.call(
             method='GET',
@@ -88,6 +88,16 @@ class SubExperimentSummary(ContentfulEntity):
         return response.status_code == 200 and response.json()['data']['attributes']['jobStatus'] == 'SUCCESS'
 
     def save(self, force: bool = True, timeout: int = 30, period: int = 5) -> None:
+        """Save all changes in the table
+
+        Args:
+            force: Force to update properties without digest check.
+            timeout: max available time(seconds) to update table
+            period: each n seconds(default value=5) api call
+
+        Returns:
+
+        """
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []

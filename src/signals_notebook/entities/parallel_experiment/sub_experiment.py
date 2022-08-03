@@ -33,7 +33,7 @@ class _SubExperimentRequestPayload(EntityCreationRequestPayload[_SubExperimentRe
 
 class SubExperiment(Entity):
     type: Literal[EntityType.SUB_EXPERIMENT] = Field(allow_mutation=False)
-    # _template_name: ClassVar = 'chemical_drawing.html'
+    _template_name = 'sub_experiment.html'
 
     class Config:
         keep_untouched = (cached_property,)

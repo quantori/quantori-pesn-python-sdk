@@ -1,18 +1,15 @@
-from typing import Generic, Optional, TypeVar, Union
+from typing import Optional, Union
 
-from pydantic import PrivateAttr
-from pydantic.generics import GenericModel
-
-SubExperimentSummaryCellValueType = TypeVar('SubExperimentSummaryCellValueType')
+from pydantic import BaseModel, PrivateAttr
 
 
-class SubExperimentSummaryCell(GenericModel, Generic[SubExperimentSummaryCellValueType]):
+class SubExperimentSummaryCell(BaseModel):
     key: Optional[str]
     display: Optional[str]
     value: Optional[Union[str, int]]
     _changed: bool = PrivateAttr(default=False)
 
-    def set_value(self, new_value: SubExperimentSummaryCellValueType) -> None:
+    def set_value(self, new_value: Optional[Union[str, int]]) -> None:
         self.value = new_value
         self._changed = True
 
