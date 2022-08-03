@@ -10,6 +10,7 @@ from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.parallel_experiment.row import Row
+from signals_notebook.jinja_env import env
 
 log = logging.getLogger(__name__)
 
@@ -133,3 +134,20 @@ class SubExperimentSummary(ContentfulEntity):
             log.debug('Time is over to update fields')
 
         self._reload_cells()
+
+    def get_html(self) -> str:
+        """Get in HTML format
+
+        Returns:
+            Rendered HTML in string format
+        """
+        if not self._rows:
+            self._reload_cells()
+
+        table_head = []
+        if self._rows:
+            table_head = self._rows[0]
+        template = env.get_template(self._template_name)
+        log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
+
+        return template.render(name=self.name, table_head=table_head, rows=self._rows)
