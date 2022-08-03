@@ -128,10 +128,3 @@ class MaterialTableFactory(EntityFactory):
         model = MaterialsTable
 
     type = EntityType.MATERIAL_TABLE
-
-
-class ParallelExperimentFactory(EntityFactory):
-    class Meta:
-        model = ParallelExperiment
-
-    type = EntityType.PARALLEL_EXPERIMENT
