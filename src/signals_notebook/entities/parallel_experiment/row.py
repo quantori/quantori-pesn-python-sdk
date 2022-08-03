@@ -25,7 +25,7 @@ class RowRequestBody(BaseModel):
 
 class Row(BaseModel):
     id: Optional[Union[UUID, str]]
-    cells: Optional[List[SubExperimentSummaryCell]] = Field(alias='columns')
+    cells: List[SubExperimentSummaryCell] = Field(alias='columns')
     _cells_dict: Dict[Union[UUID, str], SubExperimentSummaryCell] = PrivateAttr(default={})
 
     class Config:
@@ -37,7 +37,7 @@ class Row(BaseModel):
         for cell in self.cells:
             self._cells_dict[cell.key] = cell
 
-    def get(self, value: Union[str, UUID], default: Any = None) -> Union[SubExperimentSummaryCell, Any]:
+    def get(self, value: str, default: Any = None) -> Union[SubExperimentSummaryCell, Any]:
         """Get one of the cells
 
         Args:

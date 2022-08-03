@@ -1,7 +1,7 @@
 import json
 import logging
 import time
-from typing import cast, Dict, List, Literal, Union
+from typing import Any, cast, Dict, List, Literal, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
@@ -144,7 +144,7 @@ class SubExperimentSummary(ContentfulEntity):
         if not self._rows:
             self._reload_cells()
 
-        table_head = []
+        table_head = None
         if self._rows:
             table_head = self._rows[0]
         template = env.get_template(self._template_name)

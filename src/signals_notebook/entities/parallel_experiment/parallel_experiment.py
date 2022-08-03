@@ -106,13 +106,13 @@ class ParallelExperiment(Container):
             request=request,
         )
 
-    def get_children(self) -> Generator[Entity, None, None]:
+    def get_children(self, order='') -> Generator[Entity, None, None]:
         """Get children of SubExperiment.
 
         Returns:
             list of Entities
         """
-        return super().get_children(order='')
+        return super().get_children(order=order)
 
     def get_html(self) -> str:
         """Get in HTML format

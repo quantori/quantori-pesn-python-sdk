@@ -48,13 +48,13 @@ class SubExperiment(Container):
     def _get_entity_type(cls) -> EntityType:
         return EntityType.SUB_EXPERIMENT
 
-    def get_children(self) -> Generator[Entity, None, None]:
+    def get_children(self, order='') -> Generator[Entity, None, None]:
         """Get children of SubExperiment.
 
         Returns:
             list of Entities
         """
-        return super().get_children(order='')
+        return super().get_children(order=order)
 
     @classmethod
     def create(
