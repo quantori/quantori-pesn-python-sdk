@@ -170,7 +170,6 @@ class EntityStore:
         Returns:
 
         """
-        from signals_notebook.entities import Experiment, Table
 
         for item in Entity.get_subclasses():
             item.dump_templates(base_path, fs_handler)
