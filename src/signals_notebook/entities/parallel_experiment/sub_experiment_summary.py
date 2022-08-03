@@ -1,4 +1,6 @@
+import json
 import logging
+import time
 from typing import cast, Literal, Union, List, Dict
 from uuid import UUID
 from pydantic import Field, PrivateAttr
@@ -74,26 +76,49 @@ class SubExperimentSummary(ContentfulEntity):
             self._rows.append(subexp_row)
             self._rows_by_id[subexp_row.id] = subexp_row
 
-    # def save(self, force: bool = True) -> None:
-    #     api = SignalsNotebookApi.get_default_api()
-    #
-    #     request_body = []
-    #     for item in self._cells:
-    #         if item.is_changed:
-    #             request_body.append(item.representation_for_update.dict(exclude_none=True))
-    #
-    #     if not request_body:
-    #         return
-    #
-    #     api.call(
-    #         method='PATCH',
-    #         path=(self._get_samples_endpoint(), self.eid, 'properties'),
-    #         params={
-    #             'force': json.dumps(force),
-    #             'value': 'normalized',
-    #         },
-    #         json={
-    #             'data': {'attributes': {'data': request_body}},
-    #         },
-    #     )
-    #     self._reload_cells()
+    def _is_update_ready(self, update_id) -> bool:
+        api = SignalsNotebookApi.get_default_api()
+        # log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'bulkUpdate', update_id),
+        )
+        return response.status_code == 200 and response.json()['data']['attributes']['jobStatus'] == 'SUCCESS'
+
+    def save(self, force: bool = True, timeout: int = 30, period: int = 5) -> None:
+        api = SignalsNotebookApi.get_default_api()
+
+        request_body = []
+        for item in self._rows:
+            if item.is_changed:
+                request_body.extend(item.representation_for_update)
+
+        if not request_body:
+            return
+
+        update_response = api.call(
+            method='PATCH',
+            path=(self._get_endpoint(), self.eid, 'bulkUpdate'),
+            params={
+                'force': json.dumps(force),
+            },
+            json={
+                'data': request_body,
+            },
+        )
+        bulk_update_id = update_response.json()['data']['attributes']['bulkUpdateId']
+
+        response = None
+        initial_time = time.time()
+        while time.time() - initial_time < timeout:
+            if self._is_update_ready(str(bulk_update_id)):
+                response = True
+                break
+            else:
+                time.sleep(period)
+
+        if not response:
+            log.debug('Time is over to update fields')
+
+        self._reload_cells()

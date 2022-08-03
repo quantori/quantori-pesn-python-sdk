@@ -1,12 +1,26 @@
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Union, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
 
+from signals_notebook.common_types import ObjectType
 from signals_notebook.entities.parallel_experiment.cell import SubExperimentSummaryCell
 
 log = logging.getLogger(__name__)
+
+
+class Content(BaseModel):
+    columns: Optional[dict]
+
+
+class RowRequestBody(BaseModel):
+    id: Optional[Union[UUID, str]]
+    type: Literal[ObjectType.SUB_EXPERIMENT] = Field(allow_mutation=False, default=ObjectType.SUB_EXPERIMENT)
+    attributes: Content
+
+    class Config:
+        validate_assignment = True
 
 
 class Row(BaseModel):
@@ -58,3 +72,18 @@ class Row(BaseModel):
 
     def __iter__(self):
         return self.cells.__iter__()
+
+    @property
+    def representation_for_update(self):
+        changed_cells = []
+        for cell in self.cells:
+            if cell.is_changed:
+                body = RowRequestBody(
+                    id=str(self.id),
+                    attributes=Content(
+                        columns=cell.representation_for_update
+                    )
+                )
+                changed_cells.append(body.dict())
+
+        return changed_cells
