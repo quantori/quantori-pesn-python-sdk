@@ -1,10 +1,7 @@
-from typing import Generic, List, Optional, TypeVar, Union
-from uuid import UUID
+from typing import Generic, Optional, TypeVar, Union
 
-from pydantic import BaseModel, Field, PrivateAttr
+from pydantic import PrivateAttr
 from pydantic.generics import GenericModel
-
-from signals_notebook.common_types import EID, ObjectType
 
 SubExperimentSummaryCellValueType = TypeVar('SubExperimentSummaryCellValueType')
 
@@ -17,10 +14,6 @@ class SubExperimentSummaryCell(GenericModel, Generic[SubExperimentSummaryCellVal
 
     def set_value(self, new_value: SubExperimentSummaryCellValueType) -> None:
         self.value = new_value
-        self._changed = True
-
-    def set_name(self, new_name: str) -> None:
-        self.name = new_name
         self._changed = True
 
     @property
