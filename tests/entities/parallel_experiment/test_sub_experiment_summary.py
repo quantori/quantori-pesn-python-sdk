@@ -1,6 +1,7 @@
 import json
-from uuid import UUID
 import os
+from uuid import UUID
+
 import pytest
 
 from signals_notebook.common_types import EntityType
@@ -66,36 +67,36 @@ def test_save(
     subexp_sum_eid = eid_factory(type=EntityType.SUB_EXPERIMENT_SUMMARY)
 
     update_response = {
-        "links": {"self": "https://example.com/subexpSummary/paragrid:3f46e915-cf66-4957-abb0-1566861c7760/bulkUpdate"},
-        "data": {
-            "type": "bulkUpdateParagrid",
-            "id": subexp_sum_eid,
-            "attributes": {
-                "subexpSummaryId": subexp_sum_eid,
-                "bulkUpdateId": 20,
-                "description": "We have created a job to execute it. Follow the status link to check the status.",
+        'links': {'self': 'https://example.com/subexpSummary/paragrid:3f46e915-cf66-4957-abb0-1566861c7760/bulkUpdate'},
+        'data': {
+            'type': 'bulkUpdateParagrid',
+            'id': subexp_sum_eid,
+            'attributes': {
+                'subexpSummaryId': subexp_sum_eid,
+                'bulkUpdateId': 20,
+                'description': 'We have created a job to execute it. Follow the status link to check the status.',
             },
-            "relationships": {
-                "status": {
-                    "links": {"self": f"https://example.com/subexpSummary/{subexp_sum_eid}/bulkUpdate/20"},
-                    "data": {"type": "subexpSummaryBulkUpdateReport", "id": "20"},
+            'relationships': {
+                'status': {
+                    'links': {'self': f'https://example.com/subexpSummary/{subexp_sum_eid}/bulkUpdate/20'},
+                    'data': {'type': 'subexpSummaryBulkUpdateReport', 'id': '20'},
                 }
             },
         },
     }
     update_status_response = {
-        "links": {"self": f"https://example.com/subexpSummary/{subexp_sum_eid}/20"},
-        "data": {
-            "type": "subexpSummaryBulkUpdateReport",
-            "id": "20",
-            "links": {"self": f"https://example.com/subexpSummary/{subexp_sum_eid}/bulkUpdate/20"},
-            "attributes": {
-                "bulkUpdateId": 20,
-                "subexpSummaryId": subexp_sum_eid,
-                "jobType": "ASYNC_TASK",
-                "state": "SCHEDULED",
-                "jobStatus": "SUCCESS",
-                "digest": "B7wcvn7GJZFeXh9APOvdhnutfnP9fWufdIlyhDX/GmWBC/dztZMTsXXLthSF2sB8BNQ80q63Tgj0s6HeOBSX1A==",
+        'links': {'self': f'https://example.com/subexpSummary/{subexp_sum_eid}/20'},
+        'data': {
+            'type': 'subexpSummaryBulkUpdateReport',
+            'id': '20',
+            'links': {'self': f'https://example.com/subexpSummary/{subexp_sum_eid}/bulkUpdate/20'},
+            'attributes': {
+                'bulkUpdateId': 20,
+                'subexpSummaryId': subexp_sum_eid,
+                'jobType': 'ASYNC_TASK',
+                'state': 'SCHEDULED',
+                'jobStatus': 'SUCCESS',
+                'digest': 'B7wcvn7GJZFeXh9APOvdhnutfnP9fWufdIlyhDX/GmWBC/dztZMTsXXLthSF2sB8BNQ80q63Tgj0s6HeOBSX1A==',
             },
         },
     }
@@ -105,7 +106,7 @@ def test_save(
 
     api_mock.call.return_value.json.return_value = reload_data_response
 
-    sub_experiment_summary[0]["p1:name"].set_value('Updated Text 1')
+    sub_experiment_summary[0]['p1:name'].set_value('Updated Text 1')
 
     api_mock.call.side_effect = [
         get_response(update_response),

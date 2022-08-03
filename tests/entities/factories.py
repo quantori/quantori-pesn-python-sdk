@@ -10,7 +10,6 @@ from signals_notebook.entities import (
     Image,
     MaterialsTable,
     Notebook,
-    ParallelExperiment,
     PowerPoint,
     Spotfire,
     Text,

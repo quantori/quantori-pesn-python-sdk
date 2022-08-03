@@ -1,12 +1,9 @@
-import json
-from uuid import UUID
-
 import arrow
 import pytest
 
 from signals_notebook.common_types import EntityType, ObjectType
+from signals_notebook.entities import ChemicalDrawing, SubExperimentSummary, Text
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
-from signals_notebook.entities import ChemicalDrawing, Entity, Text, SubExperimentSummary
 
 
 @pytest.fixture()

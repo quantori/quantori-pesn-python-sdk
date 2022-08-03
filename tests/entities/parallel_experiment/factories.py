@@ -1,9 +1,9 @@
 from signals_notebook.common_types import EntityType
-from signals_notebook.entities.parallel_experiment.sub_experiment import SubExperiment
-from signals_notebook.entities.parallel_experiment.sub_experiment_summary import SubExperimentSummary
 from signals_notebook.entities.parallel_experiment.cell import SubExperimentSummaryCell
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
 from signals_notebook.entities.parallel_experiment.row import Row
+from signals_notebook.entities.parallel_experiment.sub_experiment import SubExperiment
+from signals_notebook.entities.parallel_experiment.sub_experiment_summary import SubExperimentSummary
 from tests.entities.factories import EntityFactory
 
 
