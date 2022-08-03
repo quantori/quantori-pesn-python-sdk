@@ -78,7 +78,7 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
 class ParallelExperiment(Container):
     type: Literal[EntityType.PARALLEL_EXPERIMENT] = Field(allow_mutation=False)
     state: Optional[ParaExperimentState] = Field(allow_mutation=False, default=None)
-    _template_name: ClassVar = &#39;para_experiment.html&#39;
+    _template_name: ClassVar = &#39;parallel_experiment.html&#39;
 
     class Config:
         keep_untouched = (cached_property,)
@@ -179,6 +179,7 @@ class ParallelExperiment(Container):
             &#39;state&#39;: self.state,
             &#39;children&#39;: self.get_children(),
         }
+
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
@@ -272,7 +273,7 @@ class ParallelExperiment(Container):
 <pre><code class="python">class ParallelExperiment(Container):
     type: Literal[EntityType.PARALLEL_EXPERIMENT] = Field(allow_mutation=False)
     state: Optional[ParaExperimentState] = Field(allow_mutation=False, default=None)
-    _template_name: ClassVar = &#39;para_experiment.html&#39;
+    _template_name: ClassVar = &#39;parallel_experiment.html&#39;
 
     class Config:
         keep_untouched = (cached_property,)
@@ -373,6 +374,7 @@ class ParallelExperiment(Container):
             &#39;state&#39;: self.state,
             &#39;children&#39;: self.get_children(),
         }
+
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
@@ -548,6 +550,7 @@ def create(
         &#39;state&#39;: self.state,
         &#39;children&#39;: self.get_children(),
     }
+
     template = env.get_template(self._template_name)
     log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 

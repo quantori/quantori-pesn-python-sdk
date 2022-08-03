@@ -28,12 +28,14 @@
 </summary>
 <pre><code class="python">import logging
 from functools import cached_property
-from typing import Literal, Optional
+from typing import cast, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
+from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Response, ResponseData, Template
 from signals_notebook.entities import Entity
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
 from signals_notebook.jinja_env import env
 
@@ -59,7 +61,7 @@ class _SubExperimentRequestPayload(EntityCreationRequestPayload[_SubExperimentRe
     pass
 
 
-class SubExperiment(Entity):
+class SubExperiment(Container):
     type: Literal[EntityType.SUB_EXPERIMENT] = Field(allow_mutation=False)
     _template_name = &#39;sub_experiment.html&#39;
 
@@ -69,6 +71,35 @@ class SubExperiment(Entity):
     @classmethod
     def _get_entity_type(cls) -&gt; EntityType:
         return EntityType.SUB_EXPERIMENT
+
+    def get_children(self) -&gt; Generator[Entity, None, None]:
+        &#34;&#34;&#34;Get children of SubExperiment.
+
+        Returns:
+            list of Entities
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Get children for: %s&#39;, self.eid)
+
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), self.eid, &#39;children&#39;),
+        )
+
+        entity_classes = (*Entity.get_subclasses(), Entity)
+
+        result = Response[Union[entity_classes]](**response.json())  # type: ignore
+
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+        while result.links and result.links.next:
+            response = api.call(
+                method=&#39;GET&#39;,
+                path=result.links.next,
+            )
+
+            result = Response[Union[entity_classes]](**response.json())  # type: ignore
+            yield from [cast(ResponseData, item).body for item in result.data]
 
     @classmethod
     def create(
@@ -102,23 +133,23 @@ class SubExperiment(Entity):
             request=request,
         )
 
+    def get_html(self) -&gt; str:
+        &#34;&#34;&#34;Get in HTML format
 
-    # def get_html(self) -&gt; str:
-    #     &#34;&#34;&#34;Get in HTML format
-    #
-    #     Returns:
-    #         Rendered template as a string
-    #     &#34;&#34;&#34;
-    #     data = {&#39;name&#39;: self.name, &#39;stoichiometry&#39;: {}}
-    #     file = self.get_content(format=ChemicalDrawingFormat.SVG)
-    #     data[&#39;svg&#39;] = &#39;data:{};base64,{}&#39;.format(file.content_type, file.base64.decode(&#39;ascii&#39;))
-    #     if isinstance(self.stoichiometry, Stoichiometry):
-    #         data[&#39;stoichiometry_html&#39;] = self.stoichiometry.get_html()
-    #
-    #     template = env.get_template(self._template_name)
-    #     log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
-    #
-    #     return template.render(data=data)</code></pre>
+        Returns:
+            Rendered template as a string
+        &#34;&#34;&#34;
+        data = {
+            &#39;title&#39;: self.name,
+            &#39;description&#39;: self.description,
+            &#39;edited_at&#39;: self.edited_at,
+            &#39;children&#39;: self.get_children(),
+        }
+
+        template = env.get_template(self._template_name)
+        log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
+        return template.render(data=data)</code></pre>
 </details>
 </section>
 <section>
@@ -174,7 +205,7 @@ class SubExperiment(Entity):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class SubExperiment(Entity):
+<pre><code class="python">class SubExperiment(Container):
     type: Literal[EntityType.SUB_EXPERIMENT] = Field(allow_mutation=False)
     _template_name = &#39;sub_experiment.html&#39;
 
@@ -184,6 +215,35 @@ class SubExperiment(Entity):
     @classmethod
     def _get_entity_type(cls) -&gt; EntityType:
         return EntityType.SUB_EXPERIMENT
+
+    def get_children(self) -&gt; Generator[Entity, None, None]:
+        &#34;&#34;&#34;Get children of SubExperiment.
+
+        Returns:
+            list of Entities
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Get children for: %s&#39;, self.eid)
+
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_endpoint(), self.eid, &#39;children&#39;),
+        )
+
+        entity_classes = (*Entity.get_subclasses(), Entity)
+
+        result = Response[Union[entity_classes]](**response.json())  # type: ignore
+
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+        while result.links and result.links.next:
+            response = api.call(
+                method=&#39;GET&#39;,
+                path=result.links.next,
+            )
+
+            result = Response[Union[entity_classes]](**response.json())  # type: ignore
+            yield from [cast(ResponseData, item).body for item in result.data]
 
     @classmethod
     def create(
@@ -215,13 +275,33 @@ class SubExperiment(Entity):
             digest=digest,
             force=force,
             request=request,
-        )</code></pre>
+        )
+
+    def get_html(self) -&gt; str:
+        &#34;&#34;&#34;Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        &#34;&#34;&#34;
+        data = {
+            &#39;title&#39;: self.name,
+            &#39;description&#39;: self.description,
+            &#39;edited_at&#39;: self.edited_at,
+            &#39;children&#39;: self.get_children(),
+        }
+
+        template = env.get_template(self._template_name)
+        log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
+        return template.render(data=data)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
+<li><a title="signals_notebook.entities.container.Container" href="../container.html#signals_notebook.entities.container.Container">Container</a></li>
 <li><a title="signals_notebook.entities.entity.Entity" href="../entity.html#signals_notebook.entities.entity.Entity">Entity</a></li>
 <li>pydantic.main.BaseModel</li>
 <li>pydantic.utils.Representation</li>
+<li>abc.ABC</li>
 </ul>
 <h3>Class variables</h3>
 <dl>
@@ -279,19 +359,93 @@ def create(
 </details>
 </dd>
 </dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_children"><code class="name flex">
+<span>def <span class="ident">get_children</span></span>(<span>self) ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="../entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get children of SubExperiment.</p>
+<h2 id="returns">Returns</h2>
+<p>list of Entities</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_children(self) -&gt; Generator[Entity, None, None]:
+    &#34;&#34;&#34;Get children of SubExperiment.
+
+    Returns:
+        list of Entities
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    log.debug(&#39;Get children for: %s&#39;, self.eid)
+
+    response = api.call(
+        method=&#39;GET&#39;,
+        path=(self._get_endpoint(), self.eid, &#39;children&#39;),
+    )
+
+    entity_classes = (*Entity.get_subclasses(), Entity)
+
+    result = Response[Union[entity_classes]](**response.json())  # type: ignore
+
+    yield from [cast(ResponseData, item).body for item in result.data]
+
+    while result.links and result.links.next:
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=result.links.next,
+        )
+
+        result = Response[Union[entity_classes]](**response.json())  # type: ignore
+        yield from [cast(ResponseData, item).body for item in result.data]</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_html"><code class="name flex">
+<span>def <span class="ident">get_html</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get in HTML format</p>
+<h2 id="returns">Returns</h2>
+<p>Rendered template as a string</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_html(self) -&gt; str:
+    &#34;&#34;&#34;Get in HTML format
+
+    Returns:
+        Rendered template as a string
+    &#34;&#34;&#34;
+    data = {
+        &#39;title&#39;: self.name,
+        &#39;description&#39;: self.description,
+        &#39;edited_at&#39;: self.edited_at,
+        &#39;children&#39;: self.get_children(),
+    }
+
+    template = env.get_template(self._template_name)
+    log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
+    return template.render(data=data)</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="signals_notebook.entities.entity.Entity" href="../entity.html#signals_notebook.entities.entity.Entity">Entity</a></b></code>:
+<li><code><b><a title="signals_notebook.entities.container.Container" href="../container.html#signals_notebook.entities.container.Container">Container</a></b></code>:
 <ul class="hlist">
-<li><code><a title="signals_notebook.entities.entity.Entity.delete" href="../entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.get_html" href="../entity.html#signals_notebook.entities.entity.Entity.get_html">get_html</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.get_list" href="../entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.get_subclasses" href="../entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.get_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.refresh" href="../entity.html#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.save" href="../entity.html#signals_notebook.entities.entity.Entity.save">save</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.set_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.short_description" href="../entity.html#signals_notebook.entities.entity.Entity.short_description">short_description</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.add_child" href="../container.html#signals_notebook.entities.container.Container.add_child">add_child</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.delete" href="../entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.get_list" href="../entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.get_subclasses" href="../entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.get_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.refresh" href="../entity.html#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.save" href="../entity.html#signals_notebook.entities.entity.Entity.save">save</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.set_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.short_description" href="../entity.html#signals_notebook.entities.entity.Entity.short_description">short_description</a></code></li>
 </ul>
 </li>
 </ul>
@@ -324,6 +478,8 @@ def create(
 <ul class="">
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.Config" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.Config">Config</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.create" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.create">create</a></code></li>
+<li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_children" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_children">get_children</a></code></li>
+<li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_html" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.type" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.type">type</a></code></li>
 </ul>
 </li>
