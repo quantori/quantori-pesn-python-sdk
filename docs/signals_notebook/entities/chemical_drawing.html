@@ -39,6 +39,7 @@ from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -131,7 +132,31 @@ class ChemicalDrawing(ContentfulEntity):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(data=data)</code></pre>
+        return template.render(data=data)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump ChemicalDrawing templates
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+        try:
+            for template in templates:
+                template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+        except TypeError:
+            pass</code></pre>
 </details>
 </section>
 <section>
@@ -242,7 +267,31 @@ class ChemicalDrawing(ContentfulEntity):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(data=data)</code></pre>
+        return template.render(data=data)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump ChemicalDrawing templates
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+        try:
+            for template in templates:
+                template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+        except TypeError:
+            pass</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -320,6 +369,48 @@ def create(
         content_type=content_type,
         force=force,
     )</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump_templates"><code class="name flex">
+<span>def <span class="ident">dump_templates</span></span>(<span>base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dump ChemicalDrawing templates</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>base_path</code></strong></dt>
+<dd>content path where create templates dump</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+    &#34;&#34;&#34;Dump ChemicalDrawing templates
+
+    Args:
+        base_path: content path where create templates dump
+        fs_handler: FSHandler
+
+    Returns:
+
+    &#34;&#34;&#34;
+    from signals_notebook.entities import EntityStore
+
+    entity_type = cls._get_entity_type()
+
+    templates = EntityStore.get_list(
+        include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+    )
+    try:
+        for template in templates:
+            template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+    except TypeError:
+        pass</code></pre>
 </details>
 </dd>
 </dl>
@@ -435,9 +526,10 @@ def create(
 <ul>
 <li>
 <h4><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing">ChemicalDrawing</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.Config" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.Config">Config</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.create" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.create">create</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump_templates" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.get_content" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.get_content">get_content</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.stoichiometry" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.stoichiometry">stoichiometry</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.type" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.type">type</a></code></li>
