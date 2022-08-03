@@ -9,6 +9,7 @@ from tests.entities.factories import (
     ExcelFactory,
     ExperimentFactory,
     ImageFactory,
+    MaterialTableFactory,
     NotebookFactory,
     PowerPointFactory,
     SpotfireFactory,
@@ -16,6 +17,7 @@ from tests.entities.factories import (
     UploadedResourceFactory,
     WordFactory,
 )
+from tests.entities.plates.factories import PlateContainerFactory
 from tests.entities.samples.factories import (
     SampleCellFactory,
     SampleFactory,
@@ -47,6 +49,8 @@ register(TodoListFactory)
 register(TaskFactory)
 register(TaskCellFactory)
 register(UploadedResourceFactory)
+register(PlateContainerFactory)
+register(MaterialTableFactory)
 
 
 @pytest.fixture()

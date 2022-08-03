@@ -27,6 +27,7 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import json
+import logging
 from typing import cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
@@ -47,6 +48,8 @@ from signals_notebook.entities.samples.cell import SampleCell
 
 if TYPE_CHECKING:
     from signals_notebook.entities import SamplesContainer
+
+log = logging.getLogger(__name__)
 
 
 class _SampleAttributes(BaseModel):
@@ -109,6 +112,7 @@ class Sample(Entity):
         return &#39;samples&#39;
 
     def _reload_cells(self) -&gt; None:
+        log.debug(&#39;Reloading cells for Sample: %s...&#39;, self.eid)
         self._cells = []
         self._cells_by_id = {}
 
@@ -129,8 +133,18 @@ class Sample(Entity):
 
             self._cells.append(sample_cell)
             self._cells_by_id[sample_cell.id] = sample_cell
+        log.debug(&#39;Cells for Sample: %s were reloaded&#39;, self.eid)
 
     def save(self, force: bool = True) -&gt; None:
+        &#34;&#34;&#34;Save Sample.
+
+        Args:
+            force: Force to update content without doing digest check.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        log.debug(&#39;Saving Sample: %s...&#39;, self.eid)
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
@@ -153,6 +167,7 @@ class Sample(Entity):
             },
         )
         self._reload_cells()
+        log.debug(&#39;Sample: %s were saved successfully.&#39;, self.eid)
 
     @classmethod
     def create(
@@ -164,6 +179,22 @@ class Sample(Entity):
         digest: str = None,
         force: bool = True,
     ) -&gt; &#39;Sample&#39;:
+        &#34;&#34;&#34;Create Sample Entity
+
+        Args:
+            cells: Sample&#39;s data
+            template: template for Sample creation
+            ancestors: Container or SamplesContainer where create new Sample
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+                If the parameter &#39;force&#39; is true, this parameter is optional.
+                If the parameter &#39;force&#39; is false, this parameter is required.
+            force: Force to create without doing digest check
+
+        Returns:
+            Sample
+        &#34;&#34;&#34;
+        log.debug(&#39;Create Sample: %s &#39;, cls.__name__)
+
         relationships = None
         if template or ancestors:
             relationships = _SampleRelationships(
@@ -311,6 +342,7 @@ class Sample(Entity):
         return &#39;samples&#39;
 
     def _reload_cells(self) -&gt; None:
+        log.debug(&#39;Reloading cells for Sample: %s...&#39;, self.eid)
         self._cells = []
         self._cells_by_id = {}
 
@@ -331,8 +363,18 @@ class Sample(Entity):
 
             self._cells.append(sample_cell)
             self._cells_by_id[sample_cell.id] = sample_cell
+        log.debug(&#39;Cells for Sample: %s were reloaded&#39;, self.eid)
 
     def save(self, force: bool = True) -&gt; None:
+        &#34;&#34;&#34;Save Sample.
+
+        Args:
+            force: Force to update content without doing digest check.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        log.debug(&#39;Saving Sample: %s...&#39;, self.eid)
         api = SignalsNotebookApi.get_default_api()
 
         request_body = []
@@ -355,6 +397,7 @@ class Sample(Entity):
             },
         )
         self._reload_cells()
+        log.debug(&#39;Sample: %s were saved successfully.&#39;, self.eid)
 
     @classmethod
     def create(
@@ -366,6 +409,22 @@ class Sample(Entity):
         digest: str = None,
         force: bool = True,
     ) -&gt; &#39;Sample&#39;:
+        &#34;&#34;&#34;Create Sample Entity
+
+        Args:
+            cells: Sample&#39;s data
+            template: template for Sample creation
+            ancestors: Container or SamplesContainer where create new Sample
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+                If the parameter &#39;force&#39; is true, this parameter is optional.
+                If the parameter &#39;force&#39; is false, this parameter is required.
+            force: Force to create without doing digest check
+
+        Returns:
+            Sample
+        &#34;&#34;&#34;
+        log.debug(&#39;Create Sample: %s &#39;, cls.__name__)
+
         relationships = None
         if template or ancestors:
             relationships = _SampleRelationships(
@@ -406,7 +465,24 @@ class Sample(Entity):
 <span>def <span class="ident">create</span></span>(<span>*, cells: Optional[List[<a title="signals_notebook.entities.samples.cell.SampleCell" href="cell.html#signals_notebook.entities.samples.cell.SampleCell">SampleCell</a>]] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a>')] = None, ancestors: Optional[List[Union[<a title="signals_notebook.entities.container.Container" href="../container.html#signals_notebook.entities.container.Container">Container</a>, ForwardRef('SamplesContainer')]]] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a></span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Create Sample Entity</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>cells</code></strong></dt>
+<dd>Sample's data</dd>
+<dt><strong><code>template</code></strong></dt>
+<dd>template for Sample creation</dd>
+<dt><strong><code>ancestors</code></strong></dt>
+<dd>Container or SamplesContainer where create new Sample</dd>
+<dt><strong><code>digest</code></strong></dt>
+<dd>Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+If the parameter 'force' is true, this parameter is optional.
+If the parameter 'force' is false, this parameter is required.</dd>
+<dt><strong><code>force</code></strong></dt>
+<dd>Force to create without doing digest check</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Sample</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -421,6 +497,22 @@ def create(
     digest: str = None,
     force: bool = True,
 ) -&gt; &#39;Sample&#39;:
+    &#34;&#34;&#34;Create Sample Entity
+
+    Args:
+        cells: Sample&#39;s data
+        template: template for Sample creation
+        ancestors: Container or SamplesContainer where create new Sample
+        digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+            If the parameter &#39;force&#39; is true, this parameter is optional.
+            If the parameter &#39;force&#39; is false, this parameter is required.
+        force: Force to create without doing digest check
+
+    Returns:
+        Sample
+    &#34;&#34;&#34;
+    log.debug(&#39;Create Sample: %s &#39;, cls.__name__)
+
     relationships = None
     if template or ancestors:
         relationships = _SampleRelationships(
@@ -444,17 +536,70 @@ def create(
 </details>
 </dd>
 </dl>
+<h3>Methods</h3>
+<dl>
+<dt id="signals_notebook.entities.samples.sample.Sample.save"><code class="name flex">
+<span>def <span class="ident">save</span></span>(<span>self, force: bool = True) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Save Sample.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>force</code></strong></dt>
+<dd>Force to update content without doing digest check.</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def save(self, force: bool = True) -&gt; None:
+    &#34;&#34;&#34;Save Sample.
+
+    Args:
+        force: Force to update content without doing digest check.
+
+    Returns:
+
+    &#34;&#34;&#34;
+    log.debug(&#39;Saving Sample: %s...&#39;, self.eid)
+    api = SignalsNotebookApi.get_default_api()
+
+    request_body = []
+    for item in self._cells:
+        if item.is_changed:
+            request_body.append(item.representation_for_update.dict(exclude_none=True))
+
+    if not request_body:
+        return
+
+    api.call(
+        method=&#39;PATCH&#39;,
+        path=(self._get_samples_endpoint(), self.eid, &#39;properties&#39;),
+        params={
+            &#39;force&#39;: json.dumps(force),
+            &#39;value&#39;: &#39;normalized&#39;,
+        },
+        json={
+            &#39;data&#39;: {&#39;attributes&#39;: {&#39;data&#39;: request_body}},
+        },
+    )
+    self._reload_cells()
+    log.debug(&#39;Sample: %s were saved successfully.&#39;, self.eid)</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
 <li><code><b><a title="signals_notebook.entities.entity.Entity" href="../entity.html#signals_notebook.entities.entity.Entity">Entity</a></b></code>:
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.entity.Entity.delete" href="../entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
+<li><code><a title="signals_notebook.entities.entity.Entity.dump_templates" href="../entity.html#signals_notebook.entities.entity.Entity.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_html" href="../entity.html#signals_notebook.entities.entity.Entity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_list" href="../entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_subclasses" href="../entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.refresh" href="../entity.html#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.save" href="../entity.html#signals_notebook.entities.entity.Entity.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.set_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.short_description" href="../entity.html#signals_notebook.entities.entity.Entity.short_description">short_description</a></code></li>
 </ul>
@@ -531,6 +676,7 @@ def create(
 <h4><code><a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.entities.samples.sample.Sample.create" href="#signals_notebook.entities.samples.sample.Sample.create">create</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.sample.Sample.save" href="#signals_notebook.entities.samples.sample.Sample.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.sample.Sample.type" href="#signals_notebook.entities.samples.sample.Sample.type">type</a></code></li>
 </ul>
 </li>

@@ -189,6 +189,15 @@ class EntityStore:
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump all templates from system
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
 
         for item in Entity.get_subclasses():
             item.dump_templates(base_path, fs_handler)</code></pre>
@@ -361,6 +370,15 @@ class EntityStore:
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump all templates from system
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
 
         for item in Entity.get_subclasses():
             item.dump_templates(base_path, fs_handler)</code></pre>
@@ -427,13 +445,30 @@ def delete(cls, eid: EID, digest: str = None, force: bool = True) -&gt; None:
 <span>def <span class="ident">dump_templates</span></span>(<span>base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Dump all templates from system</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>base_path</code></strong></dt>
+<dd>content path where create templates dump</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
 def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
+    &#34;&#34;&#34;Dump all templates from system
+
+    Args:
+        base_path: content path where create templates dump
+        fs_handler: FSHandler
+
+    Returns:
+
+    &#34;&#34;&#34;
 
     for item in Entity.get_subclasses():
         item.dump_templates(base_path, fs_handler)</code></pre>

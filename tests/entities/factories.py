@@ -8,6 +8,7 @@ from signals_notebook.entities import (
     Excel,
     Experiment,
     Image,
+    MaterialsTable,
     Notebook,
     PowerPoint,
     Spotfire,
@@ -119,3 +120,10 @@ class UploadedResourceFactory(EntityFactory):
         model = UploadedResource
 
     type = EntityType.UPLOADED_RESOURCE
+
+
+class MaterialTableFactory(EntityFactory):
+    class Meta:
+        model = MaterialsTable
+
+    type = EntityType.MATERIAL_TABLE
