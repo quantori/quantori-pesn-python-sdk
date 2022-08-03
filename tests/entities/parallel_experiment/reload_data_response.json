@@ -1,0 +1,157 @@
+{
+  "links": {
+    "self": "https://quantori.signalsnotebook.perkinelmer.cloud/api/rest/v1.0/subexpSummary/paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715/rows"
+  },
+  "data": [
+    {
+      "type": "subexpSummaryRow",
+      "id": "1",
+      "attributes": {
+        "id": "1",
+        "columns": [
+          {
+            "key": "2",
+            "display": "Sub-experiment-1",
+            "value": "parasubexp:ea4b04cb-c262-4d4a-bd84-2321030c4af1",
+            "linkedEntityType": "parasubexp"
+          },
+          {
+            "key": "p1:productid",
+            "value": "P1"
+          },
+          {
+            "key": "p1:name",
+            "value": "NEW"
+          },
+          {
+            "key": "p1:mf",
+            "display": "2.02 g/mol",
+            "value": 2.02,
+            "units": "g/mol"
+          },
+          {
+            "key": "p1:formula",
+            "value": "H<sub>2</sub>"
+          },
+          {
+            "key": "p1:mw",
+            "display": "2.02 g/mol",
+            "value": 2.02,
+            "units": "g/mol"
+          },
+          {
+            "key": "p1:em",
+            "display": "2.01565",
+            "value": 2.01565
+          },
+          {
+            "key": "p2:productid",
+            "value": "P2"
+          },
+          {
+            "key": "p2:name",
+            "value": "sodium hydroxide"
+          },
+          {
+            "key": "p2:mf",
+            "display": "40.00 g/mol",
+            "value": 40,
+            "units": "g/mol"
+          },
+          {
+            "key": "p2:formula",
+            "value": "HNaO"
+          },
+          {
+            "key": "p2:mw",
+            "display": "40.00 g/mol",
+            "value": 40,
+            "units": "g/mol"
+          },
+          {
+            "key": "p2:em",
+            "display": "39.99251",
+            "value": 39.99251
+          }
+        ]
+      },
+      "relationships": {
+        "columnDefinition": {
+          "data": {
+            "type": "columnDefinition",
+            "id": "paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715"
+          }
+        }
+      }
+    },
+    {
+      "type": "subexpSummaryRow",
+      "id": "2",
+      "attributes": {
+        "id": "2",
+        "columns": [
+          {
+            "key": "2",
+            "display": "Sub-experiment-2",
+            "value": "parasubexp:50865f97-f858-4d33-bcf0-4f1455ad68a8",
+            "linkedEntityType": "parasubexp"
+          }
+        ]
+      },
+      "relationships": {
+        "columnDefinition": {
+          "data": {
+            "type": "columnDefinition",
+            "id": "paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715"
+          }
+        }
+      }
+    },
+    {
+      "type": "subexpSummaryRow",
+      "id": "3",
+      "attributes": {
+        "id": "3",
+        "columns": [
+          {
+            "key": "2",
+            "display": "Sub-experiment-3",
+            "value": "parasubexp:782d4af3-a17a-4bbc-b039-cfb7a6e6a215",
+            "linkedEntityType": "parasubexp"
+          }
+        ]
+      },
+      "relationships": {
+        "columnDefinition": {
+          "data": {
+            "type": "columnDefinition",
+            "id": "paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715"
+          }
+        }
+      }
+    },
+    {
+      "type": "subexpSummaryRow",
+      "id": "ee8f5e33-aaea-44f0-b429-aef793807585",
+      "attributes": {
+        "id": "ee8f5e33-aaea-44f0-b429-aef793807585",
+        "columns": [
+          {
+            "key": "2",
+            "display": "Sub-experiment-7",
+            "value": "parasubexp:d386a052-f0be-4633-acac-635375cea1f6",
+            "linkedEntityType": "parasubexp"
+          }
+        ]
+      },
+      "relationships": {
+        "columnDefinition": {
+          "data": {
+            "type": "columnDefinition",
+            "id": "paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715"
+          }
+        }
+      }
+    }
+  ]
+}

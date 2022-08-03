@@ -8,6 +8,7 @@ from signals_notebook.common_types import EntityType, ObjectType
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
 from signals_notebook.entities import ChemicalDrawing, Entity, Text, SubExperimentSummary
 
+
 @pytest.fixture()
 def get_response_experiment(mocker):
     def _f(response):
@@ -156,7 +157,9 @@ def test_get_children_one_page(api_mock, parallel_experiment_factory, eid_factor
     assert result[2].eid == subexp_sum_eid
 
 
-def test_get_children_several_pages(mocker, api_mock, parallel_experiment_factory, eid_factory, get_response_experiment):
+def test_get_children_several_pages(
+    mocker, api_mock, parallel_experiment_factory, eid_factory, get_response_experiment
+):
     experiment = parallel_experiment_factory()
     text_eid = eid_factory(type=EntityType.TEXT)
     chem_draw_eid = eid_factory(type=EntityType.CHEMICAL_DRAWING)

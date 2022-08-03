@@ -26,7 +26,7 @@ from tests.entities.samples.factories import (
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
 from tests.entities.todo_list.factories import TaskCellFactory, TaskFactory, TodoListFactory
-from tests.entities.parallel_experiment.factories import ParallelExperimentFactory, SubExperimentFactory
+from tests.entities.parallel_experiment.factories import ParallelExperimentFactory, SubExperimentFactory, SubExperimentSummaryFactory, SubExperimentSummaryRowFactory, SubExperimentSummaryCellFactory
 
 
 register(EIDFactory)
@@ -54,6 +54,9 @@ register(PlateContainerFactory)
 register(MaterialTableFactory)
 register(ParallelExperimentFactory)
 register(SubExperimentFactory)
+register(SubExperimentSummaryFactory)
+register(SubExperimentSummaryRowFactory)
+register(SubExperimentSummaryCellFactory)
 
 
 @pytest.fixture()

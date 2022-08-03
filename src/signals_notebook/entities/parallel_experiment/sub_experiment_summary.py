@@ -133,6 +133,7 @@ class SubExperimentSummary(ContentfulEntity):
         if not response:
             log.debug('Time is over to update fields')
 
+
         self._reload_cells()
 
     def get_html(self) -> str:

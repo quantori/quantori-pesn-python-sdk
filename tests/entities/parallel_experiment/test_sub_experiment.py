@@ -8,6 +8,7 @@ from signals_notebook.common_types import EntityType, ObjectType
 from signals_notebook.entities.parallel_experiment.sub_experiment import SubExperiment
 from signals_notebook.entities import ChemicalDrawing, Entity, Text, SubExperimentSummary
 
+
 @pytest.fixture()
 def get_response_experiment(mocker):
     def _f(response):
