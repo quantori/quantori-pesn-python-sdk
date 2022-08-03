@@ -63,7 +63,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self) -> Generator[Entity, None, None]:
+    def get_children(self, order: str = 'layout') -> Generator[Entity, None, None]:
         """Get children of a specified entity.
 
         Returns:
@@ -72,13 +72,8 @@ class Container(Entity, abc.ABC):
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get children for: %s', self.eid)
 
-        response = api.call(
-            method='GET',
-            path=(self._get_endpoint(), self.eid, 'children'),
-            params={
-                'order': 'layout',
-            },
-        )
+        params = {'order': order} if order else {}
+        response = api.call(method='GET', path=(self._get_endpoint(), self.eid, 'children'), params=params)
 
         entity_classes = (*Entity.get_subclasses(), Entity)
 

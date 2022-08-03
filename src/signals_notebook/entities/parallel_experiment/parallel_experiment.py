@@ -110,33 +110,12 @@ class ParallelExperiment(Container):
         )
 
     def get_children(self) -> Generator[Entity, None, None]:
-        """Get children of Parallel Experiment.
+        """Get children of SubExperiment.
 
         Returns:
             list of Entities
         """
-        api = SignalsNotebookApi.get_default_api()
-        log.debug('Get children for: %s', self.eid)
-
-        response = api.call(
-            method='GET',
-            path=(self._get_endpoint(), self.eid, 'children'),
-        )
-
-        entity_classes = (*Entity.get_subclasses(), Entity)
-
-        result = Response[Union[entity_classes]](**response.json())  # type: ignore
-
-        yield from [cast(ResponseData, item).body for item in result.data]
-
-        while result.links and result.links.next:
-            response = api.call(
-                method='GET',
-                path=result.links.next,
-            )
-
-            result = Response[Union[entity_classes]](**response.json())  # type: ignore
-            yield from [cast(ResponseData, item).body for item in result.data]
+        return super().get_children(order='')
 
     def get_html(self) -> str:
         """Get in HTML format
