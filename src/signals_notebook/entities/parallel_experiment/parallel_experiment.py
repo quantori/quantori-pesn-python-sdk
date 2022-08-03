@@ -1,12 +1,19 @@
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import cast, ClassVar, Literal, Optional, Union, Generator
+from typing import cast, ClassVar, Generator, Literal, Optional, Union
 
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EID, EntityType, Template, Ancestors, ResponseData, EntityCreationRequestPayload, Response
+from signals_notebook.common_types import (
+    Ancestors,
+    EntityCreationRequestPayload,
+    EntityType,
+    Response,
+    ResponseData,
+    Template,
+)
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook

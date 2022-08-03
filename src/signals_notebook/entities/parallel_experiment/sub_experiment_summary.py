@@ -1,12 +1,13 @@
 import json
 import logging
 import time
-from typing import cast, Literal, Union, List, Dict
+from typing import cast, Dict, List, Literal, Union
 from uuid import UUID
+
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EntityType, File, ResponseData, Response
+from signals_notebook.common_types import EntityType, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.parallel_experiment.row import Row
 
