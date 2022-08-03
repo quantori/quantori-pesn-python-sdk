@@ -1,11 +1,13 @@
 import logging
 from functools import cached_property
-from typing import Literal, Optional
+from typing import cast, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
+from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Response, ResponseData, Template
 from signals_notebook.entities import Entity
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
 from signals_notebook.jinja_env import env
 
@@ -31,7 +33,7 @@ class _SubExperimentRequestPayload(EntityCreationRequestPayload[_SubExperimentRe
     pass
 
 
-class SubExperiment(Entity):
+class SubExperiment(Container):
     type: Literal[EntityType.SUB_EXPERIMENT] = Field(allow_mutation=False)
     _template_name = 'sub_experiment.html'
 
@@ -41,6 +43,35 @@ class SubExperiment(Entity):
     @classmethod
     def _get_entity_type(cls) -> EntityType:
         return EntityType.SUB_EXPERIMENT
+
+    def get_children(self) -> Generator[Entity, None, None]:
+        """Get children of SubExperiment.
+
+        Returns:
+            list of Entities
+        """
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Get children for: %s', self.eid)
+
+        response = api.call(
+            method='GET',
+            path=(self._get_endpoint(), self.eid, 'children'),
+        )
+
+        entity_classes = (*Entity.get_subclasses(), Entity)
+
+        result = Response[Union[entity_classes]](**response.json())  # type: ignore
+
+        yield from [cast(ResponseData, item).body for item in result.data]
+
+        while result.links and result.links.next:
+            response = api.call(
+                method='GET',
+                path=result.links.next,
+            )
+
+            result = Response[Union[entity_classes]](**response.json())  # type: ignore
+            yield from [cast(ResponseData, item).body for item in result.data]
 
     @classmethod
     def create(
@@ -74,20 +105,20 @@ class SubExperiment(Entity):
             request=request,
         )
 
+    def get_html(self) -> str:
+        """Get in HTML format
 
-    # def get_html(self) -> str:
-    #     """Get in HTML format
-    #
-    #     Returns:
-    #         Rendered template as a string
-    #     """
-    #     data = {'name': self.name, 'stoichiometry': {}}
-    #     file = self.get_content(format=ChemicalDrawingFormat.SVG)
-    #     data['svg'] = 'data:{};base64,{}'.format(file.content_type, file.base64.decode('ascii'))
-    #     if isinstance(self.stoichiometry, Stoichiometry):
-    #         data['stoichiometry_html'] = self.stoichiometry.get_html()
-    #
-    #     template = env.get_template(self._template_name)
-    #     log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
-    #
-    #     return template.render(data=data)
+        Returns:
+            Rendered template as a string
+        """
+        data = {
+            'title': self.name,
+            'description': self.description,
+            'edited_at': self.edited_at,
+            'children': self.get_children(),
+        }
+
+        template = env.get_template(self._template_name)
+        log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
+
+        return template.render(data=data)
