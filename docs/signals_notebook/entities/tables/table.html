@@ -917,7 +917,7 @@ class Table(ContentfulEntity):
 </details>
 </dd>
 <dt id="signals_notebook.entities.tables.table.Table.delete_row_by_id"><code class="name flex">
-<span>def <span class="ident">delete_row_by_id</span></span>(<span>self, row_id: Union[uuid.UUID, str], digest: str = None, force: bool = True) ‑> None</span>
+<span>def <span class="ident">delete_row_by_id</span></span>(<span>self, row_id: Union[str, uuid.UUID], digest: str = None, force: bool = True) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><h2 id="args">Args</h2>
@@ -970,7 +970,7 @@ class Table(ContentfulEntity):
 </details>
 </dd>
 <dt id="signals_notebook.entities.tables.table.Table.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, value: Union[uuid.UUID, str], default: Any = None) ‑> Union[<a title="signals_notebook.entities.tables.row.Row" href="row.html#signals_notebook.entities.tables.row.Row">Row</a>, Any]</span>
+<span>def <span class="ident">get</span></span>(<span>self, value: Union[str, uuid.UUID], default: Any = None) ‑> Union[<a title="signals_notebook.entities.tables.row.Row" href="row.html#signals_notebook.entities.tables.row.Row">Row</a>, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get Row</p>
