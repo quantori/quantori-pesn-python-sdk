@@ -38,6 +38,7 @@ from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.parallel_experiment.row import Row
+from signals_notebook.jinja_env import env
 
 log = logging.getLogger(__name__)
 
@@ -160,7 +161,24 @@ class SubExperimentSummary(ContentfulEntity):
         if not response:
             log.debug(&#39;Time is over to update fields&#39;)
 
-        self._reload_cells()</code></pre>
+        self._reload_cells()
+
+    def get_html(self) -&gt; str:
+        &#34;&#34;&#34;Get in HTML format
+
+        Returns:
+            Rendered HTML in string format
+        &#34;&#34;&#34;
+        if not self._rows:
+            self._reload_cells()
+
+        table_head = []
+        if self._rows:
+            table_head = self._rows[0]
+        template = env.get_template(self._template_name)
+        log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
+        return template.render(name=self.name, table_head=table_head, rows=self._rows)</code></pre>
 </details>
 </section>
 <section>
@@ -367,7 +385,24 @@ class SubExperimentSummary(ContentfulEntity):
         if not response:
             log.debug(&#39;Time is over to update fields&#39;)
 
-        self._reload_cells()</code></pre>
+        self._reload_cells()
+
+    def get_html(self) -&gt; str:
+        &#34;&#34;&#34;Get in HTML format
+
+        Returns:
+            Rendered HTML in string format
+        &#34;&#34;&#34;
+        if not self._rows:
+            self._reload_cells()
+
+        table_head = []
+        if self._rows:
+            table_head = self._rows[0]
+        template = env.get_template(self._template_name)
+        log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
+        return template.render(name=self.name, table_head=table_head, rows=self._rows)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -386,6 +421,35 @@ class SubExperimentSummary(ContentfulEntity):
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.get_html"><code class="name flex">
+<span>def <span class="ident">get_html</span></span>(<span>self) ‑> str</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get in HTML format</p>
+<h2 id="returns">Returns</h2>
+<p>Rendered HTML in string format</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_html(self) -&gt; str:
+    &#34;&#34;&#34;Get in HTML format
+
+    Returns:
+        Rendered HTML in string format
+    &#34;&#34;&#34;
+    if not self._rows:
+        self._reload_cells()
+
+    table_head = []
+    if self._rows:
+        table_head = self._rows[0]
+    template = env.get_template(self._template_name)
+    log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
+    return template.render(name=self.name, table_head=table_head, rows=self._rows)</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.save"><code class="name flex">
 <span>def <span class="ident">save</span></span>(<span>self, force: bool = True, timeout: int = 30, period: int = 5) ‑> None</span>
 </code></dt>
@@ -459,7 +523,6 @@ class SubExperimentSummary(ContentfulEntity):
 <li><code><b><a title="signals_notebook.entities.contentful_entity.ContentfulEntity" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity">ContentfulEntity</a></b></code>:
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="../entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
-<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_list" href="../entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_subclasses" href="../entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
@@ -504,6 +567,7 @@ class SubExperimentSummary(ContentfulEntity):
 <li>
 <h4><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary" href="#signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary">SubExperimentSummary</a></code></h4>
 <ul class="">
+<li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.get_html" href="#signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.save" href="#signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.type" href="#signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.type">type</a></code></li>
 </ul>
