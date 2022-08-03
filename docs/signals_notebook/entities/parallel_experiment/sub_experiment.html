@@ -33,7 +33,14 @@ from typing import cast, Generator, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Response, ResponseData, Template
+from signals_notebook.common_types import (
+    Ancestors,
+    EntityCreationRequestPayload,
+    EntityType,
+    Response,
+    ResponseData,
+    Template,
+)
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
