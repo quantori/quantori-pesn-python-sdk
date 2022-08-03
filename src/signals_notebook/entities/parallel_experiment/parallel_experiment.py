@@ -151,7 +151,9 @@ class ParallelExperiment(Container):
             'state': self.state,
             'children': self.get_children(),
         }
+
         template = env.get_template(self._template_name)
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)
+
