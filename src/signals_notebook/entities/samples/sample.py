@@ -1,4 +1,3 @@
-import cgi
 import json
 import logging
 from typing import cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union
@@ -14,7 +13,6 @@ from signals_notebook.common_types import (
     EntityType,
     Response,
     ResponseData,
-    File,
 )
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
@@ -209,6 +207,10 @@ class Sample(Entity):
             fs_handler.join_path(base_path, self.eid, f'{self.name}.json'),
             json.dumps({'data': data}, default=str).encode('utf-8'),
         )
+
+    @classmethod
+    def load(cls, *args, **kwargs) -> None:
+        pass
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:

@@ -172,3 +172,80 @@ def test_iter(api_mock, sample_properties, sample_factory):
         assert isinstance(item, SampleCell)
 
     assert sample._cells != []
+
+
+def test_dump(api_mock, mocker, sample_factory, sample_properties):
+    sample = sample_factory(name='name')
+
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {k: v for k, v in sample.dict().items() if k in ('name', 'description', 'eid')}
+
+    api_mock.call.return_value.json.return_value = sample_properties
+    sample.dump(base_path=base_path, fs_handler=fs_handler_mock)
+    content = json.dumps({'data': [item.dict() for item in sample]}, default=str).encode('utf-8')
+
+    join_path_call_1 = mocker.call(base_path, sample.eid, 'metadata.json')
+    join_path_call_2 = mocker.call(base_path, sample.eid, f'{sample.name}.json')
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            join_path_call_1,
+            join_path_call_2,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
+            mocker.call(fs_handler_mock.join_path(), content),
+        ],
+        any_order=True,
+    )
+
+
+def test_load():
+    pass
+
+
+def test_dump_templates(api_mock, mocker, sample_factory, sample_properties, get_response_object, templates):
+    sample = sample_factory(name='Sample')
+    template_eid = templates['data'][0]['id']
+    template_name = templates['data'][0]['attributes']['name']
+
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'eid': template_eid,
+        'name': template_name,
+        'description': ''
+    }
+
+    api_mock.call.side_effect = [
+        get_response_object(templates),
+        get_response_object(sample_properties),
+        get_response_object(sample_properties),
+    ]
+    sample.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
+
+    content = json.dumps({'data': [item.dict() for item in sample]}, default=str).encode('utf-8')
+
+    join_path_call_1 = mocker.call(base_path, 'templates', sample.type)
+    join_path_call_2 = mocker.call(fs_handler_mock.join_path(), template_eid, 'metadata.json')
+    join_path_call_3 = mocker.call(fs_handler_mock.join_path(), template_eid, f'{sample.name}.json')
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            join_path_call_1,
+            join_path_call_2,
+            join_path_call_3,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
+            mocker.call(fs_handler_mock.join_path(), content),
+        ],
+        any_order=True,
+    )
