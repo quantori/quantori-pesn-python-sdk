@@ -53,7 +53,7 @@ class RowRequestBody(BaseModel):
 
 class Row(BaseModel):
     id: Optional[Union[UUID, str]]
-    cells: Optional[List[SubExperimentSummaryCell]] = Field(alias=&#39;columns&#39;)
+    cells: List[SubExperimentSummaryCell] = Field(alias=&#39;columns&#39;)
     _cells_dict: Dict[Union[UUID, str], SubExperimentSummaryCell] = PrivateAttr(default={})
 
     class Config:
@@ -65,7 +65,7 @@ class Row(BaseModel):
         for cell in self.cells:
             self._cells_dict[cell.key] = cell
 
-    def get(self, value: Union[str, UUID], default: Any = None) -&gt; Union[SubExperimentSummaryCell, Any]:
+    def get(self, value: str, default: Any = None) -&gt; Union[SubExperimentSummaryCell, Any]:
         &#34;&#34;&#34;Get one of the cells
 
         Args:
@@ -166,7 +166,7 @@ class Row(BaseModel):
 </summary>
 <pre><code class="python">class Row(BaseModel):
     id: Optional[Union[UUID, str]]
-    cells: Optional[List[SubExperimentSummaryCell]] = Field(alias=&#39;columns&#39;)
+    cells: List[SubExperimentSummaryCell] = Field(alias=&#39;columns&#39;)
     _cells_dict: Dict[Union[UUID, str], SubExperimentSummaryCell] = PrivateAttr(default={})
 
     class Config:
@@ -178,7 +178,7 @@ class Row(BaseModel):
         for cell in self.cells:
             self._cells_dict[cell.key] = cell
 
-    def get(self, value: Union[str, UUID], default: Any = None) -&gt; Union[SubExperimentSummaryCell, Any]:
+    def get(self, value: str, default: Any = None) -&gt; Union[SubExperimentSummaryCell, Any]:
         &#34;&#34;&#34;Get one of the cells
 
         Args:
@@ -240,7 +240,7 @@ class Row(BaseModel):
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.parallel_experiment.row.Row.cells"><code class="name">var <span class="ident">cells</span> : Optional[List[<a title="signals_notebook.entities.parallel_experiment.cell.SubExperimentSummaryCell" href="cell.html#signals_notebook.entities.parallel_experiment.cell.SubExperimentSummaryCell">SubExperimentSummaryCell</a>]]</code></dt>
+<dt id="signals_notebook.entities.parallel_experiment.row.Row.cells"><code class="name">var <span class="ident">cells</span> : List[<a title="signals_notebook.entities.parallel_experiment.cell.SubExperimentSummaryCell" href="cell.html#signals_notebook.entities.parallel_experiment.cell.SubExperimentSummaryCell">SubExperimentSummaryCell</a>]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -302,7 +302,7 @@ def representation_for_update(self) -&gt; List[Dict[str, str]]:
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.entities.parallel_experiment.row.Row.get"><code class="name flex">
-<span>def <span class="ident">get</span></span>(<span>self, value: Union[str, uuid.UUID], default: Any = None) ‑> Union[<a title="signals_notebook.entities.parallel_experiment.cell.SubExperimentSummaryCell" href="cell.html#signals_notebook.entities.parallel_experiment.cell.SubExperimentSummaryCell">SubExperimentSummaryCell</a>, Any]</span>
+<span>def <span class="ident">get</span></span>(<span>self, value: str, default: Any = None) ‑> Union[<a title="signals_notebook.entities.parallel_experiment.cell.SubExperimentSummaryCell" href="cell.html#signals_notebook.entities.parallel_experiment.cell.SubExperimentSummaryCell">SubExperimentSummaryCell</a>, Any]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get one of the cells</p>
@@ -319,7 +319,7 @@ def representation_for_update(self) -&gt; List[Dict[str, str]]:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get(self, value: Union[str, UUID], default: Any = None) -&gt; Union[SubExperimentSummaryCell, Any]:
+<pre><code class="python">def get(self, value: str, default: Any = None) -&gt; Union[SubExperimentSummaryCell, Any]:
     &#34;&#34;&#34;Get one of the cells
 
     Args:

@@ -76,13 +76,13 @@ class SubExperiment(Container):
     def _get_entity_type(cls) -&gt; EntityType:
         return EntityType.SUB_EXPERIMENT
 
-    def get_children(self) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order=&#39;&#39;) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of SubExperiment.
 
         Returns:
             list of Entities
         &#34;&#34;&#34;
-        return super().get_children(order=&#39;&#39;)
+        return super().get_children(order=order)
 
     @classmethod
     def create(
@@ -199,13 +199,13 @@ class SubExperiment(Container):
     def _get_entity_type(cls) -&gt; EntityType:
         return EntityType.SUB_EXPERIMENT
 
-    def get_children(self) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order=&#39;&#39;) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of SubExperiment.
 
         Returns:
             list of Entities
         &#34;&#34;&#34;
-        return super().get_children(order=&#39;&#39;)
+        return super().get_children(order=order)
 
     @classmethod
     def create(
@@ -324,7 +324,7 @@ def create(
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_children"><code class="name flex">
-<span>def <span class="ident">get_children</span></span>(<span>self) ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="../entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
+<span>def <span class="ident">get_children</span></span>(<span>self, order='') ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="../entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get children of SubExperiment.</p>
@@ -334,13 +334,13 @@ def create(
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_children(self) -&gt; Generator[Entity, None, None]:
+<pre><code class="python">def get_children(self, order=&#39;&#39;) -&gt; Generator[Entity, None, None]:
     &#34;&#34;&#34;Get children of SubExperiment.
 
     Returns:
         list of Entities
     &#34;&#34;&#34;
-    return super().get_children(order=&#39;&#39;)</code></pre>
+    return super().get_children(order=order)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_html"><code class="name flex">
