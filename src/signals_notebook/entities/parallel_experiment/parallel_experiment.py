@@ -50,7 +50,7 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
 class ParallelExperiment(Container):
     type: Literal[EntityType.PARALLEL_EXPERIMENT] = Field(allow_mutation=False)
     state: Optional[ParaExperimentState] = Field(allow_mutation=False, default=None)
-    _template_name: ClassVar = 'para_experiment.html'
+    _template_name: ClassVar = 'parallel_experiment.html'
 
     class Config:
         keep_untouched = (cached_property,)
