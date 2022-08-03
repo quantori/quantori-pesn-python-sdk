@@ -83,12 +83,7 @@ class Row(BaseModel):
         changed_cells = []
         for cell in self.cells:
             if cell.is_changed:
-                body = RowRequestBody(
-                    id=str(self.id),
-                    attributes=Content(
-                        columns=cell.representation_for_update
-                    )
-                )
+                body = RowRequestBody(id=str(self.id), attributes=Content(columns=cell.representation_for_update))
                 changed_cells.append(body.dict())
 
         return changed_cells

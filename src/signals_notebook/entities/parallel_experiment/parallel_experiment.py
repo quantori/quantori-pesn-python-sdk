@@ -156,4 +156,3 @@ class ParallelExperiment(Container):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)
-
