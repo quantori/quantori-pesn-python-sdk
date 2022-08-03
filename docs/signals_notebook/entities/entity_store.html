@@ -198,6 +198,7 @@ class EntityStore:
         Returns:
 
         &#34;&#34;&#34;
+        from signals_notebook.entities import Experiment, Table
 
         for item in Entity.get_subclasses():
             item.dump_templates(base_path, fs_handler)</code></pre>
@@ -379,6 +380,7 @@ class EntityStore:
         Returns:
 
         &#34;&#34;&#34;
+        from signals_notebook.entities import Experiment, Table
 
         for item in Entity.get_subclasses():
             item.dump_templates(base_path, fs_handler)</code></pre>
@@ -469,6 +471,7 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
     Returns:
 
     &#34;&#34;&#34;
+    from signals_notebook.entities import Experiment, Table
 
     for item in Entity.get_subclasses():
         item.dump_templates(base_path, fs_handler)</code></pre>
