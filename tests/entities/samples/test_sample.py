@@ -204,10 +204,6 @@ def test_dump(api_mock, mocker, sample_factory, sample_properties):
     )
 
 
-def test_load():
-    pass
-
-
 def test_dump_templates(api_mock, mocker, sample_factory, sample_properties, get_response_object, templates):
     sample = sample_factory(name='Sample')
     template_eid = templates['data'][0]['id']

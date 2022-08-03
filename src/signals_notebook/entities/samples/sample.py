@@ -209,10 +209,6 @@ class Sample(Entity):
         )
 
     @classmethod
-    def load(cls, *args, **kwargs) -> None:
-        pass
-
-    @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
         """Dump Sample templates
 
