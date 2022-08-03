@@ -138,33 +138,12 @@ class ParallelExperiment(Container):
         )
 
     def get_children(self) -&gt; Generator[Entity, None, None]:
-        &#34;&#34;&#34;Get children of Parallel Experiment.
+        &#34;&#34;&#34;Get children of SubExperiment.
 
         Returns:
             list of Entities
         &#34;&#34;&#34;
-        api = SignalsNotebookApi.get_default_api()
-        log.debug(&#39;Get children for: %s&#39;, self.eid)
-
-        response = api.call(
-            method=&#39;GET&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;children&#39;),
-        )
-
-        entity_classes = (*Entity.get_subclasses(), Entity)
-
-        result = Response[Union[entity_classes]](**response.json())  # type: ignore
-
-        yield from [cast(ResponseData, item).body for item in result.data]
-
-        while result.links and result.links.next:
-            response = api.call(
-                method=&#39;GET&#39;,
-                path=result.links.next,
-            )
-
-            result = Response[Union[entity_classes]](**response.json())  # type: ignore
-            yield from [cast(ResponseData, item).body for item in result.data]
+        return super().get_children(order=&#39;&#39;)
 
     def get_html(self) -&gt; str:
         &#34;&#34;&#34;Get in HTML format
@@ -333,33 +312,12 @@ class ParallelExperiment(Container):
         )
 
     def get_children(self) -&gt; Generator[Entity, None, None]:
-        &#34;&#34;&#34;Get children of Parallel Experiment.
+        &#34;&#34;&#34;Get children of SubExperiment.
 
         Returns:
             list of Entities
         &#34;&#34;&#34;
-        api = SignalsNotebookApi.get_default_api()
-        log.debug(&#39;Get children for: %s&#39;, self.eid)
-
-        response = api.call(
-            method=&#39;GET&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;children&#39;),
-        )
-
-        entity_classes = (*Entity.get_subclasses(), Entity)
-
-        result = Response[Union[entity_classes]](**response.json())  # type: ignore
-
-        yield from [cast(ResponseData, item).body for item in result.data]
-
-        while result.links and result.links.next:
-            response = api.call(
-                method=&#39;GET&#39;,
-                path=result.links.next,
-            )
-
-            result = Response[Union[entity_classes]](**response.json())  # type: ignore
-            yield from [cast(ResponseData, item).body for item in result.data]
+        return super().get_children(order=&#39;&#39;)
 
     def get_html(self) -&gt; str:
         &#34;&#34;&#34;Get in HTML format
@@ -489,7 +447,7 @@ def create(
 <span>def <span class="ident">get_children</span></span>(<span>self) ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="../entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
 </code></dt>
 <dd>
-<div class="desc"><p>Get children of Parallel Experiment.</p>
+<div class="desc"><p>Get children of SubExperiment.</p>
 <h2 id="returns">Returns</h2>
 <p>list of Entities</p></div>
 <details class="source">
@@ -497,33 +455,12 @@ def create(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def get_children(self) -&gt; Generator[Entity, None, None]:
-    &#34;&#34;&#34;Get children of Parallel Experiment.
+    &#34;&#34;&#34;Get children of SubExperiment.
 
     Returns:
         list of Entities
     &#34;&#34;&#34;
-    api = SignalsNotebookApi.get_default_api()
-    log.debug(&#39;Get children for: %s&#39;, self.eid)
-
-    response = api.call(
-        method=&#39;GET&#39;,
-        path=(self._get_endpoint(), self.eid, &#39;children&#39;),
-    )
-
-    entity_classes = (*Entity.get_subclasses(), Entity)
-
-    result = Response[Union[entity_classes]](**response.json())  # type: ignore
-
-    yield from [cast(ResponseData, item).body for item in result.data]
-
-    while result.links and result.links.next:
-        response = api.call(
-            method=&#39;GET&#39;,
-            path=result.links.next,
-        )
-
-        result = Response[Union[entity_classes]](**response.json())  # type: ignore
-        yield from [cast(ResponseData, item).body for item in result.data]</code></pre>
+    return super().get_children(order=&#39;&#39;)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.get_html"><code class="name flex">
