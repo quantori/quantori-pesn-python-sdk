@@ -73,7 +73,7 @@ class SampleCellBody(BaseModel):
 
 
 class SampleCell(BaseModel):
-    id: Optional[Union[UUID, str]]
+    id: Optional[str]
     name: Optional[str]
     content: SampleCellContent = Field(default=SampleCellContent())
 

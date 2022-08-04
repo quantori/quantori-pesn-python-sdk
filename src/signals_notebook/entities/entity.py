@@ -212,7 +212,7 @@ class Entity(BaseModel):
     def _create(cls, *, digest: str = None, force: bool = True, request: EntityCreationRequestPayload) -> EntityClass:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Create Entity: %s...', cls.__name__)
-
+        print(request.dict(exclude_none=True))
         response = api.call(
             method='POST',
             path=(cls._get_endpoint(),),
