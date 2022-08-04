@@ -91,7 +91,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of a specified entity.
 
         Returns:
@@ -100,13 +100,8 @@ class Container(Entity, abc.ABC):
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Get children for: %s&#39;, self.eid)
 
-        response = api.call(
-            method=&#39;GET&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;children&#39;),
-            params={
-                &#39;order&#39;: &#39;layout&#39;,
-            },
-        )
+        params = {&#39;order&#39;: order} if order else {}
+        response = api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), self.eid, &#39;children&#39;), params=params)
 
         entity_classes = (*Entity.get_subclasses(), Entity)
 
@@ -196,7 +191,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of a specified entity.
 
         Returns:
@@ -205,13 +200,8 @@ class Container(Entity, abc.ABC):
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Get children for: %s&#39;, self.eid)
 
-        response = api.call(
-            method=&#39;GET&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;children&#39;),
-            params={
-                &#39;order&#39;: &#39;layout&#39;,
-            },
-        )
+        params = {&#39;order&#39;: order} if order else {}
+        response = api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), self.eid, &#39;children&#39;), params=params)
 
         entity_classes = (*Entity.get_subclasses(), Entity)
 
@@ -239,6 +229,8 @@ class Container(Entity, abc.ABC):
 <ul class="hlist">
 <li><a title="signals_notebook.entities.experiment.Experiment" href="experiment.html#signals_notebook.entities.experiment.Experiment">Experiment</a></li>
 <li><a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a></li>
+<li><a title="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment" href="parallel_experiment/parallel_experiment.html#signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment">ParallelExperiment</a></li>
+<li><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment" href="parallel_experiment/sub_experiment.html#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment">SubExperiment</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>
@@ -342,7 +334,7 @@ class Container(Entity, abc.ABC):
 </details>
 </dd>
 <dt id="signals_notebook.entities.container.Container.get_children"><code class="name flex">
-<span>def <span class="ident">get_children</span></span>(<span>self) ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
+<span>def <span class="ident">get_children</span></span>(<span>self, order: str = 'layout') ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get children of a specified entity.</p>
@@ -352,7 +344,7 @@ class Container(Entity, abc.ABC):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_children(self) -&gt; Generator[Entity, None, None]:
+<pre><code class="python">def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
     &#34;&#34;&#34;Get children of a specified entity.
 
     Returns:
@@ -361,13 +353,8 @@ class Container(Entity, abc.ABC):
     api = SignalsNotebookApi.get_default_api()
     log.debug(&#39;Get children for: %s&#39;, self.eid)
 
-    response = api.call(
-        method=&#39;GET&#39;,
-        path=(self._get_endpoint(), self.eid, &#39;children&#39;),
-        params={
-            &#39;order&#39;: &#39;layout&#39;,
-        },
-    )
+    params = {&#39;order&#39;: order} if order else {}
+    response = api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), self.eid, &#39;children&#39;), params=params)
 
     entity_classes = (*Entity.get_subclasses(), Entity)
 

@@ -1,0 +1,398 @@
+{
+  "links": {
+    "self": "https://quantori.signalsnotebook.perkinelmer.cloud/api/rest/v1.0/subexpSummary/paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715/rows"
+  },
+  "data": [
+    {
+      "type": "subexpSummaryRow",
+      "id": "1",
+      "attributes": {
+        "id": "1",
+        "columns": [
+          {
+            "key": "2",
+            "display": "Sub-experiment-1",
+            "value": "parasubexp:ea4b04cb-c262-4d4a-bd84-2321030c4af1",
+            "linkedEntityType": "parasubexp"
+          },
+          {
+            "key": "p1:productid",
+            "value": "P1"
+          },
+          {
+            "key": "p1:name",
+            "value": "Updated Text 1"
+          },
+          {
+            "key": "p1:mf",
+            "display": "2.02 g/mol",
+            "value": 2.02,
+            "units": "g/mol"
+          },
+          {
+            "key": "p1:formula",
+            "value": "H<sub>2</sub>"
+          },
+          {
+            "key": "p1:mw",
+            "display": "2.02 g/mol",
+            "value": 2.02,
+            "units": "g/mol"
+          },
+          {
+            "key": "p1:em",
+            "display": "2.01565",
+            "value": 2.01565
+          },
+          {
+            "key": "p2:productid",
+            "value": "P2"
+          },
+          {
+            "key": "p2:name",
+            "value": "sodium hydroxide"
+          },
+          {
+            "key": "p2:mf",
+            "display": "40.00 g/mol",
+            "value": 40,
+            "units": "g/mol"
+          },
+          {
+            "key": "p2:formula",
+            "value": "HNaO"
+          },
+          {
+            "key": "p2:mw",
+            "display": "40.00 g/mol",
+            "value": 40,
+            "units": "g/mol"
+          },
+          {
+            "key": "p2:em",
+            "display": "39.99251",
+            "value": 39.99251
+          }
+        ]
+      },
+      "relationships": {
+        "columnDefinition": {
+          "data": {
+            "type": "columnDefinition",
+            "id": "paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715"
+          }
+        }
+      }
+    },
+    {
+      "type": "subexpSummaryRow",
+      "id": "2",
+      "attributes": {
+        "id": "2",
+        "columns": [
+          {
+            "key": "2",
+            "display": "Sub-experiment-2",
+            "value": "parasubexp:50865f97-f858-4d33-bcf0-4f1455ad68a8",
+            "linkedEntityType": "parasubexp"
+          }
+        ]
+      },
+      "relationships": {
+        "columnDefinition": {
+          "data": {
+            "type": "columnDefinition",
+            "id": "paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715"
+          }
+        }
+      }
+    },
+    {
+      "type": "subexpSummaryRow",
+      "id": "3",
+      "attributes": {
+        "id": "3",
+        "columns": [
+          {
+            "key": "2",
+            "display": "Sub-experiment-3",
+            "value": "parasubexp:782d4af3-a17a-4bbc-b039-cfb7a6e6a215",
+            "linkedEntityType": "parasubexp"
+          }
+        ]
+      },
+      "relationships": {
+        "columnDefinition": {
+          "data": {
+            "type": "columnDefinition",
+            "id": "paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715"
+          }
+        }
+      }
+    },
+    {
+      "type": "subexpSummaryRow",
+      "id": "4",
+      "attributes": {
+        "id": "4",
+        "columns": [
+          {
+            "key": "2",
+            "display": "Sub-experiment-7",
+            "value": "parasubexp:d386a052-f0be-4633-acac-635375cea1f6",
+            "linkedEntityType": "parasubexp"
+          }
+        ]
+      },
+      "relationships": {
+        "columnDefinition": {
+          "data": {
+            "type": "columnDefinition",
+            "id": "paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715"
+          }
+        }
+      }
+    }
+  ],
+  "included": [
+    {
+      "type": "columnDefinition",
+      "id": "paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715",
+      "attributes": {
+        "id": "paragrid:634f5577-e435-4a10-b4a9-e20cb87d5715",
+        "cols": [
+          {
+            "key": "2",
+            "title": "Name",
+            "type": "link",
+            "isUserDefined": false,
+            "readOnly": true
+          },
+          {
+            "key": "4",
+            "title": "Preview",
+            "type": "preview",
+            "isUserDefined": false,
+            "readOnly": true
+          },
+          {
+            "key": "p1:preview",
+            "title": "P1:Preview",
+            "type": "preview",
+            "isUserDefined": true,
+            "readOnly": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "preview"
+          },
+          {
+            "key": "p1:productid",
+            "title": "P1:Product ID",
+            "type": "text",
+            "isUserDefined": true,
+            "readOnly": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "productid"
+          },
+          {
+            "key": "p1:name",
+            "title": "P1:Product",
+            "type": "text",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "name"
+          },
+          {
+            "key": "p1:mf",
+            "title": "P1:FM",
+            "type": "unit",
+            "measure": "molecular mass",
+            "isUserDefined": true,
+            "readOnly": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "mf"
+          },
+          {
+            "key": "p1:formula",
+            "title": "P1:MF",
+            "type": "html",
+            "isUserDefined": true,
+            "readOnly": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "formula"
+          },
+          {
+            "key": "p1:mw",
+            "title": "P1:MW",
+            "type": "unit",
+            "measure": "molecular mass",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "mw"
+          },
+          {
+            "key": "p1:em",
+            "title": "P1:EM",
+            "type": "number",
+            "isUserDefined": true,
+            "readOnly": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "em"
+          },
+          {
+            "key": "p1:theomass",
+            "title": "P1:Theo Mass",
+            "type": "unit",
+            "measure": "mass",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "theomass"
+          },
+          {
+            "key": "p1:actualmass",
+            "title": "P1:Actual Mass",
+            "type": "unit",
+            "measure": "mass",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "actualmass"
+          },
+          {
+            "key": "p1:yield",
+            "title": "P1:Yield",
+            "type": "unit",
+            "measure": "fraction",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "yield"
+          },
+          {
+            "key": "p1:theomol",
+            "title": "P1:Theo Mol",
+            "type": "unit",
+            "measure": "amount of substance",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "theomol"
+          },
+          {
+            "key": "p1:actualmol",
+            "title": "P1:Actual Mol",
+            "type": "unit",
+            "measure": "amount of substance",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "actualmol"
+          },
+          {
+            "key": "p2:preview",
+            "title": "P2:Preview",
+            "type": "preview",
+            "isUserDefined": true,
+            "readOnly": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "preview"
+          },
+          {
+            "key": "p2:productid",
+            "title": "P2:Product ID",
+            "type": "text",
+            "isUserDefined": true,
+            "readOnly": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "productid"
+          },
+          {
+            "key": "p2:name",
+            "title": "P2:Product",
+            "type": "text",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "name"
+          },
+          {
+            "key": "p2:mf",
+            "title": "P2:FM",
+            "type": "unit",
+            "measure": "molecular mass",
+            "isUserDefined": true,
+            "readOnly": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "mf"
+          },
+          {
+            "key": "p2:formula",
+            "title": "P2:MF",
+            "type": "html",
+            "isUserDefined": true,
+            "readOnly": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "formula"
+          },
+          {
+            "key": "p2:mw",
+            "title": "P2:MW",
+            "type": "unit",
+            "measure": "molecular mass",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "mw"
+          },
+          {
+            "key": "p2:em",
+            "title": "P2:EM",
+            "type": "number",
+            "isUserDefined": true,
+            "readOnly": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "em"
+          },
+          {
+            "key": "p2:theomass",
+            "title": "P2:Theo Mass",
+            "type": "unit",
+            "measure": "mass",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "theomass"
+          },
+          {
+            "key": "p2:actualmass",
+            "title": "P2:Actual Mass",
+            "type": "unit",
+            "measure": "mass",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "actualmass"
+          },
+          {
+            "key": "p2:yield",
+            "title": "P2:Yield",
+            "type": "unit",
+            "measure": "fraction",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "yield"
+          },
+          {
+            "key": "p2:theomol",
+            "title": "P2:Theo Mol",
+            "type": "unit",
+            "measure": "amount of substance",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "theomol"
+          },
+          {
+            "key": "p2:actualmol",
+            "title": "P2:Actual Mol",
+            "type": "unit",
+            "measure": "amount of substance",
+            "isUserDefined": true,
+            "section": "PRODUCTS",
+            "templateColumnKey": "actualmol"
+          }
+        ]
+      }
+    }
+  ]
+}

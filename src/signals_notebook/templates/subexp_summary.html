@@ -1,0 +1,29 @@
+{% if rows %}
+<div class="table-wrapper" style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
+    <div class="table-scroll">
+        <h2>{{ name }}</h2>
+        <table>
+            <thead>
+                <tr>
+                {% for cell in table_head %}
+                    <th>{{ cell.key | safe }}</th>
+                {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in rows %}
+                <tr>
+                    {% for cell in row %}
+                        {% if cell.value == None %}
+                            <td></td>
+                        {% else %}
+                            <td>{{ cell.value | safe }}</td>
+                        {% endif %}
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}

@@ -17,6 +17,13 @@ from tests.entities.factories import (
     UploadedResourceFactory,
     WordFactory,
 )
+from tests.entities.parallel_experiment.factories import (
+    ParallelExperimentFactory,
+    SubExperimentFactory,
+    SubExperimentSummaryCellFactory,
+    SubExperimentSummaryFactory,
+    SubExperimentSummaryRowFactory,
+)
 from tests.entities.plates.factories import PlateContainerFactory
 from tests.entities.samples.factories import (
     SampleCellFactory,
@@ -51,6 +58,11 @@ register(TaskCellFactory)
 register(UploadedResourceFactory)
 register(PlateContainerFactory)
 register(MaterialTableFactory)
+register(ParallelExperimentFactory)
+register(SubExperimentFactory)
+register(SubExperimentSummaryFactory)
+register(SubExperimentSummaryRowFactory)
+register(SubExperimentSummaryCellFactory)
 
 
 @pytest.fixture()
