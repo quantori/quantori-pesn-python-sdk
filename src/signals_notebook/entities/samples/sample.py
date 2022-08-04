@@ -17,6 +17,7 @@ from signals_notebook.common_types import (
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.samples.cell import SampleCell
+from signals_notebook.utils import FSHandler
 
 if TYPE_CHECKING:
     from signals_notebook.entities import SamplesContainer
@@ -187,3 +188,46 @@ class Sample(Entity):
             force=force,
             request=request,
         )
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump Sample entity
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+
+        metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
+        data = [item.dict() for item in self]
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, f'{self.name}.json'),
+            json.dumps({'data': data}, default=str).encode('utf-8'),
+        )
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump Sample templates
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+        try:
+            for template in templates:
+                template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
+        except TypeError:
+            pass

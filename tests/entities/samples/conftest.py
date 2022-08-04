@@ -55,3 +55,34 @@ def sample_properties():
             },
         ],
     }
+
+
+@pytest.fixture()
+def templates():
+    return {
+        'links': {
+            'self': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=sample&includeOptions=template&page[offset]=0&page[limit]=20',
+            'first': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=sample&includeOptions=template&page[offset]=0&page[limit]=20',
+        },
+        'data': [
+            {
+                'type': 'entity',
+                'id': 'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
+                'links': {'self': 'https://ex.com/api/rest/v1.0/entities/sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122'},
+                'attributes': {
+                    'id': 'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
+                    'eid': 'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
+                    'name': 'Sample',
+                    'description': '',
+                    'createdAt': '2021-10-22T13:36:03.908Z',
+                    'editedAt': '2021-11-11T10:46:49.703Z',
+                    'type': 'sample',
+                    'digest': '68360779',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'Sample'}},
+                    'flags': {'canEdit': True},
+                },
+            },
+        ],
+    }
