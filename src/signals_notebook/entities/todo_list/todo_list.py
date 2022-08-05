@@ -9,6 +9,7 @@ from signals_notebook.common_types import EID, EntityType, File
 from signals_notebook.entities import EntityStore, Task
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -99,3 +100,18 @@ class TodoList(ContentfulEntity):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump TodoList entity
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+        super().dump(base_path=base_path, fs_handler=fs_handler)
+        for item in self:
+            tasks_path = fs_handler.join_path(base_path, self.eid)
+            item.dump(base_path=tasks_path, fs_handler=fs_handler)

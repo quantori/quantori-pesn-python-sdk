@@ -12,6 +12,7 @@ from signals_notebook.common_types import (
     ResponseData,
 )
 from signals_notebook.entities import Entity
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.todo_list.cell import TaskCell
 from signals_notebook.utils import FSHandler
 
@@ -128,18 +129,31 @@ class Task(Entity):
         """
         log.debug('Dumping task: %s with name: %s...', self.eid, self.name)
 
-        properties = [item for item in self]
+        properties = [item.dict() for item in self]
 
         metadata = {
-            'properties': [item.name for item in properties if item.name],
+            'properties': [item['name'] for item in properties if item['name']],
+            'filename': f'{self.name}.json',
             **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
         }
-        data = json.dumps(metadata, default=str)
         fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str))
         fs_handler.write(
-            fs_handler.join_path(base_path, self.eid, f'{self.name}.json'), json.dumps({'data': data}, default=str)
+            fs_handler.join_path(base_path, self.eid, f'{self.name}.json'), json.dumps({'data': properties}, default=str)
         )
         log.debug('Task: %s was dumped successfully', self.eid, self.name)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
+        """Load Task entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            parent: Container where load Task entity
+
+        Returns:
+
+        """
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
