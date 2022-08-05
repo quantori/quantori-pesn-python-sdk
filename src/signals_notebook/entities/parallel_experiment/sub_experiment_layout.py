@@ -11,7 +11,7 @@ log = logging.getLogger(__name__)
 
 class SubExperimentLayout(ContentfulEntity):
     type: Literal[EntityType.SUB_EXPERIMENT_LAYOUT] = Field(allow_mutation=False)
-    # _template_name: ClassVar = 'materials_table.html'
+    _template_name: ClassVar = 'subexp_layout.html'
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
