@@ -13,6 +13,7 @@ from signals_notebook.common_types import (
 )
 from signals_notebook.entities import Entity
 from signals_notebook.entities.todo_list.cell import TaskCell
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -114,3 +115,62 @@ class Task(Entity):
         )
         self._reload_cells()
         log.debug('Task: %s was saved successfully', self.eid)
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump Task entity
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+        log.debug('Dumping task: %s with name: %s...', self.eid, self.name)
+
+        properties = [item for item in self]
+
+        metadata = {
+            'properties': [item.name for item in properties if item.name],
+            **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
+        }
+        data = json.dumps(metadata, default=str)
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, f'{self.name}.json'), json.dumps({'data': data}, default=str)
+        )
+        log.debug('Task: %s was dumped successfully', self.eid, self.name)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump Table templates
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+
+        try:
+            for item in templates:
+                template = cast('Table', item)
+                properties = [item for item in template]
+                metadata = {
+                    'properties': [item.name for item in properties if item.name],
+                    **{k: v for k, v in template.dict().items() if k in ('name', 'description', 'eid')},
+                }
+                fs_handler.write(
+                    fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
+                    json.dumps(metadata),
+                )
+        except TypeError:
+            pass
