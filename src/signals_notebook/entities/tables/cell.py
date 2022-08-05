@@ -6,7 +6,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID, EntityType, MID, ObjectType
+from signals_notebook.common_types import EID, EntityType, IvtID, MID, ObjectType
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
 from signals_notebook.exceptions import EIDError
@@ -95,7 +95,7 @@ class ColumnDefinitions(BaseModel):
 class CellContent(GenericModel, Generic[CellContentType]):
     value: CellContentType
     values: Optional[List[CellContentType]] = None
-    type: Optional[EntityType] = None
+    type: Optional[Union[EntityType, ObjectType]] = None
     display: Optional[str] = None
 
     class Config:
@@ -263,7 +263,7 @@ class ExternalLink(Cell[str]):
         super()._set_value(new_value, display)
 
 
-class LinkCell(Cell[Union[EID, MID]]):
+class LinkCell(Cell[Union[EID, MID, IvtID]]):
     type: Literal[ColumnDataType.LINK] = Field(allow_mutation=False)
 
     @property
