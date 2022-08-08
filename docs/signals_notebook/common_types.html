@@ -96,6 +96,7 @@ class EntityType(str, Enum):
     PARALLEL_EXPERIMENT = &#39;paraexp&#39;
     SUB_EXPERIMENT = &#39;parasubexp&#39;
     SUB_EXPERIMENT_SUMMARY = &#39;paragrid&#39;
+    SUB_EXPERIMENT_LAYOUT = &#39;paraLayout&#39;
 
 
 class MaterialType(str, Enum):
@@ -1079,7 +1080,8 @@ def type(self) -&gt; Union[EntityType, str]:
     MATERIAL_TABLE = &#39;materialsTable&#39;
     PARALLEL_EXPERIMENT = &#39;paraexp&#39;
     SUB_EXPERIMENT = &#39;parasubexp&#39;
-    SUB_EXPERIMENT_SUMMARY = &#39;paragrid&#39;</code></pre>
+    SUB_EXPERIMENT_SUMMARY = &#39;paragrid&#39;
+    SUB_EXPERIMENT_LAYOUT = &#39;paraLayout&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1149,6 +1151,10 @@ def type(self) -&gt; Union[EntityType, str]:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.EntityType.SUB_EXPERIMENT"><code class="name">var <span class="ident">SUB_EXPERIMENT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.EntityType.SUB_EXPERIMENT_LAYOUT"><code class="name">var <span class="ident">SUB_EXPERIMENT_LAYOUT</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -2054,6 +2060,7 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLES_CONTAINER" href="#signals_notebook.common_types.EntityType.SAMPLES_CONTAINER">SAMPLES_CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SPOTFIRE" href="#signals_notebook.common_types.EntityType.SPOTFIRE">SPOTFIRE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SUB_EXPERIMENT" href="#signals_notebook.common_types.EntityType.SUB_EXPERIMENT">SUB_EXPERIMENT</a></code></li>
+<li><code><a title="signals_notebook.common_types.EntityType.SUB_EXPERIMENT_LAYOUT" href="#signals_notebook.common_types.EntityType.SUB_EXPERIMENT_LAYOUT">SUB_EXPERIMENT_LAYOUT</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SUB_EXPERIMENT_SUMMARY" href="#signals_notebook.common_types.EntityType.SUB_EXPERIMENT_SUMMARY">SUB_EXPERIMENT_SUMMARY</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.TASK" href="#signals_notebook.common_types.EntityType.TASK">TASK</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.TEXT" href="#signals_notebook.common_types.EntityType.TEXT">TEXT</a></code></li>

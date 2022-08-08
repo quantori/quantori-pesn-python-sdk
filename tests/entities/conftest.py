@@ -20,6 +20,7 @@ from tests.entities.factories import (
 from tests.entities.parallel_experiment.factories import (
     ParallelExperimentFactory,
     SubExperimentFactory,
+    SubExperimentLayoutFactory,
     SubExperimentSummaryCellFactory,
     SubExperimentSummaryFactory,
     SubExperimentSummaryRowFactory,
@@ -63,6 +64,7 @@ register(SubExperimentFactory)
 register(SubExperimentSummaryFactory)
 register(SubExperimentSummaryRowFactory)
 register(SubExperimentSummaryCellFactory)
+register(SubExperimentLayoutFactory)
 
 
 @pytest.fixture()

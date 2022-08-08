@@ -3,6 +3,7 @@ from signals_notebook.entities.parallel_experiment.cell import SubExperimentSumm
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
 from signals_notebook.entities.parallel_experiment.row import Row
 from signals_notebook.entities.parallel_experiment.sub_experiment import SubExperiment
+from signals_notebook.entities.parallel_experiment.sub_experiment_layout import SubExperimentLayout
 from signals_notebook.entities.parallel_experiment.sub_experiment_summary import SubExperimentSummary
 from tests.entities.factories import EntityFactory
 
@@ -36,3 +37,10 @@ class SubExperimentSummaryCellFactory(EntityFactory):
 class SubExperimentSummaryRowFactory(EntityFactory):
     class Meta:
         model = Row
+
+
+class SubExperimentLayoutFactory(EntityFactory):
+    class Meta:
+        model = SubExperimentLayout
+
+    type = EntityType.SUB_EXPERIMENT_LAYOUT
