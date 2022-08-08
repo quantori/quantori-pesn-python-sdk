@@ -2,11 +2,12 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Union
+from typing import ClassVar, Literal, Optional, Union, Generator
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
+from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
@@ -63,7 +64,7 @@ class Experiment(Container):
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -> 'Notebook':
+    ) -> 'Experiment':
         """Create new Experiment in Signals Notebook
 
         Args:
@@ -146,3 +147,6 @@ class Experiment(Container):
             ItemMapper.get_item_class(child_entity_type).load(
                 fs_handler.join_path(path, child_entity), fs_handler, experiment
             )
+
+    def get_children(self, order: Optional[str] = 'layout') -> Generator[Entity, None, None]:
+        return super().get_children(order=order)

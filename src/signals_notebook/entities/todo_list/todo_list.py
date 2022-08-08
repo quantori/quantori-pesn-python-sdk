@@ -1,5 +1,6 @@
 import json
 import logging
+from json import JSONDecodeError
 from typing import cast, Dict, List, Literal, Union
 from uuid import UUID
 
@@ -50,7 +51,10 @@ class TodoList(ContentfulEntity):
         self._tasks_by_id = {}
         file = self.get_content()
         content = file.content.decode('utf-8')
-        dict_content = json.loads(content)
+        try:
+            dict_content = json.loads(content)
+        except JSONDecodeError:
+            return
         for item in dict_content['rows']:
             row = EntityStore.get(item['eid'])
             task = cast(Task, row)
