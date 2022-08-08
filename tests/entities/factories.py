@@ -14,7 +14,7 @@ from signals_notebook.entities import (
     Spotfire,
     Text,
     UploadedResource,
-    Word,
+    Word, Request,
 )
 
 
@@ -127,3 +127,10 @@ class MaterialTableFactory(EntityFactory):
         model = MaterialsTable
 
     type = EntityType.MATERIAL_TABLE
+
+
+class RequestFactory(EntityFactory):
+    class Meta:
+        model = Request
+
+    type = EntityType.REQUEST

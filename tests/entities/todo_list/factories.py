@@ -1,7 +1,7 @@
 import factory
 
 from signals_notebook.common_types import EntityType, ObjectType
-from signals_notebook.entities import Task, TaskCell, TodoList
+from signals_notebook.entities import Task, TaskCell, TodoList, TaskContainer
 from tests.entities.factories import EntityFactory
 
 
@@ -26,3 +26,10 @@ class TaskCellFactory(factory.Factory):
 
     class Meta:
         model = TaskCell
+
+
+class TaskContainerFactory(EntityFactory):
+    class Meta:
+        model = TaskContainer
+
+    type = EntityType.TASK_CONTAINER

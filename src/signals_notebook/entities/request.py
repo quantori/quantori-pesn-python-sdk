@@ -6,7 +6,7 @@ from typing import Literal, ClassVar, Optional
 from pydantic import Field, BaseModel
 
 from signals_notebook.common_types import EntityType, Ancestors, Template, EntityCreationRequestPayload, \
-    RequestCreationRequestPayload
+    EntityCreationRequestPayload
 from signals_notebook.entities import Notebook
 from signals_notebook.entities.container import Container
 from signals_notebook.jinja_env import env
@@ -31,7 +31,7 @@ class _RequestBody(BaseModel):
     relationships: Optional[_Relationships] = None
 
 
-class _RequestPayload(RequestCreationRequestPayload[_RequestBody]):
+class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
     pass
 
 

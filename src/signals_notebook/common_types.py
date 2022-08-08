@@ -339,10 +339,6 @@ class EntityCreationRequestPayload(DataObject[AnyModel], Generic[AnyModel]):
     pass
 
 
-class RequestCreationRequestPayload(DataObject[AnyModel], Generic[AnyModel]):
-    pass
-
-
 class EntityShortDescription(BaseModel):
     type: Union[EntityType, str]
     id: EID

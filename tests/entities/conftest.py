@@ -15,7 +15,7 @@ from tests.entities.factories import (
     SpotfireFactory,
     TextFactory,
     UploadedResourceFactory,
-    WordFactory,
+    WordFactory, RequestFactory,
 )
 from tests.entities.plates.factories import PlateContainerFactory
 from tests.entities.samples.factories import (
@@ -25,8 +25,7 @@ from tests.entities.samples.factories import (
 )
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
-from tests.entities.todo_list.factories import TaskCellFactory, TaskFactory, TodoListFactory
-
+from tests.entities.todo_list.factories import TaskCellFactory, TaskFactory, TodoListFactory, TaskContainerFactory
 
 register(EIDFactory)
 register(NotebookFactory)
@@ -51,6 +50,8 @@ register(TaskCellFactory)
 register(UploadedResourceFactory)
 register(PlateContainerFactory)
 register(MaterialTableFactory)
+register(RequestFactory)
+register(TaskContainerFactory)
 
 
 @pytest.fixture()
