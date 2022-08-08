@@ -1,7 +1,7 @@
 import json
 import logging
 from json import JSONDecodeError
-from typing import cast, Dict, List, Literal, Union
+from typing import cast, Dict, List, Literal, Union, ClassVar
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
@@ -17,7 +17,7 @@ log = logging.getLogger(__name__)
 
 class TodoList(ContentfulEntity):
     type: Literal[EntityType.TODO_LIST] = Field(allow_mutation=False)
-    _template_name = 'todo_list.html'
+    _template_name: ClassVar = 'todo_list.html'
     _tasks: List[Task] = PrivateAttr(default=[])
     _tasks_by_id: Dict[EID, Task] = PrivateAttr(default={})
 
