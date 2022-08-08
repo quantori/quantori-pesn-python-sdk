@@ -1,7 +1,7 @@
 import factory
 
 from signals_notebook.common_types import EntityType, ObjectType
-from signals_notebook.entities import Task, TaskCell, TodoList, TaskContainer
+from signals_notebook.entities import Task, TaskCell, TaskContainer, TodoList
 from tests.entities.factories import EntityFactory
 
 

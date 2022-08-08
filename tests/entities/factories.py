@@ -11,10 +11,11 @@ from signals_notebook.entities import (
     MaterialsTable,
     Notebook,
     PowerPoint,
+    Request,
     Spotfire,
     Text,
     UploadedResource,
-    Word, Request,
+    Word,
 )
 
 

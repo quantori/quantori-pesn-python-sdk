@@ -1,12 +1,11 @@
 import json
 import logging
 from functools import cached_property
-from typing import Literal, ClassVar, Optional
+from typing import ClassVar, Literal, Optional
 
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
 
-from signals_notebook.common_types import EntityType, Ancestors, Template, EntityCreationRequestPayload, \
-    EntityCreationRequestPayload
+from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
 from signals_notebook.entities import Notebook
 from signals_notebook.entities.container import Container
 from signals_notebook.jinja_env import env

@@ -138,7 +138,8 @@ class Task(Entity):
         }
         fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str))
         fs_handler.write(
-            fs_handler.join_path(base_path, self.eid, f'{self.name}.json'), json.dumps({'data': properties}, default=str)
+            fs_handler.join_path(base_path, self.eid, f'{self.name}.json'),
+            json.dumps({'data': properties}, default=str),
         )
         log.debug('Task: %s was dumped successfully', self.eid, self.name)
 
@@ -176,7 +177,7 @@ class Task(Entity):
 
         try:
             for item in templates:
-                template = cast('Table', item)
+                template = cast('Task', item)
                 properties = [item for item in template]
                 metadata = {
                     'properties': [item.name for item in properties if item.name],

@@ -2,7 +2,7 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Union, Generator
+from typing import ClassVar, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 

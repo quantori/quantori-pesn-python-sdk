@@ -12,10 +12,11 @@ from tests.entities.factories import (
     MaterialTableFactory,
     NotebookFactory,
     PowerPointFactory,
+    RequestFactory,
     SpotfireFactory,
     TextFactory,
     UploadedResourceFactory,
-    WordFactory, RequestFactory,
+    WordFactory,
 )
 from tests.entities.plates.factories import PlateContainerFactory
 from tests.entities.samples.factories import (
@@ -25,7 +26,7 @@ from tests.entities.samples.factories import (
 )
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
-from tests.entities.todo_list.factories import TaskCellFactory, TaskFactory, TodoListFactory, TaskContainerFactory
+from tests.entities.todo_list.factories import TaskCellFactory, TaskContainerFactory, TaskFactory, TodoListFactory
 
 register(EIDFactory)
 register(NotebookFactory)
