@@ -70,6 +70,7 @@ class ObjectType(str, Enum):
     PLATE_ROW = &#39;plateRow&#39;
     ATTRIBUTE_OPTION = &#39;option&#39;
     CHOICE = &#39;choice&#39;
+    CONTAINER = &#39;container&#39;
 
 
 class EntityType(str, Enum):
@@ -92,6 +93,8 @@ class EntityType(str, Enum):
     TASK = &#39;task&#39;
     PLATE_CONTAINER = &#39;plateContainer&#39;
     MATERIAL_TABLE = &#39;materialsTable&#39;
+    REQUEST = &#39;request&#39;
+    TASK_CONTAINER = &#39;taskContainer&#39;
 
 
 class MaterialType(str, Enum):
@@ -128,7 +131,11 @@ class EID(str):
             raise EIDError(value=v)
 
         try:
-            _type, _id = v.split(&#39;:&#39;)
+            _parts = v.split(&#39;:&#39;)
+            if len(_parts) == 2:
+                _type, _id = _parts
+            else:
+                _type, _id, _ = _parts
             UUID(_id)
         except ValueError:
             log.exception(&#39;Cannot get id and type from value&#39;)
@@ -143,7 +150,11 @@ class EID(str):
         Returns:
             One of the entity types
         &#34;&#34;&#34;
-        _type, _ = self.split(&#39;:&#39;)
+        _parts = self.split(&#39;:&#39;)
+        if len(_parts) == 2:
+            _type, _ = _parts
+        else:
+            _type, _, _ = _parts
         try:
             return EntityType(_type)
         except ValueError:
@@ -157,7 +168,11 @@ class EID(str):
         Returns:
             UUID
         &#34;&#34;&#34;
-        _, _id = self.split(&#39;:&#39;)
+        _parts = self.split(&#39;:&#39;)
+        if len(_parts) == 2:
+            _, _id = _parts
+        else:
+            _, _id, _ = _parts
         return UUID(_id)
 
 
@@ -764,6 +779,7 @@ def type(self) -&gt; ObjectType:
 <ul class="hlist">
 <li>pydantic.generics.DataObject[_RequestBody]</li>
 <li>pydantic.generics.DataObject[_RequestBody]</li>
+<li>pydantic.generics.DataObject[_RequestBody]</li>
 <li>pydantic.generics.DataObject[_SampleRequestBody]</li>
 <li><a title="signals_notebook.common_types.DataObject[EntityShortDescription]" href="#signals_notebook.common_types.DataObject[EntityShortDescription]">DataObject[EntityShortDescription]</a></li>
 <li><a title="signals_notebook.common_types.EntityCreationRequestPayload" href="#signals_notebook.common_types.EntityCreationRequestPayload">EntityCreationRequestPayload</a></li>
@@ -845,7 +861,11 @@ def type(self) -&gt; ObjectType:
             raise EIDError(value=v)
 
         try:
-            _type, _id = v.split(&#39;:&#39;)
+            _parts = v.split(&#39;:&#39;)
+            if len(_parts) == 2:
+                _type, _id = _parts
+            else:
+                _type, _id, _ = _parts
             UUID(_id)
         except ValueError:
             log.exception(&#39;Cannot get id and type from value&#39;)
@@ -860,7 +880,11 @@ def type(self) -&gt; ObjectType:
         Returns:
             One of the entity types
         &#34;&#34;&#34;
-        _type, _ = self.split(&#39;:&#39;)
+        _parts = self.split(&#39;:&#39;)
+        if len(_parts) == 2:
+            _type, _ = _parts
+        else:
+            _type, _, _ = _parts
         try:
             return EntityType(_type)
         except ValueError:
@@ -874,7 +898,11 @@ def type(self) -&gt; ObjectType:
         Returns:
             UUID
         &#34;&#34;&#34;
-        _, _id = self.split(&#39;:&#39;)
+        _parts = self.split(&#39;:&#39;)
+        if len(_parts) == 2:
+            _, _id = _parts
+        else:
+            _, _id, _ = _parts
         return UUID(_id)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -913,7 +941,11 @@ def validate(cls, v: Any):
         raise EIDError(value=v)
 
     try:
-        _type, _id = v.split(&#39;:&#39;)
+        _parts = v.split(&#39;:&#39;)
+        if len(_parts) == 2:
+            _type, _id = _parts
+        else:
+            _type, _id, _ = _parts
         UUID(_id)
     except ValueError:
         log.exception(&#39;Cannot get id and type from value&#39;)
@@ -941,7 +973,11 @@ def id(self) -&gt; UUID:
     Returns:
         UUID
     &#34;&#34;&#34;
-    _, _id = self.split(&#39;:&#39;)
+    _parts = self.split(&#39;:&#39;)
+    if len(_parts) == 2:
+        _, _id = _parts
+    else:
+        _, _id, _ = _parts
     return UUID(_id)</code></pre>
 </details>
 </dd>
@@ -961,7 +997,11 @@ def type(self) -&gt; Union[EntityType, str]:
     Returns:
         One of the entity types
     &#34;&#34;&#34;
-    _type, _ = self.split(&#39;:&#39;)
+    _parts = self.split(&#39;:&#39;)
+    if len(_parts) == 2:
+        _type, _ = _parts
+    else:
+        _type, _, _ = _parts
     try:
         return EntityType(_type)
     except ValueError:
@@ -997,6 +1037,7 @@ def type(self) -&gt; Union[EntityType, str]:
 <ul class="hlist">
 <li><a title="signals_notebook.entities.experiment.EntityCreationRequestPayload[_RequestBody]" href="entities/experiment.html#signals_notebook.entities.experiment.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
 <li><a title="signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody]" href="entities/notebook.html#signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
+<li><a title="signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody]" href="entities/request.html#signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
 <li><a title="signals_notebook.entities.samples.sample.EntityCreationRequestPayload[_SampleRequestBody]" href="entities/samples/sample.html#signals_notebook.entities.samples.sample.EntityCreationRequestPayload[_SampleRequestBody]">EntityCreationRequestPayload[_SampleRequestBody]</a></li>
 </ul>
 <h3>Class variables</h3>
@@ -1068,7 +1109,9 @@ def type(self) -&gt; Union[EntityType, str]:
     TODO_LIST = &#39;linkedTaskContainer&#39;
     TASK = &#39;task&#39;
     PLATE_CONTAINER = &#39;plateContainer&#39;
-    MATERIAL_TABLE = &#39;materialsTable&#39;</code></pre>
+    MATERIAL_TABLE = &#39;materialsTable&#39;
+    REQUEST = &#39;request&#39;
+    TASK_CONTAINER = &#39;taskContainer&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1121,6 +1164,10 @@ def type(self) -&gt; Union[EntityType, str]:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.common_types.EntityType.REQUEST"><code class="name">var <span class="ident">REQUEST</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.EntityType.SAMPLE"><code class="name">var <span class="ident">SAMPLE</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1134,6 +1181,10 @@ def type(self) -&gt; Union[EntityType, str]:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.EntityType.TASK"><code class="name">var <span class="ident">TASK</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.EntityType.TASK_CONTAINER"><code class="name">var <span class="ident">TASK_CONTAINER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1670,7 +1721,8 @@ def type(self) -&gt; MaterialType:
     ROLE = &#39;role&#39;
     PLATE_ROW = &#39;plateRow&#39;
     ATTRIBUTE_OPTION = &#39;option&#39;
-    CHOICE = &#39;choice&#39;</code></pre>
+    CHOICE = &#39;choice&#39;
+    CONTAINER = &#39;container&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1700,6 +1752,10 @@ def type(self) -&gt; MaterialType:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.ObjectType.COLUMN_DEFINITIONS"><code class="name">var <span class="ident">COLUMN_DEFINITIONS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.CONTAINER"><code class="name">var <span class="ident">CONTAINER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -2021,10 +2077,12 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.EntityType.NOTEBOOK" href="#signals_notebook.common_types.EntityType.NOTEBOOK">NOTEBOOK</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.PLATE_CONTAINER" href="#signals_notebook.common_types.EntityType.PLATE_CONTAINER">PLATE_CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.POWER_POINT" href="#signals_notebook.common_types.EntityType.POWER_POINT">POWER_POINT</a></code></li>
+<li><code><a title="signals_notebook.common_types.EntityType.REQUEST" href="#signals_notebook.common_types.EntityType.REQUEST">REQUEST</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLE" href="#signals_notebook.common_types.EntityType.SAMPLE">SAMPLE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLES_CONTAINER" href="#signals_notebook.common_types.EntityType.SAMPLES_CONTAINER">SAMPLES_CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SPOTFIRE" href="#signals_notebook.common_types.EntityType.SPOTFIRE">SPOTFIRE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.TASK" href="#signals_notebook.common_types.EntityType.TASK">TASK</a></code></li>
+<li><code><a title="signals_notebook.common_types.EntityType.TASK_CONTAINER" href="#signals_notebook.common_types.EntityType.TASK_CONTAINER">TASK_CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.TEXT" href="#signals_notebook.common_types.EntityType.TEXT">TEXT</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.TODO_LIST" href="#signals_notebook.common_types.EntityType.TODO_LIST">TODO_LIST</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.UPLOADED_RESOURCE" href="#signals_notebook.common_types.EntityType.UPLOADED_RESOURCE">UPLOADED_RESOURCE</a></code></li>
@@ -2078,6 +2136,7 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.ObjectType.ATTRIBUTE_OPTION" href="#signals_notebook.common_types.ObjectType.ATTRIBUTE_OPTION">ATTRIBUTE_OPTION</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.CHOICE" href="#signals_notebook.common_types.ObjectType.CHOICE">CHOICE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.COLUMN_DEFINITIONS" href="#signals_notebook.common_types.ObjectType.COLUMN_DEFINITIONS">COLUMN_DEFINITIONS</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.CONTAINER" href="#signals_notebook.common_types.ObjectType.CONTAINER">CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.ENTITY" href="#signals_notebook.common_types.ObjectType.ENTITY">ENTITY</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.GROUP" href="#signals_notebook.common_types.ObjectType.GROUP">GROUP</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.MATERIAL" href="#signals_notebook.common_types.ObjectType.MATERIAL">MATERIAL</a></code></li>

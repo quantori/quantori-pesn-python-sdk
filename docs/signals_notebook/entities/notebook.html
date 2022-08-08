@@ -103,7 +103,7 @@ class Notebook(Container):
             fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
             json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
         )
-        for child in self.get_children(order=None):
+        for child in self.get_children():
             child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)
 
     @classmethod
@@ -223,7 +223,7 @@ class Notebook(Container):
             fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
             json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
         )
-        for child in self.get_children(order=None):
+        for child in self.get_children():
             child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)
 
     @classmethod
@@ -356,7 +356,7 @@ def load(cls, path: str, fs_handler: FSHandler) -&gt; None:
         fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
         json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
     )
-    for child in self.get_children(order=None):
+    for child in self.get_children():
         child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)</code></pre>
 </details>
 </dd>
