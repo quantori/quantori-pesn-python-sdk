@@ -34,7 +34,7 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
     pass
 
 
-class Request(Container):
+class RequestContainer(Container):
     type: Literal[EntityType.REQUEST] = Field(allow_mutation=False)
     _template_name: ClassVar = 'request.html'
 
@@ -51,11 +51,11 @@ class Request(Container):
         *,
         name: str,
         description: Optional[str] = None,
-        template: Optional['Request'] = None,
+        template: Optional['RequestContainer'] = None,
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -> 'Request':
+    ) -> 'RequestContainer':
         """Create new Request in Signals Notebook
 
         Args:

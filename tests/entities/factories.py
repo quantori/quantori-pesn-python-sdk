@@ -11,7 +11,7 @@ from signals_notebook.entities import (
     MaterialsTable,
     Notebook,
     PowerPoint,
-    Request,
+    RequestContainer,
     Spotfire,
     Text,
     UploadedResource,
@@ -130,8 +130,8 @@ class MaterialTableFactory(EntityFactory):
     type = EntityType.MATERIAL_TABLE
 
 
-class RequestFactory(EntityFactory):
+class RequestContainerFactory(EntityFactory):
     class Meta:
-        model = Request
+        model = RequestContainer
 
     type = EntityType.REQUEST

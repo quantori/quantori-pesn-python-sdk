@@ -19,5 +19,5 @@ from signals_notebook.entities.spotfire import Spotfire  # noqa
 from signals_notebook.entities.uploaded_resource import UploadedResource  # noqa
 from signals_notebook.entities.plates.plate_container import PlateContainer  # noqa
 from signals_notebook.entities.materials_table import MaterialsTable  # noqa
-from signals_notebook.entities.request import Request  # noqa
+from signals_notebook.entities.request import RequestContainer  # noqa
 from signals_notebook.entities.todo_list.task_container import TaskContainer  # noqa

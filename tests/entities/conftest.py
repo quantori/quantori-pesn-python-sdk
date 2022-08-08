@@ -12,7 +12,7 @@ from tests.entities.factories import (
     MaterialTableFactory,
     NotebookFactory,
     PowerPointFactory,
-    RequestFactory,
+    RequestContainerFactory,
     SpotfireFactory,
     TextFactory,
     UploadedResourceFactory,
@@ -51,7 +51,7 @@ register(TaskCellFactory)
 register(UploadedResourceFactory)
 register(PlateContainerFactory)
 register(MaterialTableFactory)
-register(RequestFactory)
+register(RequestContainerFactory)
 register(TaskContainerFactory)
 
 
