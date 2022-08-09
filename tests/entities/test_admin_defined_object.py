@@ -5,7 +5,7 @@ import arrow
 import pytest
 
 from signals_notebook.common_types import EntityType, ObjectType
-from signals_notebook.entities import ChemicalDrawing, Entity, Text, AdminDefinedObject
+from signals_notebook.entities import AdminDefinedObject, ChemicalDrawing, Entity, Text
 
 
 @pytest.fixture()
@@ -22,7 +22,8 @@ def templates():
                 'type': 'entity',
                 'id': 'admin_defined_object:d4d25125-5665-4c89-b9b6-049b44e1355e',
                 'links': {
-                    'self': 'https://ex.com/api/rest/v1.0/entities/admin_defined_object:d4d25125-5665-4c89-b9b6-049b44e1355e'
+                    'self': 'https://ex.com/api/rest/v1.0/'
+                    'entities/admin_defined_object:d4d25125-5665-4c89-b9b6-049b44e1355e'
                 },
                 'attributes': {
                     'id': 'admin_defined_object:d4d25125-5665-4c89-b9b6-049b44e1355e',
@@ -64,7 +65,9 @@ def test_create(api_mock, description, digest, force, eid_factory):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = AdminDefinedObject.create(name='My admin_defined_object', description=description, digest=digest, force=force)
+    result = AdminDefinedObject.create(
+        name='My admin_defined_object', description=description, digest=digest, force=force
+    )
 
     request_body = {
         'data': {
@@ -119,7 +122,9 @@ def test_create_with_ancestors(api_mock, notebook_factory, eid_factory):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = AdminDefinedObject.create(name='My admin_defined_object', description='Some description', notebook=notebook, force=True)
+    result = AdminDefinedObject.create(
+        name='My admin_defined_object', description='Some description', notebook=notebook, force=True
+    )
 
     request_body = {
         'data': {
@@ -182,7 +187,9 @@ def test_create_with_template(api_mock, admin_defined_object_factory, eid_factor
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = AdminDefinedObject.create(name='My admin_defined_object', description='Some description', template=template, force=True)
+    result = AdminDefinedObject.create(
+        name='My admin_defined_object', description='Some description', template=template, force=True
+    )
 
     request_body = {
         'data': {
