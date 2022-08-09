@@ -175,3 +175,29 @@ class Material(BaseMaterialEntity):
                 'data': request_body,
             },
         )
+
+    def delete(self, digest: str = None, force: bool = True) -> None:
+        """Delete Material by ID
+
+        Args:
+            eid: Material ID
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+                If the parameter 'force' is true, this parameter is optional.
+                If the parameter 'force' is false, this parameter is required.
+            force: Force to delete without doing digest check.
+
+        Returns:
+
+        """
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Deleting Material: %s', self.eid)
+
+        api.call(
+            method='DELETE',
+            path=('entities', self.eid),
+            params={
+                'digest': digest,
+                'force': json.dumps(force),
+            },
+        )
+        log.debug('Library: %s was deleted successfully', self.eid)
