@@ -84,7 +84,7 @@ snapshots['test_get_html 1'] = '''<!DOCTYPE html>
     </tr>
     <tr>
         <th>Last edited at:</th>
-        <td>06:11:23 1972-07-25</td>
+        <td>08:28:26 2010-12-14</td>
     </tr>
 </table>
 
