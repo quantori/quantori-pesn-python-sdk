@@ -1,3 +1,5 @@
+import datetime
+
 import arrow
 import pytest
 
@@ -216,6 +218,7 @@ def test_get_html(api_mock, sub_experiment_factory, snapshot):
     experiment = sub_experiment_factory(
         name='name',
         description='text',
+        edited_at=datetime.datetime(2018, 6, 1, 1, 1, 1),
         children=[],
     )
     response = {
