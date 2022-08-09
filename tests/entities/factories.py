@@ -2,6 +2,7 @@ import factory
 
 from signals_notebook.common_types import EID, EntityType
 from signals_notebook.entities import (
+    AdminDefinedObject,
     BiologicalSequence,
     ChemicalDrawing,
     Entity,
@@ -127,3 +128,10 @@ class MaterialTableFactory(EntityFactory):
         model = MaterialsTable
 
     type = EntityType.MATERIAL_TABLE
+
+
+class AdminDefinedObjectFactory(EntityFactory):
+    class Meta:
+        model = AdminDefinedObject
+
+    type = EntityType.ADO

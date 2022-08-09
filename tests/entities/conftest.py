@@ -2,6 +2,7 @@ import pytest
 from pytest_factoryboy import register
 
 from tests.entities.factories import (
+    AdminDefinedObjectFactory,
     BiologicalSequenceFactory,
     ChemicalDrawingFactory,
     EIDFactory,
@@ -51,6 +52,7 @@ register(TaskCellFactory)
 register(UploadedResourceFactory)
 register(PlateContainerFactory)
 register(MaterialTableFactory)
+register(AdminDefinedObjectFactory)
 
 
 @pytest.fixture()

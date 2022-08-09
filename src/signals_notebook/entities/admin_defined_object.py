@@ -22,7 +22,7 @@ class AdminDefinedObject(Container):
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
-        return EntityType.EXPERIMENT
+        return EntityType.ADO
 
     # @classmethod
     # def create(
