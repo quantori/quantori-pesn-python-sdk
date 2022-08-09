@@ -5,34 +5,34 @@ import arrow
 import pytest
 
 from signals_notebook.common_types import EntityType, ObjectType
-from signals_notebook.entities import ChemicalDrawing, Entity, Text, RequestContainer
+from signals_notebook.entities import ChemicalDrawing, Entity, RequestContainer, Text
 
 
 @pytest.fixture()
 def templates():
     return {
-        "links": {
-            "self": "https://ex.com/api/rest/v1.0/entities?"
-            "includeTypes=request&includeOptions=template&page[offset]=0&page[limit]=20",
-            "first": "https://ex.com/api/rest/v1.0/entities?"
-            "includeTypes=request&includeOptions=template&page[offset]=0&page[limit]=20",
+        'links': {
+            'self': 'https://ex.com/api/rest/v1.0/entities?'
+            'includeTypes=request&includeOptions=template&page[offset]=0&page[limit]=20',
+            'first': 'https://ex.com/api/rest/v1.0/entities?'
+            'includeTypes=request&includeOptions=template&page[offset]=0&page[limit]=20',
         },
-        "data": [
+        'data': [
             {
-                "type": "entity",
-                "id": "request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250",
-                "links": {"self": "https://ex.com/api/rest/v1.0/entities/request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250"},
-                "attributes": {
-                    "id": "request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250",
-                    "eid": "request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250",
-                    "name": "DEFAULT_REQUEST",
-                    "description": "",
-                    "createdAt": "2021-10-22T13:36:06.333Z",
-                    "editedAt": "2021-10-22T13:36:06.333Z",
-                    "type": "request",
-                    "digest": "10841722",
-                    "fields": {"Description": {"value": ""}, "Name": {"value": "DEFAULT_REQUEST"}},
-                    "flags": {"canEdit": True},
+                'type': 'entity',
+                'id': 'request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250',
+                'links': {'self': 'https://ex.com/api/rest/v1.0/entities/request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250'},
+                'attributes': {
+                    'id': 'request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250',
+                    'eid': 'request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250',
+                    'name': 'DEFAULT_REQUEST',
+                    'description': '',
+                    'createdAt': '2021-10-22T13:36:06.333Z',
+                    'editedAt': '2021-10-22T13:36:06.333Z',
+                    'type': 'request',
+                    'digest': '10841722',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'DEFAULT_REQUEST'}},
+                    'flags': {'canEdit': True},
                 },
             },
         ],
@@ -117,7 +117,9 @@ def test_create_with_ancestors(api_mock, notebook_factory, eid_factory):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = RequestContainer.create(name='My experiment', description='Some description', notebook=notebook, force=True)
+    result = RequestContainer.create(
+        name='My experiment', description='Some description', notebook=notebook, force=True
+    )
 
     request_body = {
         'data': {
@@ -180,7 +182,9 @@ def test_create_with_template(api_mock, request_container_factory, eid_factory):
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = RequestContainer.create(name='My experiment', description='Some description', template=template, force=True)
+    result = RequestContainer.create(
+        name='My experiment', description='Some description', template=template, force=True
+    )
 
     request_body = {
         'data': {

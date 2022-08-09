@@ -157,7 +157,9 @@ def test_reload_tasks(api_mock, task_container_factory, task_properties, task_co
     )
 
 
-def test_save(api_mock, task_container_factory, task_properties, task_container_content, get_task, get_response, mocker):
+def test_save(
+    api_mock, task_container_factory, task_properties, task_container_content, get_task, get_response, mocker
+):
     task_container = task_container_factory()
 
     assert task_container._tasks == []

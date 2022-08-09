@@ -1,7 +1,7 @@
 import json
 import logging
 from json import JSONDecodeError
-from typing import cast, Dict, List, Literal, Union, ClassVar
+from typing import cast, ClassVar, Dict, List, Literal, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr

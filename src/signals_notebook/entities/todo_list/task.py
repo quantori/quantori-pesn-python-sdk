@@ -12,7 +12,6 @@ from signals_notebook.common_types import (
     ResponseData,
 )
 from signals_notebook.entities import Entity
-from signals_notebook.entities.container import Container
 from signals_notebook.entities.todo_list.cell import TaskCell
 from signals_notebook.utils import FSHandler
 
