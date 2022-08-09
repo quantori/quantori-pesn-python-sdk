@@ -13,17 +13,15 @@ def templates():
     return {
         "links": {
             "self": "https://ex.com/api/rest/v1.0/entities?"
-                    "includeTypes=request&includeOptions=template&page[offset]=0&page[limit]=20",
+            "includeTypes=request&includeOptions=template&page[offset]=0&page[limit]=20",
             "first": "https://ex.com/api/rest/v1.0/entities?"
-                     "includeTypes=request&includeOptions=template&page[offset]=0&page[limit]=20",
+            "includeTypes=request&includeOptions=template&page[offset]=0&page[limit]=20",
         },
         "data": [
             {
                 "type": "entity",
                 "id": "request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250",
-                "links": {
-                    "self": "https://ex.com/api/rest/v1.0/entities/request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250"
-                },
+                "links": {"self": "https://ex.com/api/rest/v1.0/entities/request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250"},
                 "attributes": {
                     "id": "request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250",
                     "eid": "request:3ef030aa-23c3-4d2f-8ff7-5de6c2870250",
@@ -325,5 +323,63 @@ def test_dump_templates(api_mock, mocker, request_container_factory, templates, 
     )
 
 
-def test_dump():
-    pass
+def test_dump(api_mock, request_container_factory, eid_factory, mocker):
+    request_container = request_container_factory()
+    text_eid = eid_factory(type=EntityType.TEXT)
+    response = {
+        'links': {'self': f'https://example.com/{request_container.eid}/children'},
+        'data': [
+            {
+                'type': ObjectType.ENTITY,
+                'id': text_eid,
+                'links': {'self': f'https://example.com/{text_eid}'},
+                'attributes': {
+                    'eid': text_eid,
+                    'name': 'Some reactions',
+                    'description': '',
+                    'type': EntityType.TEXT,
+                    'createdAt': '2019-09-06T03:12:35.129Z',
+                    'editedAt': '2019-09-06T15:22:47.309Z',
+                    'digest': '123144',
+                },
+            },
+        ],
+    }
+    api_mock.call.return_value.json.return_value = response
+    content = b'Some text'
+    content_type = 'text/plain'
+
+    api_mock.call.return_value.headers = {
+        'content-type': content_type,
+        'content-disposition': 'attachment; filename=Some reactions',
+    }
+    api_mock.call.return_value.content = content
+
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'file_name': 'Some reactions',
+        'content_type': content_type,
+        'eid': text_eid,
+        'name': 'Some reactions',
+        'description': '',
+    }
+    request_container.dump(base_path=base_path, fs_handler=fs_handler_mock)
+
+    join_path_call_1 = mocker.call(base_path, request_container.eid, 'metadata.json')
+    join_path_call_2 = mocker.call(fs_handler_mock.join_path(), text_eid, 'Some reactions')
+
+    fs_handler_mock.join_path.assert_has_calls(
+        [
+            join_path_call_1,
+            join_path_call_2,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
+            mocker.call(fs_handler_mock.join_path(), content),
+        ],
+        any_order=True,
+    )
