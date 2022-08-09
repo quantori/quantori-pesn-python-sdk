@@ -95,12 +95,128 @@ def test_create(api_mock, description, digest, force, eid_factory):
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
-def test_create_with_ancestors():
-    pass
+def test_create_with_ancestors(api_mock, notebook_factory, eid_factory):
+    notebook = notebook_factory()
+    eid = eid_factory(type=EntityType.REQUEST)
+    response = {
+        'links': {'self': f'https://example.com/{eid}'},
+        'data': {
+            'type': ObjectType.ENTITY,
+            'id': eid,
+            'links': {'self': f'https://example.com/{eid}'},
+            'attributes': {
+                'eid': eid,
+                'name': 'My experiment',
+                'description': 'Some description',
+                'type': EntityType.REQUEST,
+                'createdAt': '2019-09-06T03:12:35.129Z',
+                'editedAt': '2019-09-06T15:22:47.309Z',
+                'digest': '123144',
+            },
+        },
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    result = RequestContainer.create(name='My experiment', description='Some description', notebook=notebook, force=True)
+
+    request_body = {
+        'data': {
+            'type': EntityType.REQUEST,
+            'attributes': {
+                'name': response['data']['attributes']['name'],
+                'description': response['data']['attributes']['description'],
+            },
+            'relationships': {
+                'ancestors': {
+                    'data': [
+                        {
+                            'id': notebook.eid,
+                            'type': EntityType.NOTEBOOK,
+                        }
+                    ]
+                }
+            },
+        }
+    }
+
+    api_mock.call.assert_called_once_with(
+        method='POST',
+        path=('entities',),
+        params={
+            'digest': None,
+            'force': 'true',
+        },
+        json=request_body,
+    )
+
+    assert isinstance(result, RequestContainer)
+    assert result.eid == eid
+    assert result.digest == response['data']['attributes']['digest']
+    assert result.name == response['data']['attributes']['name']
+    assert result.description == response['data']['attributes']['description']
+    assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
+    assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
-def test_create_with_template():
-    pass
+def test_create_with_template(api_mock, request_container_factory, eid_factory):
+    template = request_container_factory()
+    eid = eid_factory(type=EntityType.REQUEST)
+    response = {
+        'links': {'self': f'https://example.com/{eid}'},
+        'data': {
+            'type': ObjectType.ENTITY,
+            'id': eid,
+            'links': {'self': f'https://example.com/{eid}'},
+            'attributes': {
+                'eid': eid,
+                'name': 'My experiment',
+                'description': 'Some description',
+                'type': EntityType.REQUEST,
+                'createdAt': '2019-09-06T03:12:35.129Z',
+                'editedAt': '2019-09-06T15:22:47.309Z',
+                'digest': '123144',
+            },
+        },
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    result = RequestContainer.create(name='My experiment', description='Some description', template=template, force=True)
+
+    request_body = {
+        'data': {
+            'type': EntityType.REQUEST,
+            'attributes': {
+                'name': response['data']['attributes']['name'],
+                'description': response['data']['attributes']['description'],
+            },
+            'relationships': {
+                'template': {
+                    'data': {
+                        'id': template.eid,
+                        'type': EntityType.REQUEST,
+                    }
+                }
+            },
+        }
+    }
+
+    api_mock.call.assert_called_once_with(
+        method='POST',
+        path=('entities',),
+        params={
+            'digest': None,
+            'force': 'true',
+        },
+        json=request_body,
+    )
+
+    assert isinstance(result, RequestContainer)
+    assert result.eid == eid
+    assert result.digest == response['data']['attributes']['digest']
+    assert result.name == response['data']['attributes']['name']
+    assert result.description == response['data']['attributes']['description']
+    assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
+    assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
 @pytest.mark.parametrize('force', [True, False])
