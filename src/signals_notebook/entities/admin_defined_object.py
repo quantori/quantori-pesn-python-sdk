@@ -59,10 +59,10 @@ class AdminDefinedObject(Container):
         """Create new AdminDefinedObject in Signals Notebook
 
         Args:
-            name: name of experiment
-            description: description of experiment
-            template: experiment template
-            notebook: notebook where create experiment
+            name: name of AdminDefinedObject
+            description: description of AdminDefinedObject
+            template: AdminDefinedObject template
+            notebook: notebook where create AdminDefinedObject
             digest: Indicate digest
             force: Force to create without doing digest check
 
