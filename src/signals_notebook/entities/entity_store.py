@@ -2,7 +2,7 @@ import json
 import logging
 from datetime import datetime
 from enum import Enum
-from typing import cast, Generator, List, Union
+from typing import cast, Generator, List, Union, Tuple
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EID, EntityType, Response, ResponseData
@@ -160,7 +160,7 @@ class EntityStore:
         log.debug('Entity: %s was deleted from EntityStore successfully', eid)
 
     @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str]) -> None:
         """Dump all templates from system
 
         Args:
@@ -172,4 +172,4 @@ class EntityStore:
         """
 
         for item in Entity.get_subclasses():
-            item.dump_templates(base_path, fs_handler)
+            item.dump_templates(base_path, fs_handler,base_alias + (item.__class__, ))

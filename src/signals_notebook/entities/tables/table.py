@@ -2,7 +2,7 @@ import cgi
 import json
 import logging
 from enum import Enum
-from typing import Any, cast, Dict, List, Literal, Union
+from typing import Any, cast, Dict, List, Literal, Union, Tuple
 from uuid import UUID
 
 import pandas as pd
@@ -412,7 +412,7 @@ class Table(Entity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str]) -> None:
         """Dump Table entity
 
         Args:
@@ -433,10 +433,11 @@ class Table(Entity):
             'columns': [item.title for item in column_definitions],
             **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str))
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str),
+                         base_alias + (self.name, 'Metadata', ))
         file_name = content.name
         data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data, base_alias + (self.name, file_name, ))
         log.debug('Table: %s was dumped successfully', self.eid, self.name)
 
     @classmethod
@@ -483,7 +484,7 @@ class Table(Entity):
         log.debug('Table was loaded to Container: %s', parent.eid)
 
     @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str]) -> None:
         """Dump Table templates
 
         Args:
@@ -515,7 +516,7 @@ class Table(Entity):
                 fs_handler.write(
                     fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
                     json.dumps(metadata),
-                )
+                    base_alias + (template.name,))
         except TypeError:
             pass
 

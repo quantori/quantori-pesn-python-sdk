@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Literal, Optional
+from typing import Literal, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -70,13 +70,14 @@ class Notebook(Container):
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str]) -> None:
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps({k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}),
+            base_alias + (self.name, 'Metadata')
         )
         for child in self.get_children(order=None):
-            child.dump(base_path + '/' + self.eid, fs_handler)
+            child.dump(base_path + '/' + self.eid, fs_handler, base_alias + (self.name, ))
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler) -> None:

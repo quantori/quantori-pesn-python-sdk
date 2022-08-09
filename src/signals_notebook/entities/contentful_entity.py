@@ -3,7 +3,7 @@ import cgi
 import json
 import logging
 from enum import Enum
-from typing import Optional
+from typing import Optional, Tuple
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, File
@@ -76,7 +76,7 @@ class ContentfulEntity(Entity, abc.ABC):
 
         return template.render(data=data)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str]) -> None:
         """Dump ContentfulEntity entity
 
         Args:
@@ -92,10 +92,10 @@ class ContentfulEntity(Entity, abc.ABC):
             'content_type': content.content_type,
             **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata), base_alias + (self.name, 'Metadata', ))
         file_name = content.name
         data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data, base_alias + (self.name, file_name, ))
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:

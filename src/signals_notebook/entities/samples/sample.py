@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union
+from typing import cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union, Tuple
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -209,7 +209,7 @@ class Sample(Entity):
         )
 
     @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str]) -> None:
         """Dump Sample templates
 
         Args:
@@ -228,6 +228,8 @@ class Sample(Entity):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
+                template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler,
+                              base_alias + (template.name,))
+
         except TypeError:
             pass

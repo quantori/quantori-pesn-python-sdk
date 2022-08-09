@@ -1,7 +1,7 @@
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Union
+from typing import ClassVar, Literal, Optional, Union, Tuple
 
 from pydantic import Field
 
@@ -107,7 +107,7 @@ class ChemicalDrawing(ContentfulEntity):
         return template.render(data=data)
 
     @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str]) -> None:
         """Dump ChemicalDrawing templates
 
         Args:
@@ -126,6 +126,8 @@ class ChemicalDrawing(ContentfulEntity):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, 'templates', entity_type), fs_handler,
+                    base_alias + (template.name, ))
         except TypeError:
             pass

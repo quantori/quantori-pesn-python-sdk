@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import Any, cast, ClassVar, Dict, Generator, Generic, List, Optional, Type, TypeVar, Union
+from typing import Any, cast, ClassVar, Dict, Generator, Generic, List, Optional, Type, TypeVar, Union, Tuple
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -310,7 +310,7 @@ class Entity(BaseModel):
         log.error('Loading Entity: not implemented!')
 
     @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str]) -> None:
         """Dump Entity templates
 
         Args:
@@ -332,6 +332,7 @@ class Entity(BaseModel):
                 fs_handler.write(
                     fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
                     json.dumps({k: v for k, v in template.dict().items() if k in ('name', 'description', 'eid')}),
-                )
+                    base_alias + (template.name,))
+
         except TypeError:
             pass
