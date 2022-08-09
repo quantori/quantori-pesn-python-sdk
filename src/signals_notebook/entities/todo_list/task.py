@@ -144,21 +144,8 @@ class Task(Entity):
         log.debug('Task: %s was dumped successfully', self.eid, self.name)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
-        """Load Task entity
-
-        Args:
-            path: content path
-            fs_handler: FSHandler
-            parent: Container where load Task entity
-
-        Returns:
-
-        """
-
-    @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
-        """Dump Table templates
+        """Dump Task templates
 
         Args:
             base_path: content path where create templates dump
@@ -188,4 +175,4 @@ class Task(Entity):
                     json.dumps(metadata),
                 )
         except TypeError:
-            pass
+            log.exception('There is no available templates for Task entity')
