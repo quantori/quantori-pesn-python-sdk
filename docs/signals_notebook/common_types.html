@@ -92,6 +92,7 @@ class EntityType(str, Enum):
     TASK = &#39;task&#39;
     PLATE_CONTAINER = &#39;plateContainer&#39;
     MATERIAL_TABLE = &#39;materialsTable&#39;
+    ADO = &#39;ado&#39;
 
 
 class MaterialType(str, Enum):
@@ -764,6 +765,7 @@ def type(self) -&gt; ObjectType:
 <ul class="hlist">
 <li>pydantic.generics.DataObject[_RequestBody]</li>
 <li>pydantic.generics.DataObject[_RequestBody]</li>
+<li>pydantic.generics.DataObject[_RequestBody]</li>
 <li>pydantic.generics.DataObject[_SampleRequestBody]</li>
 <li><a title="signals_notebook.common_types.DataObject[EntityShortDescription]" href="#signals_notebook.common_types.DataObject[EntityShortDescription]">DataObject[EntityShortDescription]</a></li>
 <li><a title="signals_notebook.common_types.EntityCreationRequestPayload" href="#signals_notebook.common_types.EntityCreationRequestPayload">EntityCreationRequestPayload</a></li>
@@ -995,6 +997,7 @@ def type(self) -&gt; Union[EntityType, str]:
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="signals_notebook.entities.admin_defined_object.EntityCreationRequestPayload[_RequestBody]" href="entities/admin_defined_object.html#signals_notebook.entities.admin_defined_object.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
 <li><a title="signals_notebook.entities.experiment.EntityCreationRequestPayload[_RequestBody]" href="entities/experiment.html#signals_notebook.entities.experiment.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
 <li><a title="signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody]" href="entities/notebook.html#signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
 <li><a title="signals_notebook.entities.samples.sample.EntityCreationRequestPayload[_SampleRequestBody]" href="entities/samples/sample.html#signals_notebook.entities.samples.sample.EntityCreationRequestPayload[_SampleRequestBody]">EntityCreationRequestPayload[_SampleRequestBody]</a></li>
@@ -1068,7 +1071,8 @@ def type(self) -&gt; Union[EntityType, str]:
     TODO_LIST = &#39;linkedTaskContainer&#39;
     TASK = &#39;task&#39;
     PLATE_CONTAINER = &#39;plateContainer&#39;
-    MATERIAL_TABLE = &#39;materialsTable&#39;</code></pre>
+    MATERIAL_TABLE = &#39;materialsTable&#39;
+    ADO = &#39;ado&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1077,6 +1081,10 @@ def type(self) -&gt; Union[EntityType, str]:
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="signals_notebook.common_types.EntityType.ADO"><code class="name">var <span class="ident">ADO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.EntityType.ASSET"><code class="name">var <span class="ident">ASSET</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -2010,6 +2018,7 @@ def type(self) -&gt; MaterialType:
 <li>
 <h4><code><a title="signals_notebook.common_types.EntityType" href="#signals_notebook.common_types.EntityType">EntityType</a></code></h4>
 <ul class="two-column">
+<li><code><a title="signals_notebook.common_types.EntityType.ADO" href="#signals_notebook.common_types.EntityType.ADO">ADO</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.ASSET" href="#signals_notebook.common_types.EntityType.ASSET">ASSET</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.BIO_SEQUENCE" href="#signals_notebook.common_types.EntityType.BIO_SEQUENCE">BIO_SEQUENCE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.CHEMICAL_DRAWING" href="#signals_notebook.common_types.EntityType.CHEMICAL_DRAWING">CHEMICAL_DRAWING</a></code></li>
