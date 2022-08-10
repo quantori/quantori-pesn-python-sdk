@@ -97,7 +97,7 @@ class Container(Entity, abc.ABC):
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
-            base_alias + (self.name, 'Metadata',)
+            base_alias + (self.name, '__Metadata',)
         )
         for child in self.get_children():
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, base_alias + (self.name, ))

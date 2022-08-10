@@ -92,7 +92,7 @@ class ContentfulEntity(Entity, abc.ABC):
             'content_type': content.content_type,
             **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata), base_alias + (self.name, 'Metadata', ))
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata), base_alias + (self.name, '__Metadata', ))
         file_name = content.name
         data = content.content
         fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data, base_alias + (self.name, file_name, ))

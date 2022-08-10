@@ -434,7 +434,7 @@ class Table(Entity):
             **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
         }
         fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str),
-                         base_alias + (self.name, 'Metadata', ))
+                         base_alias + (self.name, '__Metadata', ))
         file_name = content.name
         data = content.content
         fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data, base_alias + (self.name, file_name, ))

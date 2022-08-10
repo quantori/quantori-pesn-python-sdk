@@ -570,7 +570,7 @@ class Library(BaseMaterialEntity):
         except TimeoutError:
             metadata['error'] = 'Time is over to dump library'
 
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata), base_alias + (metadata['name'], 'Metadata',))
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata), base_alias + (metadata['name'], '__Metadata',))
 
     @staticmethod
     def _generate_zip(my_file):
