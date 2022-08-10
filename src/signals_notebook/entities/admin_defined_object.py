@@ -1,5 +1,6 @@
 import json
 import logging
+from enum import Enum
 from functools import cached_property
 from typing import ClassVar, Literal, Optional
 
@@ -24,8 +25,17 @@ class _Relationships(BaseModel):
     ancestors: Optional[Ancestors] = None
 
 
+class _Meta(BaseModel):
+    ado_type_name: str = Field(alias='adoTypeName')
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+
 class _RequestBody(BaseModel):
     type: EntityType
+    meta: _Meta
     attributes: _Attributes
     relationships: Optional[_Relationships] = None
 
@@ -37,6 +47,10 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
 class AdminDefinedObject(Container):
     type: Literal[EntityType.ADO] = Field(allow_mutation=False)
     _template_name: ClassVar = 'ado.html'
+
+    class TypeName(str, Enum):
+        NEW_OBJECT = 'New System Object (SK)'
+        CUSTOM_OBJECT = 'Custom System Object'
 
     class Config:
         keep_untouched = (cached_property,)
@@ -50,6 +64,7 @@ class AdminDefinedObject(Container):
         cls,
         *,
         name: str,
+        ado_type_name: TypeName,
         description: Optional[str] = None,
         template: Optional['AdminDefinedObject'] = None,
         notebook: Optional[Notebook] = None,
@@ -60,6 +75,7 @@ class AdminDefinedObject(Container):
 
         Args:
             name: name of AdminDefinedObject
+            ado_type_name: new type name for ADO object
             description: description of AdminDefinedObject
             template: AdminDefinedObject template
             notebook: notebook where create AdminDefinedObject
@@ -69,17 +85,17 @@ class AdminDefinedObject(Container):
         Returns:
             AdminDefinedObject
         """
-
+        cls.TypeName(ado_type_name)
         relationships = None
         if template or notebook:
             relationships = _Relationships(
                 ancestors=Ancestors(data=[notebook.short_description]) if notebook else None,
                 template=Template(data=template.short_description) if template else None,
             )
-
         request = _RequestPayload(
             data=_RequestBody(
                 type=cls._get_entity_type(),
+                meta=_Meta(ado_type_name=ado_type_name),
                 attributes=_Attributes(
                     name=name,
                     description=description,

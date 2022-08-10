@@ -66,12 +66,19 @@ def test_create(api_mock, description, digest, force, eid_factory):
     api_mock.call.return_value.json.return_value = response
 
     result = AdminDefinedObject.create(
-        name='My admin_defined_object', description=description, digest=digest, force=force
+        name='My admin_defined_object',
+        ado_type_name=AdminDefinedObject.TypeName.NEW_OBJECT,
+        description=description,
+        digest=digest,
+        force=force,
     )
 
     request_body = {
         'data': {
             'type': EntityType.ADO,
+            'meta': {
+                'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT
+            },
             'attributes': {
                 'name': response['data']['attributes']['name'],
             },
@@ -123,12 +130,19 @@ def test_create_with_ancestors(api_mock, notebook_factory, eid_factory):
     api_mock.call.return_value.json.return_value = response
 
     result = AdminDefinedObject.create(
-        name='My admin_defined_object', description='Some description', notebook=notebook, force=True
+        name='My admin_defined_object',
+        ado_type_name=AdminDefinedObject.TypeName.NEW_OBJECT,
+        description='Some description',
+        notebook=notebook,
+        force=True,
     )
 
     request_body = {
         'data': {
             'type': EntityType.ADO,
+            'meta': {
+                'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT
+            },
             'attributes': {
                 'name': response['data']['attributes']['name'],
                 'description': response['data']['attributes']['description'],
@@ -188,12 +202,19 @@ def test_create_with_template(api_mock, admin_defined_object_factory, eid_factor
     api_mock.call.return_value.json.return_value = response
 
     result = AdminDefinedObject.create(
-        name='My admin_defined_object', description='Some description', template=template, force=True
+        name='My admin_defined_object',
+        ado_type_name=AdminDefinedObject.TypeName.NEW_OBJECT,
+        description='Some description',
+        template=template,
+        force=True,
     )
 
     request_body = {
         'data': {
             'type': EntityType.ADO,
+            'meta': {
+                'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT
+            },
             'attributes': {
                 'name': response['data']['attributes']['name'],
                 'description': response['data']['attributes']['description'],

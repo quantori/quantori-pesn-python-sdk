@@ -80,7 +80,10 @@
 </table>
 
 {% for item in data['children'] %}
-{{ item.get_html() | safe }}
+    {% set child_html = item.get_html() -%}
+    {% if child_html is not none %}
+        {{ child_html | safe }}
+    {% endif %}
 {% endfor %}
 
 
