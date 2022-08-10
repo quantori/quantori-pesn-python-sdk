@@ -180,7 +180,7 @@ class Material(BaseMaterialEntity):
         """Delete Material by ID
 
         Args:
-            eid: Material ID
+            eid: material ID
             digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
                 If the parameter 'force' is true, this parameter is optional.
                 If the parameter 'force' is false, this parameter is required.
