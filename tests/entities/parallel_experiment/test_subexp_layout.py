@@ -30,7 +30,7 @@ def test_get_content(sub_experiment_layout_factory, api_mock):
 
 
 def test_get_html(sub_experiment_layout_factory, snapshot, api_mock):
-    sub_experiment_layout = sub_experiment_layout_factory()
+    sub_experiment_layout = sub_experiment_layout_factory(name='test')
     file_name = 'Test.csv'
     content = b'Plate,Well,Row,Column,Name\r\n'
     content_type = 'text/csv'

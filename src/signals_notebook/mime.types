@@ -11,3 +11,4 @@ chemical/x-mdl-molfile                  mol
 chemical/x-mdl-rxnfile                  rxn
 chemical/x-mdl-sdfile                   sdf
 chemical/x-swissprot                    sw
+chemical/x-mdl-molfile-v3000            mol-v3000
