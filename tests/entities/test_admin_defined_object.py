@@ -36,6 +36,11 @@ def templates():
                     'digest': '68929861',
                     'fields': {'Description': {'value': ''}, 'Name': {'value': 'DEFAULT_admin_defined_object'}},
                     'flags': {'canEdit': True},
+                    'ado': {
+                        'id': '3',
+                        'baseType': 'experiment',
+                        'adoName': 'New System Object (SK)'
+                    },
                 },
             }
         ],
@@ -60,6 +65,7 @@ def test_create(api_mock, description, digest, force, eid_factory):
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': digest,
+                'ado': {'id': '3', 'baseType': 'experiment', 'adoName': 'NMR Data'},
             },
         },
     }
@@ -76,9 +82,7 @@ def test_create(api_mock, description, digest, force, eid_factory):
     request_body = {
         'data': {
             'type': EntityType.ADO,
-            'meta': {
-                'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT
-            },
+            'meta': {'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT},
             'attributes': {
                 'name': response['data']['attributes']['name'],
             },
@@ -124,6 +128,7 @@ def test_create_with_ancestors(api_mock, notebook_factory, eid_factory):
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': '123144',
+                'ado': {'id': '3', 'baseType': 'experiment', 'adoName': 'NMR Data'},
             },
         },
     }
@@ -140,9 +145,7 @@ def test_create_with_ancestors(api_mock, notebook_factory, eid_factory):
     request_body = {
         'data': {
             'type': EntityType.ADO,
-            'meta': {
-                'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT
-            },
+            'meta': {'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT},
             'attributes': {
                 'name': response['data']['attributes']['name'],
                 'description': response['data']['attributes']['description'],
@@ -196,6 +199,7 @@ def test_create_with_template(api_mock, admin_defined_object_factory, eid_factor
                 'createdAt': '2019-09-06T03:12:35.129Z',
                 'editedAt': '2019-09-06T15:22:47.309Z',
                 'digest': '123144',
+                'ado': {'id': '3', 'baseType': 'experiment', 'adoName': 'NMR Data'},
             },
         },
     }
@@ -212,9 +216,7 @@ def test_create_with_template(api_mock, admin_defined_object_factory, eid_factor
     request_body = {
         'data': {
             'type': EntityType.ADO,
-            'meta': {
-                'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT
-            },
+            'meta': {'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT},
             'attributes': {
                 'name': response['data']['attributes']['name'],
                 'description': response['data']['attributes']['description'],
@@ -494,6 +496,8 @@ def test_dump_templates(api_mock, mocker, admin_defined_object_factory, template
     fs_handler_mock = mocker.MagicMock()
     base_path = './'
     metadata = {
+        'base_type': 'experiment',
+        'ado_name': AdminDefinedObject.TypeName.NEW_OBJECT,
         'eid': template_eid,
         'name': 'DEFAULT_admin_defined_object',
         'description': '',
@@ -518,3 +522,7 @@ def test_dump_templates(api_mock, mocker, admin_defined_object_factory, template
         ],
         any_order=True,
     )
+
+
+def test_load():
+    pass

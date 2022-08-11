@@ -2,15 +2,18 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional
+from typing import ClassVar, Literal, Optional, Generic, TypeVar
 
 from pydantic import BaseModel, Field
+from pydantic.generics import GenericModel
 
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
 from signals_notebook.entities import Notebook
 from signals_notebook.entities.container import Container
 from signals_notebook.jinja_env import env
 from signals_notebook.utils import FSHandler
+
+AdoTypeName = TypeVar('AdoTypeName')
 
 log = logging.getLogger(__name__)
 
@@ -44,16 +47,32 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
     pass
 
 
-class AdminDefinedObject(Container):
-    type: Literal[EntityType.ADO] = Field(allow_mutation=False)
-    _template_name: ClassVar = 'ado.html'
+class AdoType(GenericModel, Generic[AdoTypeName]):
+    id: str
+    base_type: str = Field(alias='baseType')
+    ado_name: AdoTypeName = Field(alias='adoName')
 
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+
+class AdminDefinedObject(Container):
     class TypeName(str, Enum):
         NEW_OBJECT = 'New System Object (SK)'
         CUSTOM_OBJECT = 'Custom System Object'
+        NMR_DATA = 'NMR Data'
+
+    type: Literal[EntityType.ADO] = Field(allow_mutation=False)
+    ado: AdoType[TypeName]
+    _template_name: ClassVar = 'ado.html'
 
     class Config:
         keep_untouched = (cached_property,)
+
+    def __init__(self, *args, **kwargs):
+        # self.ado_type_name =
+        super().__init__(*args, **kwargs)
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -129,13 +148,29 @@ class AdminDefinedObject(Container):
 
         return template.render(data=data)
 
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+        metadata = {
+            **self.ado.dict(exclude={'id'}),
+            **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
+        }
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps(metadata),
+        )
+        for child in self.get_children():
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
+
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
         experiment = cls.create(
-            notebook=notebook, name=metadata['name'], description=metadata['description'], force=True
+            notebook=notebook,
+            name=metadata['name'],
+            ado_type_name=metadata.get('ado_name', cls.TypeName.NEW_OBJECT),
+            description=metadata['description'],
+            force=True,
         )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:

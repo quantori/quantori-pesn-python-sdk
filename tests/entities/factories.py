@@ -1,4 +1,5 @@
 import factory
+from pydantic import BaseModel
 
 from signals_notebook.common_types import EID, EntityType
 from signals_notebook.entities import (
@@ -17,6 +18,7 @@ from signals_notebook.entities import (
     UploadedResource,
     Word,
 )
+from signals_notebook.entities.admin_defined_object import AdoType
 
 
 class EIDFactory(factory.Factory):
@@ -130,8 +132,15 @@ class MaterialTableFactory(EntityFactory):
     type = EntityType.MATERIAL_TABLE
 
 
+class AdoTypeFactory(BaseModel):
+    id = 1
+    base_type = 'experiment'
+    ado_name = 'New System Object (SK)'
+
+
 class AdminDefinedObjectFactory(EntityFactory):
     class Meta:
         model = AdminDefinedObject
 
     type = EntityType.ADO
+    ado = AdoType(id=1, base_type='experiment', ado_name=AdminDefinedObject.TypeName.NEW_OBJECT)
