@@ -1,11 +1,9 @@
 import json
 import logging
-from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Generic, TypeVar
+from typing import ClassVar, Literal, Optional
 
 from pydantic import BaseModel, Field
-from pydantic.generics import GenericModel
 
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
 from signals_notebook.entities import Notebook
@@ -13,7 +11,13 @@ from signals_notebook.entities.container import Container
 from signals_notebook.jinja_env import env
 from signals_notebook.utils import FSHandler
 
-AdoTypeName = TypeVar('AdoTypeName')
+CUSTOM_SYSTEM_OBJECT = 'Custom System Object'
+
+
+# class TypeName(str, Enum):
+#     NEW_OBJECT = 'New System Object (SK)'
+#     CUSTOM_OBJECT = 'Custom System Object'
+#     NMR_DATA = 'NMR Data'')
 
 log = logging.getLogger(__name__)
 
@@ -47,10 +51,10 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
     pass
 
 
-class AdoType(GenericModel, Generic[AdoTypeName]):
+class AdoType(BaseModel):
     id: str
     base_type: str = Field(alias='baseType')
-    ado_name: AdoTypeName = Field(alias='adoName')
+    ado_name: str = Field(alias='adoName')
 
     class Config:
         validate_assignment = True
@@ -58,21 +62,12 @@ class AdoType(GenericModel, Generic[AdoTypeName]):
 
 
 class AdminDefinedObject(Container):
-    class TypeName(str, Enum):
-        NEW_OBJECT = 'New System Object (SK)'
-        CUSTOM_OBJECT = 'Custom System Object'
-        NMR_DATA = 'NMR Data'
-
     type: Literal[EntityType.ADO] = Field(allow_mutation=False)
-    ado: AdoType[TypeName]
+    ado: AdoType = Field(default=CUSTOM_SYSTEM_OBJECT)
     _template_name: ClassVar = 'ado.html'
 
     class Config:
         keep_untouched = (cached_property,)
-
-    def __init__(self, *args, **kwargs):
-        # self.ado_type_name =
-        super().__init__(*args, **kwargs)
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
@@ -83,7 +78,7 @@ class AdminDefinedObject(Container):
         cls,
         *,
         name: str,
-        ado_type_name: TypeName,
+        ado_type_name: str,
         description: Optional[str] = None,
         template: Optional['AdminDefinedObject'] = None,
         notebook: Optional[Notebook] = None,
@@ -104,7 +99,6 @@ class AdminDefinedObject(Container):
         Returns:
             AdminDefinedObject
         """
-        cls.TypeName(ado_type_name)
         relationships = None
         if template or notebook:
             relationships = _Relationships(
@@ -168,7 +162,7 @@ class AdminDefinedObject(Container):
         experiment = cls.create(
             notebook=notebook,
             name=metadata['name'],
-            ado_type_name=metadata.get('ado_name', cls.TypeName.NEW_OBJECT),
+            ado_type_name=metadata.get('ado_name', CUSTOM_SYSTEM_OBJECT),
             description=metadata['description'],
             force=True,
         )

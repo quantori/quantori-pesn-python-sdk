@@ -6,6 +6,7 @@ import pytest
 
 from signals_notebook.common_types import EntityType, ObjectType
 from signals_notebook.entities import AdminDefinedObject, ChemicalDrawing, Entity, Text
+from signals_notebook.entities.admin_defined_object import CUSTOM_SYSTEM_OBJECT
 
 
 @pytest.fixture()
@@ -39,7 +40,7 @@ def templates():
                     'ado': {
                         'id': '3',
                         'baseType': 'experiment',
-                        'adoName': 'New System Object (SK)'
+                        'adoName': 'Custom System Object'
                     },
                 },
             }
@@ -73,7 +74,7 @@ def test_create(api_mock, description, digest, force, eid_factory):
 
     result = AdminDefinedObject.create(
         name='My admin_defined_object',
-        ado_type_name=AdminDefinedObject.TypeName.NEW_OBJECT,
+        ado_type_name=CUSTOM_SYSTEM_OBJECT,
         description=description,
         digest=digest,
         force=force,
@@ -82,7 +83,7 @@ def test_create(api_mock, description, digest, force, eid_factory):
     request_body = {
         'data': {
             'type': EntityType.ADO,
-            'meta': {'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT},
+            'meta': {'adoTypeName': CUSTOM_SYSTEM_OBJECT},
             'attributes': {
                 'name': response['data']['attributes']['name'],
             },
@@ -136,7 +137,7 @@ def test_create_with_ancestors(api_mock, notebook_factory, eid_factory):
 
     result = AdminDefinedObject.create(
         name='My admin_defined_object',
-        ado_type_name=AdminDefinedObject.TypeName.NEW_OBJECT,
+        ado_type_name=CUSTOM_SYSTEM_OBJECT,
         description='Some description',
         notebook=notebook,
         force=True,
@@ -145,7 +146,7 @@ def test_create_with_ancestors(api_mock, notebook_factory, eid_factory):
     request_body = {
         'data': {
             'type': EntityType.ADO,
-            'meta': {'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT},
+            'meta': {'adoTypeName': CUSTOM_SYSTEM_OBJECT},
             'attributes': {
                 'name': response['data']['attributes']['name'],
                 'description': response['data']['attributes']['description'],
@@ -207,7 +208,7 @@ def test_create_with_template(api_mock, admin_defined_object_factory, eid_factor
 
     result = AdminDefinedObject.create(
         name='My admin_defined_object',
-        ado_type_name=AdminDefinedObject.TypeName.NEW_OBJECT,
+        ado_type_name=CUSTOM_SYSTEM_OBJECT,
         description='Some description',
         template=template,
         force=True,
@@ -216,7 +217,7 @@ def test_create_with_template(api_mock, admin_defined_object_factory, eid_factor
     request_body = {
         'data': {
             'type': EntityType.ADO,
-            'meta': {'adoTypeName': AdminDefinedObject.TypeName.NEW_OBJECT},
+            'meta': {'adoTypeName': CUSTOM_SYSTEM_OBJECT},
             'attributes': {
                 'name': response['data']['attributes']['name'],
                 'description': response['data']['attributes']['description'],
@@ -497,7 +498,7 @@ def test_dump_templates(api_mock, mocker, admin_defined_object_factory, template
     base_path = './'
     metadata = {
         'base_type': 'experiment',
-        'ado_name': AdminDefinedObject.TypeName.NEW_OBJECT,
+        'ado_name': CUSTOM_SYSTEM_OBJECT,
         'eid': template_eid,
         'name': 'DEFAULT_admin_defined_object',
         'description': '',
