@@ -37,11 +37,7 @@ def templates():
                     'digest': '68929861',
                     'fields': {'Description': {'value': ''}, 'Name': {'value': 'DEFAULT_admin_defined_object'}},
                     'flags': {'canEdit': True},
-                    'ado': {
-                        'id': '3',
-                        'baseType': 'experiment',
-                        'adoName': 'Custom System Object'
-                    },
+                    'ado': {'id': '3', 'baseType': 'experiment', 'adoName': 'Custom System Object'},
                 },
             }
         ],
@@ -525,5 +521,74 @@ def test_dump_templates(api_mock, mocker, admin_defined_object_factory, template
     )
 
 
-def test_load():
-    pass
+def test_load(api_mock, notebook_factory, eid_factory, mocker):
+    container = notebook_factory()
+    eid = eid_factory(type=EntityType.ADO)
+
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'base_type': 'experiment',
+        'ado_name': CUSTOM_SYSTEM_OBJECT,
+        'eid': eid,
+        'name': 'DEFAULT_admin_defined_object',
+        'description': '',
+    }
+    response = {
+        'links': {'self': f'https://example.com/{eid}'},
+        'data': {
+            'type': ObjectType.ENTITY,
+            'id': eid,
+            'links': {'self': f'https://example.com/{eid}'},
+            'attributes': {
+                'eid': eid,
+                'name': 'DEFAULT_admin_defined_object',
+                'description': '',
+                'type': EntityType.ADO,
+                'createdAt': '2019-09-06T03:12:35.129Z',
+                'editedAt': '2019-09-06T15:22:47.309Z',
+                'digest': '123144',
+                'ado': {'id': '3', 'baseType': 'experiment', 'adoName': CUSTOM_SYSTEM_OBJECT},
+            },
+        },
+    }
+    api_mock.call.return_value.json.return_value = response
+    fs_handler_mock.read.side_effect = [json.dumps(metadata)]
+    fs_handler_mock.join_path.side_effect = [base_path + 'metadata.json']
+
+    AdminDefinedObject.load(path=base_path, fs_handler=fs_handler_mock, notebook=container)
+
+    fs_handler_mock.join_path.assert_called_once_with(base_path, 'metadata.json')
+
+    fs_handler_mock.read.assert_called_once_with(base_path + 'metadata.json')
+
+    request_body = {
+        'data': {
+            'type': EntityType.ADO,
+            'meta': {'adoTypeName': CUSTOM_SYSTEM_OBJECT},
+            'attributes': {
+                'name': response['data']['attributes']['name'],
+                'description': response['data']['attributes']['description'],
+            },
+            'relationships': {
+                'ancestors': {
+                    'data': [
+                        {
+                            'type': EntityType.NOTEBOOK,
+                            'id': container.eid,
+                        }
+                    ]
+                }
+            },
+        }
+    }
+
+    api_mock.call.assert_called_once_with(
+        method='POST',
+        path=('entities',),
+        params={
+            'digest': None,
+            'force': 'true',
+        },
+        json=request_body,
+    )
