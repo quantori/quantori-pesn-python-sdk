@@ -34,7 +34,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID, EntityType, MID, ObjectType
+from signals_notebook.common_types import EID, EntityType, MaterialType, MID, ObjectType
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
 from signals_notebook.exceptions import EIDError
@@ -123,7 +123,7 @@ class ColumnDefinitions(BaseModel):
 class CellContent(GenericModel, Generic[CellContentType]):
     value: CellContentType
     values: Optional[List[CellContentType]] = None
-    type: Optional[Union[EntityType, ObjectType]] = None
+    type: Optional[Union[EntityType, ObjectType, MaterialType]] = None
     display: Optional[str] = None
 
     class Config:
@@ -1002,7 +1002,7 @@ def value(self) -&gt; Union[CellContentType, List[CellContentType]]:
 <pre><code class="python">class CellContent(GenericModel, Generic[CellContentType]):
     value: CellContentType
     values: Optional[List[CellContentType]] = None
-    type: Optional[Union[EntityType, ObjectType]] = None
+    type: Optional[Union[EntityType, ObjectType, MaterialType]] = None
     display: Optional[str] = None
 
     class Config:
@@ -1034,7 +1034,7 @@ def value(self) -&gt; Union[CellContentType, List[CellContentType]]:
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.tables.cell.CellContent.type"><code class="name">var <span class="ident">type</span> : Union[<a title="signals_notebook.common_types.EntityType" href="../../common_types.html#signals_notebook.common_types.EntityType">EntityType</a>, <a title="signals_notebook.common_types.ObjectType" href="../../common_types.html#signals_notebook.common_types.ObjectType">ObjectType</a>, ForwardRef(None)]</code></dt>
+<dt id="signals_notebook.entities.tables.cell.CellContent.type"><code class="name">var <span class="ident">type</span> : Union[<a title="signals_notebook.common_types.EntityType" href="../../common_types.html#signals_notebook.common_types.EntityType">EntityType</a>, <a title="signals_notebook.common_types.ObjectType" href="../../common_types.html#signals_notebook.common_types.ObjectType">ObjectType</a>, <a title="signals_notebook.common_types.MaterialType" href="../../common_types.html#signals_notebook.common_types.MaterialType">MaterialType</a>, ForwardRef(None)]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>

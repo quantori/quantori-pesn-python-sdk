@@ -76,9 +76,8 @@ class MaterialType(str, Enum):
 
 
 class EID(str):
-    """Entity ID
+    """Entity ID"""
 
-    """
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -96,18 +95,13 @@ class EID(str):
             v: Entity ID
 
         Returns:
-
         """
         if not isinstance(v, str):
             log.error('%s is not instance of str', v)
             raise EIDError(value=v)
 
         try:
-            _parts = v.split(':')
-            if len(_parts) == 2:
-                _type, _id = _parts
-            else:
-                _type, _id, _ = _parts
+            _type, _id, *_ = v.split(':')
             UUID(_id)
         except ValueError:
             log.exception('Cannot get id and type from value')
@@ -122,11 +116,7 @@ class EID(str):
         Returns:
             One of the entity types
         """
-        _parts = self.split(':')
-        if len(_parts) == 2:
-            _type, _ = _parts
-        else:
-            _type, _, _ = _parts
+        _type, _id, *_ = self.split(':')
         try:
             return EntityType(_type)
         except ValueError:
@@ -140,18 +130,12 @@ class EID(str):
         Returns:
             UUID
         """
-        _parts = self.split(':')
-        if len(_parts) == 2:
-            _, _id = _parts
-        else:
-            _, _id, _ = _parts
+        _type, _id, *_ = self.split(':')
         return UUID(_id)
 
 
 class MID(str):
-    """Material ID
-
-    """
+    """Material ID"""
 
     _id_pattern = re.compile('[0-9a-f]+', flags=re.IGNORECASE)
 
@@ -213,9 +197,8 @@ class MID(str):
 
 
 class AttrID(str):
-    """Attribute ID
+    """Attribute ID"""
 
-    """
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
