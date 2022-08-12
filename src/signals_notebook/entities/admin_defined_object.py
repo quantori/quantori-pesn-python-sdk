@@ -12,13 +12,6 @@ from signals_notebook.jinja_env import env
 from signals_notebook.utils import FSHandler
 
 CUSTOM_SYSTEM_OBJECT = 'Custom System Object'
-
-
-# class TypeName(str, Enum):
-#     NEW_OBJECT = 'New System Object (SK)'
-#     CUSTOM_OBJECT = 'Custom System Object'
-#     NMR_DATA = 'NMR Data'')
-
 log = logging.getLogger(__name__)
 
 
