@@ -133,7 +133,7 @@ class Experiment(Container):
 
     @cached_property
     def stoichiometry(self) -&gt; Union[Stoichiometry, list[Stoichiometry]]:
-        &#34;&#34;&#34;&#34;Fetch stoichiometry data of experiment
+        &#34;&#34;&#34; Fetch stoichiometry data of experiment
 
         Returns:
             Stoichiometry object or list of Stoichiometry objects
@@ -152,7 +152,7 @@ class Experiment(Container):
             &#39;description&#39;: self.description,
             &#39;edited_at&#39;: self.edited_at,
             &#39;state&#39;: self.state,
-            &#39;children&#39;: self.get_children()
+            &#39;children&#39;: self.get_children(),
         }
 
         template = env.get_template(self._template_name)
@@ -293,7 +293,7 @@ class Experiment(Container):
 
     @cached_property
     def stoichiometry(self) -&gt; Union[Stoichiometry, list[Stoichiometry]]:
-        &#34;&#34;&#34;&#34;Fetch stoichiometry data of experiment
+        &#34;&#34;&#34; Fetch stoichiometry data of experiment
 
         Returns:
             Stoichiometry object or list of Stoichiometry objects
@@ -312,7 +312,7 @@ class Experiment(Container):
             &#39;description&#39;: self.description,
             &#39;edited_at&#39;: self.edited_at,
             &#39;state&#39;: self.state,
-            &#39;children&#39;: self.get_children()
+            &#39;children&#39;: self.get_children(),
         }
 
         template = env.get_template(self._template_name)
@@ -467,7 +467,7 @@ def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
 <dl>
 <dt id="signals_notebook.entities.experiment.Experiment.stoichiometry"><code class="name">var <span class="ident">stoichiometry</span></code></dt>
 <dd>
-<div class="desc"><p>"Fetch stoichiometry data of experiment</p>
+<div class="desc"><p>Fetch stoichiometry data of experiment</p>
 <h2 id="returns">Returns</h2>
 <p>Stoichiometry object or list of Stoichiometry objects</p></div>
 <details class="source">
@@ -531,7 +531,7 @@ def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
         &#39;description&#39;: self.description,
         &#39;edited_at&#39;: self.edited_at,
         &#39;state&#39;: self.state,
-        &#39;children&#39;: self.get_children()
+        &#39;children&#39;: self.get_children(),
     }
 
     template = env.get_template(self._template_name)
