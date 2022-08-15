@@ -96,11 +96,15 @@ class TodoList(ContentfulEntity):
         """
 
         file = self.get_content()
+        template = env.get_template(self._template_name)
         content = file.content.decode('utf-8')
-        dict_content = json.loads(content)
+        try:
+            dict_content = json.loads(content)
+        except json.JSONDecodeError:
+            return template.render(name=self.name)
+
         table_head = dict_content['cols']
         rows = dict_content['rows']
-        template = env.get_template(self._template_name)
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(name=self.name, table_head=table_head, rows=rows)

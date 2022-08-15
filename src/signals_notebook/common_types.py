@@ -42,6 +42,7 @@ class ObjectType(str, Enum):
     PLATE_ROW = 'plateRow'
     ATTRIBUTE_OPTION = 'option'
     CHOICE = 'choice'
+    SUB_EXPERIMENT = 'subexpSummaryRow'
     CONTAINER = 'container'
 
 
@@ -65,6 +66,11 @@ class EntityType(str, Enum):
     TASK = 'task'
     PLATE_CONTAINER = 'plateContainer'
     MATERIAL_TABLE = 'materialsTable'
+    PARALLEL_EXPERIMENT = 'paraexp'
+    SUB_EXPERIMENT = 'parasubexp'
+    SUB_EXPERIMENT_SUMMARY = 'paragrid'
+    SUB_EXPERIMENT_LAYOUT = 'paraLayout'
+    ADO = 'ado'
     REQUEST = 'request'
     TASK_CONTAINER = 'taskContainer'
 
