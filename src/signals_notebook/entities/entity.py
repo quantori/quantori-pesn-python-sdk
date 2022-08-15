@@ -310,7 +310,7 @@ class Entity(BaseModel):
         log.error('Loading Entity: not implemented!')
 
     @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str]) -> None:
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str] = None) -> None:
         """Dump Entity templates
 
         Args:
@@ -332,7 +332,7 @@ class Entity(BaseModel):
                 fs_handler.write(
                     fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
                     json.dumps({k: v for k, v in template.dict().items() if k in ('name', 'description', 'eid')}),
-                    base_alias + (template.name,))
+                    base_alias + (template.name,) if base_alias else None)
 
         except TypeError:
             pass

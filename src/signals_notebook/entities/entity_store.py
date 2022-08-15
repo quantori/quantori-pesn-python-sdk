@@ -160,7 +160,7 @@ class EntityStore:
         log.debug('Entity: %s was deleted from EntityStore successfully', eid)
 
     @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str]) -> None:
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler, base_alias: Tuple[str] = None) -> None:
         """Dump all templates from system
 
         Args:
@@ -172,4 +172,7 @@ class EntityStore:
         """
 
         for item in Entity.get_subclasses():
-            item.dump_templates(base_path, fs_handler,base_alias + (item.__class__, ))
+            try:
+                item.dump_templates(base_path, fs_handler, base_alias + (item.__class__, ) if base_alias else None)
+            except Exception as e:
+                log.error('Failed to dump templates for %s' % item.__class__)
