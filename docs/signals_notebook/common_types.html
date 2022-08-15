@@ -70,8 +70,8 @@ class ObjectType(str, Enum):
     PLATE_ROW = &#39;plateRow&#39;
     ATTRIBUTE_OPTION = &#39;option&#39;
     CHOICE = &#39;choice&#39;
-    CONTAINER = &#39;container&#39;
     SUB_EXPERIMENT = &#39;subexpSummaryRow&#39;
+    CONTAINER = &#39;container&#39;
 
 
 class EntityType(str, Enum):
@@ -107,9 +107,8 @@ class MaterialType(str, Enum):
 
 
 class EID(str):
-    &#34;&#34;&#34;Entity ID
+    &#34;&#34;&#34;Entity ID&#34;&#34;&#34;
 
-    &#34;&#34;&#34;
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -127,14 +126,13 @@ class EID(str):
             v: Entity ID
 
         Returns:
-
         &#34;&#34;&#34;
         if not isinstance(v, str):
             log.error(&#39;%s is not instance of str&#39;, v)
             raise EIDError(value=v)
 
         try:
-            _type, _id = v.split(&#39;:&#39;)
+            _type, _id, *_ = v.split(&#39;:&#39;)
             UUID(_id)
         except ValueError:
             log.exception(&#39;Cannot get id and type from value&#39;)
@@ -149,7 +147,7 @@ class EID(str):
         Returns:
             One of the entity types
         &#34;&#34;&#34;
-        _type, _ = self.split(&#39;:&#39;)
+        _type, _id, *_ = self.split(&#39;:&#39;)
         try:
             return EntityType(_type)
         except ValueError:
@@ -163,14 +161,12 @@ class EID(str):
         Returns:
             UUID
         &#34;&#34;&#34;
-        _, _id = self.split(&#39;:&#39;)
+        _type, _id, *_ = self.split(&#39;:&#39;)
         return UUID(_id)
 
 
 class MID(str):
-    &#34;&#34;&#34;Material ID
-
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Material ID&#34;&#34;&#34;
 
     _id_pattern = re.compile(&#39;[0-9a-f]+&#39;, flags=re.IGNORECASE)
 
@@ -232,9 +228,8 @@ class MID(str):
 
 
 class AttrID(str):
-    &#34;&#34;&#34;Attribute ID
+    &#34;&#34;&#34;Attribute ID&#34;&#34;&#34;
 
-    &#34;&#34;&#34;
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -481,9 +476,8 @@ class File(BaseModel):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AttrID(str):
-    &#34;&#34;&#34;Attribute ID
+    &#34;&#34;&#34;Attribute ID&#34;&#34;&#34;
 
-    &#34;&#34;&#34;
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -826,9 +820,8 @@ def type(self) -&gt; ObjectType:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class EID(str):
-    &#34;&#34;&#34;Entity ID
+    &#34;&#34;&#34;Entity ID&#34;&#34;&#34;
 
-    &#34;&#34;&#34;
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -846,14 +839,13 @@ def type(self) -&gt; ObjectType:
             v: Entity ID
 
         Returns:
-
         &#34;&#34;&#34;
         if not isinstance(v, str):
             log.error(&#39;%s is not instance of str&#39;, v)
             raise EIDError(value=v)
 
         try:
-            _type, _id = v.split(&#39;:&#39;)
+            _type, _id, *_ = v.split(&#39;:&#39;)
             UUID(_id)
         except ValueError:
             log.exception(&#39;Cannot get id and type from value&#39;)
@@ -868,7 +860,7 @@ def type(self) -&gt; ObjectType:
         Returns:
             One of the entity types
         &#34;&#34;&#34;
-        _type, _ = self.split(&#39;:&#39;)
+        _type, _id, *_ = self.split(&#39;:&#39;)
         try:
             return EntityType(_type)
         except ValueError:
@@ -882,7 +874,7 @@ def type(self) -&gt; ObjectType:
         Returns:
             UUID
         &#34;&#34;&#34;
-        _, _id = self.split(&#39;:&#39;)
+        _type, _id, *_ = self.split(&#39;:&#39;)
         return UUID(_id)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -914,14 +906,13 @@ def validate(cls, v: Any):
         v: Entity ID
 
     Returns:
-
     &#34;&#34;&#34;
     if not isinstance(v, str):
         log.error(&#39;%s is not instance of str&#39;, v)
         raise EIDError(value=v)
 
     try:
-        _type, _id = v.split(&#39;:&#39;)
+        _type, _id, *_ = v.split(&#39;:&#39;)
         UUID(_id)
     except ValueError:
         log.exception(&#39;Cannot get id and type from value&#39;)
@@ -949,7 +940,7 @@ def id(self) -&gt; UUID:
     Returns:
         UUID
     &#34;&#34;&#34;
-    _, _id = self.split(&#39;:&#39;)
+    _type, _id, *_ = self.split(&#39;:&#39;)
     return UUID(_id)</code></pre>
 </details>
 </dd>
@@ -969,7 +960,7 @@ def type(self) -&gt; Union[EntityType, str]:
     Returns:
         One of the entity types
     &#34;&#34;&#34;
-    _type, _ = self.split(&#39;:&#39;)
+    _type, _id, *_ = self.split(&#39;:&#39;)
     try:
         return EntityType(_type)
     except ValueError:
@@ -1483,9 +1474,7 @@ def escape_spaces(cls, v: Optional[str]) -&gt; Optional[str]:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MID(str):
-    &#34;&#34;&#34;Material ID
-
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Material ID&#34;&#34;&#34;
 
     _id_pattern = re.compile(&#39;[0-9a-f]+&#39;, flags=re.IGNORECASE)
 
