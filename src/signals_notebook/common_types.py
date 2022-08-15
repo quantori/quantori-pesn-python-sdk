@@ -70,6 +70,7 @@ class EntityType(str, Enum):
     SUB_EXPERIMENT = 'parasubexp'
     SUB_EXPERIMENT_SUMMARY = 'paragrid'
     SUB_EXPERIMENT_LAYOUT = 'paraLayout'
+    ADO = 'ado'
 
 
 class MaterialType(str, Enum):

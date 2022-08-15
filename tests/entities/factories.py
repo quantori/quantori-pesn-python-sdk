@@ -2,6 +2,7 @@ import factory
 
 from signals_notebook.common_types import EID, EntityType
 from signals_notebook.entities import (
+    AdminDefinedObject,
     BiologicalSequence,
     ChemicalDrawing,
     Entity,
@@ -16,6 +17,7 @@ from signals_notebook.entities import (
     UploadedResource,
     Word,
 )
+from signals_notebook.entities.admin_defined_object import AdoType, CUSTOM_SYSTEM_OBJECT
 
 
 class EIDFactory(factory.Factory):
@@ -127,3 +129,20 @@ class MaterialTableFactory(EntityFactory):
         model = MaterialsTable
 
     type = EntityType.MATERIAL_TABLE
+
+
+class AdoTypeFactory(factory.Factory):
+    class Meta:
+        model = AdoType
+
+    id = factory.Sequence(lambda n: f'{n}')
+    base_type = 'experiment'
+    ado_name = CUSTOM_SYSTEM_OBJECT
+
+
+class AdminDefinedObjectFactory(EntityFactory):
+    class Meta:
+        model = AdminDefinedObject
+
+    type = EntityType.ADO
+    ado = factory.SubFactory(AdoTypeFactory)

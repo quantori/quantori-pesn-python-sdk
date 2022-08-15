@@ -2,6 +2,8 @@ import pytest
 from pytest_factoryboy import register
 
 from tests.entities.factories import (
+    AdminDefinedObjectFactory,
+    AdoTypeFactory,
     BiologicalSequenceFactory,
     ChemicalDrawingFactory,
     EIDFactory,
@@ -65,6 +67,8 @@ register(SubExperimentSummaryFactory)
 register(SubExperimentSummaryRowFactory)
 register(SubExperimentSummaryCellFactory)
 register(SubExperimentLayoutFactory)
+register(AdminDefinedObjectFactory)
+register(AdoTypeFactory)
 
 
 @pytest.fixture()

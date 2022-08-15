@@ -23,3 +23,4 @@ from signals_notebook.entities.parallel_experiment.parallel_experiment import Pa
 from signals_notebook.entities.parallel_experiment.sub_experiment import SubExperiment  # noqa
 from signals_notebook.entities.parallel_experiment.sub_experiment_summary import SubExperimentSummary  # noqa
 from signals_notebook.entities.parallel_experiment.sub_experiment_layout import SubExperimentLayout  # noqa
+from signals_notebook.entities.admin_defined_object import AdminDefinedObject  # noqa

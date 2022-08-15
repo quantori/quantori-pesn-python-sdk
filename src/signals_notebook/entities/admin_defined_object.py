@@ -1,18 +1,17 @@
 import json
 import logging
-from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Union
+from typing import ClassVar, Literal, Optional
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
+from signals_notebook.entities import Notebook
 from signals_notebook.entities.container import Container
-from signals_notebook.entities.notebook import Notebook
-from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
 from signals_notebook.jinja_env import env
-from signals_notebook.utils.fs_handler import FSHandler
+from signals_notebook.utils import FSHandler
 
+CUSTOM_SYSTEM_OBJECT = 'Custom System Object'
 log = logging.getLogger(__name__)
 
 
@@ -26,8 +25,17 @@ class _Relationships(BaseModel):
     ancestors: Optional[Ancestors] = None
 
 
+class _Meta(BaseModel):
+    ado_type_name: str = Field(alias='adoTypeName')
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+
 class _RequestBody(BaseModel):
     type: EntityType
+    meta: _Meta
     attributes: _Attributes
     relationships: Optional[_Relationships] = None
 
@@ -36,58 +44,64 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
     pass
 
 
-class ExperimentState(str, Enum):
-    OPEN = 'open'
-    CLOSED = 'closed'
+class AdoType(BaseModel):
+    id: str
+    base_type: str = Field(alias='baseType')
+    ado_name: str = Field(alias='adoName')
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
 
 
-class Experiment(Container):
-    type: Literal[EntityType.EXPERIMENT] = Field(allow_mutation=False)
-    state: Optional[ExperimentState] = Field(allow_mutation=False, default=None)
-    _template_name: ClassVar = 'experiment.html'
+class AdminDefinedObject(Container):
+    type: Literal[EntityType.ADO] = Field(allow_mutation=False)
+    ado: AdoType = Field(default=CUSTOM_SYSTEM_OBJECT)
+    _template_name: ClassVar = 'ado.html'
 
     class Config:
         keep_untouched = (cached_property,)
 
     @classmethod
     def _get_entity_type(cls) -> EntityType:
-        return EntityType.EXPERIMENT
+        return EntityType.ADO
 
     @classmethod
     def create(
         cls,
         *,
         name: str,
+        ado_type_name: str,
         description: Optional[str] = None,
-        template: Optional['Experiment'] = None,
+        template: Optional['AdminDefinedObject'] = None,
         notebook: Optional[Notebook] = None,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
-    ) -> 'Notebook':
-        """Create new Experiment in Signals Notebook
+    ) -> 'AdminDefinedObject':
+        """Create new AdminDefinedObject in Signals Notebook
 
         Args:
-            name: name of experiment
-            description: description of experiment
-            template: experiment template
-            notebook: notebook where create experiment
+            name: name of AdminDefinedObject
+            ado_type_name: new type name for ADO object
+            description: description of AdminDefinedObject
+            template: AdminDefinedObject template
+            notebook: notebook where create AdminDefinedObject
             digest: Indicate digest
             force: Force to create without doing digest check
 
         Returns:
-            Experiment
+            AdminDefinedObject
         """
-
         relationships = None
         if template or notebook:
             relationships = _Relationships(
                 ancestors=Ancestors(data=[notebook.short_description]) if notebook else None,
                 template=Template(data=template.short_description) if template else None,
             )
-
         request = _RequestPayload(
             data=_RequestBody(
                 type=cls._get_entity_type(),
+                meta=_Meta(ado_type_name=ado_type_name),
                 attributes=_Attributes(
                     name=name,
                     description=description,
@@ -96,22 +110,12 @@ class Experiment(Container):
             )
         )
 
-        log.debug('Creating Notebook for: %s', cls.__name__)
+        log.debug('Creating AdminDefinedObject for: %s', cls.__name__)
         return super()._create(
             digest=digest,
             force=force,
             request=request,
         )
-
-    @cached_property
-    def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
-        """ Fetch stoichiometry data of experiment
-
-        Returns:
-            Stoichiometry object or list of Stoichiometry objects
-        """
-        log.debug('Fetching data in Stoichiometry for: %s', self.eid)
-        return Stoichiometry.fetch_data(self.eid)
 
     def get_html(self) -> str:
         """Get in HTML format
@@ -123,7 +127,6 @@ class Experiment(Container):
             'title': self.name,
             'description': self.description,
             'edited_at': self.edited_at,
-            'state': self.state,
             'children': self.get_children(),
         }
 
@@ -132,9 +135,30 @@ class Experiment(Container):
 
         return template.render(data=data)
 
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump AdminDefinedObject entity
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+        metadata = {
+            **self.ado.dict(exclude={'id'}),
+            **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
+        }
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps(metadata),
+        )
+        for child in self.get_children():
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
+
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
-        """Load Experiment entity
+        """Load AdminDefinedObject entity
 
         Args:
             path: content path
@@ -148,7 +172,11 @@ class Experiment(Container):
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
         experiment = cls.create(
-            notebook=notebook, name=metadata['name'], description=metadata['description'], force=True
+            notebook=notebook,
+            name=metadata['name'],
+            ado_type_name=metadata.get('ado_name', CUSTOM_SYSTEM_OBJECT),
+            description=metadata['description'],
+            force=True,
         )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
