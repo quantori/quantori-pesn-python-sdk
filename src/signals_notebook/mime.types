@@ -6,8 +6,9 @@ biosequence/fasta                       fa faa fasta
 biosequence/genbank                     gb gbk gp
 chemical/x-cdx                          cdx
 chemical/x-cdxml                        cdxml
-chemical/x-daylight-smiles              smi
+chemical/x-daylight-smiles              smiles
 chemical/x-mdl-molfile                  mol
 chemical/x-mdl-rxnfile                  rxn
 chemical/x-mdl-sdfile                   sdf
 chemical/x-swissprot                    sw
+chemical/x-mdl-molfile-v3000            mol
