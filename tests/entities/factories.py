@@ -1,5 +1,4 @@
 import factory
-from pydantic import BaseModel
 
 from signals_notebook.common_types import EID, EntityType
 from signals_notebook.entities import (
