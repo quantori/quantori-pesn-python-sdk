@@ -359,7 +359,7 @@ def test_get_children__one_page(api_mock, admin_defined_object_factory, eid_fact
     api_mock.call.assert_called_once_with(
         method='GET',
         path=('entities', admin_defined_object.eid, 'children'),
-        params={'order': 'layout'},
+        params={},
     )
 
     assert isinstance(result[0], Text)
@@ -449,7 +449,7 @@ def test_get_children__several_pages(mocker, api_mock, admin_defined_object_fact
             mocker.call(
                 method='GET',
                 path=('entities', admin_defined_object.eid, 'children'),
-                params={'order': 'layout'},
+                params={},
             ),
             mocker.call(
                 method='GET',
