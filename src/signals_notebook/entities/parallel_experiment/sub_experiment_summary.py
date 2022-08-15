@@ -7,7 +7,7 @@ from uuid import UUID
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EntityType, Response, ResponseData
+from signals_notebook.common_types import EntityType, Response, ResponseData, File
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.parallel_experiment.row import Row
 from signals_notebook.jinja_env import env
@@ -30,7 +30,7 @@ class SubExperimentSummary(ContentfulEntity):
         return EntityType.SUB_EXPERIMENT_SUMMARY
 
     @classmethod
-    def _get_endpoint(cls) -> str:
+    def _get_subexpsum_endpoint(cls) -> str:
         return 'subexpSummary'
 
     def __getitem__(self, index: Union[int, str, UUID]) -> Row:
@@ -62,7 +62,7 @@ class SubExperimentSummary(ContentfulEntity):
 
         response = api.call(
             method='GET',
-            path=(self._get_endpoint(), self.eid, 'rows'),
+            path=(self._get_subexpsum_endpoint(), self.eid, 'rows'),
         )
 
         result = SubExpSummaryResponse(**response.json())  # type: ignore
@@ -84,7 +84,7 @@ class SubExperimentSummary(ContentfulEntity):
 
         response = api.call(
             method='GET',
-            path=(self._get_endpoint(), self.eid, 'bulkUpdate', update_id),
+            path=(self._get_subexpsum_endpoint(), self.eid, 'bulkUpdate', update_id),
         )
         return response.status_code == 200 and response.json()['data']['attributes']['jobStatus'] == 'SUCCESS'
 
@@ -111,7 +111,7 @@ class SubExperimentSummary(ContentfulEntity):
 
         update_response = api.call(
             method='PATCH',
-            path=(self._get_endpoint(), self.eid, 'bulkUpdate'),
+            path=(self._get_subexpsum_endpoint(), self.eid, 'bulkUpdate'),
             params={
                 'force': json.dumps(force),
             },
@@ -151,3 +151,11 @@ class SubExperimentSummary(ContentfulEntity):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(name=self.name, table_head=table_head, rows=self._rows)
+
+    def get_content(self) -> File:
+        """Get SubExperiment Summary content
+
+        Returns:
+            File
+        """
+        return super()._get_content(format='csv')
