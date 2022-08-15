@@ -93,7 +93,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order: Optional[str] = None) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of a specified entity.
 
         Returns:
@@ -225,7 +225,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order: Optional[str] = None) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of a specified entity.
 
         Returns:
@@ -298,6 +298,7 @@ class Container(Entity, abc.ABC):
 <li><a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a></li>
 <li><a title="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment" href="parallel_experiment/parallel_experiment.html#signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment">ParallelExperiment</a></li>
 <li><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment" href="parallel_experiment/sub_experiment.html#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment">SubExperiment</a></li>
+<li><a title="signals_notebook.entities.request.Request" href="request.html#signals_notebook.entities.request.Request">Request</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>
@@ -464,7 +465,7 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 </details>
 </dd>
 <dt id="signals_notebook.entities.container.Container.get_children"><code class="name flex">
-<span>def <span class="ident">get_children</span></span>(<span>self, order: str = 'layout') ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
+<span>def <span class="ident">get_children</span></span>(<span>self, order: Optional[str] = None) ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get children of a specified entity.</p>
@@ -474,7 +475,7 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+<pre><code class="python">def get_children(self, order: Optional[str] = None) -&gt; Generator[Entity, None, None]:
     &#34;&#34;&#34;Get children of a specified entity.
 
     Returns:

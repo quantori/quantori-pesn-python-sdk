@@ -24,3 +24,5 @@ from signals_notebook.entities.parallel_experiment.sub_experiment import SubExpe
 from signals_notebook.entities.parallel_experiment.sub_experiment_summary import SubExperimentSummary  # noqa
 from signals_notebook.entities.parallel_experiment.sub_experiment_layout import SubExperimentLayout  # noqa
 from signals_notebook.entities.admin_defined_object import AdminDefinedObject  # noqa
+from signals_notebook.entities.request import RequestContainer  # noqa
+from signals_notebook.entities.todo_list.task_container import TaskContainer  # noqa

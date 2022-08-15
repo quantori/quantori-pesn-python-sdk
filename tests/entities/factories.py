@@ -12,6 +12,7 @@ from signals_notebook.entities import (
     MaterialsTable,
     Notebook,
     PowerPoint,
+    RequestContainer,
     Spotfire,
     Text,
     UploadedResource,
@@ -146,3 +147,10 @@ class AdminDefinedObjectFactory(EntityFactory):
 
     type = EntityType.ADO
     ado = factory.SubFactory(AdoTypeFactory)
+
+
+class RequestContainerFactory(EntityFactory):
+    class Meta:
+        model = RequestContainer
+
+    type = EntityType.REQUEST

@@ -14,6 +14,7 @@ from tests.entities.factories import (
     MaterialTableFactory,
     NotebookFactory,
     PowerPointFactory,
+    RequestContainerFactory,
     SpotfireFactory,
     TextFactory,
     UploadedResourceFactory,
@@ -35,8 +36,7 @@ from tests.entities.samples.factories import (
 )
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
-from tests.entities.todo_list.factories import TaskCellFactory, TaskFactory, TodoListFactory
-
+from tests.entities.todo_list.factories import TaskCellFactory, TaskContainerFactory, TaskFactory, TodoListFactory
 
 register(EIDFactory)
 register(NotebookFactory)
@@ -69,6 +69,8 @@ register(SubExperimentSummaryCellFactory)
 register(SubExperimentLayoutFactory)
 register(AdminDefinedObjectFactory)
 register(AdoTypeFactory)
+register(RequestContainerFactory)
+register(TaskContainerFactory)
 
 
 @pytest.fixture()
