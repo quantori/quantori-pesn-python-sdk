@@ -153,3 +153,19 @@ def test_save_changes(batch_factory, api_mock, force):
             ],
         },
     )
+
+
+@pytest.mark.parametrize('digest, force', [('1234234', False), (None, True)])
+def test_delete(api_mock, digest, force, batch_factory):
+    batch = batch_factory(digest='1234')
+
+    batch.delete(digest, force)
+
+    api_mock.call.assert_called_once_with(
+        method='DELETE',
+        path=('entities', batch.eid),
+        params={
+            'digest': digest,
+            'force': 'true' if force else 'false',
+        },
+    )
