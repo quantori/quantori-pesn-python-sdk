@@ -105,7 +105,7 @@ class Experiment(Container):
 
     @cached_property
     def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
-        """"Fetch stoichiometry data of experiment
+        """ "Fetch stoichiometry data of experiment
 
         Returns:
             Stoichiometry object or list of Stoichiometry objects
@@ -124,7 +124,7 @@ class Experiment(Container):
             'description': self.description,
             'edited_at': self.edited_at,
             'state': self.state,
-            'children': self.get_children()
+            'children': self.get_children(),
         }
 
         template = env.get_template(self._template_name)
@@ -134,6 +134,16 @@ class Experiment(Container):
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
+        """Load Experiment entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            notebook: Container where load Experiment entity
+
+        Returns:
+
+        """
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))

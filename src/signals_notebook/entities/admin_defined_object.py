@@ -75,7 +75,7 @@ class AdminDefinedObject(Container):
         description: Optional[str] = None,
         template: Optional['AdminDefinedObject'] = None,
         notebook: Optional[Notebook] = None,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
     ) -> 'AdminDefinedObject':
         """Create new AdminDefinedObject in Signals Notebook
@@ -110,7 +110,7 @@ class AdminDefinedObject(Container):
             )
         )
 
-        log.debug('Creating Notebook for: %s', cls.__name__)
+        log.debug('Creating AdminDefinedObject for: %s', cls.__name__)
         return super()._create(
             digest=digest,
             force=force,
@@ -136,6 +136,15 @@ class AdminDefinedObject(Container):
         return template.render(data=data)
 
     def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump AdminDefinedObject entity
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
         metadata = {
             **self.ado.dict(exclude={'id'}),
             **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
@@ -149,6 +158,16 @@ class AdminDefinedObject(Container):
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
+        """Load AdminDefinedObject entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            notebook: Container where load Experiment entity
+
+        Returns:
+
+        """
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
