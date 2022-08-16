@@ -173,6 +173,6 @@ class EntityStore:
 
         for item in Entity.get_subclasses():
             try:
-                item.dump_templates(base_path, fs_handler, base_alias + (item.__class__, ) if base_alias else None)
+                item.dump_templates(base_path, fs_handler, base_alias + (str(item), ) if base_alias else None)
             except Exception as e:
-                log.error('Failed to dump templates for %s' % item.__class__)
+                log.error('Failed to dump templates for %s' % str(item))
