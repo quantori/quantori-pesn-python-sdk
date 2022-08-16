@@ -123,7 +123,7 @@ class Container(Entity, abc.ABC):
         try:
             for template in templates:
                 template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler,
-                              base_alias + (template.name,))
+                              ('Templates', entity_type, template.name))
 
         except TypeError:
             pass

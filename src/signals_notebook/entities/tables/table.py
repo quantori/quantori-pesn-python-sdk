@@ -516,7 +516,7 @@ class Table(Entity):
                 fs_handler.write(
                     fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
                     json.dumps(metadata),
-                    base_alias + (template.name,))
+                    ('Templates', entity_type, template.name))
         except TypeError:
             pass
 
