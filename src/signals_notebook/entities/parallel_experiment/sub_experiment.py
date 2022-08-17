@@ -1,3 +1,4 @@
+import json
 import logging
 from functools import cached_property
 from typing import Generator, Literal, Optional
@@ -10,10 +11,11 @@ from signals_notebook.common_types import (
     EntityType,
     Template,
 )
-from signals_notebook.entities import Entity
+from signals_notebook.entities import Entity, UploadedResource
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
 from signals_notebook.jinja_env import env
+from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -105,3 +107,21 @@ class SubExperiment(Container):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parallel_experiment: ParallelExperiment) -> None:
+        from signals_notebook.item_mapper import ItemMapper
+
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
+        sub_experiment = cls.create(
+            parallel_experiment=parallel_experiment, description=metadata['description'], force=True
+        )
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(':')[0]
+            entity_type = ItemMapper.get_item_class(child_entity_type)
+
+            if child_entity_type == EntityType.CHEMICAL_DRAWING:
+                continue
+
+            entity_type.load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)
