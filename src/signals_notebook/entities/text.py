@@ -52,7 +52,7 @@ class Text(ContentfulEntity):
         return container.add_child(
             name=name,
             content=content,
-            content_type='text/plain',
+            content_type=cls.ContentType.TXT.value,
             force=force,
         )
 
