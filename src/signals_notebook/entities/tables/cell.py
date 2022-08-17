@@ -1,9 +1,8 @@
-from datetime import datetime, date
+from datetime import datetime
 from enum import Enum
 from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
-import dateutil
 from dateutil.parser import parse
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
