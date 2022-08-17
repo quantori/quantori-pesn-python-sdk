@@ -94,7 +94,7 @@ def samples_container_sdf_content():
     'file_name, content_type, format',
     [
         ('Test.csv', 'text/csv', SamplesContainerFormat.CSV),
-        ('Test.sdf', 'text/csv', SamplesContainerFormat.SDF),
+        ('Test.sdf', 'chemical/x-mdl-sdfile', SamplesContainerFormat.SDF),
     ],
 )
 def test_get_content(
