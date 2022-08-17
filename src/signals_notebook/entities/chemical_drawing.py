@@ -252,12 +252,25 @@ class ChemicalDrawing(ContentfulEntity):
 
         """
         content = self.get_content()
+
         if content.content != b'<CDXML />':
             metadata = {
                 'file_name': content.name,
                 'content_type': content.content_type,
                 **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
             }
+            if content.content_type == self.ContentType.CDXML.value:
+                reactants = self.get_structures(positions=ChemicalDrawingPosition.REACTANTS)
+                products = self.get_structures(positions=ChemicalDrawingPosition.PRODUCTS)
+                reagents = self.get_structures(positions=ChemicalDrawingPosition.REAGENTS)
+                metadata = {
+                    **metadata,
+                    **{
+                        'reactants': [{'inchi': i.inchi, 'cdxml': i.cdxml} for i in reactants],
+                        'products': [{'inchi': i.inchi, 'cdxml': i.cdxml} for i in products],
+                        'reagents': [{'inchi': i.inchi, 'cdxml': i.cdxml} for i in reagents],
+                    },
+                }
             fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
             file_name = content.name
             data = content.content
