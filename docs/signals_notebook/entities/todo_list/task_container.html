@@ -26,7 +26,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from typing import Literal
+<pre><code class="python">from typing import ClassVar, Literal
 
 from pydantic import Field
 
@@ -36,7 +36,7 @@ from signals_notebook.entities import TodoList
 
 class TaskContainer(TodoList):
     type: Literal[EntityType.TASK_CONTAINER] = Field(allow_mutation=False)
-    _template_name: str = &#39;task_container.html&#39;
+    _template_name: ClassVar = &#39;task_container.html&#39;
 
     @classmethod
     def _get_entity_type(cls) -&gt; EntityType:
@@ -65,7 +65,7 @@ class TaskContainer(TodoList):
 </summary>
 <pre><code class="python">class TaskContainer(TodoList):
     type: Literal[EntityType.TASK_CONTAINER] = Field(allow_mutation=False)
-    _template_name: str = &#39;task_container.html&#39;
+    _template_name: ClassVar = &#39;task_container.html&#39;
 
     @classmethod
     def _get_entity_type(cls) -&gt; EntityType:

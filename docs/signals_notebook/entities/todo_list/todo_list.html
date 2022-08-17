@@ -29,7 +29,7 @@
 <pre><code class="python">import json
 import logging
 from json import JSONDecodeError
-from typing import cast, Dict, List, Literal, Union
+from typing import cast, ClassVar, Dict, List, Literal, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
@@ -45,7 +45,7 @@ log = logging.getLogger(__name__)
 
 class TodoList(ContentfulEntity):
     type: Literal[EntityType.TODO_LIST] = Field(allow_mutation=False)
-    _template_name = &#39;todo_list.html&#39;
+    _template_name: ClassVar = &#39;todo_list.html&#39;
     _tasks: List[Task] = PrivateAttr(default=[])
     _tasks_by_id: Dict[EID, Task] = PrivateAttr(default={})
 
@@ -124,11 +124,15 @@ class TodoList(ContentfulEntity):
         &#34;&#34;&#34;
 
         file = self.get_content()
+        template = env.get_template(self._template_name)
         content = file.content.decode(&#39;utf-8&#39;)
-        dict_content = json.loads(content)
+        try:
+            dict_content = json.loads(content)
+        except json.JSONDecodeError:
+            return template.render(name=self.name)
+
         table_head = dict_content[&#39;cols&#39;]
         rows = dict_content[&#39;rows&#39;]
-        template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
@@ -171,7 +175,7 @@ class TodoList(ContentfulEntity):
 </summary>
 <pre><code class="python">class TodoList(ContentfulEntity):
     type: Literal[EntityType.TODO_LIST] = Field(allow_mutation=False)
-    _template_name = &#39;todo_list.html&#39;
+    _template_name: ClassVar = &#39;todo_list.html&#39;
     _tasks: List[Task] = PrivateAttr(default=[])
     _tasks_by_id: Dict[EID, Task] = PrivateAttr(default={})
 
@@ -250,11 +254,15 @@ class TodoList(ContentfulEntity):
         &#34;&#34;&#34;
 
         file = self.get_content()
+        template = env.get_template(self._template_name)
         content = file.content.decode(&#39;utf-8&#39;)
-        dict_content = json.loads(content)
+        try:
+            dict_content = json.loads(content)
+        except json.JSONDecodeError:
+            return template.render(name=self.name)
+
         table_head = dict_content[&#39;cols&#39;]
         rows = dict_content[&#39;rows&#39;]
-        template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
         return template.render(name=self.name, table_head=table_head, rows=rows)

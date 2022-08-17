@@ -29,12 +29,11 @@
 <pre><code class="python">import json
 import logging
 from functools import cached_property
-from typing import Literal, ClassVar, Optional
+from typing import ClassVar, Literal, Optional
 
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
 
-from signals_notebook.common_types import EntityType, Ancestors, Template, EntityCreationRequestPayload, \
-    EntityCreationRequestPayload
+from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
 from signals_notebook.entities import Notebook
 from signals_notebook.entities.container import Container
 from signals_notebook.jinja_env import env
@@ -63,7 +62,7 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
     pass
 
 
-class Request(Container):
+class RequestContainer(Container):
     type: Literal[EntityType.REQUEST] = Field(allow_mutation=False)
     _template_name: ClassVar = &#39;request.html&#39;
 
@@ -80,11 +79,11 @@ class Request(Container):
         *,
         name: str,
         description: Optional[str] = None,
-        template: Optional[&#39;Request&#39;] = None,
+        template: Optional[&#39;RequestContainer&#39;] = None,
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -&gt; &#39;Request&#39;:
+    ) -&gt; &#39;RequestContainer&#39;:
         &#34;&#34;&#34;Create new Request in Signals Notebook
 
         Args:
@@ -117,7 +116,7 @@ class Request(Container):
             )
         )
 
-        log.debug(&#39;Creating Notebook for: %s&#39;, cls.__name__)
+        log.debug(&#39;Creating Request Container for: %s&#39;, cls.__name__)
         return super()._create(
             digest=digest,
             force=force,
@@ -147,14 +146,14 @@ class Request(Container):
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
-        experiment = cls.create(
+        request_container = cls.create(
             notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
         )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(&#39;:&#39;)[0]
             ItemMapper.get_item_class(child_entity_type).load(
-                fs_handler.join_path(path, child_entity), fs_handler, experiment
+                fs_handler.join_path(path, child_entity), fs_handler, request_container
             )</code></pre>
 </details>
 </section>
@@ -200,8 +199,8 @@ class Request(Container):
 </dd>
 </dl>
 </dd>
-<dt id="signals_notebook.entities.request.Request"><code class="flex name class">
-<span>class <span class="ident">Request</span></span>
+<dt id="signals_notebook.entities.request.RequestContainer"><code class="flex name class">
+<span>class <span class="ident">RequestContainer</span></span>
 <span>(</span><span>**data: Any)</span>
 </code></dt>
 <dd>
@@ -211,7 +210,7 @@ class Request(Container):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Request(Container):
+<pre><code class="python">class RequestContainer(Container):
     type: Literal[EntityType.REQUEST] = Field(allow_mutation=False)
     _template_name: ClassVar = &#39;request.html&#39;
 
@@ -228,11 +227,11 @@ class Request(Container):
         *,
         name: str,
         description: Optional[str] = None,
-        template: Optional[&#39;Request&#39;] = None,
+        template: Optional[&#39;RequestContainer&#39;] = None,
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -&gt; &#39;Request&#39;:
+    ) -&gt; &#39;RequestContainer&#39;:
         &#34;&#34;&#34;Create new Request in Signals Notebook
 
         Args:
@@ -265,7 +264,7 @@ class Request(Container):
             )
         )
 
-        log.debug(&#39;Creating Notebook for: %s&#39;, cls.__name__)
+        log.debug(&#39;Creating Request Container for: %s&#39;, cls.__name__)
         return super()._create(
             digest=digest,
             force=force,
@@ -295,14 +294,14 @@ class Request(Container):
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
-        experiment = cls.create(
+        request_container = cls.create(
             notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
         )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(&#39;:&#39;)[0]
             ItemMapper.get_item_class(child_entity_type).load(
-                fs_handler.join_path(path, child_entity), fs_handler, experiment
+                fs_handler.join_path(path, child_entity), fs_handler, request_container
             )</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -315,19 +314,19 @@ class Request(Container):
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.entities.request.Request.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dt id="signals_notebook.entities.request.RequestContainer.Config"><code class="name">var <span class="ident">Config</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.request.Request.type"><code class="name">var <span class="ident">type</span> : Literal[<EntityType.REQUEST: 'request'>]</code></dt>
+<dt id="signals_notebook.entities.request.RequestContainer.type"><code class="name">var <span class="ident">type</span> : Literal[<EntityType.REQUEST: 'request'>]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
 <dl>
-<dt id="signals_notebook.entities.request.Request.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, name: str, description: Optional[str] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.request.Request" href="#signals_notebook.entities.request.Request">Request</a>')] = None, notebook: Optional[<a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.request.Request" href="#signals_notebook.entities.request.Request">Request</a></span>
+<dt id="signals_notebook.entities.request.RequestContainer.create"><code class="name flex">
+<span>def <span class="ident">create</span></span>(<span>*, name: str, description: Optional[str] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.request.RequestContainer" href="#signals_notebook.entities.request.RequestContainer">RequestContainer</a>')] = None, notebook: Optional[<a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.request.RequestContainer" href="#signals_notebook.entities.request.RequestContainer">RequestContainer</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create new Request in Signals Notebook</p>
@@ -358,11 +357,11 @@ def create(
     *,
     name: str,
     description: Optional[str] = None,
-    template: Optional[&#39;Request&#39;] = None,
+    template: Optional[&#39;RequestContainer&#39;] = None,
     notebook: Optional[Notebook] = None,
     digest: str = None,
     force: bool = True,
-) -&gt; &#39;Request&#39;:
+) -&gt; &#39;RequestContainer&#39;:
     &#34;&#34;&#34;Create new Request in Signals Notebook
 
     Args:
@@ -395,7 +394,7 @@ def create(
         )
     )
 
-    log.debug(&#39;Creating Notebook for: %s&#39;, cls.__name__)
+    log.debug(&#39;Creating Request Container for: %s&#39;, cls.__name__)
     return super()._create(
         digest=digest,
         force=force,
@@ -403,7 +402,7 @@ def create(
     )</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.entities.request.Request.load"><code class="name flex">
+<dt id="signals_notebook.entities.request.RequestContainer.load"><code class="name flex">
 <span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, notebook: <a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>) ‑> None</span>
 </code></dt>
 <dd>
@@ -417,21 +416,21 @@ def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
     from signals_notebook.item_mapper import ItemMapper
 
     metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
-    experiment = cls.create(
+    request_container = cls.create(
         notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
     )
     child_entities_folders = fs_handler.list_subfolders(path)
     for child_entity in child_entities_folders:
         child_entity_type = child_entity.split(&#39;:&#39;)[0]
         ItemMapper.get_item_class(child_entity_type).load(
-            fs_handler.join_path(path, child_entity), fs_handler, experiment
+            fs_handler.join_path(path, child_entity), fs_handler, request_container
         )</code></pre>
 </details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="signals_notebook.entities.request.Request.get_html"><code class="name flex">
+<dt id="signals_notebook.entities.request.RequestContainer.get_html"><code class="name flex">
 <span>def <span class="ident">get_html</span></span>(<span>self) ‑> str</span>
 </code></dt>
 <dd>
@@ -505,13 +504,13 @@ def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.entities.request.Request" href="#signals_notebook.entities.request.Request">Request</a></code></h4>
+<h4><code><a title="signals_notebook.entities.request.RequestContainer" href="#signals_notebook.entities.request.RequestContainer">RequestContainer</a></code></h4>
 <ul class="">
-<li><code><a title="signals_notebook.entities.request.Request.Config" href="#signals_notebook.entities.request.Request.Config">Config</a></code></li>
-<li><code><a title="signals_notebook.entities.request.Request.create" href="#signals_notebook.entities.request.Request.create">create</a></code></li>
-<li><code><a title="signals_notebook.entities.request.Request.get_html" href="#signals_notebook.entities.request.Request.get_html">get_html</a></code></li>
-<li><code><a title="signals_notebook.entities.request.Request.load" href="#signals_notebook.entities.request.Request.load">load</a></code></li>
-<li><code><a title="signals_notebook.entities.request.Request.type" href="#signals_notebook.entities.request.Request.type">type</a></code></li>
+<li><code><a title="signals_notebook.entities.request.RequestContainer.Config" href="#signals_notebook.entities.request.RequestContainer.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.request.RequestContainer.create" href="#signals_notebook.entities.request.RequestContainer.create">create</a></code></li>
+<li><code><a title="signals_notebook.entities.request.RequestContainer.get_html" href="#signals_notebook.entities.request.RequestContainer.get_html">get_html</a></code></li>
+<li><code><a title="signals_notebook.entities.request.RequestContainer.load" href="#signals_notebook.entities.request.RequestContainer.load">load</a></code></li>
+<li><code><a title="signals_notebook.entities.request.RequestContainer.type" href="#signals_notebook.entities.request.RequestContainer.type">type</a></code></li>
 </ul>
 </li>
 </ul>
