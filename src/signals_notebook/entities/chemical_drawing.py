@@ -266,11 +266,12 @@ class ChemicalDrawing(ContentfulEntity):
                 metadata = {
                     **metadata,
                     **{
-                        'reactants': [{'inchi': i.inchi, 'cdxml': i.cdxml} for i in reactants],
-                        'products': [{'inchi': i.inchi, 'cdxml': i.cdxml} for i in products],
-                        'reagents': [{'inchi': i.inchi, 'cdxml': i.cdxml} for i in reagents],
+                        'reactants': [{'id': i.id, 'inchi': i.inchi, 'cdxml': i.cdxml} for i in reactants],
+                        'products': [{'id': i.id, 'inchi': i.inchi, 'cdxml': i.cdxml} for i in products],
+                        'reagents': [{'id': i.id, 'inchi': i.inchi, 'cdxml': i.cdxml} for i in reagents],
                     },
                 }
+
             fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
             file_name = content.name
             data = content.content

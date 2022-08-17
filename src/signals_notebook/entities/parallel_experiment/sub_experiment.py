@@ -11,7 +11,8 @@ from signals_notebook.common_types import (
     EntityType,
     Template,
 )
-from signals_notebook.entities import Entity, UploadedResource
+from signals_notebook.entities import Entity
+from signals_notebook.entities.chemical_drawing import ChemicalDrawingPosition, ChemicalStructure, Structure
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
 from signals_notebook.jinja_env import env
@@ -116,12 +117,56 @@ class SubExperiment(Container):
         sub_experiment = cls.create(
             parallel_experiment=parallel_experiment, description=metadata['description'], force=True
         )
+        existing_chemical_drawing = [i for i in sub_experiment.get_children()
+                                     if i.type == EntityType.CHEMICAL_DRAWING][0]
+
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
+            child_path = fs_handler.join_path(path, child_entity)
+            metadata = json.loads(fs_handler.read(fs_handler.join_path(child_path, 'metadata.json')))
             child_entity_type = child_entity.split(':')[0]
             entity_type = ItemMapper.get_item_class(child_entity_type)
 
             if child_entity_type == EntityType.CHEMICAL_DRAWING:
-                continue
 
-            entity_type.load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)
+                if not metadata.get('reactants') or not metadata.get('products'):
+                    continue
+
+                reactants = [
+                    Structure(
+                        id=reactant['id'],
+                        type=ChemicalStructure.REACTANT,
+                        inchi=reactant['inchi'],
+                        cdxml=reactant['cdxml'],
+                    )
+                    for reactant in metadata['reactants']
+                ]
+
+                products = [
+                    Structure(
+                        id=product['id'], type=ChemicalStructure.PRODUCT, inchi=product['inchi'], cdxml=product['cdxml']
+                    )
+                    for product in metadata['products']
+                ]
+                reagents = [
+                    Structure(
+                        id=reagent['id'], type=ChemicalStructure.REAGENT, inchi=reagent['inchi'], cdxml=reagent['cdxml']
+                    )
+                    for reagent in metadata['reagents']
+                ]
+
+                for reactant in reactants:
+                    existing_chemical_drawing.add_structures(
+                        structure=reactant, positions=ChemicalDrawingPosition.REACTANTS
+                    )
+                for product in products:
+                    existing_chemical_drawing.add_structures(
+                        structure=product, positions=ChemicalDrawingPosition.PRODUCTS
+                    )
+                for reagent in reagents:
+                    existing_chemical_drawing.add_structures(
+                        structure=reagent, positions=ChemicalDrawingPosition.REAGENTS
+                    )
+
+            else:
+                entity_type.load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)

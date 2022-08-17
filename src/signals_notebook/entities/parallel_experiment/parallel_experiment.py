@@ -143,6 +143,13 @@ class ParallelExperiment(Container):
         experiment = cls.create(
             notebook=notebook, name=metadata['name'], description=metadata['description'], force=True
         )
+        experiment_children = [
+            child for child in experiment.get_children() if child.type != EntityType.SUB_EXPERIMENT_SUMMARY
+        ]
+
+        for child_entity in experiment_children:
+            child_entity.delete()
+
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
