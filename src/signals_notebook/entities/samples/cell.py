@@ -14,6 +14,8 @@ class SampleCellContent(GenericModel, Generic[CellValueType]):
     name: Optional[str]
     eid: Optional[EID]
     values: Optional[List[CellValueType]]
+    display: Optional[str]
+    units: Optional[str]
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -> None:
