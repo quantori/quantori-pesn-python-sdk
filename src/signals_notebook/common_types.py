@@ -44,6 +44,9 @@ class ObjectType(str, Enum):
     CHOICE = 'choice'
     SUB_EXPERIMENT = 'subexpSummaryRow'
     CONTAINER = 'container'
+    REACTION_PRODUCT = 'reactionProduct'
+    REACTION_REACTANT = 'reactionReactant'
+    REACTION_REAGENT = 'reactionReagent'
 
 
 class EntityType(str, Enum):

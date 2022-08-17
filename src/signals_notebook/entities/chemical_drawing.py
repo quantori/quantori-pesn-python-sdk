@@ -2,10 +2,11 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Union
+from typing import cast, ClassVar, Literal, Optional, Union
 
-from pydantic import Field
-from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File
+from pydantic import BaseModel, Field
+from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File, Response, ResponseData
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
@@ -14,6 +15,46 @@ from signals_notebook.jinja_env import env
 from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
+
+
+class ChemicalDrawingPosition(str, Enum):
+    REACTANTS = 'reactants'
+    REAGENTS = 'reagents'
+    PRODUCTS = 'products'
+
+
+class ChemicalStructure(str, Enum):
+    REACTANT = 'reactant'
+    REAGENT = 'reagent'
+    PRODUCT = 'product'
+
+
+class ChemicalStructureFormat(str, Enum):
+    INCHI = 'inchi'
+    CDXML = 'cdxml'
+
+
+class Structure(BaseModel):
+    id: str
+    type: ChemicalStructure
+    inchi: Optional[str]
+    cdxml: Optional[str]
+
+    class Config:
+        validate_assignment = True
+
+
+class ChemicalDrawingResponse(Response[Structure]):
+    pass
+
+
+class StructureAttribute(BaseModel):
+    dataType: ChemicalStructureFormat
+    data: str
+
+
+class StructureRequestData(BaseModel):
+    attributes: StructureAttribute
 
 
 class ChemicalDrawing(ContentfulEntity):
@@ -37,6 +78,75 @@ class ChemicalDrawing(ContentfulEntity):
     @classmethod
     def _get_entity_type(cls) -> EntityType:
         return EntityType.CHEMICAL_DRAWING
+
+    @classmethod
+    def _get_chemical_drawing_endpoint(cls) -> str:
+        return 'chemicaldrawings'
+
+    def get_structures(self, positions: ChemicalDrawingPosition) -> list[Structure]:
+        """Get reactants, reagents and products of ChemicalDrawing
+
+        Args:
+            positions:  one of the ChemicalDrawing positions
+
+        Returns:
+            list of Structure objects
+        """
+        api = SignalsNotebookApi.get_default_api()
+        log.debug('Reloading structures in ChemicalDrawing: %s...', self.eid)
+
+        response = api.call(
+            method='GET',
+            path=(self._get_chemical_drawing_endpoint(), self.eid, 'reaction', positions),
+        )
+
+        result = ChemicalDrawingResponse(**response.json())  # type: ignore
+
+        return [cast(ResponseData, item).body for item in result.data]
+
+    def add_structures(
+        self,
+        structure: Structure,
+        positions: ChemicalDrawingPosition,
+        digest: str = None,
+        force: bool = True,
+    ) -> Structure:
+        """Add reagent, reactant or product to ChemicalDrawing
+
+        Args:
+            structure: Structure object
+            positions: one of the ChemicalDrawing positions
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+                If the parameter 'force' is true, this parameter is optional.
+                If the parameter 'force' is false, this parameter is required.
+            force: Force to create without doing digest check
+
+        Returns:
+            Added Structure
+        """
+        api = SignalsNotebookApi.get_default_api()
+
+        if structure.inchi:
+            data_type = ChemicalStructureFormat.INCHI
+            data = structure.inchi
+        elif structure.cdxml:
+            data_type = ChemicalStructureFormat.CDXML
+            data = structure.cdxml
+        else:
+            raise ValueError('Structure doesn"t contain inchi and cdxml data')
+
+        request_data = StructureRequestData(attributes=StructureAttribute(dataType=data_type, data=data))
+        response = api.call(
+            method='POST',
+            path=(self._get_chemical_drawing_endpoint(), self.eid, 'reaction', positions),
+            params={
+                'digest': digest,
+                'force': json.dumps(force),
+            },
+            json={'data': request_data.dict()},
+        )
+        result = ChemicalDrawingResponse(**response.json())  # type: ignore
+        return cast(ResponseData, result.data).body
 
     @classmethod
     def create(
