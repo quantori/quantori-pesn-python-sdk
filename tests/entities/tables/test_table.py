@@ -8,7 +8,7 @@ import pytest
 
 from signals_notebook.common_types import EntityType, File, ObjectType
 from signals_notebook.entities import Table, UploadedResource
-from signals_notebook.entities.tables.cell import ColumnDataType, ColumnDefinition
+from signals_notebook.entities.tables.cell import Cell, ColumnDataType, ColumnDefinition, DateTimeCell
 from signals_notebook.entities.tables.row import Row
 
 DIGEST = '123'
@@ -1031,3 +1031,55 @@ def test_dump_templates(
         base_path, 'templates', entity_type, f'metadata_{template_name}.json'
     )
     fs_handler_mock.write.assert_called_once_with(fs_handler_mock.join_path(), json.dumps(metadata))
+
+
+def test_reload_datetime_data(api_mock, reload_data_response, table):
+    api_mock.call.return_value.json.return_value = {
+        "links": {"self": "https://example.com/grid:9b128b10-8eab-458d-8048-24d5153c6de7"},
+        "data": [
+            {
+                "type": "adtRow",
+                "id": "945e5287-1e1f-4310-b42a-43ed0405a4b4",
+                "links": {
+                    "self": "https://example.com/grid:9b128b10-8eab-458d-8048-24d5153c6de7/945e5287-1e1f-4310-b42a-43ed0405a4b4"
+                },
+                "attributes": {
+                    "id": "945e5287-1e1f-4310-b42a-43ed0405a4b4",
+                    "type": "adtRow",
+                    "cells": [
+                        {
+                            "key": "dff966b1-ed21-4f94-9446-78b00b01bdf8",
+                            "type": "datetime",
+                            "name": "Col. Date/Time",
+                            "content": {"value": "2021-12-31T20:00:00.000Z"},
+                        },
+                        {
+                            "key": "dff966b1-ed31-4f94-9446-78b00b01bdf8",
+                            "type": "datetime",
+                            "name": "Col. Date",
+                            "content": {"value": "16/06/2001"},
+                        },
+                    ],
+                },
+            }
+        ],
+    }
+
+    table._reload_data()
+
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=('adt', table.eid),
+        params={
+            'value': 'normalized',
+        },
+    )
+
+    assert len(table._rows) == len(reload_data_response['data'])
+    assert len(table._rows_by_id) == len(reload_data_response['data'])
+
+    for row in table:
+        assert isinstance(row, Row)
+        for cell in row:
+            assert isinstance(cell, Cell)
+            assert isinstance(cell, DateTimeCell)

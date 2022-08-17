@@ -1,8 +1,10 @@
-from datetime import datetime
+from datetime import datetime, date
 from enum import Enum
 from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
+import dateutil
+from dateutil.parser import parse
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
@@ -112,6 +114,19 @@ class CellContentDict(TypedDict):
 class UpdateCellRequest(GenericModel, Generic[CellContentType]):
     key: UUID
     content: CellContent[CellContentType]
+
+
+class DateTime(datetime):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls._validate_date
+
+    @staticmethod
+    def _validate_date(value: Union[str, datetime]) -> datetime:
+        if isinstance(value, datetime):
+            return value
+
+        return parse(value)
 
 
 class Cell(GenericModel, Generic[CellContentType]):
@@ -231,7 +246,7 @@ class BooleanCell(Cell[bool]):
         super()._set_value(new_value, display)
 
 
-class DateTimeCell(Cell[datetime]):
+class DateTimeCell(Cell[DateTime]):
     type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
 
     def set_value(self, new_value: datetime, display: Optional[str] = None) -> None:
