@@ -39,6 +39,7 @@ from signals_notebook.entities.container import Container
 from signals_notebook.jinja_env import env
 from signals_notebook.utils import FSHandler
 
+CUSTOM_SYSTEM_OBJECT = &#39;Custom System Object&#39;
 log = logging.getLogger(__name__)
 
 
@@ -52,8 +53,17 @@ class _Relationships(BaseModel):
     ancestors: Optional[Ancestors] = None
 
 
+class _Meta(BaseModel):
+    ado_type_name: str = Field(alias=&#39;adoTypeName&#39;)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+
 class _RequestBody(BaseModel):
     type: EntityType
+    meta: _Meta
     attributes: _Attributes
     relationships: Optional[_Relationships] = None
 
@@ -62,8 +72,19 @@ class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
     pass
 
 
+class AdoType(BaseModel):
+    id: str
+    base_type: str = Field(alias=&#39;baseType&#39;)
+    ado_name: str = Field(alias=&#39;adoName&#39;)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True
+
+
 class AdminDefinedObject(Container):
     type: Literal[EntityType.ADO] = Field(allow_mutation=False)
+    ado: AdoType = Field(default=CUSTOM_SYSTEM_OBJECT)
     _template_name: ClassVar = &#39;ado.html&#39;
 
     class Config:
@@ -78,36 +99,37 @@ class AdminDefinedObject(Container):
         cls,
         *,
         name: str,
+        ado_type_name: str,
         description: Optional[str] = None,
         template: Optional[&#39;AdminDefinedObject&#39;] = None,
         notebook: Optional[Notebook] = None,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
     ) -&gt; &#39;AdminDefinedObject&#39;:
         &#34;&#34;&#34;Create new AdminDefinedObject in Signals Notebook
 
         Args:
-            name: name of experiment
-            description: description of experiment
-            template: experiment template
-            notebook: notebook where create experiment
+            name: name of AdminDefinedObject
+            ado_type_name: new type name for ADO object
+            description: description of AdminDefinedObject
+            template: AdminDefinedObject template
+            notebook: notebook where create AdminDefinedObject
             digest: Indicate digest
             force: Force to create without doing digest check
 
         Returns:
             AdminDefinedObject
         &#34;&#34;&#34;
-
         relationships = None
         if template or notebook:
             relationships = _Relationships(
                 ancestors=Ancestors(data=[notebook.short_description]) if notebook else None,
                 template=Template(data=template.short_description) if template else None,
             )
-
         request = _RequestPayload(
             data=_RequestBody(
                 type=cls._get_entity_type(),
+                meta=_Meta(ado_type_name=ado_type_name),
                 attributes=_Attributes(
                     name=name,
                     description=description,
@@ -116,7 +138,7 @@ class AdminDefinedObject(Container):
             )
         )
 
-        log.debug(&#39;Creating Notebook for: %s&#39;, cls.__name__)
+        log.debug(&#39;Creating AdminDefinedObject for: %s&#39;, cls.__name__)
         return super()._create(
             digest=digest,
             force=force,
@@ -141,13 +163,48 @@ class AdminDefinedObject(Container):
 
         return template.render(data=data)
 
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump AdminDefinedObject entity
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
+        metadata = {
+            **self.ado.dict(exclude={&#39;id&#39;}),
+            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+        }
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata),
+        )
+        for child in self.get_children():
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
+
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+        &#34;&#34;&#34;Load AdminDefinedObject entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            notebook: Container where load Experiment entity
+
+        Returns:
+
+        &#34;&#34;&#34;
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
         experiment = cls.create(
-            notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+            notebook=notebook,
+            name=metadata[&#39;name&#39;],
+            ado_type_name=metadata.get(&#39;ado_name&#39;, CUSTOM_SYSTEM_OBJECT),
+            description=metadata[&#39;description&#39;],
+            force=True,
         )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
@@ -179,6 +236,7 @@ class AdminDefinedObject(Container):
 </summary>
 <pre><code class="python">class AdminDefinedObject(Container):
     type: Literal[EntityType.ADO] = Field(allow_mutation=False)
+    ado: AdoType = Field(default=CUSTOM_SYSTEM_OBJECT)
     _template_name: ClassVar = &#39;ado.html&#39;
 
     class Config:
@@ -193,36 +251,37 @@ class AdminDefinedObject(Container):
         cls,
         *,
         name: str,
+        ado_type_name: str,
         description: Optional[str] = None,
         template: Optional[&#39;AdminDefinedObject&#39;] = None,
         notebook: Optional[Notebook] = None,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
     ) -&gt; &#39;AdminDefinedObject&#39;:
         &#34;&#34;&#34;Create new AdminDefinedObject in Signals Notebook
 
         Args:
-            name: name of experiment
-            description: description of experiment
-            template: experiment template
-            notebook: notebook where create experiment
+            name: name of AdminDefinedObject
+            ado_type_name: new type name for ADO object
+            description: description of AdminDefinedObject
+            template: AdminDefinedObject template
+            notebook: notebook where create AdminDefinedObject
             digest: Indicate digest
             force: Force to create without doing digest check
 
         Returns:
             AdminDefinedObject
         &#34;&#34;&#34;
-
         relationships = None
         if template or notebook:
             relationships = _Relationships(
                 ancestors=Ancestors(data=[notebook.short_description]) if notebook else None,
                 template=Template(data=template.short_description) if template else None,
             )
-
         request = _RequestPayload(
             data=_RequestBody(
                 type=cls._get_entity_type(),
+                meta=_Meta(ado_type_name=ado_type_name),
                 attributes=_Attributes(
                     name=name,
                     description=description,
@@ -231,7 +290,7 @@ class AdminDefinedObject(Container):
             )
         )
 
-        log.debug(&#39;Creating Notebook for: %s&#39;, cls.__name__)
+        log.debug(&#39;Creating AdminDefinedObject for: %s&#39;, cls.__name__)
         return super()._create(
             digest=digest,
             force=force,
@@ -256,13 +315,48 @@ class AdminDefinedObject(Container):
 
         return template.render(data=data)
 
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump AdminDefinedObject entity
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
+        metadata = {
+            **self.ado.dict(exclude={&#39;id&#39;}),
+            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+        }
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata),
+        )
+        for child in self.get_children():
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
+
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+        &#34;&#34;&#34;Load AdminDefinedObject entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            notebook: Container where load Experiment entity
+
+        Returns:
+
+        &#34;&#34;&#34;
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
         experiment = cls.create(
-            notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+            notebook=notebook,
+            name=metadata[&#39;name&#39;],
+            ado_type_name=metadata.get(&#39;ado_name&#39;, CUSTOM_SYSTEM_OBJECT),
+            description=metadata[&#39;description&#39;],
+            force=True,
         )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
@@ -285,6 +379,10 @@ class AdminDefinedObject(Container):
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.entities.admin_defined_object.AdminDefinedObject.ado"><code class="name">var <span class="ident">ado</span> : <a title="signals_notebook.entities.admin_defined_object.AdoType" href="#signals_notebook.entities.admin_defined_object.AdoType">AdoType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.entities.admin_defined_object.AdminDefinedObject.type"><code class="name">var <span class="ident">type</span> : Literal[<EntityType.ADO: 'ado'>]</code></dt>
 <dd>
 <div class="desc"></div>
@@ -293,20 +391,22 @@ class AdminDefinedObject(Container):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.admin_defined_object.AdminDefinedObject.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, name: str, description: Optional[str] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject">AdminDefinedObject</a>')] = None, notebook: Optional[<a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject">AdminDefinedObject</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, name: str, ado_type_name: str, description: Optional[str] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject">AdminDefinedObject</a>')] = None, notebook: Optional[<a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>] = None, digest: Optional[str] = None, force: bool = True) ‑> <a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject">AdminDefinedObject</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create new AdminDefinedObject in Signals Notebook</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>name</code></strong></dt>
-<dd>name of experiment</dd>
+<dd>name of AdminDefinedObject</dd>
+<dt><strong><code>ado_type_name</code></strong></dt>
+<dd>new type name for ADO object</dd>
 <dt><strong><code>description</code></strong></dt>
-<dd>description of experiment</dd>
+<dd>description of AdminDefinedObject</dd>
 <dt><strong><code>template</code></strong></dt>
-<dd>experiment template</dd>
+<dd>AdminDefinedObject template</dd>
 <dt><strong><code>notebook</code></strong></dt>
-<dd>notebook where create experiment</dd>
+<dd>notebook where create AdminDefinedObject</dd>
 <dt><strong><code>digest</code></strong></dt>
 <dd>Indicate digest</dd>
 <dt><strong><code>force</code></strong></dt>
@@ -323,36 +423,37 @@ def create(
     cls,
     *,
     name: str,
+    ado_type_name: str,
     description: Optional[str] = None,
     template: Optional[&#39;AdminDefinedObject&#39;] = None,
     notebook: Optional[Notebook] = None,
-    digest: str = None,
+    digest: Optional[str] = None,
     force: bool = True,
 ) -&gt; &#39;AdminDefinedObject&#39;:
     &#34;&#34;&#34;Create new AdminDefinedObject in Signals Notebook
 
     Args:
-        name: name of experiment
-        description: description of experiment
-        template: experiment template
-        notebook: notebook where create experiment
+        name: name of AdminDefinedObject
+        ado_type_name: new type name for ADO object
+        description: description of AdminDefinedObject
+        template: AdminDefinedObject template
+        notebook: notebook where create AdminDefinedObject
         digest: Indicate digest
         force: Force to create without doing digest check
 
     Returns:
         AdminDefinedObject
     &#34;&#34;&#34;
-
     relationships = None
     if template or notebook:
         relationships = _Relationships(
             ancestors=Ancestors(data=[notebook.short_description]) if notebook else None,
             template=Template(data=template.short_description) if template else None,
         )
-
     request = _RequestPayload(
         data=_RequestBody(
             type=cls._get_entity_type(),
+            meta=_Meta(ado_type_name=ado_type_name),
             attributes=_Attributes(
                 name=name,
                 description=description,
@@ -361,7 +462,7 @@ def create(
         )
     )
 
-    log.debug(&#39;Creating Notebook for: %s&#39;, cls.__name__)
+    log.debug(&#39;Creating AdminDefinedObject for: %s&#39;, cls.__name__)
     return super()._create(
         digest=digest,
         force=force,
@@ -373,18 +474,42 @@ def create(
 <span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, notebook: <a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Load AdminDefinedObject entity</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>content path</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+<dt><strong><code>notebook</code></strong></dt>
+<dd>Container where load Experiment entity</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
 def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+    &#34;&#34;&#34;Load AdminDefinedObject entity
+
+    Args:
+        path: content path
+        fs_handler: FSHandler
+        notebook: Container where load Experiment entity
+
+    Returns:
+
+    &#34;&#34;&#34;
     from signals_notebook.item_mapper import ItemMapper
 
     metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
     experiment = cls.create(
-        notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+        notebook=notebook,
+        name=metadata[&#39;name&#39;],
+        ado_type_name=metadata.get(&#39;ado_name&#39;, CUSTOM_SYSTEM_OBJECT),
+        description=metadata[&#39;description&#39;],
+        force=True,
     )
     child_entities_folders = fs_handler.list_subfolders(path)
     for child_entity in child_entities_folders:
@@ -397,6 +522,45 @@ def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="signals_notebook.entities.admin_defined_object.AdminDefinedObject.dump"><code class="name flex">
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dump AdminDefinedObject entity</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>base_path</code></strong></dt>
+<dd>content path where create dump</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    &#34;&#34;&#34;Dump AdminDefinedObject entity
+
+    Args:
+        base_path: content path where create dump
+        fs_handler: FSHandler
+
+    Returns:
+
+    &#34;&#34;&#34;
+    metadata = {
+        **self.ado.dict(exclude={&#39;id&#39;}),
+        **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+    }
+    fs_handler.write(
+        fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+        json.dumps(metadata),
+    )
+    for child in self.get_children():
+        child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.admin_defined_object.AdminDefinedObject.get_html"><code class="name flex">
 <span>def <span class="ident">get_html</span></span>(<span>self) ‑> str</span>
 </code></dt>
@@ -446,6 +610,51 @@ def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
 </ul>
 </li>
 </ul>
+</dd>
+<dt id="signals_notebook.entities.admin_defined_object.AdoType"><code class="flex name class">
+<span>class <span class="ident">AdoType</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class AdoType(BaseModel):
+    id: str
+    base_type: str = Field(alias=&#39;baseType&#39;)
+    ado_name: str = Field(alias=&#39;adoName&#39;)
+
+    class Config:
+        validate_assignment = True
+        allow_population_by_field_name = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.admin_defined_object.AdoType.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.admin_defined_object.AdoType.ado_name"><code class="name">var <span class="ident">ado_name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.admin_defined_object.AdoType.base_type"><code class="name">var <span class="ident">base_type</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.admin_defined_object.AdoType.id"><code class="name">var <span class="ident">id</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 </dd>
 <dt id="signals_notebook.entities.admin_defined_object.EntityCreationRequestPayload[_RequestBody]"><code class="flex name class">
 <span>class <span class="ident">EntityCreationRequestPayload[_RequestBody]</span></span>
@@ -498,12 +707,23 @@ def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
 <ul>
 <li>
 <h4><code><a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject">AdminDefinedObject</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject.Config" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject.ado" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject.ado">ado</a></code></li>
 <li><code><a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject.create" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject.create">create</a></code></li>
+<li><code><a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject.dump" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject.get_html" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject.load" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject.type" href="#signals_notebook.entities.admin_defined_object.AdminDefinedObject.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.admin_defined_object.AdoType" href="#signals_notebook.entities.admin_defined_object.AdoType">AdoType</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.admin_defined_object.AdoType.Config" href="#signals_notebook.entities.admin_defined_object.AdoType.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.admin_defined_object.AdoType.ado_name" href="#signals_notebook.entities.admin_defined_object.AdoType.ado_name">ado_name</a></code></li>
+<li><code><a title="signals_notebook.entities.admin_defined_object.AdoType.base_type" href="#signals_notebook.entities.admin_defined_object.AdoType.base_type">base_type</a></code></li>
+<li><code><a title="signals_notebook.entities.admin_defined_object.AdoType.id" href="#signals_notebook.entities.admin_defined_object.AdoType.id">id</a></code></li>
 </ul>
 </li>
 <li>

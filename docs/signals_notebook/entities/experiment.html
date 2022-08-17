@@ -30,7 +30,7 @@
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Union, Generator
+from typing import ClassVar, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -163,6 +163,16 @@ class Experiment(Container):
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+        &#34;&#34;&#34;Load Experiment entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            notebook: Container where load Experiment entity
+
+        Returns:
+
+        &#34;&#34;&#34;
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
@@ -326,6 +336,16 @@ class Experiment(Container):
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+        &#34;&#34;&#34;Load Experiment entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            notebook: Container where load Experiment entity
+
+        Returns:
+
+        &#34;&#34;&#34;
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
@@ -448,13 +468,33 @@ def create(
 <span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, notebook: <a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>) ‑> None</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Load Experiment entity</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>content path</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+<dt><strong><code>notebook</code></strong></dt>
+<dd>Container where load Experiment entity</dd>
+</dl>
+<p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
 def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+    &#34;&#34;&#34;Load Experiment entity
+
+    Args:
+        path: content path
+        fs_handler: FSHandler
+        notebook: Container where load Experiment entity
+
+    Returns:
+
+    &#34;&#34;&#34;
     from signals_notebook.item_mapper import ItemMapper
 
     metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
