@@ -1,10 +1,10 @@
+import json
 import logging
 from enum import Enum
 from functools import cached_property
 from typing import ClassVar, Literal, Optional, Union
 
 from pydantic import Field
-
 from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
@@ -26,6 +26,7 @@ class ChemicalDrawing(ContentfulEntity):
         SW = 'chemical/x-swissprot'
         SVG = 'image/svg+xml'
         CSV = 'text/csv'
+        SMILES = 'chemical/x-daylight-smiles'
 
     type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
     _template_name: ClassVar = 'chemical_drawing.html'
@@ -129,3 +130,25 @@ class ChemicalDrawing(ContentfulEntity):
                 template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
         except TypeError:
             pass
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump ChemicalDrawing
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+        content = self.get_content()
+        if content.content != b'<CDXML />':
+            metadata = {
+                'file_name': content.name,
+                'content_type': content.content_type,
+                **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
+            }
+            fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
+            file_name = content.name
+            data = content.content
+            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
