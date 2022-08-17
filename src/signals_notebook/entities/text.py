@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 class Text(ContentfulEntity):
     class ContentType(str, Enum):
         TXT = 'text/plain'
+        TXT_HTML = 'text/html'
 
     type: Literal[EntityType.TEXT] = Field(allow_mutation=False)
     _template_name: ClassVar = 'text.html'
@@ -51,7 +52,7 @@ class Text(ContentfulEntity):
         return container.add_child(
             name=name,
             content=content,
-            content_type=content_type,
+            content_type='text/plain',
             force=force,
         )
 
