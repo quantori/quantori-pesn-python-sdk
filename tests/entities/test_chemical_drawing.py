@@ -9,6 +9,16 @@ from signals_notebook.entities.chemical_drawing import ChemicalStructure, Chemic
 
 
 @pytest.fixture()
+def get_response(mocker):
+    def _f(response):
+        mock = mocker.Mock()
+        mock.json.return_value = response
+        return mock
+
+    return _f
+
+
+@pytest.fixture()
 def templates():
     return {
         'links': {
@@ -131,16 +141,16 @@ def test_get_structures(
     chemical_drawing = chemical_drawing_factory()
 
     response = {
-        "links": {"self": f"https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/reactants"},
-        "data": [
+        'links': {'self': f'https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/reactants'},
+        'data': [
             {
-                "type": reaction_type,
-                "id": structure.id,
-                "attributes": {
-                    "type": structure.type,
-                    "id": structure.id,
-                    "inchi": structure.inchi,
-                    "cdxml": structure.cdxml,
+                'type': reaction_type,
+                'id': structure.id,
+                'attributes': {
+                    'type': structure.type,
+                    'id': structure.id,
+                    'inchi': structure.inchi,
+                    'cdxml': structure.cdxml,
                 },
             }
         ],
@@ -207,15 +217,15 @@ def test_add_structures(
     else:
         structure.cdxml = data
     response = {
-        "links": {"self": f"https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/products"},
-        "data": {
-            "type": reaction_type,
-            "id": structure.id,
-            "attributes": {
-                "type": structure.type,
-                "id": structure.id,
-                "inchi": structure.inchi,
-                "cdxml": structure.cdxml,
+        'links': {'self': f'https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/products'},
+        'data': {
+            'type': reaction_type,
+            'id': structure.id,
+            'attributes': {
+                'type': structure.type,
+                'id': structure.id,
+                'inchi': structure.inchi,
+                'cdxml': structure.cdxml,
             },
         },
     }
@@ -290,24 +300,95 @@ def test_get_html(api_mock, chemical_drawing_stoichiometry_mock, chemical_drawin
     snapshot.assert_match(chemical_drawing_html)
 
 
-def test_dump(api_mock, mocker, chemical_drawing_factory):
+def test_dump_not_empty_chemical_drawing(api_mock, mocker, chemical_drawing_factory, structure_factory, get_response):
     chemical_drawing = chemical_drawing_factory(name='name')
     file_name = 'chemDraw.cdxml'
     content = b'<?xml version="1.0" encoding="UTF-8" ?>'
     content_type = 'chemical/x-cdxml'
 
-    api_mock.call.return_value.headers = {
+
+    structure_reactant = structure_factory(
+        id=1, type=ChemicalStructure.REACTANT, inchi='InChI=1S/C3H8', cdxml='<?xml version=1.0'
+    )
+    structure_product = structure_factory(
+        id=2, type=ChemicalStructure.PRODUCT, inchi='InChI=1S/C3H8', cdxml='<?xml version=1.0'
+    )
+    structure_reagent = structure_factory(
+        id=3, type=ChemicalStructure.REAGENT, inchi='InChI=1S/C3H8', cdxml='<?xml version=1.0'
+    )
+
+    response_reactants = {
+        'links': {'self': f'https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/reactants'},
+        'data': [
+            {
+                'type': ObjectType.REACTION_REACTANT,
+                'id': structure_reactant.id,
+                'attributes': {
+                    'type': structure_reactant.type,
+                    'id': structure_reactant.id,
+                    'inchi': structure_reactant.inchi,
+                    'cdxml': structure_reactant.cdxml,
+                },
+            }
+        ],
+    }
+    response_reagents = {
+        'links': {'self': f'https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/reagents'},
+        'data': [
+            {
+                'type': ObjectType.REACTION_REAGENT,
+                'id': structure_reagent.id,
+                'attributes': {
+                    'type': structure_reagent.type,
+                    'id': structure_reagent.id,
+                    'inchi': structure_reagent.inchi,
+                    'cdxml': structure_reagent.cdxml,
+                },
+            }
+        ],
+    }
+    response_products = {
+        'links': {'self': f'https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/products'},
+        'data': [
+            {
+                'type': ObjectType.REACTION_PRODUCT,
+                'id': structure_product.id,
+                'attributes': {
+                    'type': structure_product.type,
+                    'id': structure_product.id,
+                    'inchi': structure_product.inchi,
+                    'cdxml': structure_product.cdxml,
+                },
+            }
+        ],
+    }
+    content_response = get_response({})
+    content_response.content = content
+    content_response.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
     }
-    api_mock.call.return_value.content = content
+
+    api_mock.call.side_effect = [
+        content_response,
+        get_response(response_reactants),
+        get_response(response_products),
+        get_response(response_reagents),
+    ]
     fs_handler_mock = mocker.MagicMock()
     base_path = './'
     metadata = {
         'file_name': file_name,
         'content_type': content_type,
         **{k: v for k, v in chemical_drawing.dict().items() if k in ('name', 'description', 'eid')},
+        'reactants': [
+            {'id': structure_reactant.id, 'inchi': structure_reactant.inchi, 'cdxml': structure_reactant.cdxml},
+        ],
+        'products': [{'id': structure_product.id, 'inchi': structure_product.inchi, 'cdxml': structure_product.cdxml}],
+        'reagents': [{'id': structure_reagent.id, 'inchi': structure_reagent.inchi, 'cdxml': structure_reagent.cdxml}],
+
     }
+
     chemical_drawing.dump(base_path=base_path, fs_handler=fs_handler_mock)
 
     join_path_call_1 = mocker.call(base_path, chemical_drawing.eid, 'metadata.json')
@@ -327,6 +408,28 @@ def test_dump(api_mock, mocker, chemical_drawing_factory):
         ],
         any_order=True,
     )
+
+
+def test_dump_empty_chemical_drawing(api_mock, mocker, chemical_drawing_factory, structure_factory, get_response):
+    file_name = 'chemDraw.cdxml'
+    content = b'<CDXML />'
+    content_type = 'chemical/x-cdxml'
+
+    content_response = get_response({})
+    content_response.content = content
+    content_response.headers = {
+        'content-type': content_type,
+        'content-disposition': f'attachment; filename={file_name}',
+    }
+
+    api_mock.call.side_effect = [
+        content_response,
+    ]
+    fs_handler_mock = mocker.MagicMock()
+
+    fs_handler_mock.join_path.assert_not_called()
+    fs_handler_mock.write.assert_not_called()
+
 
 
 @pytest.mark.parametrize(
