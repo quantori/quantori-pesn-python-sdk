@@ -105,14 +105,28 @@ def test_create(
 
 
 @pytest.mark.parametrize(
-    'structure_type, positions',
+    'structure_type, positions, reaction_type',
     [
-        (ChemicalStructure.REACTANT, ChemicalDrawingPosition.REACTANTS, ),
-        (ChemicalStructure.PRODUCT, ChemicalDrawingPosition.PRODUCTS, ),
-        (ChemicalStructure.REAGENT, ChemicalDrawingPosition.REAGENTS, ),
+        (
+            ChemicalStructure.REACTANT,
+            ChemicalDrawingPosition.REACTANTS,
+            ObjectType.REACTION_REACTANT,
+        ),
+        (
+            ChemicalStructure.PRODUCT,
+            ChemicalDrawingPosition.PRODUCTS,
+            ObjectType.REACTION_REACTANT,
+        ),
+        (
+            ChemicalStructure.REAGENT,
+            ChemicalDrawingPosition.REAGENTS,
+            ObjectType.REACTION_REACTANT,
+        ),
     ],
 )
-def test_get_structures(chemical_drawing_factory, structure_factory, api_mock, structure_type, positions):
+def test_get_structures(
+    chemical_drawing_factory, structure_factory, api_mock, structure_type, positions, reaction_type
+):
     structure = structure_factory(id=1, type=structure_type)
     chemical_drawing = chemical_drawing_factory()
 
@@ -120,7 +134,7 @@ def test_get_structures(chemical_drawing_factory, structure_factory, api_mock, s
         "links": {"self": f"https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/reactants"},
         "data": [
             {
-                "type": "reactionReactant",
+                "type": reaction_type,
                 "id": structure.id,
                 "attributes": {
                     "type": structure.type,
@@ -144,6 +158,94 @@ def test_get_structures(chemical_drawing_factory, structure_factory, api_mock, s
     assert result[0].id == structure.id
     assert result[0].inchi == structure.inchi
     assert result[0].cdxml == structure.cdxml
+
+
+@pytest.mark.parametrize('digest, force', [('111', False), (None, True)])
+@pytest.mark.parametrize(
+    'structure_type, positions, reaction_type, data_type, data',
+    [
+        (
+            ChemicalStructure.REACTANT,
+            ChemicalDrawingPosition.REACTANTS,
+            ObjectType.REACTION_REACTANT,
+            'inchi',
+            'InChI=1S/C3H8/c1-3-2/h3H2,1-2H3',
+        ),
+        (
+            ChemicalStructure.PRODUCT,
+            ChemicalDrawingPosition.PRODUCTS,
+            ObjectType.REACTION_REACTANT,
+            'cdxml',
+            '<?xml version=1.0',
+        ),
+        (
+            ChemicalStructure.REAGENT,
+            ChemicalDrawingPosition.REAGENTS,
+            ObjectType.REACTION_REACTANT,
+            'inchi',
+            'InChI=1S/C3H8/c1-3-2/h3H2,1-2H3',
+        ),
+    ],
+)
+def test_add_structures(
+    api_mock,
+    chemical_drawing_factory,
+    structure_factory,
+    digest,
+    force,
+    structure_type,
+    positions,
+    reaction_type,
+    data_type,
+    data,
+):
+    chemical_drawing = chemical_drawing_factory()
+    structure = structure_factory(id=1, type=structure_type)
+
+    if data_type == 'inchi':
+        structure.inchi = data
+    else:
+        structure.cdxml = data
+    response = {
+        "links": {"self": f"https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/products"},
+        "data": {
+            "type": reaction_type,
+            "id": structure.id,
+            "attributes": {
+                "type": structure.type,
+                "id": structure.id,
+                "inchi": structure.inchi,
+                "cdxml": structure.cdxml,
+            },
+        },
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    chemical_drawing.add_structures(structure=structure, positions=positions, digest=digest, force=force)
+
+    request_body = {
+        'data': {
+            'attributes': {'dataType': data_type, 'data': data},
+        }
+    }
+
+    api_mock.call.assert_called_once_with(
+        method='POST',
+        path=('chemicaldrawings', chemical_drawing.eid, 'reaction', positions),
+        params={
+            'digest': digest,
+            'force': 'true' if force else 'false',
+        },
+        json=request_body,
+    )
+    #
+    # assert isinstance(result, SubExperiment)
+    # assert result.eid == eid
+    # assert result.digest == response['data']['attributes']['digest']
+    # assert result.name == response['data']['attributes']['name']
+    # assert result.description == response['data']['attributes']['description']
+    # assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
+    # assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
 def test_get_content(chemical_drawing_factory, api_mock):
