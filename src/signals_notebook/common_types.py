@@ -3,10 +3,12 @@ import mimetypes
 import os
 import re
 from base64 import b64encode
+from datetime import datetime
 from enum import Enum
 from typing import Any, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
 
+from dateutil.parser import parse
 from pydantic import BaseModel, Field, HttpUrl, validator
 from pydantic.generics import GenericModel
 
@@ -398,3 +400,16 @@ class File(BaseModel):
 
         with open(_path, 'wb') as f:
             f.write(self.content)
+
+
+class DateTime(datetime):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls._validate_date
+
+    @staticmethod
+    def _validate_date(value: Union[str, datetime]) -> datetime:
+        if isinstance(value, datetime):
+            return value
+
+        return parse(value)
