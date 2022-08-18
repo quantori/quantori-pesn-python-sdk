@@ -220,7 +220,7 @@ class Entity(BaseModel):
                 'digest': digest,
                 'force': json.dumps(force),
             },
-            json=request.dict(exclude_none=True),
+            json=request.dict(exclude_none=True, by_alias=True),
         )
         log.debug('Entity: %s was created.', cls.__name__)
 

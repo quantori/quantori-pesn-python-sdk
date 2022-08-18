@@ -202,7 +202,33 @@ class Material(BaseMaterialEntity):
             json={
                 &#39;data&#39;: request_body,
             },
-        )</code></pre>
+        )
+
+    def delete(self, digest: str = None, force: bool = True) -&gt; None:
+        &#34;&#34;&#34;Delete Material by ID
+
+        Args:
+            eid: material ID
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+                If the parameter &#39;force&#39; is true, this parameter is optional.
+                If the parameter &#39;force&#39; is false, this parameter is required.
+            force: Force to delete without doing digest check.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Deleting Material: %s&#39;, self.eid)
+
+        api.call(
+            method=&#39;DELETE&#39;,
+            path=(&#39;entities&#39;, self.eid),
+            params={
+                &#39;digest&#39;: digest,
+                &#39;force&#39;: json.dumps(force),
+            },
+        )
+        log.debug(&#39;Library: %s was deleted successfully&#39;, self.eid)</code></pre>
 </details>
 </section>
 <section>
@@ -385,7 +411,33 @@ Adds ability to use properties with setters</p>
             json={
                 &#39;data&#39;: request_body,
             },
-        )</code></pre>
+        )
+
+    def delete(self, digest: str = None, force: bool = True) -&gt; None:
+        &#34;&#34;&#34;Delete Material by ID
+
+        Args:
+            eid: material ID
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+                If the parameter &#39;force&#39; is true, this parameter is optional.
+                If the parameter &#39;force&#39; is false, this parameter is required.
+            force: Force to delete without doing digest check.
+
+        Returns:
+
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Deleting Material: %s&#39;, self.eid)
+
+        api.call(
+            method=&#39;DELETE&#39;,
+            path=(&#39;entities&#39;, self.eid),
+            params={
+                &#39;digest&#39;: digest,
+                &#39;force&#39;: json.dumps(force),
+            },
+        )
+        log.debug(&#39;Library: %s was deleted successfully&#39;, self.eid)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -429,6 +481,54 @@ def library(self) -&gt; &#39;Library&#39;:
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="signals_notebook.materials.material.Material.delete"><code class="name flex">
+<span>def <span class="ident">delete</span></span>(<span>self, digest: str = None, force: bool = True) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Delete Material by ID</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>eid</code></strong></dt>
+<dd>material ID</dd>
+<dt><strong><code>digest</code></strong></dt>
+<dd>Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+If the parameter 'force' is true, this parameter is optional.
+If the parameter 'force' is false, this parameter is required.</dd>
+<dt><strong><code>force</code></strong></dt>
+<dd>Force to delete without doing digest check.</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delete(self, digest: str = None, force: bool = True) -&gt; None:
+    &#34;&#34;&#34;Delete Material by ID
+
+    Args:
+        eid: material ID
+        digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+            If the parameter &#39;force&#39; is true, this parameter is optional.
+            If the parameter &#39;force&#39; is false, this parameter is required.
+        force: Force to delete without doing digest check.
+
+    Returns:
+
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    log.debug(&#39;Deleting Material: %s&#39;, self.eid)
+
+    api.call(
+        method=&#39;DELETE&#39;,
+        path=(&#39;entities&#39;, self.eid),
+        params={
+            &#39;digest&#39;: digest,
+            &#39;force&#39;: json.dumps(force),
+        },
+    )
+    log.debug(&#39;Library: %s was deleted successfully&#39;, self.eid)</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.materials.material.Material.get_attachment"><code class="name flex">
 <span>def <span class="ident">get_attachment</span></span>(<span>self, field_id: str) ‑> <a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a></span>
 </code></dt>
@@ -654,6 +754,7 @@ def library(self) -&gt; &#39;Library&#39;:
 <li>
 <h4><code><a title="signals_notebook.materials.material.Material" href="#signals_notebook.materials.material.Material">Material</a></code></h4>
 <ul class="">
+<li><code><a title="signals_notebook.materials.material.Material.delete" href="#signals_notebook.materials.material.Material.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.materials.material.Material.get_attachment" href="#signals_notebook.materials.material.Material.get_attachment">get_attachment</a></code></li>
 <li><code><a title="signals_notebook.materials.material.Material.get_bio_sequence" href="#signals_notebook.materials.material.Material.get_bio_sequence">get_bio_sequence</a></code></li>
 <li><code><a title="signals_notebook.materials.material.Material.get_chemical_drawing" href="#signals_notebook.materials.material.Material.get_chemical_drawing">get_chemical_drawing</a></code></li>

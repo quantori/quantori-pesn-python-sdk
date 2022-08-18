@@ -3,10 +3,12 @@ import mimetypes
 import os
 import re
 from base64 import b64encode
+from datetime import datetime
 from enum import Enum
 from typing import Any, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
 
+from dateutil.parser import parse
 from pydantic import BaseModel, Field, HttpUrl, validator
 from pydantic.generics import GenericModel
 
@@ -42,6 +44,8 @@ class ObjectType(str, Enum):
     PLATE_ROW = 'plateRow'
     ATTRIBUTE_OPTION = 'option'
     CHOICE = 'choice'
+    SUB_EXPERIMENT = 'subexpSummaryRow'
+    CONTAINER = 'container'
 
 
 class EntityType(str, Enum):
@@ -64,6 +68,13 @@ class EntityType(str, Enum):
     TASK = 'task'
     PLATE_CONTAINER = 'plateContainer'
     MATERIAL_TABLE = 'materialsTable'
+    PARALLEL_EXPERIMENT = 'paraexp'
+    SUB_EXPERIMENT = 'parasubexp'
+    SUB_EXPERIMENT_SUMMARY = 'paragrid'
+    SUB_EXPERIMENT_LAYOUT = 'paraLayout'
+    ADO = 'ado'
+    REQUEST = 'request'
+    TASK_CONTAINER = 'taskContainer'
 
 
 class MaterialType(str, Enum):
@@ -73,9 +84,8 @@ class MaterialType(str, Enum):
 
 
 class EID(str):
-    """Entity ID
+    """Entity ID"""
 
-    """
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -93,14 +103,13 @@ class EID(str):
             v: Entity ID
 
         Returns:
-
         """
         if not isinstance(v, str):
             log.error('%s is not instance of str', v)
             raise EIDError(value=v)
 
         try:
-            _type, _id = v.split(':')
+            _type, _id, *_ = v.split(':')
             UUID(_id)
         except ValueError:
             log.exception('Cannot get id and type from value')
@@ -115,7 +124,7 @@ class EID(str):
         Returns:
             One of the entity types
         """
-        _type, _ = self.split(':')
+        _type, _id, *_ = self.split(':')
         try:
             return EntityType(_type)
         except ValueError:
@@ -129,14 +138,12 @@ class EID(str):
         Returns:
             UUID
         """
-        _, _id = self.split(':')
+        _type, _id, *_ = self.split(':')
         return UUID(_id)
 
 
 class MID(str):
-    """Material ID
-
-    """
+    """Material ID"""
 
     _id_pattern = re.compile('[0-9a-f]+', flags=re.IGNORECASE)
 
@@ -198,9 +205,8 @@ class MID(str):
 
 
 class AttrID(str):
-    """Attribute ID
+    """Attribute ID"""
 
-    """
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -394,3 +400,16 @@ class File(BaseModel):
 
         with open(_path, 'wb') as f:
             f.write(self.content)
+
+
+class DateTime(datetime):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls._validate_date
+
+    @staticmethod
+    def _validate_date(value: Union[str, datetime]) -> datetime:
+        if isinstance(value, datetime):
+            return value
+
+        return parse(value)

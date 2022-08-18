@@ -1,0 +1,37 @@
+{% if rows %}
+<div class="table-wrapper" style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
+    <div class="table-scroll">
+        <h2>{{ name }}</h2>
+        <table>
+            <thead>
+                <tr>
+                {% for item in table_head %}
+                    <th>{{ item['title'] }}</th>
+                {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+            {% for row in rows %}
+                <tr>
+                {% for item in table_head %}
+                    {% set cell = item['key'] -%}
+                    {% if cell in row %}
+                        {% set cell_value = row[cell] -%}
+                        {% if item['type'] == 'user' and cell_value['auto'] %}
+                        <td> {{ cell_value['auto']['firstName'] + ' ' + cell_value['auto']['lastName'] | safe }} </td>
+                        {% elif item['type'] == 'link' %}
+                        <td><a href="{{cell_value['value'] | safe}}"> {{cell_value['auto'] | safe}} </a></td>
+                        {% elif item['type'] == 'datetime'%}
+                        <td> {{ cell_value['user'] | safe }} </td>
+                        {% else %}
+                        <td> {{ cell_value['auto'] | safe }} </td>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}

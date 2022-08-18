@@ -2,6 +2,8 @@ import pytest
 from pytest_factoryboy import register
 
 from tests.entities.factories import (
+    AdminDefinedObjectFactory,
+    AdoTypeFactory,
     BiologicalSequenceFactory,
     ChemicalDrawingFactory,
     EIDFactory,
@@ -12,10 +14,19 @@ from tests.entities.factories import (
     MaterialTableFactory,
     NotebookFactory,
     PowerPointFactory,
+    RequestContainerFactory,
     SpotfireFactory,
     TextFactory,
     UploadedResourceFactory,
     WordFactory,
+)
+from tests.entities.parallel_experiment.factories import (
+    ParallelExperimentFactory,
+    SubExperimentFactory,
+    SubExperimentLayoutFactory,
+    SubExperimentSummaryCellFactory,
+    SubExperimentSummaryFactory,
+    SubExperimentSummaryRowFactory,
 )
 from tests.entities.plates.factories import PlateContainerFactory
 from tests.entities.samples.factories import (
@@ -25,8 +36,7 @@ from tests.entities.samples.factories import (
 )
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
-from tests.entities.todo_list.factories import TaskCellFactory, TaskFactory, TodoListFactory
-
+from tests.entities.todo_list.factories import TaskCellFactory, TaskContainerFactory, TaskFactory, TodoListFactory
 
 register(EIDFactory)
 register(NotebookFactory)
@@ -51,6 +61,16 @@ register(TaskCellFactory)
 register(UploadedResourceFactory)
 register(PlateContainerFactory)
 register(MaterialTableFactory)
+register(ParallelExperimentFactory)
+register(SubExperimentFactory)
+register(SubExperimentSummaryFactory)
+register(SubExperimentSummaryRowFactory)
+register(SubExperimentSummaryCellFactory)
+register(SubExperimentLayoutFactory)
+register(AdminDefinedObjectFactory)
+register(AdoTypeFactory)
+register(RequestContainerFactory)
+register(TaskContainerFactory)
 
 
 @pytest.fixture()
