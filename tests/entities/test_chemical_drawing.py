@@ -506,17 +506,82 @@ def test_load(
     )
 
 
-def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates):
+def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates, structure_factory, get_response):
     chemical_drawing = chemical_drawing_factory(name='name')
     file_name = 'chemDraw.cdxml'
     content = b'<?xml version="1.0" encoding="UTF-8" ?>'
     content_type = 'chemical/x-cdxml'
 
-    api_mock.call.return_value.headers = {
+    structure_reactant = structure_factory(
+        id=1, type=ChemicalStructure.REACTANT, inchi='InChI=1S/C3H8', cdxml='<?xml version=1.0'
+    )
+    structure_product = structure_factory(
+        id=2, type=ChemicalStructure.PRODUCT, inchi='InChI=1S/C3H8', cdxml='<?xml version=1.0'
+    )
+    structure_reagent = structure_factory(
+        id=3, type=ChemicalStructure.REAGENT, inchi='InChI=1S/C3H8', cdxml='<?xml version=1.0'
+    )
+
+    response_reactants = {
+        'links': {'self': f'https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/reactants'},
+        'data': [
+            {
+                'type': ObjectType.REACTION_REACTANT,
+                'id': structure_reactant.id,
+                'attributes': {
+                    'type': structure_reactant.type,
+                    'id': structure_reactant.id,
+                    'inchi': structure_reactant.inchi,
+                    'cdxml': structure_reactant.cdxml,
+                },
+            }
+        ],
+    }
+    response_reagents = {
+        'links': {'self': f'https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/reagents'},
+        'data': [
+            {
+                'type': ObjectType.REACTION_REAGENT,
+                'id': structure_reagent.id,
+                'attributes': {
+                    'type': structure_reagent.type,
+                    'id': structure_reagent.id,
+                    'inchi': structure_reagent.inchi,
+                    'cdxml': structure_reagent.cdxml,
+                },
+            }
+        ],
+    }
+    response_products = {
+        'links': {'self': f'https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/products'},
+        'data': [
+            {
+                'type': ObjectType.REACTION_PRODUCT,
+                'id': structure_product.id,
+                'attributes': {
+                    'type': structure_product.type,
+                    'id': structure_product.id,
+                    'inchi': structure_product.inchi,
+                    'cdxml': structure_product.cdxml,
+                },
+            }
+        ],
+    }
+    content_response = get_response({})
+    content_response.content = content
+    content_response.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
     }
-    api_mock.call.return_value.content = content
+
+    api_mock.call.side_effect = [
+        get_response(templates),
+        content_response,
+        get_response(response_reactants),
+        get_response(response_products),
+        get_response(response_reagents),
+
+    ]
     fs_handler_mock = mocker.MagicMock()
 
     template_eid = templates['data'][0]['id']
@@ -529,7 +594,6 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates):
         'description': '',
     }
 
-    api_mock.call.return_value.json.return_value = templates
     chemical_drawing.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
 
     join_path_call_1 = mocker.call(base_path, 'templates', chemical_drawing.type)
@@ -541,13 +605,6 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates):
             join_path_call_1,
             join_path_call_2,
             join_path_call_3,
-        ],
-        any_order=True,
-    )
-    fs_handler_mock.write.assert_has_calls(
-        [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
-            mocker.call(fs_handler_mock.join_path(), content),
         ],
         any_order=True,
     )
