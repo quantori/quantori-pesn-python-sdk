@@ -3,11 +3,10 @@ from enum import Enum
 from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
-from dateutil.parser import parse
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID, EntityType, MaterialType, MID, ObjectType
+from signals_notebook.common_types import DateTime, EID, EntityType, MaterialType, MID, ObjectType
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
 from signals_notebook.exceptions import EIDError
@@ -113,19 +112,6 @@ class CellContentDict(TypedDict):
 class UpdateCellRequest(GenericModel, Generic[CellContentType]):
     key: UUID
     content: CellContent[CellContentType]
-
-
-class DateTime(datetime):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls._validate_date
-
-    @staticmethod
-    def _validate_date(value: Union[str, datetime]) -> datetime:
-        if isinstance(value, datetime):
-            return value
-
-        return parse(value)
 
 
 class Cell(GenericModel, Generic[CellContentType]):
