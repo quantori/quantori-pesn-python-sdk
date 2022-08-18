@@ -29,13 +29,13 @@
 <pre><code class="python">import csv
 import logging
 from io import StringIO
-from typing import cast, ClassVar, Dict, Generator, List, Literal, Union
+from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EID, EntityType, File, Response, ResponseData
+from signals_notebook.common_types import EID, EntityType, File, Response, ResponseData, SamplesContainerFormat
 from signals_notebook.entities import Sample
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
@@ -77,13 +77,13 @@ class SamplesContainer(ContentfulEntity):
     def _get_entity_type(cls) -&gt; EntityType:
         return EntityType.SAMPLES_CONTAINER
 
-    def get_content(self) -&gt; File:
+    def get_content(self, format: Optional[SamplesContainerFormat] = None) -&gt; File:
         &#34;&#34;&#34;Get SamplesContainer content
 
         Returns:
             File
         &#34;&#34;&#34;
-        return super()._get_content()
+        return super()._get_content(format=format)
 
     def _reload_samples(self) -&gt; None:
         log.debug(&#39;Reloading samples for Samples Container: %s...&#39;, self.eid)
@@ -238,13 +238,13 @@ class SamplesContainer(ContentfulEntity):
     def _get_entity_type(cls) -&gt; EntityType:
         return EntityType.SAMPLES_CONTAINER
 
-    def get_content(self) -&gt; File:
+    def get_content(self, format: Optional[SamplesContainerFormat] = None) -&gt; File:
         &#34;&#34;&#34;Get SamplesContainer content
 
         Returns:
             File
         &#34;&#34;&#34;
-        return super()._get_content()
+        return super()._get_content(format=format)
 
     def _reload_samples(self) -&gt; None:
         log.debug(&#39;Reloading samples for Samples Container: %s...&#39;, self.eid)
@@ -331,7 +331,7 @@ class SamplesContainer(ContentfulEntity):
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.entities.samples.samples_container.SamplesContainer.get_content"><code class="name flex">
-<span>def <span class="ident">get_content</span></span>(<span>self) ‑> <a title="signals_notebook.common_types.File" href="../../common_types.html#signals_notebook.common_types.File">File</a></span>
+<span>def <span class="ident">get_content</span></span>(<span>self, format: Optional[<a title="signals_notebook.common_types.SamplesContainerFormat" href="../../common_types.html#signals_notebook.common_types.SamplesContainerFormat">SamplesContainerFormat</a>] = None) ‑> <a title="signals_notebook.common_types.File" href="../../common_types.html#signals_notebook.common_types.File">File</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get SamplesContainer content</p>
@@ -341,13 +341,13 @@ class SamplesContainer(ContentfulEntity):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_content(self) -&gt; File:
+<pre><code class="python">def get_content(self, format: Optional[SamplesContainerFormat] = None) -&gt; File:
     &#34;&#34;&#34;Get SamplesContainer content
 
     Returns:
         File
     &#34;&#34;&#34;
-    return super()._get_content()</code></pre>
+    return super()._get_content(format=format)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.samples.samples_container.SamplesContainer.get_html"><code class="name flex">
