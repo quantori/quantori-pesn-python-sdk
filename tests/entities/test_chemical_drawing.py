@@ -5,7 +5,7 @@ import pytest
 
 from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File, ObjectType
 from signals_notebook.entities import ChemicalDrawing, Entity
-from signals_notebook.entities.chemical_drawing import ChemicalStructure, ChemicalDrawingPosition
+from signals_notebook.entities.chemical_drawing import ChemicalStructure, ChemicalDrawingPosition, Structure
 
 
 @pytest.fixture()
@@ -221,7 +221,7 @@ def test_add_structures(
     }
     api_mock.call.return_value.json.return_value = response
 
-    chemical_drawing.add_structures(structure=structure, positions=positions, digest=digest, force=force)
+    result = chemical_drawing.add_structures(structure=structure, positions=positions, digest=digest, force=force)
 
     request_body = {
         'data': {
@@ -238,14 +238,10 @@ def test_add_structures(
         },
         json=request_body,
     )
-    #
-    # assert isinstance(result, SubExperiment)
-    # assert result.eid == eid
-    # assert result.digest == response['data']['attributes']['digest']
-    # assert result.name == response['data']['attributes']['name']
-    # assert result.description == response['data']['attributes']['description']
-    # assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
-    # assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+    assert isinstance(result, Structure)
+    assert result.id == structure.id
+    assert result.inchi == structure.inchi
+    assert result.cdxml == structure.cdxml
 
 
 def test_get_content(chemical_drawing_factory, api_mock):
