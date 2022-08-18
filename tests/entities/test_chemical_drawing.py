@@ -5,6 +5,7 @@ import pytest
 
 from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File, ObjectType
 from signals_notebook.entities import ChemicalDrawing, Entity
+from signals_notebook.entities.chemical_drawing import ChemicalStructure, ChemicalDrawingPosition
 
 
 @pytest.fixture()
@@ -101,6 +102,48 @@ def test_create(
     assert result.name == response['data']['attributes']['name']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+
+
+@pytest.mark.parametrize(
+    'structure_type, positions',
+    [
+        (ChemicalStructure.REACTANT, ChemicalDrawingPosition.REACTANTS, ),
+        (ChemicalStructure.PRODUCT, ChemicalDrawingPosition.PRODUCTS, ),
+        (ChemicalStructure.REAGENT, ChemicalDrawingPosition.REAGENTS, ),
+    ],
+)
+def test_get_structures(chemical_drawing_factory, structure_factory, api_mock, structure_type, positions):
+    structure = structure_factory(id=1, type=structure_type)
+    chemical_drawing = chemical_drawing_factory()
+
+    response = {
+        "links": {"self": f"https://example.com/chemicaldrawings/{chemical_drawing.eid}/reaction/reactants"},
+        "data": [
+            {
+                "type": "reactionReactant",
+                "id": structure.id,
+                "attributes": {
+                    "type": structure.type,
+                    "id": structure.id,
+                    "inchi": structure.inchi,
+                    "cdxml": structure.cdxml,
+                },
+            }
+        ],
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    result = chemical_drawing.get_structures(positions=positions)
+
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=('chemicaldrawings', chemical_drawing.eid, 'reaction', positions),
+    )
+
+    assert isinstance(result, list)
+    assert result[0].id == structure.id
+    assert result[0].inchi == structure.inchi
+    assert result[0].cdxml == structure.cdxml
 
 
 def test_get_content(chemical_drawing_factory, api_mock):
