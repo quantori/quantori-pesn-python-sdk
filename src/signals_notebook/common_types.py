@@ -73,6 +73,9 @@ class EntityType(str, Enum):
     SUB_EXPERIMENT = 'parasubexp'
     SUB_EXPERIMENT_SUMMARY = 'paragrid'
     SUB_EXPERIMENT_LAYOUT = 'paraLayout'
+    ADO = 'ado'
+    REQUEST = 'request'
+    TASK_CONTAINER = 'taskContainer'
 
 
 class MaterialType(str, Enum):

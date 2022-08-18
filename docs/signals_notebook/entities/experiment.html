@@ -30,11 +30,12 @@
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Union
+from typing import ClassVar, Literal, Optional, Union, Generator
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
+from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
@@ -91,7 +92,7 @@ class Experiment(Container):
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -&gt; &#39;Notebook&#39;:
+    ) -&gt; &#39;Experiment&#39;:
         &#34;&#34;&#34;Create new Experiment in Signals Notebook
 
         Args:
@@ -173,7 +174,10 @@ class Experiment(Container):
             child_entity_type = child_entity.split(&#39;:&#39;)[0]
             ItemMapper.get_item_class(child_entity_type).load(
                 fs_handler.join_path(path, child_entity), fs_handler, experiment
-            )</code></pre>
+            )
+
+    def get_children(self, order: Optional[str] = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+        return super().get_children(order=order)</code></pre>
 </details>
 </section>
 <section>
@@ -251,7 +255,7 @@ class Experiment(Container):
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -&gt; &#39;Notebook&#39;:
+    ) -&gt; &#39;Experiment&#39;:
         &#34;&#34;&#34;Create new Experiment in Signals Notebook
 
         Args:
@@ -333,7 +337,10 @@ class Experiment(Container):
             child_entity_type = child_entity.split(&#39;:&#39;)[0]
             ItemMapper.get_item_class(child_entity_type).load(
                 fs_handler.join_path(path, child_entity), fs_handler, experiment
-            )</code></pre>
+            )
+
+    def get_children(self, order: Optional[str] = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+        return super().get_children(order=order)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -361,7 +368,7 @@ class Experiment(Container):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.experiment.Experiment.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, name: str, description: Optional[str] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.experiment.Experiment" href="#signals_notebook.entities.experiment.Experiment">Experiment</a>')] = None, notebook: Optional[<a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, name: str, description: Optional[str] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.experiment.Experiment" href="#signals_notebook.entities.experiment.Experiment">Experiment</a>')] = None, notebook: Optional[<a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.experiment.Experiment" href="#signals_notebook.entities.experiment.Experiment">Experiment</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create new Experiment in Signals Notebook</p>
@@ -396,7 +403,7 @@ def create(
     notebook: Optional[Notebook] = None,
     digest: str = None,
     force: bool = True,
-) -&gt; &#39;Notebook&#39;:
+) -&gt; &#39;Experiment&#39;:
     &#34;&#34;&#34;Create new Experiment in Signals Notebook
 
     Args:
