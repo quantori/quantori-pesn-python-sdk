@@ -16,6 +16,7 @@ from signals_notebook.entities import (
     UploadedResource,
     Word,
 )
+from signals_notebook.entities.chemical_drawing import Structure
 
 
 class EIDFactory(factory.Factory):
@@ -127,3 +128,8 @@ class MaterialTableFactory(EntityFactory):
         model = MaterialsTable
 
     type = EntityType.MATERIAL_TABLE
+
+
+class StructureFactory(EntityFactory):
+    class Meta:
+        model = Structure

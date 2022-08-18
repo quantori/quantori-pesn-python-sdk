@@ -13,6 +13,7 @@ from tests.entities.factories import (
     NotebookFactory,
     PowerPointFactory,
     SpotfireFactory,
+    StructureFactory,
     TextFactory,
     UploadedResourceFactory,
     WordFactory,
@@ -65,6 +66,7 @@ register(SubExperimentSummaryFactory)
 register(SubExperimentSummaryRowFactory)
 register(SubExperimentSummaryCellFactory)
 register(SubExperimentLayoutFactory)
+register(StructureFactory)
 
 
 @pytest.fixture()
