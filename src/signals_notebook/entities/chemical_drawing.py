@@ -263,7 +263,7 @@ class ChemicalDrawing(ContentfulEntity):
                 'content_type': content.content_type,
                 **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
             }
-            if content.content_type == self.ContentType.CDXML.value:
+            if content.content_type == self.ContentType.CDXML:
                 reactants = self.get_structures(positions=ChemicalDrawingPosition.REACTANTS)
                 products = self.get_structures(positions=ChemicalDrawingPosition.PRODUCTS)
                 reagents = self.get_structures(positions=ChemicalDrawingPosition.REAGENTS)
