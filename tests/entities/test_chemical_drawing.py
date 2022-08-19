@@ -235,7 +235,7 @@ def test_add_structures(
 
     request_body = {
         'data': {
-            'attributes': {'dataType': data_type, 'data': data},
+            'attributes': {'data_type': data_type, 'data': data},
         }
     }
 

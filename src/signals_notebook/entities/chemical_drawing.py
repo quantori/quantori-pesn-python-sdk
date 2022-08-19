@@ -139,6 +139,7 @@ class ChemicalDrawing(ContentfulEntity):
             raise ValueError('Structure doesn"t contain inchi and cdxml data')
 
         request_data = StructureRequestData(attributes=StructureAttribute(data_type=data_type, data=data))
+        assert False, request_data
         response = api.call(
             method='POST',
             path=(self._get_chemical_drawing_endpoint(), self.eid, 'reaction', positions),
