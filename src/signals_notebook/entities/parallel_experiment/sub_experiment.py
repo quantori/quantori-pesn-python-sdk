@@ -109,11 +109,6 @@ class SubExperiment(Container):
 
         return template.render(data=data)
 
-    @staticmethod
-    def _add_structures_from_metadata(structures: list[dict]):
-        for structure in structures:
-            pass
-
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, parallel_experiment: ParallelExperiment) -> None:
         from signals_notebook.item_mapper import ItemMapper
