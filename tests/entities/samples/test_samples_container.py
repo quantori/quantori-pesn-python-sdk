@@ -4,7 +4,7 @@ from typing import cast
 
 import pytest
 
-from signals_notebook.common_types import EID, File, EntityType, ObjectType, ResponseData
+from signals_notebook.common_types import EID, File, ResponseData
 from signals_notebook.entities.samples.sample import Sample, SampleCell, SampleCellsResponse
 
 
