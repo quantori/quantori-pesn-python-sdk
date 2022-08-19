@@ -1,4 +1,5 @@
 import csv
+import json
 import logging
 from io import StringIO
 from typing import cast, ClassVar, Dict, Generator, List, Literal, Union
@@ -9,6 +10,7 @@ from pydantic import Field, PrivateAttr
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EID, EntityType, File, Response, ResponseData
 from signals_notebook.entities import Sample
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
 from signals_notebook.utils import FSHandler
@@ -131,3 +133,29 @@ class SamplesContainer(ContentfulEntity):
         samples_path = fs_handler.join_path(base_path, self.eid)
         for item in self:
             item.dump(base_path=samples_path, fs_handler=fs_handler)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
+        from signals_notebook.item_mapper import ItemMapper
+        from signals_notebook.entities import EntityStore
+
+        # metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
+        # child_entities_folders = fs_handler.list_subfolders(path)
+        child_entities_folders = [
+            'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
+            # 'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
+            # 'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
+        ]
+        # first_sample = child_entities_folders.pop(0)
+        # child_entity_type = first_sample.split(':')[0]
+        # ItemMapper.get_item_class(child_entity_type).load(
+        #     fs_handler.join_path(path, first_sample), fs_handler, experiment
+        # )
+        template_sample = EntityStore.get('sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122')
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(':')[0]
+            # ItemMapper.get_item_class(child_entity_type).create(template=template_sample, ancestors=[parent])
+            ItemMapper.get_item_class(child_entity_type).load(
+
+                None, fs_handler, parent
+            )
