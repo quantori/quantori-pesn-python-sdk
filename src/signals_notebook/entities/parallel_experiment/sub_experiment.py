@@ -12,7 +12,12 @@ from signals_notebook.common_types import (
     Template,
 )
 from signals_notebook.entities import Entity
-from signals_notebook.entities.chemical_drawing import ChemicalDrawingPosition, ChemicalStructure, Structure
+from signals_notebook.entities.chemical_drawing import (
+    ChemicalDrawing,
+    ChemicalDrawingPosition,
+    ChemicalStructure,
+    Structure,
+)
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
 from signals_notebook.jinja_env import env
@@ -109,6 +114,22 @@ class SubExperiment(Container):
 
         return template.render(data=data)
 
+    @staticmethod
+    def _add_structures_from_metadata(
+        metadata: list[dict[str, str]],
+        chemical_structure: ChemicalStructure,
+        position: ChemicalDrawingPosition,
+        chemical_drawing: ChemicalDrawing,
+    ) -> None:
+        for metadata_structure in metadata:
+            structure = Structure(
+                id=metadata_structure['id'],
+                type=chemical_structure,
+                inchi=metadata_structure['inchi'],
+                cdxml=metadata_structure['cdxml'],
+            )
+            chemical_drawing.add_structures(structure=structure, positions=position)
+
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, parallel_experiment: ParallelExperiment) -> None:
         from signals_notebook.item_mapper import ItemMapper
@@ -132,37 +153,24 @@ class SubExperiment(Container):
 
                 if not metadata.get('reactants') or not metadata.get('products'):
                     continue
-
-                for reactant in metadata['reactants']:
-                    structure = Structure(
-                        id=reactant['id'],
-                        type=ChemicalStructure.REACTANT,
-                        inchi=reactant['inchi'],
-                        cdxml=reactant['cdxml'],
-                    )
-                    existing_chemical_drawing.add_structures(
-                        structure=structure, positions=ChemicalDrawingPosition.REACTANTS
-                    )
-                for product in metadata['products']:
-                    structure = Structure(
-                        id=product['id'],
-                        type=ChemicalStructure.PRODUCT,
-                        inchi=product['inchi'],
-                        cdxml=product['cdxml'],
-                    )
-                    existing_chemical_drawing.add_structures(
-                        structure=structure, positions=ChemicalDrawingPosition.PRODUCTS
-                    )
-                for reagent in metadata['reagents']:
-                    structure = Structure(
-                        id=reagent['id'],
-                        type=ChemicalStructure.REAGENT,
-                        inchi=reagent['inchi'],
-                        cdxml=reagent['cdxml'],
-                    )
-                    existing_chemical_drawing.add_structures(
-                        structure=structure, positions=ChemicalDrawingPosition.REAGENTS
-                    )
+                cls._add_structures_from_metadata(
+                    metadata['reactants'],
+                    ChemicalStructure.REACTANT,
+                    ChemicalDrawingPosition.REACTANTS,
+                    existing_chemical_drawing,
+                )
+                cls._add_structures_from_metadata(
+                    metadata['products'],
+                    ChemicalStructure.PRODUCT,
+                    ChemicalDrawingPosition.PRODUCTS,
+                    existing_chemical_drawing,
+                )
+                cls._add_structures_from_metadata(
+                    metadata['reagents'],
+                    ChemicalStructure.REAGENT,
+                    ChemicalDrawingPosition.REAGENTS,
+                    existing_chemical_drawing,
+                )
 
             else:
                 entity_type.load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)
