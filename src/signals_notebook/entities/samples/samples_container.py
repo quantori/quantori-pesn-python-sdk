@@ -128,6 +128,15 @@ class SamplesContainer(ContentfulEntity):
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
     def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump SampleContainer
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
         super().dump(base_path=base_path, fs_handler=fs_handler)
 
         samples_path = fs_handler.join_path(base_path, self.eid)
@@ -136,6 +145,16 @@ class SamplesContainer(ContentfulEntity):
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
+        """Load SampleContainer
+
+        Args:
+            path: content path where create templates dump
+            fs_handler: FSHandler
+            parent: Container where load SampleContainer entity
+
+        Returns:
+
+        """
         from signals_notebook.item_mapper import ItemMapper
 
         child_entities_folders = fs_handler.list_subfolders(path)
