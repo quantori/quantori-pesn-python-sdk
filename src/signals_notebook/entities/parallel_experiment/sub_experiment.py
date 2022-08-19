@@ -117,9 +117,9 @@ class SubExperiment(Container):
         sub_experiment = cls.create(
             parallel_experiment=parallel_experiment, description=metadata['description'], force=True
         )
-        existing_chemical_drawing = [i for i in sub_experiment.get_children() if i.type == EntityType.CHEMICAL_DRAWING][
-            0
-        ]
+        existing_chemical_drawing = [
+            i for i in sub_experiment.get_children() if i.type == EntityType.CHEMICAL_DRAWING
+        ][0]
 
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
