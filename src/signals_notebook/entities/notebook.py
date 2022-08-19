@@ -1,10 +1,9 @@
 import logging
-from typing import Generator, Literal, Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import EntityCreationRequestPayload, EntityType
-from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 
 log = logging.getLogger(__name__)
@@ -68,11 +67,3 @@ class Notebook(Container):
             force=force,
             request=request,
         )
-
-    def get_children(self, order: str = '') -> Generator[Entity, None, None]:
-        """Get children of Notebook.
-
-        Returns:
-            list of Entities
-        """
-        return super().get_children(order='')
