@@ -52,7 +52,7 @@ class ChemicalDrawingResponse(Response[Structure]):
 
 
 class StructureAttribute(BaseModel):
-    data_type: ChemicalStructureFormat = Field(alias='dataType')
+    dataType: ChemicalStructureFormat # type: ignore
     data: str
 
 
@@ -138,8 +138,8 @@ class ChemicalDrawing(ContentfulEntity):
         else:
             raise ValueError('Structure doesn"t contain inchi and cdxml data')
 
-        request_data = StructureRequestData(attributes=StructureAttribute(data_type=data_type, data=data))
-        assert False, request_data
+        request_data = StructureRequestData(attributes=StructureAttribute(dataType=data_type, data=data))
+
         response = api.call(
             method='POST',
             path=(self._get_chemical_drawing_endpoint(), self.eid, 'reaction', positions),
