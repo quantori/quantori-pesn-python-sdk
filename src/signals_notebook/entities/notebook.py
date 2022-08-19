@@ -69,7 +69,7 @@ class Notebook(Container):
             request=request,
         )
 
-    def get_children(self, order: str = 'layout') -> Generator[Entity, None, None]:
+    def get_children(self, order='') -> Generator[Entity, None, None]:
         """Get children of Notebook.
 
         Returns:
