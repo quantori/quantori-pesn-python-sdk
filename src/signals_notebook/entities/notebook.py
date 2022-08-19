@@ -3,8 +3,8 @@ from typing import Generator, Literal, Optional
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.entities import Entity
 from signals_notebook.common_types import EntityCreationRequestPayload, EntityType
+from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 
 log = logging.getLogger(__name__)
