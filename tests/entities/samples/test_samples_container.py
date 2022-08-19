@@ -270,18 +270,27 @@ def test_iter(api_mock, samples_container_factory, get_samples_response, sample_
     assert samples_container._samples != []
 
 
-def test_dump(api_mock, samples_container_factory, mocker, get_response_object, sample_properties, templates):
+def test_dump(
+    api_mock,
+    samples_container_factory,
+    mocker,
+    get_response_object,
+    sample_properties,
+    templates,
+    samples_container_content,
+):
     request_container = samples_container_factory()
-    content = b'Some text'
-    content_type = 'text/plain'
     eid = templates['data'][0]['id']
+    content_type = 'text/csv'
+    file_name = 'Test.csv'
 
     content_response = get_response_object({})
-    content_response.content = content
+    content_response.content = samples_container_content
     content_response.headers = {
         'content-type': content_type,
-        'content-disposition': 'attachment; filename=Some reactions',
+        'content-disposition': f'attachment; filename={file_name}',
     }
+
     api_mock.call.side_effect = [
         content_response,
         get_response_object(templates),
@@ -316,81 +325,12 @@ def test_dump(api_mock, samples_container_factory, mocker, get_response_object, 
         [
             mocker.call(fs_handler_mock.join_path(), json.dumps(sample_metadata)),
             mocker.call(fs_handler_mock.join_path(), json.dumps({'data': sample_data}, default=str).encode('utf-8')),
-            mocker.call(fs_handler_mock.join_path(), content),
+            mocker.call(fs_handler_mock.join_path(), samples_container_content),
         ],
         any_order=True,
     )
 
 
-#
-# def test_load(api_mock, notebook_factory, eid_factory, mocker):
-#     container = notebook_factory()
-#     eid = eid_factory(type=EntityType.ADO)
-#
-#     fs_handler_mock = mocker.MagicMock()
-#     base_path = './'
-#     metadata = {
-#         'base_type': 'experiment',
-#         'ado_name': CUSTOM_SYSTEM_OBJECT,
-#         'eid': eid,
-#         'name': 'DEFAULT_admin_defined_object',
-#         'description': '',
-#     }
-#     response = {
-#         'links': {'self': f'https://example.com/{eid}'},
-#         'data': {
-#             'type': ObjectType.ENTITY,
-#             'id': eid,
-#             'links': {'self': f'https://example.com/{eid}'},
-#             'attributes': {
-#                 'eid': eid,
-#                 'name': 'DEFAULT_admin_defined_object',
-#                 'description': '',
-#                 'type': EntityType.ADO,
-#                 'createdAt': '2019-09-06T03:12:35.129Z',
-#                 'editedAt': '2019-09-06T15:22:47.309Z',
-#                 'digest': '123144',
-#                 'ado': {'id': '3', 'baseType': 'experiment', 'adoName': CUSTOM_SYSTEM_OBJECT},
-#             },
-#         },
-#     }
-#     api_mock.call.return_value.json.return_value = response
-#     fs_handler_mock.read.side_effect = [json.dumps(metadata)]
-#     fs_handler_mock.join_path.side_effect = [base_path + 'metadata.json']
-#
-#     AdminDefinedObject.load(path=base_path, fs_handler=fs_handler_mock, notebook=container)
-#
-#     fs_handler_mock.join_path.assert_called_once_with(base_path, 'metadata.json')
-#
-#     fs_handler_mock.read.assert_called_once_with(base_path + 'metadata.json')
-#
-#     request_body = {
-#         'data': {
-#             'type': EntityType.ADO,
-#             'meta': {'adoTypeName': CUSTOM_SYSTEM_OBJECT},
-#             'attributes': {
-#                 'name': response['data']['attributes']['name'],
-#                 'description': response['data']['attributes']['description'],
-#             },
-#             'relationships': {
-#                 'ancestors': {
-#                     'data': [
-#                         {
-#                             'type': EntityType.NOTEBOOK,
-#                             'id': container.eid,
-#                         }
-#                     ]
-#                 }
-#             },
-#         }
-#     }
-#
-#     api_mock.call.assert_called_once_with(
-#         method='POST',
-#         path=('entities',),
-#         params={
-#             'digest': None,
-#             'force': 'true',
-#         },
-#         json=request_body,
-#     )
+def test_load():
+    # TODO: load
+    pass
