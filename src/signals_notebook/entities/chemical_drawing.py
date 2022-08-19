@@ -52,7 +52,7 @@ class ChemicalDrawingResponse(Response[Structure]):
 
 
 class StructureAttribute(BaseModel):
-    dataType: ChemicalStructureFormat # type: ignore
+    dataType: ChemicalStructureFormat  # noqa
     data: str
 
 
