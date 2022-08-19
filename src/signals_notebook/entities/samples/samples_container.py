@@ -150,7 +150,7 @@ class SamplesContainer(ContentfulEntity):
         Args:
             path: content path where create templates dump
             fs_handler: FSHandler
-            parent: Container where load SampleContainer entity
+            parent: Container where load SampleContainer entity and Samples
 
         Returns:
 
