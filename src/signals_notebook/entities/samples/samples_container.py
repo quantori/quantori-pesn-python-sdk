@@ -143,19 +143,11 @@ class SamplesContainer(ContentfulEntity):
         # child_entities_folders = fs_handler.list_subfolders(path)
         child_entities_folders = [
             'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
-            # 'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
-            # 'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
         ]
-        # first_sample = child_entities_folders.pop(0)
-        # child_entity_type = first_sample.split(':')[0]
-        # ItemMapper.get_item_class(child_entity_type).load(
-        #     fs_handler.join_path(path, first_sample), fs_handler, experiment
-        # )
         template_sample = EntityStore.get('sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122')
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
-            # ItemMapper.get_item_class(child_entity_type).create(template=template_sample, ancestors=[parent])
             ItemMapper.get_item_class(child_entity_type).load(
-
+                # fs_handler.join_path(path, child_entity)
                 None, fs_handler, parent
             )
