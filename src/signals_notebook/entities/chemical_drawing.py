@@ -16,6 +16,8 @@ from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
+EMPTY_CDXML_FILE_CONTENT = b'<CDXML />'
+
 
 class ChemicalDrawingPosition(str, Enum):
     REACTANTS = 'reactants'
@@ -100,7 +102,7 @@ class ChemicalDrawing(ContentfulEntity):
             path=(self._get_chemical_drawing_endpoint(), self.eid, 'reaction', positions),
         )
 
-        result = ChemicalDrawingResponse(**response.json())  # type: ignore
+        result = ChemicalDrawingResponse(**response.json())
 
         return [cast(ResponseData, item).body for item in result.data]
 
@@ -145,7 +147,7 @@ class ChemicalDrawing(ContentfulEntity):
             },
             json={'data': request_data.dict()},
         )
-        result = ChemicalDrawingResponse(**response.json())  # type: ignore
+        result = ChemicalDrawingResponse(**response.json())
         return cast(ResponseData, result.data).body
 
     @classmethod
@@ -253,7 +255,7 @@ class ChemicalDrawing(ContentfulEntity):
         """
         content = self.get_content()
 
-        if content.content != b'<CDXML />':
+        if content.content != EMPTY_CDXML_FILE_CONTENT:
             metadata = {
                 'file_name': content.name,
                 'content_type': content.content_type,

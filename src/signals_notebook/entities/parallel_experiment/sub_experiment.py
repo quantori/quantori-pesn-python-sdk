@@ -109,6 +109,11 @@ class SubExperiment(Container):
 
         return template.render(data=data)
 
+    @staticmethod
+    def _add_structures_from_metadata(structures: list[dict]):
+        for structure in structures:
+            pass
+
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, parallel_experiment: ParallelExperiment) -> None:
         from signals_notebook.item_mapper import ItemMapper
@@ -117,8 +122,9 @@ class SubExperiment(Container):
         sub_experiment = cls.create(
             parallel_experiment=parallel_experiment, description=metadata['description'], force=True
         )
-        existing_chemical_drawing = [i for i in sub_experiment.get_children()
-                                     if i.type == EntityType.CHEMICAL_DRAWING][0]
+        existing_chemical_drawing = [i for i in sub_experiment.get_children() if i.type == EntityType.CHEMICAL_DRAWING][
+            0
+        ]
 
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
@@ -132,40 +138,35 @@ class SubExperiment(Container):
                 if not metadata.get('reactants') or not metadata.get('products'):
                     continue
 
-                reactants = [
-                    Structure(
+                for reactant in metadata['reactants']:
+                    structure = Structure(
                         id=reactant['id'],
                         type=ChemicalStructure.REACTANT,
                         inchi=reactant['inchi'],
                         cdxml=reactant['cdxml'],
                     )
-                    for reactant in metadata['reactants']
-                ]
-
-                products = [
-                    Structure(
-                        id=product['id'], type=ChemicalStructure.PRODUCT, inchi=product['inchi'], cdxml=product['cdxml']
-                    )
-                    for product in metadata['products']
-                ]
-                reagents = [
-                    Structure(
-                        id=reagent['id'], type=ChemicalStructure.REAGENT, inchi=reagent['inchi'], cdxml=reagent['cdxml']
-                    )
-                    for reagent in metadata['reagents']
-                ]
-
-                for reactant in reactants:
                     existing_chemical_drawing.add_structures(
-                        structure=reactant, positions=ChemicalDrawingPosition.REACTANTS
+                        structure=structure, positions=ChemicalDrawingPosition.REACTANTS
                     )
-                for product in products:
-                    existing_chemical_drawing.add_structures(
-                        structure=product, positions=ChemicalDrawingPosition.PRODUCTS
+                for product in metadata['products']:
+                    structure = Structure(
+                        id=product['id'],
+                        type=ChemicalStructure.PRODUCT,
+                        inchi=product['inchi'],
+                        cdxml=product['cdxml'],
                     )
-                for reagent in reagents:
                     existing_chemical_drawing.add_structures(
-                        structure=reagent, positions=ChemicalDrawingPosition.REAGENTS
+                        structure=structure, positions=ChemicalDrawingPosition.PRODUCTS
+                    )
+                for reagent in metadata['reagents']:
+                    structure = Structure(
+                        id=reagent['id'],
+                        type=ChemicalStructure.REAGENT,
+                        inchi=reagent['inchi'],
+                        cdxml=reagent['cdxml'],
+                    )
+                    existing_chemical_drawing.add_structures(
+                        structure=structure, positions=ChemicalDrawingPosition.REAGENTS
                     )
 
             else:
