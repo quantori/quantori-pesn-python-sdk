@@ -248,7 +248,7 @@ class Entity(BaseModel):
                 &#39;digest&#39;: digest,
                 &#39;force&#39;: json.dumps(force),
             },
-            json=request.dict(exclude_none=True),
+            json=request.dict(exclude_none=True, by_alias=True),
         )
         log.debug(&#39;Entity: %s was created.&#39;, cls.__name__)
 
@@ -534,7 +534,7 @@ class Entity(BaseModel):
                 &#39;digest&#39;: digest,
                 &#39;force&#39;: json.dumps(force),
             },
-            json=request.dict(exclude_none=True),
+            json=request.dict(exclude_none=True, by_alias=True),
         )
         log.debug(&#39;Entity: %s was created.&#39;, cls.__name__)
 

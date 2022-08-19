@@ -35,7 +35,7 @@ from uuid import UUID
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EntityType, Response, ResponseData
+from signals_notebook.common_types import EntityType, Response, ResponseData, File
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.entities.parallel_experiment.row import Row
 from signals_notebook.jinja_env import env
@@ -58,7 +58,7 @@ class SubExperimentSummary(ContentfulEntity):
         return EntityType.SUB_EXPERIMENT_SUMMARY
 
     @classmethod
-    def _get_endpoint(cls) -&gt; str:
+    def _get_subexpsum_endpoint(cls) -&gt; str:
         return &#39;subexpSummary&#39;
 
     def __getitem__(self, index: Union[int, str, UUID]) -&gt; Row:
@@ -90,7 +90,7 @@ class SubExperimentSummary(ContentfulEntity):
 
         response = api.call(
             method=&#39;GET&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;rows&#39;),
+            path=(self._get_subexpsum_endpoint(), self.eid, &#39;rows&#39;),
         )
 
         result = SubExpSummaryResponse(**response.json())  # type: ignore
@@ -112,7 +112,7 @@ class SubExperimentSummary(ContentfulEntity):
 
         response = api.call(
             method=&#39;GET&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;bulkUpdate&#39;, update_id),
+            path=(self._get_subexpsum_endpoint(), self.eid, &#39;bulkUpdate&#39;, update_id),
         )
         return response.status_code == 200 and response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;jobStatus&#39;] == &#39;SUCCESS&#39;
 
@@ -139,7 +139,7 @@ class SubExperimentSummary(ContentfulEntity):
 
         update_response = api.call(
             method=&#39;PATCH&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;bulkUpdate&#39;),
+            path=(self._get_subexpsum_endpoint(), self.eid, &#39;bulkUpdate&#39;),
             params={
                 &#39;force&#39;: json.dumps(force),
             },
@@ -178,7 +178,15 @@ class SubExperimentSummary(ContentfulEntity):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(name=self.name, table_head=table_head, rows=self._rows)</code></pre>
+        return template.render(name=self.name, table_head=table_head, rows=self._rows)
+
+    def get_content(self) -&gt; File:
+        &#34;&#34;&#34;Get SubExperiment Summary content
+
+        Returns:
+            File
+        &#34;&#34;&#34;
+        return super()._get_content(format=&#39;csv&#39;)</code></pre>
 </details>
 </section>
 <section>
@@ -282,7 +290,7 @@ class SubExperimentSummary(ContentfulEntity):
         return EntityType.SUB_EXPERIMENT_SUMMARY
 
     @classmethod
-    def _get_endpoint(cls) -&gt; str:
+    def _get_subexpsum_endpoint(cls) -&gt; str:
         return &#39;subexpSummary&#39;
 
     def __getitem__(self, index: Union[int, str, UUID]) -&gt; Row:
@@ -314,7 +322,7 @@ class SubExperimentSummary(ContentfulEntity):
 
         response = api.call(
             method=&#39;GET&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;rows&#39;),
+            path=(self._get_subexpsum_endpoint(), self.eid, &#39;rows&#39;),
         )
 
         result = SubExpSummaryResponse(**response.json())  # type: ignore
@@ -336,7 +344,7 @@ class SubExperimentSummary(ContentfulEntity):
 
         response = api.call(
             method=&#39;GET&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;bulkUpdate&#39;, update_id),
+            path=(self._get_subexpsum_endpoint(), self.eid, &#39;bulkUpdate&#39;, update_id),
         )
         return response.status_code == 200 and response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;jobStatus&#39;] == &#39;SUCCESS&#39;
 
@@ -363,7 +371,7 @@ class SubExperimentSummary(ContentfulEntity):
 
         update_response = api.call(
             method=&#39;PATCH&#39;,
-            path=(self._get_endpoint(), self.eid, &#39;bulkUpdate&#39;),
+            path=(self._get_subexpsum_endpoint(), self.eid, &#39;bulkUpdate&#39;),
             params={
                 &#39;force&#39;: json.dumps(force),
             },
@@ -402,7 +410,15 @@ class SubExperimentSummary(ContentfulEntity):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(name=self.name, table_head=table_head, rows=self._rows)</code></pre>
+        return template.render(name=self.name, table_head=table_head, rows=self._rows)
+
+    def get_content(self) -&gt; File:
+        &#34;&#34;&#34;Get SubExperiment Summary content
+
+        Returns:
+            File
+        &#34;&#34;&#34;
+        return super()._get_content(format=&#39;csv&#39;)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -421,6 +437,26 @@ class SubExperimentSummary(ContentfulEntity):
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.get_content"><code class="name flex">
+<span>def <span class="ident">get_content</span></span>(<span>self) ‑> <a title="signals_notebook.common_types.File" href="../../common_types.html#signals_notebook.common_types.File">File</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get SubExperiment Summary content</p>
+<h2 id="returns">Returns</h2>
+<p>File</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_content(self) -&gt; File:
+    &#34;&#34;&#34;Get SubExperiment Summary content
+
+    Returns:
+        File
+    &#34;&#34;&#34;
+    return super()._get_content(format=&#39;csv&#39;)</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.get_html"><code class="name flex">
 <span>def <span class="ident">get_html</span></span>(<span>self) ‑> str</span>
 </code></dt>
@@ -492,7 +528,7 @@ class SubExperimentSummary(ContentfulEntity):
 
     update_response = api.call(
         method=&#39;PATCH&#39;,
-        path=(self._get_endpoint(), self.eid, &#39;bulkUpdate&#39;),
+        path=(self._get_subexpsum_endpoint(), self.eid, &#39;bulkUpdate&#39;),
         params={
             &#39;force&#39;: json.dumps(force),
         },
@@ -571,6 +607,7 @@ class SubExperimentSummary(ContentfulEntity):
 <li>
 <h4><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary" href="#signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary">SubExperimentSummary</a></code></h4>
 <ul class="">
+<li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.get_content" href="#signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.get_content">get_content</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.get_html" href="#signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.save" href="#signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.type" href="#signals_notebook.entities.parallel_experiment.sub_experiment_summary.SubExperimentSummary.type">type</a></code></li>
