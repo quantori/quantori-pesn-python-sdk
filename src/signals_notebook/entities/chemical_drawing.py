@@ -5,6 +5,7 @@ from functools import cached_property
 from typing import cast, ClassVar, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
+
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File, Response, ResponseData
 from signals_notebook.entities import Entity
@@ -51,7 +52,7 @@ class ChemicalDrawingResponse(Response[Structure]):
 
 
 class StructureAttribute(BaseModel):
-    dataType: ChemicalStructureFormat
+    data_type: ChemicalStructureFormat = Field(alias='dataType')
     data: str
 
 
@@ -137,7 +138,7 @@ class ChemicalDrawing(ContentfulEntity):
         else:
             raise ValueError('Structure doesn"t contain inchi and cdxml data')
 
-        request_data = StructureRequestData(attributes=StructureAttribute(dataType=data_type, data=data))
+        request_data = StructureRequestData(attributes=StructureAttribute(data_type=data_type, data=data))
         response = api.call(
             method='POST',
             path=(self._get_chemical_drawing_endpoint(), self.eid, 'reaction', positions),
