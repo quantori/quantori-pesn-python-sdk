@@ -91,7 +91,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order: str = &#39;&#39;) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of a specified entity.
 
         Returns:
@@ -191,7 +191,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order: str = &#39;&#39;) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of a specified entity.
 
         Returns:
@@ -334,7 +334,7 @@ class Container(Entity, abc.ABC):
 </details>
 </dd>
 <dt id="signals_notebook.entities.container.Container.get_children"><code class="name flex">
-<span>def <span class="ident">get_children</span></span>(<span>self, order: str = 'layout') ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
+<span>def <span class="ident">get_children</span></span>(<span>self, order: str = '') ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get children of a specified entity.</p>
@@ -344,7 +344,7 @@ class Container(Entity, abc.ABC):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+<pre><code class="python">def get_children(self, order: str = &#39;&#39;) -&gt; Generator[Entity, None, None]:
     &#34;&#34;&#34;Get children of a specified entity.
 
     Returns:
