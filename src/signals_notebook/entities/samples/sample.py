@@ -98,10 +98,11 @@ class Sample(Entity):
         )
 
         result = SampleCellsResponse(**response.json())
-        cells = [cast(ResponseData, item).body for item in result.data]
+        cells = [cast(ResponseData, item) for item in result.data]
 
         for item in cells:
-            sample_cell = cast(SampleCell, item)
+            sample_cell = cast(SampleCell, item.body)
+            sample_cell.read_only = item.meta.get('definition').get('readOnly', False)
             assert sample_cell.id
 
             self._cells.append(sample_cell)
