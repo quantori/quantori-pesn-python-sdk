@@ -4,6 +4,7 @@ import arrow
 import pytest
 
 from signals_notebook.common_types import EID, EntityType, ObjectType
+from signals_notebook.entities import Experiment
 from signals_notebook.entities.notebook import Notebook
 
 
@@ -97,6 +98,43 @@ def test_create(api_mock, description, digest, force):
     assert result.description == response['data']['attributes']['description']
     assert result.created_at == arrow.get(response['data']['attributes']['createdAt'])
     assert result.edited_at == arrow.get(response['data']['attributes']['editedAt'])
+
+
+def test_get_children__one_page(api_mock, notebook_factory, eid_factory):
+    notebook = notebook_factory()
+    experiment_eid = eid_factory(type=EntityType.EXPERIMENT)
+
+    response = {
+        'links': {'self': f'https://example.com/{notebook.eid}/children'},
+        'data': [
+            {
+                'type': ObjectType.ENTITY,
+                'id': experiment_eid,
+                'links': {'self': f'https://example.com/{experiment_eid}'},
+                'attributes': {
+                    'eid': experiment_eid,
+                    'name': 'Experiment',
+                    'description': '',
+                    'type': EntityType.EXPERIMENT,
+                    'createdAt': '2019-09-06T03:12:35.129Z',
+                    'editedAt': '2019-09-06T15:22:47.309Z',
+                    'digest': '123144',
+                },
+            },
+        ],
+    }
+    api_mock.call.return_value.json.return_value = response
+
+    result = list(notebook.get_children())
+
+    api_mock.call.assert_called_once_with(
+        method='GET',
+        path=('entities', notebook.eid, 'children'),
+        params={},
+    )
+
+    assert isinstance(result[0], Experiment)
+    assert result[0].eid == experiment_eid
 
 
 def test_dump_templates(api_mock, mocker, notebook_factory, templates, get_response_object):

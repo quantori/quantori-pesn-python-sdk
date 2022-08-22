@@ -42,6 +42,8 @@ class SampleCellContent(GenericModel, Generic[CellValueType]):
     name: Optional[str]
     eid: Optional[EID]
     values: Optional[List[CellValueType]]
+    display: Optional[str]
+    units: Optional[str]
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -&gt; None:
@@ -570,6 +572,8 @@ def representation_for_update(self) -&gt; SampleCellBody:
     name: Optional[str]
     eid: Optional[EID]
     values: Optional[List[CellValueType]]
+    display: Optional[str]
+    units: Optional[str]
     _changed: bool = PrivateAttr(default=False)
 
     def set_value(self, new_value: CellValueType) -&gt; None:
@@ -626,11 +630,19 @@ def representation_for_update(self) -&gt; SampleCellBody:
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent.display"><code class="name">var <span class="ident">display</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.entities.samples.cell.SampleCellContent.eid"><code class="name">var <span class="ident">eid</span> : Optional[<a title="signals_notebook.common_types.EID" href="../../common_types.html#signals_notebook.common_types.EID">EID</a>]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.entities.samples.cell.SampleCellContent.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCellContent.units"><code class="name">var <span class="ident">units</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -805,12 +817,14 @@ def is_changed(self) -&gt; bool:
 <li>
 <h4><code><a title="signals_notebook.entities.samples.cell.SampleCellContent" href="#signals_notebook.entities.samples.cell.SampleCellContent">SampleCellContent</a></code></h4>
 <ul class="two-column">
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.display" href="#signals_notebook.entities.samples.cell.SampleCellContent.display">display</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.eid" href="#signals_notebook.entities.samples.cell.SampleCellContent.eid">eid</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.is_changed" href="#signals_notebook.entities.samples.cell.SampleCellContent.is_changed">is_changed</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.name" href="#signals_notebook.entities.samples.cell.SampleCellContent.name">name</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.set_name" href="#signals_notebook.entities.samples.cell.SampleCellContent.set_name">set_name</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.set_value" href="#signals_notebook.entities.samples.cell.SampleCellContent.set_value">set_value</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.set_values" href="#signals_notebook.entities.samples.cell.SampleCellContent.set_values">set_values</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.units" href="#signals_notebook.entities.samples.cell.SampleCellContent.units">units</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.value" href="#signals_notebook.entities.samples.cell.SampleCellContent.value">value</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.values" href="#signals_notebook.entities.samples.cell.SampleCellContent.values">values</a></code></li>
 </ul>
