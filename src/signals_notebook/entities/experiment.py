@@ -1,11 +1,12 @@
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Union
+from typing import ClassVar, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
 from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
+from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
@@ -129,3 +130,11 @@ class Experiment(Container):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)
+
+    def get_children(self, order: str = 'layout') -> Generator[Entity, None, None]:
+        """Get children of Experiment.
+
+        Returns:
+            list of Entities
+        """
+        return super().get_children(order=order)

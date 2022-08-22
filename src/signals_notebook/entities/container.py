@@ -63,7 +63,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self, order: str = 'layout') -> Generator[Entity, None, None]:
+    def get_children(self, order: str = '') -> Generator[Entity, None, None]:
         """Get children of a specified entity.
 
         Returns:
