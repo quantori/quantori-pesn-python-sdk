@@ -292,6 +292,7 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
     relationships: Optional[dict[str, Any]] = Field(default=None)
+    meta: Optional[dict[str, Any]] = Field(default=None)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get('attributes', {})
