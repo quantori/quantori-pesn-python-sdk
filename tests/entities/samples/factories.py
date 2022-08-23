@@ -24,6 +24,7 @@ class SampleCellFactory(factory.Factory):
     id = factory.Faker('word')
     type = ObjectType.PROPERTY
     content = factory.Dict({'value': 4})
+    read_only = False
 
     class Meta:
         model = SampleCell

@@ -14,6 +14,11 @@ def sample_properties():
                     'name': 'ID',
                     'content': {'value': 'Sample-1756'},
                 },
+                'meta': {
+                    'definition': {
+                        'readOnly': True,
+                    }
+                },
             },
             {
                 'type': 'property',
@@ -23,16 +28,28 @@ def sample_properties():
                     'name': 'Template',
                     'content': {'value': 'Sample'},
                 },
+                'meta': {
+                    'definition': {
+                    }
+                },
             },
             {
                 'type': 'property',
                 'id': 'digests.self',
                 'attributes': {'id': 'digests.self'},
+                'meta': {
+                    'definition': {
+                    }
+                },
             },
             {
                 'type': 'property',
                 'id': 'digests.external',
                 'attributes': {'id': 'digests.external'},
+                'meta': {
+                    'definition': {
+                    }
+                },
             },
             {
                 'type': 'property',
@@ -42,16 +59,31 @@ def sample_properties():
                     'name': 'Created Date',
                     'content': {'value': '2022-06-02T07:27:10.072365283Z'},
                 },
+                'meta': {
+                    'definition': {
+                        'readOnly': True,
+                    }
+                },
             },
             {
                 'type': 'property',
                 'id': '2',
                 'attributes': {'id': '2', 'name': 'Description', 'content': {'value': 'simple'}},
+                'meta': {
+                    'definition': {
+                        'readOnly': False,
+                    }
+                },
             },
             {
                 'type': 'property',
                 'id': '3',
                 'attributes': {'id': '3', 'name': 'Comments', 'content': {'value': '555'}},
+                'meta': {
+                    'definition': {
+                        'readOnly': True,
+                    }
+                },
             },
         ],
     }
