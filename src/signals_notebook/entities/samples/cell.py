@@ -80,7 +80,9 @@ class SampleCell(BaseModel):
     content: SampleCellContent = Field(default=SampleCellContent())
     read_only: Optional[bool] = False
 
-    def _is_read_only(self):
+    def _is_cell_mutable(self):
+        if self.name == 'Amount':
+            raise TypeError('Property is immutable')
         if self.read_only:
             raise TypeError('Cell is read only')
 
@@ -93,7 +95,7 @@ class SampleCell(BaseModel):
         Returns:
 
         """
-        self._is_read_only()
+        self._is_cell_mutable()
         self.content._set_value(new_value)
 
     def set_content_values(self, new_values: List[CellValueType]) -> None:
@@ -105,7 +107,7 @@ class SampleCell(BaseModel):
         Returns:
 
         """
-        self._is_read_only()
+        self._is_cell_mutable()
         self.content._set_values(new_values)
 
     def set_content_name(self, new_name: str) -> None:
@@ -117,7 +119,7 @@ class SampleCell(BaseModel):
         Returns:
 
         """
-        self._is_read_only()
+        self._is_cell_mutable()
         self.content._set_name(new_name)
 
     @property
@@ -163,4 +165,4 @@ class SampleCell(BaseModel):
         Returns:
             SampleCellBody
         """
-        return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))
+        return SampleCellBody(id=str(self.id), attributes=Content(content=self.content.dict(include={'value', 'values', 'name'})))

@@ -66,9 +66,6 @@ class Sample(Entity):
             except ValueError:
                 return self._cells_by_id[index]
 
-        # if isinstance(index, UUID):
-        #     return self._cells_by_id[index]
-
         raise IndexError('Invalid index')
 
     def __iter__(self):
