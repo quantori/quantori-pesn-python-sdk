@@ -16,7 +16,7 @@ from signals_notebook.common_types import (
 )
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
-from signals_notebook.entities.samples.cell import SampleCell
+from signals_notebook.entities.samples.cell import SampleCell, SampleCellContent
 from signals_notebook.utils import FSHandler
 
 if TYPE_CHECKING:
@@ -25,8 +25,13 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
+class SampleCellBody(BaseModel):
+    id: Optional[str]
+    content: SampleCellContent = Field(default=SampleCellContent())
+
+
 class _SampleAttributes(BaseModel):
-    fields: Optional[List[SampleCell]] = []
+    fields: Optional[List[SampleCellBody]] = []
 
 
 class _SampleRelationships(BaseModel):
@@ -232,54 +237,22 @@ class Sample(Entity):
         log.debug('Loading sample from dump...')
 
         entity_type = cls._get_entity_type()
-        # metadata_path = fs_handler.join_path(path, 'metadata.json')
-        # metadata = json.loads(fs_handler.read(metadata_path))
-        # content_path = fs_handler.join_path(path, metadata['file_name'])
-        # content_bytes = fs_handler.read(content_path)
-        metadata = {
-            "eid": "sample:b171650b-fba0-4d49-b438-d5478aad6b06",
-            "name": "Sample-1797",
-            "description": "",
-            'columns': [
-                'ID',
-                'Template',
-                None,
-                None,
-                'Created Date',
-                'Description',
-                'Comments',
-                'Amount',
-                # 'Chemical Name',
-                # 'FM',
-                # 'EM',
-                # 'MF',
-                # 'MW',
-                'Attached Docs',
-                'ID',
-                'Template',
-            ],
-        }
-        # content_bytes = b'{"data": [{"id": "b718adec-73e0-3ce3-ac72-0dd11a06a308", "name": "ID", "content": {"value": "Sample-1797", "name": null, "eid": null, "values": null}}, {"id": "278c491b-dd8a-3361-8c14-9c4ac790da34", "name": "Template", "content": {"value": "Chemical Sample", "name": null, "eid": null, "values": null}}, {"id": "digests.self", "name": null, "content": {"value": "9febec4d41fbdd23c86305401ece8693512670e7269e77f3474df8b2ee6f8696", "name": null, "eid": null, "values": null}}, {"id": "digests.external", "name": null, "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "1", "name": "Created Date", "content": {"value": "2022-08-04T10:15:08.296900609Z", "name": null, "eid": null, "values": null}}, {"id": "2", "name": "Description", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "3", "name": "Comments", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "4", "name": "Amount", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "5", "name": "Chemical Name", "content": {"value": "methyl (E)-2-(2-chloro-6-fluorobenzylidene)-5-(4-((furan-2-carbonyl)oxy)phenyl)-7-methyl-3-oxo-2,3-dihydro-5H-thiazolo[3,2-a]pyrimidine-6-carboxylate", "name": null, "eid": null, "values": null}}, {"id": "6", "name": "FM", "content": {"value": "552.96", "name": null, "eid": null, "values": null}}, {"id": "7", "name": "EM", "content": {"value": "552.05581", "name": null, "eid": null, "values": null}}, {"id": "8", "name": "MF", "content": {"value": "C27H18ClFN2O6S", "name": null, "eid": null, "values": null}}, {"id": "9", "name": "MW", "content": {"value": "552.96", "name": null, "eid": null, "values": null}}, {"id": "10", "name": "Attached Docs", "content": {"value": "0", "name": null, "eid": "sample:b171650b-fba0-4d49-b438-d5478aad6b06", "values": null}}, {"id": "sampleId", "name": "ID", "content": {"value": "sample:b171650b-fba0-4d49-b438-d5478aad6b06", "name": null, "eid": null, "values": null}}, {"id": "sourceName", "name": "Template", "content": {"value": "Chemical Sample", "name": null, "eid": null, "values": null}}]}'
-        # content_bytes = b'{"data": [{"id": "b718adec-73e0-3ce3-ac72-0dd11a06a308", "name": "ID", "content": {"value": "Sample-1795", "name": null, "eid": null, "values": null}}, {"id": "278c491b-dd8a-3361-8c14-9c4ac790da34", "name": "Template", "content": {"value": "Sample", "name": null, "eid": null, "values": null}}, {"id": "digests.self", "name": null, "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "digests.external", "name": null, "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "1", "name": "Created Date", "content": {"value": "2022-08-04T10:10:10.457242220Z", "name": null, "eid": null, "values": null}}, {"id": "2", "name": "Description", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "3", "name": "Comments", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "4", "name": "Amount", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "10", "name": "Attached Docs", "content": {"value": "0", "name": null, "eid": "sample:abc5a847-1eb1-4f68-b26f-b31697b08b59", "values": null}}, {"id": "sampleId", "name": "ID", "content": {"value": "sample:abc5a847-1eb1-4f68-b26f-b31697b08b59", "name": null, "eid": null, "values": null}}, {"id": "sourceName", "name": "Template", "content": {"value": "Sample", "name": null, "eid": null, "values": null}}]}'
-        content_bytes = b'{"data": [{"id": "b718adec-73e0-3ce3-ac72-0dd11a06a308", "name": "ID", "content": {"value": "Sample-1832", "name": null, "eid": null, "values": null}}, {"id": "278c491b-dd8a-3361-8c14-9c4ac790da34", "name": "Template", "content": {"value": "Sample", "name": null, "eid": null, "values": null}}, {"id": "digests.self", "name": null, "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "digests.external", "name": null, "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "1", "name": "Created Date", "content": {"value": "2022-08-18T13:32:52.734439882Z", "name": null, "eid": null, "values": null}}, {"id": "2", "name": "Description", "content": {"value": "create sample", "name": null, "eid": null, "values": null}}, {"id": "3", "name": "Comments", "content": {"value": "create sample 2", "name": null, "eid": null, "values": null}}, {"id": "4", "name": "Amount", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "10", "name": "Attached Docs", "content": {"value": "0", "name": null, "eid": "sample:234d7b0d-82f8-4ee1-a6fd-4be23c653874", "values": null}}, {"id": "sampleId", "name": "ID", "content": {"value": "sample:234d7b0d-82f8-4ee1-a6fd-4be23c653874", "name": null, "eid": null, "values": null}}, {"id": "sourceName", "name": "Template", "content": {"value": "Sample", "name": null, "eid": null, "values": null}}]}'
-        # content_bytes = b'{"data": [{"id": "b718adec-73e0-3ce3-ac72-0dd11a06a308", "name": "ID", "content": {"value": "Sample-1798", "name": null, "eid": null, "values": null}}, {"id": "278c491b-dd8a-3361-8c14-9c4ac790da34", "name": "Template", "content": {"value": "Sample", "name": null, "eid": null, "values": null}}, {"id": "digests.self", "name": null, "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "digests.external", "name": null, "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "1", "name": "Created Date", "content": {"value": "2022-08-04T10:15:27.151611856Z", "name": null, "eid": null, "values": null}}, {"id": "2", "name": "Description", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "3", "name": "Comments", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "4", "name": "Amount", "content": {"value": "4", "name": null, "eid": null, "values": null}}, {"id": "10", "name": "Attached Docs", "content": {"value": "0", "name": null, "eid": "sample:4bcfd751-9c36-42f8-8841-3c3acc39d5a8", "values": null}}, {"id": "sampleId", "name": "ID", "content": {"value": "sample:4bcfd751-9c36-42f8-8841-3c3acc39d5a8", "name": null, "eid": null, "values": null}}, {"id": "sourceName", "name": "Template", "content": {"value": "Sample", "name": null, "eid": null, "values": null}}, {"id": "5", "name": "Chemical Name", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "6", "name": "FM", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "7", "name": "EM", "content": {"value": null, "name": null, "eid": null, "values": null}}, {"id": "8", "name": "MF", "content": {"value": 4, "name": null, "eid": null, "values": null}}, {"id": "9", "name": "MW", "content": {"value": null, "name": null, "eid": null, "values": null}}]}'
-        content = json.loads(content_bytes)['data']
-        to_delete = []
-        for item in content:
-            if item['name'] is None:
-                to_delete.append(item)
-            item.pop('name')
+        metadata_path = fs_handler.join_path(path, 'metadata.json')
+        metadata = json.loads(fs_handler.read(metadata_path))
 
-        for item in to_delete:
-            content.remove(item)
+        sample_filename = metadata['filename']
+        sample_data_path = fs_handler.join_path(path, sample_filename)
+        sample_content = json.loads(fs_handler.read(sample_data_path))['data']
+
+
         cells = []
-        for item in content:
-            try:
-                int(item['id'])
-                cells.append(SampleCell(**item))
-                # TODO: check read-only property in meta
-            except ValueError:
-                pass
+        for item in sample_content:
+            if not item['read_only'] and item['name'] != 'Amount':
+                try:
+                    int(item['id'])
+                    cells.append(SampleCell(**item).dict(include={'id', 'name', 'content'}, exclude_none=True))
+                except ValueError:
+                    pass
 
         column_definitions = metadata.get('columns')
         templates = EntityStore.get_list(
@@ -289,8 +262,6 @@ class Sample(Entity):
             template = cast('Sample', item)
             template_column_definitions = template.get_column_definitions_list()
             if set(template_column_definitions) == set(column_definitions):
-                print(template)
-                print(cells)
                 cls.create(
                     ancestors=[parent],
                     template=template,
