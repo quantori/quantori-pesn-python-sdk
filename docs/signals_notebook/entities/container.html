@@ -30,13 +30,11 @@
 import json
 import logging
 import mimetypes
-import os
 from typing import cast, Generator, Optional, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
 from signals_notebook.entities import Entity
-from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -69,7 +67,7 @@ class Container(Entity, abc.ABC):
 
         if content_type:
             extension = mimetypes.guess_extension(content_type)
-            file_name = f&#39;{os.path.splitext(name)[0]}{extension}&#39; if extension else name
+            file_name = f&#39;{name}{extension}&#39;
         else:
             content_type = mimetypes.guess_type(name)[0]
             file_name = name
@@ -93,7 +91,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self, order: Optional[str] = None) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order: str = &#39;&#39;) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of a specified entity.
 
         Returns:
@@ -118,39 +116,7 @@ class Container(Entity, abc.ABC):
             )
 
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
-            yield from [cast(ResponseData, item).body for item in result.data]
-
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
-        fs_handler.write(
-            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
-            json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
-        )
-        for child in self.get_children():
-            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
-
-    @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
-        &#34;&#34;&#34;Dump Container templates
-
-        Args:
-            base_path: content path where create templates dump
-            fs_handler: FSHandler
-
-        Returns:
-
-        &#34;&#34;&#34;
-        from signals_notebook.entities import EntityStore
-
-        entity_type = cls._get_entity_type()
-
-        templates = EntityStore.get_list(
-            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
-        )
-        try:
-            for template in templates:
-                template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
-        except TypeError:
-            pass</code></pre>
+            yield from [cast(ResponseData, item).body for item in result.data]</code></pre>
 </details>
 </section>
 <section>
@@ -201,7 +167,7 @@ class Container(Entity, abc.ABC):
 
         if content_type:
             extension = mimetypes.guess_extension(content_type)
-            file_name = f&#39;{os.path.splitext(name)[0]}{extension}&#39; if extension else name
+            file_name = f&#39;{name}{extension}&#39;
         else:
             content_type = mimetypes.guess_type(name)[0]
             file_name = name
@@ -225,7 +191,7 @@ class Container(Entity, abc.ABC):
 
         return cast(ResponseData, result.data).body
 
-    def get_children(self, order: Optional[str] = None) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order: str = &#39;&#39;) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of a specified entity.
 
         Returns:
@@ -250,39 +216,7 @@ class Container(Entity, abc.ABC):
             )
 
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
-            yield from [cast(ResponseData, item).body for item in result.data]
-
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
-        fs_handler.write(
-            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
-            json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
-        )
-        for child in self.get_children():
-            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
-
-    @classmethod
-    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
-        &#34;&#34;&#34;Dump Container templates
-
-        Args:
-            base_path: content path where create templates dump
-            fs_handler: FSHandler
-
-        Returns:
-
-        &#34;&#34;&#34;
-        from signals_notebook.entities import EntityStore
-
-        entity_type = cls._get_entity_type()
-
-        templates = EntityStore.get_list(
-            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
-        )
-        try:
-            for template in templates:
-                template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
-        except TypeError:
-            pass</code></pre>
+            yield from [cast(ResponseData, item).body for item in result.data]</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -293,12 +227,10 @@ class Container(Entity, abc.ABC):
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li><a title="signals_notebook.entities.admin_defined_object.AdminDefinedObject" href="admin_defined_object.html#signals_notebook.entities.admin_defined_object.AdminDefinedObject">AdminDefinedObject</a></li>
 <li><a title="signals_notebook.entities.experiment.Experiment" href="experiment.html#signals_notebook.entities.experiment.Experiment">Experiment</a></li>
 <li><a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a></li>
 <li><a title="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment" href="parallel_experiment/parallel_experiment.html#signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment">ParallelExperiment</a></li>
 <li><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment" href="parallel_experiment/sub_experiment.html#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment">SubExperiment</a></li>
-<li><a title="signals_notebook.entities.request.RequestContainer" href="request.html#signals_notebook.entities.request.RequestContainer">RequestContainer</a></li>
 </ul>
 <h3>Class variables</h3>
 <dl>
@@ -329,51 +261,6 @@ class Container(Entity, abc.ABC):
 <dt id="signals_notebook.entities.container.Container.type"><code class="name">var <span class="ident">type</span> : str</code></dt>
 <dd>
 <div class="desc"></div>
-</dd>
-</dl>
-<h3>Static methods</h3>
-<dl>
-<dt id="signals_notebook.entities.container.Container.dump_templates"><code class="name flex">
-<span>def <span class="ident">dump_templates</span></span>(<span>base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Dump Container templates</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>base_path</code></strong></dt>
-<dd>content path where create templates dump</dd>
-<dt><strong><code>fs_handler</code></strong></dt>
-<dd>FSHandler</dd>
-</dl>
-<p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@classmethod
-def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
-    &#34;&#34;&#34;Dump Container templates
-
-    Args:
-        base_path: content path where create templates dump
-        fs_handler: FSHandler
-
-    Returns:
-
-    &#34;&#34;&#34;
-    from signals_notebook.entities import EntityStore
-
-    entity_type = cls._get_entity_type()
-
-    templates = EntityStore.get_list(
-        include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
-    )
-    try:
-        for template in templates:
-            template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
-    except TypeError:
-        pass</code></pre>
-</details>
 </dd>
 </dl>
 <h3>Methods</h3>
@@ -421,7 +308,7 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 
     if content_type:
         extension = mimetypes.guess_extension(content_type)
-        file_name = f&#39;{os.path.splitext(name)[0]}{extension}&#39; if extension else name
+        file_name = f&#39;{name}{extension}&#39;
     else:
         content_type = mimetypes.guess_type(name)[0]
         file_name = name
@@ -446,26 +333,8 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
     return cast(ResponseData, result.data).body</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.entities.container.Container.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
-    fs_handler.write(
-        fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
-        json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
-    )
-    for child in self.get_children():
-        child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)</code></pre>
-</details>
-</dd>
 <dt id="signals_notebook.entities.container.Container.get_children"><code class="name flex">
-<span>def <span class="ident">get_children</span></span>(<span>self, order: Optional[str] = None) ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
+<span>def <span class="ident">get_children</span></span>(<span>self, order: str = '') ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get children of a specified entity.</p>
@@ -475,7 +344,7 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_children(self, order: Optional[str] = None) -&gt; Generator[Entity, None, None]:
+<pre><code class="python">def get_children(self, order: str = &#39;&#39;) -&gt; Generator[Entity, None, None]:
     &#34;&#34;&#34;Get children of a specified entity.
 
     Returns:
@@ -544,8 +413,6 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 <li><code><a title="signals_notebook.entities.container.Container.created_at" href="#signals_notebook.entities.container.Container.created_at">created_at</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.description" href="#signals_notebook.entities.container.Container.description">description</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.digest" href="#signals_notebook.entities.container.Container.digest">digest</a></code></li>
-<li><code><a title="signals_notebook.entities.container.Container.dump" href="#signals_notebook.entities.container.Container.dump">dump</a></code></li>
-<li><code><a title="signals_notebook.entities.container.Container.dump_templates" href="#signals_notebook.entities.container.Container.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.edited_at" href="#signals_notebook.entities.container.Container.edited_at">edited_at</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.eid" href="#signals_notebook.entities.container.Container.eid">eid</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_children" href="#signals_notebook.entities.container.Container.get_children">get_children</a></code></li>

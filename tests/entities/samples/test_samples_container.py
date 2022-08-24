@@ -2,7 +2,7 @@ import os
 
 import pytest
 
-from signals_notebook.common_types import EID, File
+from signals_notebook.common_types import EID, File, SamplesContainerFormat
 from signals_notebook.entities.samples.sample import Sample, SampleCell
 
 
@@ -66,7 +66,7 @@ def get_samples_response():
 
 
 @pytest.fixture()
-def samples_container_content():
+def samples_container_csv_content():
     return (
         b'ID,Created Date,Description,Comments,Amount,Attached Docs,Template,Chemical Name,FM,EM,MF,MW'
         + os.linesep.encode('utf-8')
@@ -82,11 +82,33 @@ def samples_container_content():
     )
 
 
-def test_get_content(samples_container_factory, api_mock, samples_container_content):
+@pytest.fixture()
+def samples_container_sdf_content():
+    path = os.path.join(os.path.dirname(__file__), 'samples_container_sdf_data.sdf')
+    with open(path) as sdf_file:
+        file = File(sdf_file)
+        return file.content
+
+
+@pytest.mark.parametrize(
+    'file_name, content_type, format',
+    [
+        ('Test.csv', 'text/csv', SamplesContainerFormat.CSV),
+        ('Test.sdf', 'chemical/x-mdl-sdfile', SamplesContainerFormat.SDF),
+    ],
+)
+def test_get_content(
+    samples_container_factory,
+    api_mock,
+    file_name,
+    content_type,
+    format,
+    samples_container_csv_content,
+    samples_container_sdf_content,
+):
     samples_container = samples_container_factory(name='name')
-    file_name = 'Test.csv'
-    content = samples_container_content
-    content_type = 'text/csv'
+
+    content = samples_container_csv_content if format == SamplesContainerFormat.CSV else samples_container_sdf_content
 
     api_mock.call.return_value.headers = {
         'content-type': content_type,
@@ -94,13 +116,13 @@ def test_get_content(samples_container_factory, api_mock, samples_container_cont
     }
     api_mock.call.return_value.content = content
 
-    result = samples_container.get_content()
+    result = samples_container.get_content(format=format)
 
     api_mock.call.assert_called_once_with(
         method='GET',
         path=('entities', samples_container.eid, 'export'),
         params={
-            'format': None,
+            'format': format,
         },
     )
 
@@ -110,10 +132,10 @@ def test_get_content(samples_container_factory, api_mock, samples_container_cont
     assert result.content_type == content_type
 
 
-def test_get_html(samples_container_factory, snapshot, api_mock, samples_container_content):
+def test_get_html(samples_container_factory, snapshot, api_mock, samples_container_csv_content):
     samples_container = samples_container_factory(name='name')
     file_name = 'Test.csv'
-    content = samples_container_content
+    content = samples_container_csv_content
     content_type = 'text/csv'
 
     api_mock.call.return_value.headers = {
