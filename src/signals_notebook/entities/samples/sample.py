@@ -67,9 +67,9 @@ class Sample(Entity):
 
         if isinstance(index, str):
             try:
-                return self._cells_by_id[UUID(index)]
-            except ValueError:
                 return self._cells_by_id[index]
+            except KeyError as e:
+                raise e
 
         raise IndexError('Invalid index')
 
