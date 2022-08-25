@@ -105,7 +105,7 @@ def test_create(api_mock, experiment_factory, sample_cell_factory, sample_factor
             'type': 'sample',
             'attributes': {
                 'fields': [
-                    new_sample_cell.dict(exclude_none=True),
+                    new_sample_cell.dict(exclude_none=True, include={'id', 'name', 'content'}),
                 ]
             },
             'relationships': {
@@ -143,9 +143,7 @@ def test_create(api_mock, experiment_factory, sample_cell_factory, sample_factor
     assert new_sample.edited_at == arrow.get(response['data']['attributes']['editedAt'])
 
 
-@pytest.mark.parametrize(
-    'index', [1, 'b718adec-73e0-3ce3-ac72-0dd11a06a308', 'digests.self', UUID('b718adec-73e0-3ce3-ac72-0dd11a06a308')]
-)
+@pytest.mark.parametrize('index', [1, 'b718adec-73e0-3ce3-ac72-0dd11a06a308', 'digests.self'])
 def test_getitem(api_mock, sample_properties, sample_factory, index):
     sample = sample_factory()
 
@@ -179,7 +177,11 @@ def test_dump(api_mock, mocker, sample_factory, sample_properties):
 
     fs_handler_mock = mocker.MagicMock()
     base_path = './'
-    metadata = {k: v for k, v in sample.dict().items() if k in ('name', 'description', 'eid')}
+    metadata = {
+        'filename': f'{sample.name}.json',
+        "columns": ["ID", "Template", None, None, "Created Date", "Description", "Comments"],
+        **{k: v for k, v in sample.dict().items() if k in ('name', 'description', 'eid')},
+    }
 
     api_mock.call.return_value.json.return_value = sample_properties
     sample.dump(base_path=base_path, fs_handler=fs_handler_mock)
@@ -212,9 +214,9 @@ def test_dump_templates(api_mock, mocker, sample_factory, sample_properties, get
     fs_handler_mock = mocker.MagicMock()
     base_path = './'
     metadata = {
-        'eid': template_eid,
-        'name': template_name,
-        'description': ''
+        'filename': f'{sample.name}.json',
+        "columns": ["ID", "Template", None, None, "Created Date", "Description", "Comments"],
+        **{'eid': template_eid, 'name': template_name, 'description': ''},
     }
 
     api_mock.call.side_effect = [
