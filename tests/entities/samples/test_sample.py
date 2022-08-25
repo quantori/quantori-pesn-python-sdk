@@ -1,5 +1,4 @@
 import json
-from uuid import UUID
 
 import arrow
 import pytest
@@ -244,6 +243,196 @@ def test_dump_templates(api_mock, mocker, sample_factory, sample_properties, get
         [
             mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
             mocker.call(fs_handler_mock.join_path(), content),
+        ],
+        any_order=True,
+    )
+
+
+def test_load(
+    api_mock,
+    experiment_factory,
+    eid_factory,
+    mocker,
+    get_response_object,
+    sample_properties,
+    templates,
+):
+    experiment = experiment_factory()
+
+    eid = eid_factory(type=EntityType.SAMPLES_CONTAINER)
+
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+
+    sample_file_metadata = {
+        'data': [
+            {
+                'id': 'b718adec-73e0-3ce3-ac72-0dd11a06a308',
+                'name': 'ID',
+                'content': {
+                    'value': 'Sample-1844',
+                    'name': None,
+                    'eid': None,
+                    'values': None,
+                    'display': None,
+                    'units': None,
+                },
+                'read_only': False,
+            },
+            {
+                'id': '278c491b-dd8a-3361-8c14-9c4ac790da34',
+                'name': 'Template',
+                'content': {
+                    'value': 'Sample',
+                    'name': None,
+                    'eid': None,
+                    'values': None,
+                    'display': None,
+                    'units': None,
+                },
+                'read_only': False,
+            },
+            {
+                'id': '1',
+                'name': 'Created Date',
+                'content': {
+                    'value': '2022-08-23T07:17:43.919225383Z',
+                    'name': None,
+                    'eid': None,
+                    'values': None,
+                    'display': None,
+                    'units': None,
+                },
+                'read_only': True,
+            },
+            {
+                'id': '2',
+                'name': 'Description',
+                'content': {
+                    'value': 'value',
+                    'name': None,
+                    'eid': None,
+                    'values': None,
+                    'display': None,
+                    'units': None,
+                },
+                'read_only': False,
+            },
+            {
+                'id': '3',
+                'name': 'Comments',
+                'content': {
+                    'value': 'value',
+                    'name': None,
+                    'eid': None,
+                    'values': None,
+                    'display': None,
+                    'units': None,
+                },
+                'read_only': False,
+            },
+            {
+                'id': '4',
+                'name': 'Amount',
+                'content': {
+                    'value': '0.001',
+                    'name': None,
+                    'eid': None,
+                    'values': None,
+                    'display': '1 mg',
+                    'units': 'g',
+                },
+                'read_only': False,
+            },
+        ]
+    }
+    sample_metadata = {
+        "filename": "Sample-1844.json",
+        "columns": [
+            "ID",
+            "Template",
+            None,
+            None,
+            "Created Date",
+            "Description",
+            "Comments",
+        ],
+        "eid": "sample:b03c1f5e-af91-4d53-8d7c-3396765f0375",
+        "name": "Sample-1844",
+        "description": "",
+    }
+
+    response_create = {
+        'links': {'self': 'https://example.com/sample:2d9c3f5c-065a-4d56-992f-c0b2003eb9be'},
+        'data': {
+            'type': 'entity',
+            'id': eid,
+            'attributes': {
+                'id': eid,
+                'eid': eid,
+                'name': 'Sample-1781',
+                'description': '',
+                'createdAt': '2022-06-14T09:51:10.765Z',
+                'editedAt': '2022-06-14T09:51:10.765Z',
+                'type': 'sample',
+                'digest': '25881025',
+                'fields': {'Description': {'value': ''}, 'Name': {'value': 'Sample-1781'}},
+                'flags': {'canEdit': True},
+            },
+        },
+    }
+
+    api_mock.call.side_effect = [
+        get_response_object(templates),
+        get_response_object(sample_properties),
+        get_response_object(response_create),
+    ]
+    fs_handler_mock.join_path.side_effect = [base_path + 'metadata.json', base_path + sample_metadata['filename']]
+    fs_handler_mock.read.side_effect = [json.dumps(sample_metadata), json.dumps(sample_file_metadata)]
+
+    template = Sample(**templates['data'][0]['attributes'])
+    Sample.load(path=base_path, fs_handler=fs_handler_mock, parent=experiment)
+
+    fields = [{'id': '2', 'content': {'value': 'value'}}, {'id': '3', 'content': {'value': 'value'}}]
+
+    request_body = {
+        'data': {
+            'type': 'sample',
+            'attributes': {'fields': fields},
+            'relationships': {
+                'ancestors': {
+                    'data': [
+                        experiment.short_description.dict(exclude_none=True),
+                    ]
+                },
+                'template': {'data': template.short_description.dict(exclude_none=True)},
+            },
+        }
+    }
+
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(
+                method='GET',
+                path=('entities',),
+                params={'includeTypes': 'sample', 'includeOptions': 'template'},
+            ),
+            mocker.call(
+                method='GET',
+                path=('samples', templates['data'][0]['id'], 'properties'),
+                params={
+                    'value': 'normalized',
+                },
+            ),
+            mocker.call(
+                method='POST',
+                path=('entities',),
+                params={
+                    'digest': None,
+                    'force': json.dumps(True),
+                },
+                json=request_body,
+            ),
         ],
         any_order=True,
     )
