@@ -354,7 +354,3 @@ def test_dump(
         any_order=True,
     )
 
-
-def test_load():
-    # TODO: load
-    pass
