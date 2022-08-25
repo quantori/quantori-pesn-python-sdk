@@ -244,7 +244,6 @@ class Sample(Entity):
         sample_data_path = fs_handler.join_path(path, sample_filename)
         sample_content = json.loads(fs_handler.read(sample_data_path))['data']
 
-
         cells = []
         for item in sample_content:
             if not item['read_only'] and item['name'] != 'Amount':

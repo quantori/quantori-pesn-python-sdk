@@ -178,7 +178,7 @@ def test_dump(api_mock, mocker, sample_factory, sample_properties):
     base_path = './'
     metadata = {
         'filename': f'{sample.name}.json',
-        "columns": ["ID", "Template", None, None, "Created Date", "Description", "Comments"],
+        'columns': ['ID', 'Template', None, None, 'Created Date', 'Description', 'Comments'],
         **{k: v for k, v in sample.dict().items() if k in ('name', 'description', 'eid')},
     }
 
@@ -214,7 +214,7 @@ def test_dump_templates(api_mock, mocker, sample_factory, sample_properties, get
     base_path = './'
     metadata = {
         'filename': f'{sample.name}.json',
-        "columns": ["ID", "Template", None, None, "Created Date", "Description", "Comments"],
+        'columns': ['ID', 'Template', None, None, 'Created Date', 'Description', 'Comments'],
         **{'eid': template_eid, 'name': template_name, 'description': ''},
     }
 
@@ -347,19 +347,19 @@ def test_load(
         ]
     }
     sample_metadata = {
-        "filename": "Sample-1844.json",
-        "columns": [
-            "ID",
-            "Template",
+        'filename': 'Sample-1844.json',
+        'columns': [
+            'ID',
+            'Template',
             None,
             None,
-            "Created Date",
-            "Description",
-            "Comments",
+            'Created Date',
+            'Description',
+            'Comments',
         ],
-        "eid": "sample:b03c1f5e-af91-4d53-8d7c-3396765f0375",
-        "name": "Sample-1844",
-        "description": "",
+        'eid': 'sample:b03c1f5e-af91-4d53-8d7c-3396765f0375',
+        'name': 'Sample-1844',
+        'description': '',
     }
 
     response_create = {

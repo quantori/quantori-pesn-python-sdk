@@ -165,4 +165,6 @@ class SampleCell(BaseModel):
         Returns:
             SampleCellBody
         """
-        return SampleCellBody(id=str(self.id), attributes=Content(content=self.content.dict(include={'value', 'values', 'name'})))
+        return SampleCellBody(
+            id=str(self.id), attributes=Content(content=self.content.dict(include={'value', 'values', 'name'}))
+        )

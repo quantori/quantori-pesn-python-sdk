@@ -1,11 +1,10 @@
 import json
 import os
-from typing import cast
 
 import pytest
 
-from signals_notebook.common_types import EID, File, ResponseData, SamplesContainerFormat
-from signals_notebook.entities.samples.sample import Sample, SampleCell, SampleCellsResponse
+from signals_notebook.common_types import EID, File, SamplesContainerFormat
+from signals_notebook.entities.samples.sample import Sample, SampleCell
 
 
 @pytest.fixture()
@@ -341,8 +340,6 @@ def test_dump(
         'name': templates['data'][0]['attributes']['name'],
         'description': templates['data'][0]['attributes']['description'],
     }
-    properties = SampleCellsResponse(**sample_properties)
-    cells = [cast(ResponseData, item).body for item in properties.data]
 
     fs_handler_mock.write.assert_has_calls(
         [
@@ -353,4 +350,3 @@ def test_dump(
         ],
         any_order=True,
     )
-
