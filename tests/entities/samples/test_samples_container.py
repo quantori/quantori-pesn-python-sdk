@@ -47,22 +47,6 @@ def get_samples_response():
                     'flags': {'canEdit': True},
                 },
             },
-            {
-                'type': 'entity',
-                'id': 'sample:3ef80703-612e-465a-b930-f3e154dd1937',
-                'attributes': {
-                    'id': 'sample:3ef80703-612e-465a-b930-f3e154dd1937',
-                    'eid': 'sample:3ef80703-612e-465a-b930-f3e154dd1937',
-                    'name': 'Sample-1778',
-                    'description': '',
-                    'createdAt': '2022-06-13T13:59:34.447Z',
-                    'editedAt': '2022-06-13T13:59:34.447Z',
-                    'type': 'sample',
-                    'digest': '18903856',
-                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'Sample-1778'}},
-                    'flags': {'canEdit': True},
-                },
-            },
         ],
     }
 
@@ -186,28 +170,43 @@ def test_reload_samples(api_mock, samples_container_factory, get_samples_respons
     )
 
 
-def test_save(api_mock, samples_container_factory, get_samples_response, sample_properties, mocker):
+@pytest.fixture()
+def get_response(mocker):
+    def _f(response):
+        mock = mocker.Mock()
+        mock.json.return_value = response
+        return mock
+
+    return _f
+
+
+def test_save(api_mock, samples_container_factory, get_samples_response, sample_properties, mocker, get_response):
     samples_container = samples_container_factory()
 
     assert samples_container._samples == []
 
-    api_mock.call.return_value.json.return_value = get_samples_response
+    api_mock.call.side_effect = [
+        get_response(get_samples_response),
+        get_response(sample_properties),
+        get_response(sample_properties),
+        get_response(sample_properties),
+        get_response(sample_properties),
+        get_response(sample_properties),
+        get_response(sample_properties),
+        get_response(get_samples_response),
+    ]
 
     samples_ids = [item['id'] for item in get_samples_response['data']]
 
     patch_calls = []
     for sample in samples_container:
-
         request_body = []
-        api_mock.call.return_value.json.return_value = sample_properties
         sample_property = sample[0]
         assert isinstance(sample_property, SampleCell)
 
         for item in sample:
             if item.id == '2':
-                item.content.set_value('555')
-        api_mock.call.return_value.json.return_value = {}
-        api_mock.call.return_value.json.return_value = sample_properties
+                item.set_content_value('555')
 
         for item in sample:
             if item.is_changed:
@@ -229,7 +228,6 @@ def test_save(api_mock, samples_container_factory, get_samples_response, sample_
 
     assert samples_container._samples != []
 
-    api_mock.call.return_value.json.return_value = get_samples_response
     samples_container.save()
 
     get_calls = [
@@ -244,12 +242,12 @@ def test_save(api_mock, samples_container_factory, get_samples_response, sample_
     ]
     api_mock.call.assert_has_calls(
         [
-            *patch_calls,
-            *get_calls,
             mocker.call(
                 method='GET',
                 path=('entities', samples_container.eid, 'children'),
             ),
+            *patch_calls,
+            *get_calls,
         ],
         any_order=True,
     )
@@ -299,7 +297,7 @@ def test_dump(
     get_response_object,
     sample_properties,
     templates,
-    samples_container_content,
+    samples_container_csv_content,
 ):
     request_container = samples_container_factory()
     eid = templates['data'][0]['id']
@@ -307,7 +305,7 @@ def test_dump(
     file_name = 'Test.csv'
 
     content_response = get_response_object({})
-    content_response.content = samples_container_content
+    content_response.content = samples_container_csv_content
     content_response.headers = {
         'content-type': content_type,
         'content-disposition': f'attachment; filename={file_name}',
@@ -331,7 +329,11 @@ def test_dump(
         [join_path_call_1, join_path_call_2],
         any_order=True,
     )
-
+    sample_container_metadata = {
+        'file_name': file_name,
+        'content_type': content_type,
+        **{k: v for k, v in request_container.dict().items() if k in ('name', 'description', 'eid')},
+    }
     sample_metadata = {
         'filename': templates['data'][0]['attributes']['name'] + '.json',
         'columns': ['ID', 'Template', None, None, 'Created Date', 'Description', 'Comments'],
@@ -341,13 +343,13 @@ def test_dump(
     }
     properties = SampleCellsResponse(**sample_properties)
     cells = [cast(ResponseData, item).body for item in properties.data]
-    sample_data = [cast(SampleCell, item).dict() for item in cells]
 
     fs_handler_mock.write.assert_has_calls(
         [
+            mocker.call(fs_handler_mock.join_path(), json.dumps(sample_container_metadata)),
             mocker.call(fs_handler_mock.join_path(), json.dumps(sample_metadata)),
-            mocker.call(fs_handler_mock.join_path(), json.dumps({'data': sample_data}, default=str).encode('utf-8')),
-            mocker.call(fs_handler_mock.join_path(), samples_container_content),
+            # mocker.call(fs_handler_mock.join_path(), json.dumps({'data': sample_data}, default=str).encode('utf-8')),
+            # mocker.call(fs_handler_mock.join_path(), samples_container_sdf_content),
         ],
         any_order=True,
     )
