@@ -321,12 +321,14 @@ def test_dump(
     base_path = './'
     request_container.dump(base_path=base_path, fs_handler=fs_handler_mock)
 
-    join_path_call_1 = mocker.call(base_path, request_container.eid, 'metadata.json')
-    join_path_call_2 = mocker.call(fs_handler_mock.join_path(), eid, 'Sample.json')
-
     fs_handler_mock.join_path.assert_has_calls(
-        [join_path_call_1, join_path_call_2],
-        any_order=True,
+        [
+            mocker.call(base_path, request_container.eid, 'metadata.json'),
+            mocker.call(base_path, request_container.eid, file_name),
+            mocker.call(base_path, request_container.eid),
+            mocker.call(fs_handler_mock.join_path(), templates['data'][0]['id'], 'metadata.json'),
+            mocker.call(fs_handler_mock.join_path(), templates['data'][0]['id'], 'Sample.json'),
+        ],
     )
     sample_container_metadata = {
         'file_name': file_name,
@@ -340,13 +342,13 @@ def test_dump(
         'name': templates['data'][0]['attributes']['name'],
         'description': templates['data'][0]['attributes']['description'],
     }
-
+    sample = Sample(**templates['data'][0]['attributes'])
+    data = [item.dict() for item in sample]
     fs_handler_mock.write.assert_has_calls(
         [
             mocker.call(fs_handler_mock.join_path(), json.dumps(sample_container_metadata)),
+            mocker.call(fs_handler_mock.join_path(), content_response.content),
             mocker.call(fs_handler_mock.join_path(), json.dumps(sample_metadata)),
-            # mocker.call(fs_handler_mock.join_path(), json.dumps({'data': sample_data}, default=str).encode('utf-8')),
-            # mocker.call(fs_handler_mock.join_path(), samples_container_sdf_content),
+            mocker.call(fs_handler_mock.join_path(), json.dumps({'data': data}, default=str).encode('utf-8')),
         ],
-        any_order=True,
     )
