@@ -26,17 +26,15 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from datetime import datetime, date
+<pre><code class="python">from datetime import datetime
 from enum import Enum
 from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
-import dateutil
-from dateutil.parser import parse
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID, EntityType, MaterialType, MID, ObjectType
+from signals_notebook.common_types import DateTime, EID, EntityType, MaterialType, MID, ObjectType
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
 from signals_notebook.exceptions import EIDError
@@ -142,19 +140,6 @@ class CellContentDict(TypedDict):
 class UpdateCellRequest(GenericModel, Generic[CellContentType]):
     key: UUID
     content: CellContent[CellContentType]
-
-
-class DateTime(datetime):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls._validate_date
-
-    @staticmethod
-    def _validate_date(value: Union[str, datetime]) -&gt; datetime:
-        if isinstance(value, datetime):
-            return value
-
-        return parse(value)
 
 
 class Cell(GenericModel, Generic[CellContentType]):
@@ -1143,7 +1128,7 @@ dict(one=1, two=2)</p></div>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.tables.cell.Cell[DateTime].content"><code class="name">var <span class="ident">content</span> : pydantic.generics.CellContent[<a title="signals_notebook.entities.tables.cell.DateTime" href="#signals_notebook.entities.tables.cell.DateTime">DateTime</a>]</code></dt>
+<dt id="signals_notebook.entities.tables.cell.Cell[DateTime].content"><code class="name">var <span class="ident">content</span> : pydantic.generics.CellContent[DateTime]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1644,36 +1629,6 @@ dict(one=1, two=2)</p></div>
 <div class="desc"></div>
 </dd>
 </dl>
-</dd>
-<dt id="signals_notebook.entities.tables.cell.DateTime"><code class="flex name class">
-<span>class <span class="ident">DateTime</span></span>
-<span>(</span><span>...)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])</p>
-<p>The year, month and day arguments are required. tzinfo may be None, or an
-instance of a tzinfo subclass. The remaining arguments may be ints.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class DateTime(datetime):
-    @classmethod
-    def __get_validators__(cls):
-        yield cls._validate_date
-
-    @staticmethod
-    def _validate_date(value: Union[str, datetime]) -&gt; datetime:
-        if isinstance(value, datetime):
-            return value
-
-        return parse(value)</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>datetime.datetime</li>
-<li>datetime.date</li>
-</ul>
 </dd>
 <dt id="signals_notebook.entities.tables.cell.DateTimeCell"><code class="flex name class">
 <span>class <span class="ident">DateTimeCell</span></span>
@@ -2837,9 +2792,6 @@ def object(self) -&gt; Union[Entity, Material]:
 <li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinitions.id" href="#signals_notebook.entities.tables.cell.ColumnDefinitions.id">id</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.cell.ColumnDefinitions.type" href="#signals_notebook.entities.tables.cell.ColumnDefinitions.type">type</a></code></li>
 </ul>
-</li>
-<li>
-<h4><code><a title="signals_notebook.entities.tables.cell.DateTime" href="#signals_notebook.entities.tables.cell.DateTime">DateTime</a></code></h4>
 </li>
 <li>
 <h4><code><a title="signals_notebook.entities.tables.cell.DateTimeCell" href="#signals_notebook.entities.tables.cell.DateTimeCell">DateTimeCell</a></code></h4>

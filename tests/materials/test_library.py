@@ -518,6 +518,17 @@ def get_response(mocker):
     return _f
 
 
+@pytest.fixture()
+def get_failed_response(mocker):
+    def _f(response):
+        mock = mocker.Mock()
+        mock.status_code = 400
+        mock.json.return_value = response
+        return mock
+
+    return _f
+
+
 def test_get_content(library_factory, api_mock, mocker, get_response):
     library = library_factory()
     content = b'Content'
@@ -657,9 +668,7 @@ def test_get_content_empty_library(library_factory, api_mock, get_response):
                 'fileId': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9',
                 'count': 5,
                 'total': 5,
-                'error': {
-                    'description': 'Nothing to export.'
-                }
+                'error': {'description': 'Nothing to export.'},
             },
         }
     }
@@ -895,7 +904,9 @@ def test_bulk_import_zip_format(library_factory, file_factory, api_mock, mocker,
         'USE_MATCHES',
     ],
 )
-def test_bulk_import_zip_format_timeout(library_factory, file_factory, api_mock, mocker, get_response, rule):
+def test_bulk_import_zip_format_timeout(
+    library_factory, file_factory, api_mock, mocker, get_response, rule, get_failed_response
+):
     content = b'content'
     content_type = 'application/octet-stream'
 
@@ -964,9 +975,9 @@ def test_bulk_import_zip_format_timeout(library_factory, file_factory, api_mock,
 
     job_id = response1['data']['id']
 
-    api_mock.call.side_effect = [get_response(response1), get_response(response2), failure_response]
+    api_mock.call.side_effect = [get_response(response1), get_failed_response(response2), failure_response]
 
-    result = library.bulk_import(materials=file, rule=rule, import_type=import_type, timeout=1)
+    result = library.bulk_import(materials=file, rule=rule, import_type=import_type, timeout=0.001)
 
     api_mock.call.assert_has_calls(
         [
