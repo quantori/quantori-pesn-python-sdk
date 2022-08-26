@@ -2,8 +2,8 @@ name: Pull request
 
 on:
   pull_request:
-    types:
-      - opened
+#    types:
+#      - opened
 
 jobs:
   build:
