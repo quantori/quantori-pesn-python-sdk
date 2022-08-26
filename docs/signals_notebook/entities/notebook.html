@@ -98,7 +98,7 @@ class Notebook(Container):
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
             json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
@@ -107,7 +107,7 @@ class Notebook(Container):
             child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler) -&gt; None:
+    def load(cls, path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
@@ -218,7 +218,7 @@ class Notebook(Container):
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
             json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
@@ -227,7 +227,7 @@ class Notebook(Container):
             child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler) -&gt; None:
+    def load(cls, path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
@@ -326,7 +326,7 @@ def create(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def load(cls, path: str, fs_handler: FSHandler) -&gt; None:
+def load(cls, path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
     from signals_notebook.item_mapper import ItemMapper
 
     metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
@@ -351,7 +351,7 @@ def load(cls, path: str, fs_handler: FSHandler) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
     fs_handler.write(
         fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
         json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
