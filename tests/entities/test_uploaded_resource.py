@@ -153,8 +153,8 @@ def test_dump(uploaded_resource_factory, mocker, api_mock):
 def test_load(api_mock, experiment_factory, eid_factory, mocker):
     container = experiment_factory()
     eid = eid_factory(type=EntityType.UPLOADED_RESOURCE)
-    file_name = 'Test.zip'
-    content_type = 'application/zip'
+    file_name = 'Test.bin'
+    content_type = 'application/octet-stream'
     content = b'Some text'
     response = {
         'links': {'self': f'https://example.com/{eid}'},
