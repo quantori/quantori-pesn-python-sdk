@@ -109,7 +109,7 @@ class TodoList(ContentfulEntity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
         """Dump TodoList entity
 
         Args:

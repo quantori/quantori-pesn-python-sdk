@@ -114,7 +114,7 @@ class RequestContainer(Container):
         return template.render(data=data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:  # type: ignore[override]
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))

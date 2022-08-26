@@ -76,7 +76,7 @@ class ContentfulEntity(Entity, abc.ABC):
 
         return template.render(data=data)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
         """Dump ContentfulEntity entity
 
         Args:
@@ -98,7 +98,7 @@ class ContentfulEntity(Entity, abc.ABC):
         fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:  # type: ignore[override]
         """Load ContentfulEntity entity
 
         Args:

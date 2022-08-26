@@ -134,7 +134,7 @@ class Experiment(Container):
         return template.render(data=data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:  # type: ignore[override]
         """Load Experiment entity
 
         Args:
