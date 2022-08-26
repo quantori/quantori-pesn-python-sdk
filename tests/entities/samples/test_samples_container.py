@@ -299,7 +299,6 @@ def test_dump(
     samples_container_csv_content,
 ):
     request_container = samples_container_factory()
-    eid = templates['data'][0]['id']
     content_type = 'text/csv'
     file_name = 'Test.csv'
 
