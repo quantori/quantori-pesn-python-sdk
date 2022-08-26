@@ -142,7 +142,7 @@ class RequestContainer(Container):
         return template.render(data=data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:  # type: ignore[override]
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
@@ -290,7 +290,7 @@ class RequestContainer(Container):
         return template.render(data=data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:  # type: ignore[override]
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
@@ -412,7 +412,7 @@ def create(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:  # type: ignore[override]
     from signals_notebook.item_mapper import ItemMapper
 
     metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))

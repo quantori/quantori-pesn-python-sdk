@@ -162,7 +162,7 @@ class Experiment(Container):
         return template.render(data=data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Load Experiment entity
 
         Args:
@@ -335,7 +335,7 @@ class Experiment(Container):
         return template.render(data=data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Load Experiment entity
 
         Args:
@@ -484,7 +484,7 @@ def create(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:  # type: ignore[override]
     &#34;&#34;&#34;Load Experiment entity
 
     Args:

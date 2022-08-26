@@ -440,7 +440,7 @@ class Table(Entity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Dump Table entity
 
         Args:
@@ -468,7 +468,7 @@ class Table(Entity):
         log.debug(&#39;Table: %s was dumped successfully&#39;, self.eid, self.name)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Load Table entity
 
         Args:
@@ -1154,7 +1154,7 @@ class TableResponse(Response[Table]):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Dump Table entity
 
         Args:
@@ -1182,7 +1182,7 @@ class TableResponse(Response[Table]):
         log.debug(&#39;Table: %s was dumped successfully&#39;, self.eid, self.name)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Load Table entity
 
         Args:
@@ -1447,7 +1447,7 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
     &#34;&#34;&#34;Load Table entity
 
     Args:
@@ -1680,7 +1680,7 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
     &#34;&#34;&#34;Dump Table entity
 
     Args:
