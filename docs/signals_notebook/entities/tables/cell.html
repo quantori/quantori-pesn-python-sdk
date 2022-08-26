@@ -26,8 +26,7 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from datetime import datetime
-from enum import Enum
+<pre><code class="python">from enum import Enum
 from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
@@ -262,7 +261,7 @@ class BooleanCell(Cell[bool]):
 class DateTimeCell(Cell[DateTime]):
     type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
 
-    def set_value(self, new_value: datetime, display: Optional[str] = None) -&gt; None:
+    def set_value(self, new_value: DateTime, display: Optional[str] = None) -&gt; None:
         &#34;&#34;&#34;Set new value to DateTimeCell
 
         Args:
@@ -1644,7 +1643,7 @@ dict(one=1, two=2)</p></div>
 <pre><code class="python">class DateTimeCell(Cell[DateTime]):
     type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
 
-    def set_value(self, new_value: datetime, display: Optional[str] = None) -&gt; None:
+    def set_value(self, new_value: DateTime, display: Optional[str] = None) -&gt; None:
         &#34;&#34;&#34;Set new value to DateTimeCell
 
         Args:
@@ -1675,7 +1674,7 @@ dict(one=1, two=2)</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.entities.tables.cell.DateTimeCell.set_value"><code class="name flex">
-<span>def <span class="ident">set_value</span></span>(<span>self, new_value: datetime.datetime, display: Optional[str] = None) ‑> None</span>
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: <a title="signals_notebook.common_types.DateTime" href="../../common_types.html#signals_notebook.common_types.DateTime">DateTime</a>, display: Optional[str] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Set new value to DateTimeCell</p>
@@ -1691,7 +1690,7 @@ dict(one=1, two=2)</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def set_value(self, new_value: datetime, display: Optional[str] = None) -&gt; None:
+<pre><code class="python">def set_value(self, new_value: DateTime, display: Optional[str] = None) -&gt; None:
     &#34;&#34;&#34;Set new value to DateTimeCell
 
     Args:
