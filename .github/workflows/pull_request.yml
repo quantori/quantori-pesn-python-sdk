@@ -1,9 +1,12 @@
 name: Pull request
 
 on:
-  pull_request:
-    types:
-      - opened
+  push:
+    branches:
+      - fixed_load_uploaded_resource_test
+#  pull_request:
+#    types:
+#      - opened
 
 jobs:
   build:
