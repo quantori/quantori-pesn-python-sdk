@@ -189,7 +189,7 @@ class Sample(Entity):
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
         """Dump Sample entity
 
         Args:

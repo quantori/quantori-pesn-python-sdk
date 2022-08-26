@@ -70,7 +70,7 @@ class Notebook(Container):
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps({k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}),
@@ -79,7 +79,7 @@ class Notebook(Container):
             child.dump(base_path + '/' + self.eid, fs_handler)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler) -> None:
+    def load(cls, path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))

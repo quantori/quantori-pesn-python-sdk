@@ -104,7 +104,7 @@ class ContentfulEntity(Entity, abc.ABC):
 
         return template.render(data=data)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Dump ContentfulEntity entity
 
         Args:
@@ -126,7 +126,7 @@ class ContentfulEntity(Entity, abc.ABC):
         fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Load ContentfulEntity entity
 
         Args:
@@ -229,7 +229,7 @@ class ContentfulEntity(Entity, abc.ABC):
 
         return template.render(data=data)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Dump ContentfulEntity entity
 
         Args:
@@ -251,7 +251,7 @@ class ContentfulEntity(Entity, abc.ABC):
         fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Load ContentfulEntity entity
 
         Args:
@@ -376,7 +376,7 @@ def create(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
     &#34;&#34;&#34;Load ContentfulEntity entity
 
     Args:
@@ -418,7 +418,7 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
     &#34;&#34;&#34;Dump ContentfulEntity entity
 
     Args:

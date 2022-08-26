@@ -144,7 +144,7 @@ class Task(Entity):
         self._reload_cells()
         log.debug(&#39;Task: %s was saved successfully&#39;, self.eid)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Dump Task entity
 
         Args:
@@ -354,7 +354,7 @@ class Task(Entity):
         self._reload_cells()
         log.debug(&#39;Task: %s was saved successfully&#39;, self.eid)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Dump Task entity
 
         Args:
@@ -501,7 +501,7 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
     &#34;&#34;&#34;Dump Task entity
 
     Args:
