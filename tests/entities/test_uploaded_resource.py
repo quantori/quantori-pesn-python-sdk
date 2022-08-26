@@ -172,7 +172,6 @@ def test_load(api_mock, experiment_factory, eid_factory, mocker):
             },
         },
     }
-
     fs_handler_mock = mocker.MagicMock()
     base_path = './'
     metadata = {
