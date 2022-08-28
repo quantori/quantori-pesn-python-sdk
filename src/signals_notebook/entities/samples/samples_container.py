@@ -1,13 +1,13 @@
 import csv
 import logging
 from io import StringIO
-from typing import cast, ClassVar, Dict, Generator, List, Literal, Union
+from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EID, EntityType, File, Response, ResponseData
+from signals_notebook.common_types import EID, EntityType, File, Response, ResponseData, SamplesContainerFormat
 from signals_notebook.entities import Sample
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
@@ -49,13 +49,13 @@ class SamplesContainer(ContentfulEntity):
     def _get_entity_type(cls) -> EntityType:
         return EntityType.SAMPLES_CONTAINER
 
-    def get_content(self) -> File:
+    def get_content(self, format: Optional[SamplesContainerFormat] = None) -> File:
         """Get SamplesContainer content
 
         Returns:
             File
         """
-        return super()._get_content()
+        return super()._get_content(format=format)
 
     def _reload_samples(self) -> None:
         log.debug('Reloading samples for Samples Container: %s...', self.eid)

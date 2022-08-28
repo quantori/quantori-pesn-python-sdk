@@ -133,6 +133,14 @@ class Experiment(Container):
 
         return template.render(data=data)
 
+    def get_children(self, order: Optional[str] = 'layout') -> Generator[Entity, None, None]:
+        """Get children of Experiment.
+
+        Returns:
+            list of Entities
+        """
+        return super().get_children(order=order)
+
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:  # type: ignore[override]
         """Load Experiment entity
@@ -158,5 +166,3 @@ class Experiment(Container):
                 fs_handler.join_path(path, child_entity), fs_handler, experiment
             )
 
-    def get_children(self, order: Optional[str] = 'layout') -> Generator[Entity, None, None]:
-        return super().get_children(order=order)
