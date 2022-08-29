@@ -1,4 +1,3 @@
-from datetime import datetime
 from enum import Enum
 from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
@@ -234,7 +233,7 @@ class BooleanCell(Cell[bool]):
 class DateTimeCell(Cell[DateTime]):
     type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
 
-    def set_value(self, new_value: datetime, display: Optional[str] = None) -> None:
+    def set_value(self, new_value: DateTime, display: Optional[str] = None) -> None:
         """Set new value to DateTimeCell
 
         Args:

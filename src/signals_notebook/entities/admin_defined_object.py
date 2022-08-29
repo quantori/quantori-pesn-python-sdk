@@ -135,7 +135,7 @@ class AdminDefinedObject(Container):
 
         return template.render(data=data)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
         """Dump AdminDefinedObject entity
 
         Args:
@@ -157,7 +157,7 @@ class AdminDefinedObject(Container):
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:  # type: ignore[override]
         """Load AdminDefinedObject entity
 
         Args:

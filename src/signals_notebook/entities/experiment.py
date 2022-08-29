@@ -142,7 +142,7 @@ class Experiment(Container):
         return super().get_children(order=order)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:  # type: ignore[override]
         """Load Experiment entity
 
         Args:
