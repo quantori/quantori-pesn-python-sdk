@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union
+from typing import cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union, Tuple
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -189,23 +189,39 @@ class Sample(Entity):
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:  # type: ignore[override]
         """Dump Sample entity
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
         """
 
         metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata),
+            alias
+            + (
+                self.name,
+                '__Metadata',
+            )
+            if alias
+            else None,
+        )
         data = [item.dict() for item in self]
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, f'{self.name}.json'),
             json.dumps({'data': data}, default=str).encode('utf-8'),
+            alias
+            + (
+                self.name,
+                f'{self.name}.json'
+            )
+            if alias
+            else None,
         )
 
     @classmethod
@@ -228,6 +244,11 @@ class Sample(Entity):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, 'templates', entity_type),
+                    fs_handler,
+                    ('Templates', entity_type.value),
+                )
+
         except TypeError:
             pass

@@ -809,8 +809,8 @@ def test_dump(table_factory, mocker, api_mock, reload_data_response, column_defi
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata, default=str)),
-            mocker.call(fs_handler_mock.join_path(), content),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata, default=str), None),
+            mocker.call(fs_handler_mock.join_path(), content, None),
         ],
         any_order=True,
     )
@@ -1030,7 +1030,10 @@ def test_dump_templates(
     fs_handler_mock.join_path.assert_called_once_with(
         base_path, 'templates', entity_type, f'metadata_{template_name}.json'
     )
-    fs_handler_mock.write.assert_called_once_with(fs_handler_mock.join_path(), json.dumps(metadata))
+    fs_handler_mock.write.assert_called_once_with(
+        fs_handler_mock.join_path(),
+        json.dumps(metadata),
+        ('Templates', 'grid', 'My Table Template 1 (SK)'),)
 
 
 def test_reload_datetime_data(api_mock, reload_data_response, table):

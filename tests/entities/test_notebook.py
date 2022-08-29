@@ -164,7 +164,7 @@ def test_dump_templates(api_mock, mocker, notebook_factory, templates, get_respo
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), ('Templates', 'journal', 'DEFAULT_NOTEBOOK', '__Metadata')),
         ],
         any_order=True,
     )

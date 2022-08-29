@@ -172,4 +172,7 @@ class EntityStore:
         """
 
         for item in Entity.get_subclasses():
-            item.dump_templates(base_path, fs_handler)
+            try:
+                item.dump_templates(base_path, fs_handler)
+            except Exception as e:
+                log.error('Failed to dump templates for %s with error %s' % (str(item), str(e)))

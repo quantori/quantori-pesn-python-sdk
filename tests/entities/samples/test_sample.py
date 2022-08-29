@@ -197,8 +197,8 @@ def test_dump(api_mock, mocker, sample_factory, sample_properties):
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
-            mocker.call(fs_handler_mock.join_path(), content),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), None),
+            mocker.call(fs_handler_mock.join_path(), content, None),
         ],
         any_order=True,
     )
@@ -240,8 +240,9 @@ def test_dump_templates(api_mock, mocker, sample_factory, sample_properties, get
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
-            mocker.call(fs_handler_mock.join_path(), content),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), ('Templates', 'sample', 'Sample', '__Metadata'),),
+            mocker.call(fs_handler_mock.join_path(), content, ('Templates', 'sample', 'Sample', 'Sample.json'), )
+
         ],
         any_order=True,
     )

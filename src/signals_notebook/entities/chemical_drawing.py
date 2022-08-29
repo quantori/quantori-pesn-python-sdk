@@ -126,6 +126,10 @@ class ChemicalDrawing(ContentfulEntity):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, 'templates', entity_type),
+                    fs_handler,
+                    ('Templates', entity_type.value),
+                )
         except TypeError:
             pass

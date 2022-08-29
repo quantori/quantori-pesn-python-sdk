@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Literal, Optional
+from typing import Literal, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -70,16 +70,17 @@ class Notebook(Container):
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]]) -> None:
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps({k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}),
+            alias + (self.name, '__Metadata') if alias else None,
         )
-        for child in self.get_children():
-            child.dump(base_path + '/' + self.eid, fs_handler)
+        for child in self.get_children(order=None):
+            child.dump(base_path + '/' + self.eid, fs_handler, alias + (self.name,) if alias else None)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler) -> None:
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))

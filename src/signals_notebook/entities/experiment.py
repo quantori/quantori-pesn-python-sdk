@@ -106,7 +106,7 @@ class Experiment(Container):
 
     @cached_property
     def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
-        """ Fetch stoichiometry data of experiment
+        """Fetch stoichiometry data of experiment
 
         Returns:
             Stoichiometry object or list of Stoichiometry objects
