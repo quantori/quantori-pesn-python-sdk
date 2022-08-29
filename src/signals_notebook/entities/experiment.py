@@ -133,7 +133,7 @@ class Experiment(Container):
 
         return template.render(data=data)
 
-    def get_children(self, order: str = 'layout') -> Generator[Entity, None, None]:
+    def get_children(self, order: Optional[str] = 'layout') -> Generator[Entity, None, None]:
         """Get children of Experiment.
 
         Returns:

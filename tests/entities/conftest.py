@@ -16,6 +16,7 @@ from tests.entities.factories import (
     PowerPointFactory,
     RequestContainerFactory,
     SpotfireFactory,
+    StructureFactory,
     TextFactory,
     UploadedResourceFactory,
     WordFactory,
@@ -71,6 +72,7 @@ register(AdminDefinedObjectFactory)
 register(AdoTypeFactory)
 register(RequestContainerFactory)
 register(TaskContainerFactory)
+register(StructureFactory)
 
 
 @pytest.fixture()

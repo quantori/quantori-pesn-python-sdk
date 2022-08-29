@@ -19,7 +19,7 @@ def test_get_content(sub_experiment_layout_factory, api_mock):
         method='GET',
         path=('entities', sub_experiment_layout.eid, 'export'),
         params={
-            'format': None,
+            'format': 'csv',
         },
     )
 
