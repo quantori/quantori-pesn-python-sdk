@@ -26,6 +26,12 @@ class ChemicalDrawing(ContentfulEntity):
         SW = 'chemical/x-swissprot'
         SVG = 'image/svg+xml'
         CSV = 'text/csv'
+        SMILES = 'chemical/x-daylight-smiles'
+
+    class CreateChemDrawContentType(str, Enum):
+        CDX = 'chemical/x-cdx'
+        CDXML = 'chemical/x-cdxml'
+        MOL = 'chemical/x-mdl-molfile'
 
     type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
     _template_name: ClassVar = 'chemical_drawing.html'
@@ -43,7 +49,7 @@ class ChemicalDrawing(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = ContentType.SVG,
+        content_type: str = ContentType.CDXML,
         content: bytes = b'',
         force: bool = True,
     ) -> Entity:
@@ -60,7 +66,7 @@ class ChemicalDrawing(ContentfulEntity):
             ChemicalDrawing
         """
         if content_type:
-            cls.ContentType(content_type)
+            cls.CreateChemDrawContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
