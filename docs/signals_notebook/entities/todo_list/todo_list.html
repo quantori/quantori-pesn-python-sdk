@@ -137,7 +137,7 @@ class TodoList(ContentfulEntity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Dump TodoList entity
 
         Args:
@@ -267,7 +267,7 @@ class TodoList(ContentfulEntity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
         &#34;&#34;&#34;Dump TodoList entity
 
         Args:
@@ -320,7 +320,7 @@ class TodoList(ContentfulEntity):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
     &#34;&#34;&#34;Dump TodoList entity
 
     Args:

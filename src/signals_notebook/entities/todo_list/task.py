@@ -116,7 +116,7 @@ class Task(Entity):
         self._reload_cells()
         log.debug('Task: %s was saved successfully', self.eid)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
         """Dump Task entity
 
         Args:

@@ -7,7 +7,7 @@ from signals_notebook.entities import TodoList
 
 
 class TaskContainer(TodoList):
-    type: Literal[EntityType.TASK_CONTAINER] = Field(allow_mutation=False)
+    type: Literal[EntityType.TASK_CONTAINER] = Field(allow_mutation=False)  # type: ignore
     _template_name: ClassVar = 'task_container.html'
 
     @classmethod

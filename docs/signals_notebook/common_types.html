@@ -31,10 +31,12 @@ import mimetypes
 import os
 import re
 from base64 import b64encode
+from datetime import datetime
 from enum import Enum
 from typing import Any, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
 
+from dateutil.parser import parse
 from pydantic import BaseModel, Field, HttpUrl, validator
 from pydantic.generics import GenericModel
 
@@ -428,7 +430,20 @@ class File(BaseModel):
             _path = os.path.join(path, self.name)
 
         with open(_path, &#39;wb&#39;) as f:
-            f.write(self.content)</code></pre>
+            f.write(self.content)
+
+
+class DateTime(datetime):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls._validate_date
+
+    @staticmethod
+    def _validate_date(value: Union[str, datetime]) -&gt; datetime:
+        if isinstance(value, datetime):
+            return value
+
+        return parse(value)</code></pre>
 </details>
 </section>
 <section>
@@ -816,6 +831,36 @@ def type(self) -&gt; ObjectType:
 <div class="desc"></div>
 </dd>
 </dl>
+</dd>
+<dt id="signals_notebook.common_types.DateTime"><code class="flex name class">
+<span>class <span class="ident">DateTime</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])</p>
+<p>The year, month and day arguments are required. tzinfo may be None, or an
+instance of a tzinfo subclass. The remaining arguments may be ints.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DateTime(datetime):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls._validate_date
+
+    @staticmethod
+    def _validate_date(value: Union[str, datetime]) -&gt; datetime:
+        if isinstance(value, datetime):
+            return value
+
+        return parse(value)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>datetime.datetime</li>
+<li>datetime.date</li>
+</ul>
 </dd>
 <dt id="signals_notebook.common_types.EID"><code class="flex name class">
 <span>class <span class="ident">EID</span></span>
@@ -2058,6 +2103,9 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.DataObject[EntityShortDescription].Config" href="#signals_notebook.common_types.DataObject[EntityShortDescription].Config">Config</a></code></li>
 <li><code><a title="signals_notebook.common_types.DataObject[EntityShortDescription].data" href="#signals_notebook.common_types.DataObject[EntityShortDescription].data">data</a></code></li>
 </ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.common_types.DateTime" href="#signals_notebook.common_types.DateTime">DateTime</a></code></h4>
 </li>
 <li>
 <h4><code><a title="signals_notebook.common_types.EID" href="#signals_notebook.common_types.EID">EID</a></code></h4>

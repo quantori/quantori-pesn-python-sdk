@@ -412,7 +412,7 @@ class Table(Entity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
         """Dump Table entity
 
         Args:
@@ -440,7 +440,7 @@ class Table(Entity):
         log.debug('Table: %s was dumped successfully', self.eid, self.name)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:  # type: ignore[override]
         """Load Table entity
 
         Args:

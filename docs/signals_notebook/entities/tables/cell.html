@@ -26,15 +26,14 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">from datetime import datetime
-from enum import Enum
+<pre><code class="python">from enum import Enum
 from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID, EntityType, MaterialType, MID, ObjectType
+from signals_notebook.common_types import DateTime, EID, EntityType, MaterialType, MID, ObjectType
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
 from signals_notebook.exceptions import EIDError
@@ -259,10 +258,10 @@ class BooleanCell(Cell[bool]):
         super()._set_value(new_value, display)
 
 
-class DateTimeCell(Cell[datetime]):
+class DateTimeCell(Cell[DateTime]):
     type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
 
-    def set_value(self, new_value: datetime, display: Optional[str] = None) -&gt; None:
+    def set_value(self, new_value: DateTime, display: Optional[str] = None) -&gt; None:
         &#34;&#34;&#34;Set new value to DateTimeCell
 
         Args:
@@ -875,9 +874,9 @@ GenericCell = Annotated[
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell[DateTime]" href="#signals_notebook.entities.tables.cell.Cell[DateTime]">Cell[DateTime]</a></li>
 <li><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]">Cell[Union[EID, MID]]</a></li>
 <li><a title="signals_notebook.entities.tables.cell.Cell[bool]" href="#signals_notebook.entities.tables.cell.Cell[bool]">Cell[bool]</a></li>
-<li><a title="signals_notebook.entities.tables.cell.Cell[datetime]" href="#signals_notebook.entities.tables.cell.Cell[datetime]">Cell[datetime]</a></li>
 <li><a title="signals_notebook.entities.tables.cell.Cell[float]" href="#signals_notebook.entities.tables.cell.Cell[float]">Cell[float]</a></li>
 <li><a title="signals_notebook.entities.tables.cell.Cell[int]" href="#signals_notebook.entities.tables.cell.Cell[int]">Cell[int]</a></li>
 <li><a title="signals_notebook.entities.tables.cell.Cell[str]" href="#signals_notebook.entities.tables.cell.Cell[str]">Cell[str]</a></li>
@@ -1017,9 +1016,9 @@ def value(self) -&gt; Union[CellContentType, List[CellContentType]]:
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li>pydantic.generics.CellContent[DateTime]</li>
 <li>pydantic.generics.CellContent[Union[EID, MID]]</li>
 <li>pydantic.generics.CellContent[bool]</li>
-<li>pydantic.generics.CellContent[datetime]</li>
 <li>pydantic.generics.CellContent[float]</li>
 <li>pydantic.generics.CellContent[int]</li>
 <li>pydantic.generics.CellContent[str]</li>
@@ -1102,6 +1101,60 @@ dict(one=1, two=2)</p></div>
 <div class="desc"><p>D.values() -&gt; an object providing a view on D's values</p></div>
 </dd>
 </dl>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[DateTime]"><code class="flex name class">
+<span>class <span class="ident">Cell[DateTime]</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.tables.cell.DateTimeCell" href="#signals_notebook.entities.tables.cell.DateTimeCell">DateTimeCell</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.tables.cell.Cell[DateTime].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[DateTime].content"><code class="name">var <span class="ident">content</span> : pydantic.generics.CellContent[DateTime]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[DateTime].id"><code class="name">var <span class="ident">id</span> : uuid.UUID</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[DateTime].name"><code class="name">var <span class="ident">name</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.tables.cell.Cell[DateTime].type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+<h3>Inherited members</h3>
+<ul class="hlist">
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></b></code>:
+<ul class="hlist">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell.value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+</ul>
+</li>
+</ul>
 </dd>
 <dt id="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]"><code class="flex name class">
 <span>class <span class="ident">Cell[Union[EID, MID]]</span></span>
@@ -1195,60 +1248,6 @@ dict(one=1, two=2)</p></div>
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.entities.tables.cell.Cell[bool].type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-<h3>Inherited members</h3>
-<ul class="hlist">
-<li><code><b><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></b></code>:
-<ul class="hlist">
-<li><code><a title="signals_notebook.entities.tables.cell.Cell.display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
-<li><code><a title="signals_notebook.entities.tables.cell.Cell.is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
-<li><code><a title="signals_notebook.entities.tables.cell.Cell.update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
-<li><code><a title="signals_notebook.entities.tables.cell.Cell.value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
-</ul>
-</li>
-</ul>
-</dd>
-<dt id="signals_notebook.entities.tables.cell.Cell[datetime]"><code class="flex name class">
-<span>class <span class="ident">Cell[datetime]</span></span>
-<span>(</span><span>**data: Any)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
-<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
-<li>pydantic.generics.GenericModel</li>
-<li>pydantic.main.BaseModel</li>
-<li>pydantic.utils.Representation</li>
-<li>typing.Generic</li>
-</ul>
-<h3>Subclasses</h3>
-<ul class="hlist">
-<li><a title="signals_notebook.entities.tables.cell.DateTimeCell" href="#signals_notebook.entities.tables.cell.DateTimeCell">DateTimeCell</a></li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.entities.tables.cell.Cell[datetime].Config"><code class="name">var <span class="ident">Config</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.tables.cell.Cell[datetime].content"><code class="name">var <span class="ident">content</span> : pydantic.generics.CellContent[datetime]</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.tables.cell.Cell[datetime].id"><code class="name">var <span class="ident">id</span> : uuid.UUID</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.tables.cell.Cell[datetime].name"><code class="name">var <span class="ident">name</span> : str</code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.entities.tables.cell.Cell[datetime].type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.tables.cell.ColumnDataType" href="#signals_notebook.entities.tables.cell.ColumnDataType">ColumnDataType</a></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1641,10 +1640,10 @@ dict(one=1, two=2)</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class DateTimeCell(Cell[datetime]):
+<pre><code class="python">class DateTimeCell(Cell[DateTime]):
     type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
 
-    def set_value(self, new_value: datetime, display: Optional[str] = None) -&gt; None:
+    def set_value(self, new_value: DateTime, display: Optional[str] = None) -&gt; None:
         &#34;&#34;&#34;Set new value to DateTimeCell
 
         Args:
@@ -1658,7 +1657,7 @@ dict(one=1, two=2)</p></div>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
-<li><a title="signals_notebook.entities.tables.cell.Cell[datetime]" href="#signals_notebook.entities.tables.cell.Cell[datetime]">Cell[datetime]</a></li>
+<li><a title="signals_notebook.entities.tables.cell.Cell[DateTime]" href="#signals_notebook.entities.tables.cell.Cell[DateTime]">Cell[DateTime]</a></li>
 <li><a title="signals_notebook.entities.tables.cell.Cell" href="#signals_notebook.entities.tables.cell.Cell">Cell</a></li>
 <li>pydantic.generics.GenericModel</li>
 <li>pydantic.main.BaseModel</li>
@@ -1675,7 +1674,7 @@ dict(one=1, two=2)</p></div>
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.entities.tables.cell.DateTimeCell.set_value"><code class="name flex">
-<span>def <span class="ident">set_value</span></span>(<span>self, new_value: datetime.datetime, display: Optional[str] = None) ‑> None</span>
+<span>def <span class="ident">set_value</span></span>(<span>self, new_value: <a title="signals_notebook.common_types.DateTime" href="../../common_types.html#signals_notebook.common_types.DateTime">DateTime</a>, display: Optional[str] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Set new value to DateTimeCell</p>
@@ -1691,7 +1690,7 @@ dict(one=1, two=2)</p></div>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def set_value(self, new_value: datetime, display: Optional[str] = None) -&gt; None:
+<pre><code class="python">def set_value(self, new_value: DateTime, display: Optional[str] = None) -&gt; None:
     &#34;&#34;&#34;Set new value to DateTimeCell
 
     Args:
@@ -1707,12 +1706,12 @@ dict(one=1, two=2)</p></div>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
-<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[datetime]" href="#signals_notebook.entities.tables.cell.Cell[datetime]">Cell[datetime]</a></b></code>:
+<li><code><b><a title="signals_notebook.entities.tables.cell.Cell[DateTime]" href="#signals_notebook.entities.tables.cell.Cell[DateTime]">Cell[DateTime]</a></b></code>:
 <ul class="hlist">
-<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
-<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
-<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
-<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[DateTime].display" href="#signals_notebook.entities.tables.cell.Cell.display">display</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[DateTime].is_changed" href="#signals_notebook.entities.tables.cell.Cell.is_changed">is_changed</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[DateTime].update_request" href="#signals_notebook.entities.tables.cell.Cell.update_request">update_request</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[DateTime].value" href="#signals_notebook.entities.tables.cell.Cell.value">value</a></code></li>
 </ul>
 </li>
 </ul>
@@ -2695,6 +2694,16 @@ def object(self) -&gt; Union[Entity, Material]:
 </ul>
 </li>
 <li>
+<h4><code><a title="signals_notebook.entities.tables.cell.Cell[DateTime]" href="#signals_notebook.entities.tables.cell.Cell[DateTime]">Cell[DateTime]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[DateTime].Config" href="#signals_notebook.entities.tables.cell.Cell[DateTime].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[DateTime].content" href="#signals_notebook.entities.tables.cell.Cell[DateTime].content">content</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[DateTime].id" href="#signals_notebook.entities.tables.cell.Cell[DateTime].id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[DateTime].name" href="#signals_notebook.entities.tables.cell.Cell[DateTime].name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.tables.cell.Cell[DateTime].type" href="#signals_notebook.entities.tables.cell.Cell[DateTime].type">type</a></code></li>
+</ul>
+</li>
+<li>
 <h4><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]]">Cell[Union[EID, MID]]</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].Config" href="#signals_notebook.entities.tables.cell.Cell[Union[EID, MID]].Config">Config</a></code></li>
@@ -2712,16 +2721,6 @@ def object(self) -&gt; Union[Entity, Material]:
 <li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].id" href="#signals_notebook.entities.tables.cell.Cell[bool].id">id</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].name" href="#signals_notebook.entities.tables.cell.Cell[bool].name">name</a></code></li>
 <li><code><a title="signals_notebook.entities.tables.cell.Cell[bool].type" href="#signals_notebook.entities.tables.cell.Cell[bool].type">type</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="signals_notebook.entities.tables.cell.Cell[datetime]" href="#signals_notebook.entities.tables.cell.Cell[datetime]">Cell[datetime]</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].Config" href="#signals_notebook.entities.tables.cell.Cell[datetime].Config">Config</a></code></li>
-<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].content" href="#signals_notebook.entities.tables.cell.Cell[datetime].content">content</a></code></li>
-<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].id" href="#signals_notebook.entities.tables.cell.Cell[datetime].id">id</a></code></li>
-<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].name" href="#signals_notebook.entities.tables.cell.Cell[datetime].name">name</a></code></li>
-<li><code><a title="signals_notebook.entities.tables.cell.Cell[datetime].type" href="#signals_notebook.entities.tables.cell.Cell[datetime].type">type</a></code></li>
 </ul>
 </li>
 <li>

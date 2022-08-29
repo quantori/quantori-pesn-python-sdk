@@ -1,4 +1,3 @@
-from datetime import datetime
 from enum import Enum
 from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
@@ -6,7 +5,7 @@ from uuid import UUID
 from pydantic import BaseModel, Field, PrivateAttr
 from pydantic.generics import GenericModel
 
-from signals_notebook.common_types import EID, EntityType, MaterialType, MID, ObjectType
+from signals_notebook.common_types import DateTime, EID, EntityType, MaterialType, MID, ObjectType
 from signals_notebook.entities import Entity
 from signals_notebook.entities.entity_store import EntityStore
 from signals_notebook.exceptions import EIDError
@@ -231,10 +230,10 @@ class BooleanCell(Cell[bool]):
         super()._set_value(new_value, display)
 
 
-class DateTimeCell(Cell[datetime]):
+class DateTimeCell(Cell[DateTime]):
     type: Literal[ColumnDataType.DATE_TIME] = Field(allow_mutation=False)
 
-    def set_value(self, new_value: datetime, display: Optional[str] = None) -> None:
+    def set_value(self, new_value: DateTime, display: Optional[str] = None) -> None:
         """Set new value to DateTimeCell
 
         Args:
