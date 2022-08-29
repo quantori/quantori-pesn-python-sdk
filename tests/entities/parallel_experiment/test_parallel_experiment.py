@@ -1,4 +1,5 @@
 import datetime
+import json
 
 import arrow
 import pytest
@@ -271,3 +272,85 @@ def test_get_html(api_mock, parallel_experiment_factory, snapshot):
     experiment_html = experiment.get_html()
 
     snapshot.assert_match(experiment_html)
+
+
+def test_load(api_mock, notebook_factory, eid_factory, mocker, get_response_experiment):
+    container = notebook_factory()
+    eid = eid_factory(type=EntityType.PARALLEL_EXPERIMENT)
+
+    fs_handler_mock = mocker.MagicMock()
+    base_path = './'
+    metadata = {
+        'base_type': 'experiment',
+        'eid': eid,
+        'name': 'Par_exp',
+        'description': '',
+    }
+    response = {
+        'links': {'self': f'https://example.com/{eid}'},
+        'data': {
+            'type': ObjectType.ENTITY,
+            'id': eid,
+            'links': {'self': f'https://example.com/{eid}'},
+            'attributes': {
+                'eid': eid,
+                'name': 'Par_exp',
+                'description': '',
+                'type': EntityType.PARALLEL_EXPERIMENT,
+                'createdAt': '2019-09-06T03:12:35.129Z',
+                'editedAt': '2019-09-06T15:22:47.309Z',
+                'digest': '123144',
+            },
+        },
+    }
+    children_response = {
+        'links': {'self': f'https://example.com/{eid}/children'},
+        'data': [],
+    }
+    api_mock.call.side_effect = [get_response_experiment(response), get_response_experiment(children_response)]
+    fs_handler_mock.read.side_effect = [json.dumps(metadata)]
+    fs_handler_mock.join_path.side_effect = [base_path + 'metadata.json']
+
+    ParallelExperiment.load(path=base_path, fs_handler=fs_handler_mock, notebook=container)
+
+    fs_handler_mock.join_path.assert_called_once_with(base_path, 'metadata.json')
+
+    fs_handler_mock.read.assert_called_once_with(base_path + 'metadata.json')
+
+    request_body = {
+        'data': {
+            'type': EntityType.PARALLEL_EXPERIMENT,
+            'attributes': {
+                'name': response['data']['attributes']['name'],
+                'description': response['data']['attributes']['description'],
+            },
+            'relationships': {
+                'ancestors': {
+                    'data': [
+                        {
+                            'type': EntityType.NOTEBOOK,
+                            'id': container.eid,
+                        }
+                    ]
+                }
+            },
+        }
+    }
+    api_mock.call.assert_has_calls(
+        [
+            mocker.call(
+                method='POST',
+                path=('entities',),
+                params={
+                    'digest': None,
+                    'force': 'true',
+                },
+                json=request_body,
+            ),
+            mocker.call(
+                method='GET',
+                path=('entities', eid, 'children'),
+                params={},
+            ),
+        ]
+    )
