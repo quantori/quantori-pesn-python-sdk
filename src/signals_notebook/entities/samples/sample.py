@@ -16,7 +16,7 @@ from signals_notebook.common_types import (
 )
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
-from signals_notebook.entities.samples.cell import SampleCell
+from signals_notebook.entities.samples.cell import SampleCell, SampleCellContent
 from signals_notebook.utils import FSHandler
 
 if TYPE_CHECKING:
@@ -25,8 +25,13 @@ if TYPE_CHECKING:
 log = logging.getLogger(__name__)
 
 
+class SampleCellBody(BaseModel):
+    id: Optional[str]
+    content: SampleCellContent = Field(default=SampleCellContent())
+
+
 class _SampleAttributes(BaseModel):
-    fields: Optional[List[SampleCell]] = []
+    fields: Optional[List[SampleCellBody]] = []
 
 
 class _SampleRelationships(BaseModel):
@@ -62,12 +67,9 @@ class Sample(Entity):
 
         if isinstance(index, str):
             try:
-                return self._cells_by_id[UUID(index)]
-            except ValueError:
                 return self._cells_by_id[index]
-
-        if isinstance(index, UUID):
-            return self._cells_by_id[index]
+            except KeyError as e:
+                raise e
 
         raise IndexError('Invalid index')
 
@@ -98,15 +100,21 @@ class Sample(Entity):
         )
 
         result = SampleCellsResponse(**response.json())
-        cells = [cast(ResponseData, item).body for item in result.data]
+        cells = [cast(ResponseData, item) for item in result.data]
 
         for item in cells:
-            sample_cell = cast(SampleCell, item)
+            sample_cell = cast(SampleCell, item.body)
+            sample_cell.read_only = item.meta.get('definition').get('readOnly', False)
             assert sample_cell.id
 
             self._cells.append(sample_cell)
             self._cells_by_id[sample_cell.id] = sample_cell
         log.debug('Cells for Sample: %s were reloaded', self.eid)
+
+    def get_column_definitions_list(self) -> List[str]:
+        if not self._cells:
+            self._reload_cells()
+        return [item.name for item in self]
 
     def save(self, force: bool = True) -> None:
         """Save Sample.
@@ -200,13 +208,65 @@ class Sample(Entity):
 
         """
 
-        metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
+        metadata = {
+            'filename': f'{self.name}.json',
+            'columns': self.get_column_definitions_list(),
+            **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
+        }
         fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
         data = [item.dict() for item in self]
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, f'{self.name}.json'),
             json.dumps({'data': data}, default=str).encode('utf-8'),
         )
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
+        """Load Sample entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            parent: Container where load Sample entity
+
+        Returns:
+
+        """
+        from signals_notebook.entities import EntityStore
+
+        log.debug('Loading sample from dump...')
+
+        entity_type = cls._get_entity_type()
+        metadata_path = fs_handler.join_path(path, 'metadata.json')
+        metadata = json.loads(fs_handler.read(metadata_path))
+
+        sample_filename = metadata['filename']
+        sample_data_path = fs_handler.join_path(path, sample_filename)
+        sample_content = json.loads(fs_handler.read(sample_data_path))['data']
+
+        cells = []
+        for item in sample_content:
+            if not item['read_only'] and item['name'] != 'Amount':
+                try:
+                    int(item['id'])
+                    cells.append(SampleCell(**item).dict(include={'id', 'name', 'content'}, exclude_none=True))
+                except ValueError:
+                    pass
+
+        column_definitions = metadata.get('columns')
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+        for item in templates:
+            template = cast('Sample', item)
+            template_column_definitions = template.get_column_definitions_list()
+            if set(template_column_definitions) == set(column_definitions):
+                cls.create(
+                    ancestors=[parent],
+                    template=template,
+                    cells=cells,
+                )
+                break
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:

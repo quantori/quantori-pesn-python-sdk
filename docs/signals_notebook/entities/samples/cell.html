@@ -103,7 +103,7 @@ class SampleCellBody(BaseModel):
 
 
 class SampleCell(BaseModel):
-    id: Optional[Union[UUID, str]]
+    id: Optional[str]
     name: Optional[str]
     content: SampleCellContent = Field(default=SampleCellContent())
 
@@ -234,7 +234,7 @@ class SampleCell(BaseModel):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class SampleCell(BaseModel):
-    id: Optional[Union[UUID, str]]
+    id: Optional[str]
     name: Optional[str]
     content: SampleCellContent = Field(default=SampleCellContent())
 
@@ -327,7 +327,7 @@ class SampleCell(BaseModel):
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.samples.cell.SampleCell.id"><code class="name">var <span class="ident">id</span> : Union[uuid.UUID, str, ForwardRef(None)]</code></dt>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.id"><code class="name">var <span class="ident">id</span> : Optional[str]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>

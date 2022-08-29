@@ -240,7 +240,6 @@ class Entity(BaseModel):
     def _create(cls, *, digest: str = None, force: bool = True, request: EntityCreationRequestPayload) -&gt; EntityClass:
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Create Entity: %s...&#39;, cls.__name__)
-
         response = api.call(
             method=&#39;POST&#39;,
             path=(cls._get_endpoint(),),
@@ -526,7 +525,6 @@ class Entity(BaseModel):
     def _create(cls, *, digest: str = None, force: bool = True, request: EntityCreationRequestPayload) -&gt; EntityClass:
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Create Entity: %s...&#39;, cls.__name__)
-
         response = api.call(
             method=&#39;POST&#39;,
             path=(cls._get_endpoint(),),
