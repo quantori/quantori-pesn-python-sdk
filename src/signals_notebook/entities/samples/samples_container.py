@@ -1,5 +1,6 @@
 import csv
 import logging
+from enum import Enum
 from io import StringIO
 from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
 from uuid import UUID
@@ -7,7 +8,7 @@ from uuid import UUID
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EID, EntityType, File, Response, ResponseData, SamplesContainerFormat
+from signals_notebook.common_types import EID, EntityType, File, Response, ResponseData
 from signals_notebook.entities import Sample
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
@@ -15,6 +16,11 @@ from signals_notebook.jinja_env import env
 from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
+
+
+class SamplesContainerFormat(str, Enum):
+    CSV = 'csv'
+    SDF = 'sdf'
 
 
 class SamplesContainerResponse(Response[Sample]):

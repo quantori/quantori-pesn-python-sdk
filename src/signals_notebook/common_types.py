@@ -28,11 +28,6 @@ class ChemicalDrawingFormat(str, Enum):
     SMILES = 'smiles'
 
 
-class SamplesContainerFormat(str, Enum):
-    CSV = 'csv'
-    SDF = 'sdf'
-
-
 class ObjectType(str, Enum):
     ENTITY = 'entity'
     ADT_ROW = 'adtRow'

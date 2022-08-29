@@ -3,8 +3,9 @@ import os
 
 import pytest
 
-from signals_notebook.common_types import EID, File, SamplesContainerFormat
+from signals_notebook.common_types import EID, File
 from signals_notebook.entities.samples.sample import Sample, SampleCell
+from signals_notebook.entities.samples.samples_container import SamplesContainerFormat
 
 
 @pytest.fixture()
