@@ -14,8 +14,7 @@ class Model(BaseModel):
     [
         'asset',
         'asset:',
-        'batch:8682fa324cd24z'
-        '',
+        'batch:8682fa324cd24z' '',
         'text:8682fa324cd24e',
         1,
     ],

@@ -106,7 +106,7 @@ class Container(Entity, abc.ABC):
             else None,
         )
         for child in self.get_children():
-            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + (self.name, ) if alias else None)
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + (self.name,) if alias else None)
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
@@ -131,7 +131,10 @@ class Container(Entity, abc.ABC):
                 template.dump(
                     fs_handler.join_path(base_path, 'templates', entity_type),
                     fs_handler,
-                    ('Templates', entity_type.value,),
+                    (
+                        'Templates',
+                        entity_type.value,
+                    ),
                 )
 
         except TypeError:

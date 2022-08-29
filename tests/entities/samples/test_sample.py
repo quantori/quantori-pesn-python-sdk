@@ -211,11 +211,7 @@ def test_dump_templates(api_mock, mocker, sample_factory, sample_properties, get
 
     fs_handler_mock = mocker.MagicMock()
     base_path = './'
-    metadata = {
-        'eid': template_eid,
-        'name': template_name,
-        'description': ''
-    }
+    metadata = {'eid': template_eid, 'name': template_name, 'description': ''}
 
     api_mock.call.side_effect = [
         get_response_object(templates),
@@ -240,9 +236,16 @@ def test_dump_templates(api_mock, mocker, sample_factory, sample_properties, get
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), ('Templates', 'sample', 'Sample', '__Metadata'),),
-            mocker.call(fs_handler_mock.join_path(), content, ('Templates', 'sample', 'Sample', 'Sample.json'), )
-
+            mocker.call(
+                fs_handler_mock.join_path(),
+                json.dumps(metadata),
+                ('Templates', 'sample', 'Sample', '__Metadata'),
+            ),
+            mocker.call(
+                fs_handler_mock.join_path(),
+                content,
+                ('Templates', 'sample', 'Sample', 'Sample.json'),
+            ),
         ],
         any_order=True,
     )

@@ -174,11 +174,7 @@ def test_load(api_mock, experiment_factory, eid_factory, mocker, content_type, f
     }
     fs_handler_mock = mocker.MagicMock()
     base_path = './'
-    metadata = {
-        'file_name': file_name,
-        'name': file_name,
-        'content_type': content_type
-    }
+    metadata = {'file_name': file_name, 'name': file_name, 'content_type': content_type}
     api_mock.call.return_value.json.return_value = response
     fs_handler_mock.read.side_effect = [json.dumps(metadata), content]
     fs_handler_mock.join_path.side_effect = [base_path + 'metadata.json', base_path + file_name]

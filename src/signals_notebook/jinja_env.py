@@ -9,9 +9,8 @@ log = logging.getLogger(__name__)
 
 
 class TemplateLocationWrapper:
-    """Wrapper to get template location
+    """Wrapper to get template location"""
 
-    """
     def get_template(self, template_name: str) -> Template:
         """Get template
 

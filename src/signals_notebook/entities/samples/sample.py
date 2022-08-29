@@ -202,7 +202,9 @@ class Sample(Entity):
         """
 
         metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata),
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps(metadata),
             alias
             + (
                 self.name,
@@ -215,13 +217,7 @@ class Sample(Entity):
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, f'{self.name}.json'),
             json.dumps({'data': data}, default=str).encode('utf-8'),
-            alias
-            + (
-                self.name,
-                f'{self.name}.json'
-            )
-            if alias
-            else None,
+            alias + (self.name, f'{self.name}.json') if alias else None,
         )
 
     @classmethod

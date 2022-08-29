@@ -302,8 +302,16 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates):
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), ('Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', '__Metadata')),
-            mocker.call(fs_handler_mock.join_path(), content, ('Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', 'chemDraw.cdxml')),
+            mocker.call(
+                fs_handler_mock.join_path(),
+                json.dumps(metadata),
+                ('Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', '__Metadata'),
+            ),
+            mocker.call(
+                fs_handler_mock.join_path(),
+                content,
+                ('Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', 'chemDraw.cdxml'),
+            ),
         ],
         any_order=True,
     )

@@ -489,7 +489,11 @@ def test_dump_templates(api_mock, mocker, request_container_factory, templates, 
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), ('Templates', 'request', 'DEFAULT_REQUEST', '__Metadata')),
+            mocker.call(
+                fs_handler_mock.join_path(),
+                json.dumps(metadata),
+                ('Templates', 'request', 'DEFAULT_REQUEST', '__Metadata'),
+            ),
         ],
         any_order=True,
     )

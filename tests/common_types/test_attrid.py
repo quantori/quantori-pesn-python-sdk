@@ -14,8 +14,7 @@ class Model(BaseModel):
     [
         'attribute',
         'attribute:',
-        'batch:8682fa324cd24z'
-        '',
+        'batch:8682fa324cd24z' '',
         1,
     ],
 )

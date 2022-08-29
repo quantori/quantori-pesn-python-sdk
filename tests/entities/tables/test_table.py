@@ -1033,7 +1033,8 @@ def test_dump_templates(
     fs_handler_mock.write.assert_called_once_with(
         fs_handler_mock.join_path(),
         json.dumps(metadata),
-        ('Templates', 'grid', 'My Table Template 1 (SK)'),)
+        ('Templates', 'grid', 'My Table Template 1 (SK)'),
+    )
 
 
 def test_reload_datetime_data(api_mock, reload_data_response, table):

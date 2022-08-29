@@ -6,9 +6,9 @@ def templates():
     return {
         'links': {
             'self': 'https://ex.com/api/rest/v1.0/entities?includeTypes='
-                    'grid&includeOptions=template&page[offset]=0&page[limit]=20',
+            'grid&includeOptions=template&page[offset]=0&page[limit]=20',
             'first': 'https://ex.com/api/rest/v1.0/entities?includeTypes='
-                     'grid&includeOptions=template&page[offset]=0&page[limit]=20',
+            'grid&includeOptions=template&page[offset]=0&page[limit]=20',
         },
         'data': [
             {
@@ -43,7 +43,7 @@ def templates():
                     'source': {
                         'links': {
                             'self': 'https://ex.com/api/rest/v1.0/entities/'
-                                    'grid:58726e57-a998-46f5-8b9e-b4760210ce74/export'
+                            'grid:58726e57-a998-46f5-8b9e-b4760210ce74/export'
                         }
                     },
                 },
@@ -80,7 +80,7 @@ def templates():
                     'source': {
                         'links': {
                             'self': 'https://ex.com/api/rest/v1.0/'
-                                    'entities/grid:288ccb92-cf46-4717-94f5-b36b136255fe/export'
+                            'entities/grid:288ccb92-cf46-4717-94f5-b36b136255fe/export'
                         }
                     },
                 },
@@ -117,7 +117,7 @@ def templates():
                     'source': {
                         'links': {
                             'self': 'https://ex.com/api/rest/'
-                                    'v1.0/entities/grid:6a596788-4752-4d3d-b6d4-06a4b07523af/export'
+                            'v1.0/entities/grid:6a596788-4752-4d3d-b6d4-06a4b07523af/export'
                         }
                     },
                 },
@@ -157,7 +157,7 @@ def templates():
                     'source': {
                         'links': {
                             'self': 'https://ex.com/api/rest/v1.0/'
-                                    'entities/grid:416811e8-516d-4dd2-81be-bd21fc4350df/export'
+                            'entities/grid:416811e8-516d-4dd2-81be-bd21fc4350df/export'
                         }
                     },
                 },
