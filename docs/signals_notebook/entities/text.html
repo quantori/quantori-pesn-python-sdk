@@ -44,6 +44,7 @@ log = logging.getLogger(__name__)
 class Text(ContentfulEntity):
     class ContentType(str, Enum):
         TXT = &#39;text/plain&#39;
+        TXT_HTML = &#39;text/html&#39;
 
     type: Literal[EntityType.TEXT] = Field(allow_mutation=False)
     _template_name: ClassVar = &#39;text.html&#39;
@@ -79,7 +80,7 @@ class Text(ContentfulEntity):
         return container.add_child(
             name=name,
             content=content,
-            content_type=content_type,
+            content_type=cls.ContentType.TXT.value,
             force=force,
         )
 
@@ -128,6 +129,7 @@ class Text(ContentfulEntity):
 <pre><code class="python">class Text(ContentfulEntity):
     class ContentType(str, Enum):
         TXT = &#39;text/plain&#39;
+        TXT_HTML = &#39;text/html&#39;
 
     type: Literal[EntityType.TEXT] = Field(allow_mutation=False)
     _template_name: ClassVar = &#39;text.html&#39;
@@ -163,7 +165,7 @@ class Text(ContentfulEntity):
         return container.add_child(
             name=name,
             content=content,
-            content_type=content_type,
+            content_type=cls.ContentType.TXT.value,
             force=force,
         )
 
@@ -256,7 +258,7 @@ def create(
     return container.add_child(
         name=name,
         content=content,
-        content_type=content_type,
+        content_type=cls.ContentType.TXT.value,
         force=force,
     )</code></pre>
 </details>

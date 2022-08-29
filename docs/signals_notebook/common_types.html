@@ -74,6 +74,9 @@ class ObjectType(str, Enum):
     CHOICE = &#39;choice&#39;
     SUB_EXPERIMENT = &#39;subexpSummaryRow&#39;
     CONTAINER = &#39;container&#39;
+    REACTION_PRODUCT = &#39;reactionProduct&#39;
+    REACTION_REACTANT = &#39;reactionReactant&#39;
+    REACTION_REAGENT = &#39;reactionReagent&#39;
 
 
 class EntityType(str, Enum):
@@ -1758,7 +1761,10 @@ def type(self) -&gt; MaterialType:
     ATTRIBUTE_OPTION = &#39;option&#39;
     CHOICE = &#39;choice&#39;
     SUB_EXPERIMENT = &#39;subexpSummaryRow&#39;
-    CONTAINER = &#39;container&#39;</code></pre>
+    CONTAINER = &#39;container&#39;
+    REACTION_PRODUCT = &#39;reactionProduct&#39;
+    REACTION_REACTANT = &#39;reactionReactant&#39;
+    REACTION_REAGENT = &#39;reactionReagent&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1819,6 +1825,18 @@ def type(self) -&gt; MaterialType:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.common_types.ObjectType.REACTION_PRODUCT"><code class="name">var <span class="ident">REACTION_PRODUCT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.REACTION_REACTANT"><code class="name">var <span class="ident">REACTION_REACTANT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.REACTION_REAGENT"><code class="name">var <span class="ident">REACTION_REAGENT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.ObjectType.ROLE"><code class="name">var <span class="ident">ROLE</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1874,6 +1892,7 @@ def type(self) -&gt; MaterialType:
 <ul class="hlist">
 <li><a title="signals_notebook.attributes.attribute.Response[Attribute]" href="attributes/attribute.html#signals_notebook.attributes.attribute.Response[Attribute]">Response[Attribute]</a></li>
 <li><a title="signals_notebook.attributes.attribute.Response[_AttributeOption]" href="attributes/attribute.html#signals_notebook.attributes.attribute.Response[_AttributeOption]">Response[_AttributeOption]</a></li>
+<li><a title="signals_notebook.entities.chemical_drawing.Response[Structure]" href="entities/chemical_drawing.html#signals_notebook.entities.chemical_drawing.Response[Structure]">Response[Structure]</a></li>
 <li><a title="signals_notebook.entities.entity.Response[Property]" href="entities/entity.html#signals_notebook.entities.entity.Response[Property]">Response[Property]</a></li>
 <li><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.Response[Row]" href="entities/parallel_experiment/sub_experiment_summary.html#signals_notebook.entities.parallel_experiment.sub_experiment_summary.Response[Row]">Response[Row]</a></li>
 <li><a title="signals_notebook.entities.plates.plate_container.Response[PlateRow]" href="entities/plates/plate_container.html#signals_notebook.entities.plates.plate_container.Response[PlateRow]">Response[PlateRow]</a></li>
@@ -1956,6 +1975,7 @@ def type(self) -&gt; MaterialType:
 <li>pydantic.generics.ResponseData[Row]</li>
 <li>pydantic.generics.ResponseData[SampleCell]</li>
 <li>pydantic.generics.ResponseData[Sample]</li>
+<li>pydantic.generics.ResponseData[Structure]</li>
 <li>pydantic.generics.ResponseData[Table]</li>
 <li>pydantic.generics.ResponseData[TaskCell]</li>
 <li>pydantic.generics.ResponseData[Union[Library, Asset, Batch]]</li>
@@ -2193,6 +2213,9 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.ObjectType.PLATE_ROW" href="#signals_notebook.common_types.ObjectType.PLATE_ROW">PLATE_ROW</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROFILE" href="#signals_notebook.common_types.ObjectType.PROFILE">PROFILE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROPERTY" href="#signals_notebook.common_types.ObjectType.PROPERTY">PROPERTY</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.REACTION_PRODUCT" href="#signals_notebook.common_types.ObjectType.REACTION_PRODUCT">REACTION_PRODUCT</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.REACTION_REACTANT" href="#signals_notebook.common_types.ObjectType.REACTION_REACTANT">REACTION_REACTANT</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.REACTION_REAGENT" href="#signals_notebook.common_types.ObjectType.REACTION_REAGENT">REACTION_REAGENT</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.ROLE" href="#signals_notebook.common_types.ObjectType.ROLE">ROLE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.STOICHIOMETRY" href="#signals_notebook.common_types.ObjectType.STOICHIOMETRY">STOICHIOMETRY</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.SUB_EXPERIMENT" href="#signals_notebook.common_types.ObjectType.SUB_EXPERIMENT">SUB_EXPERIMENT</a></code></li>

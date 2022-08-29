@@ -19,6 +19,7 @@ from signals_notebook.entities import (
     Word,
 )
 from signals_notebook.entities.admin_defined_object import AdoType, CUSTOM_SYSTEM_OBJECT
+from signals_notebook.entities.chemical_drawing import Structure
 
 
 class EIDFactory(factory.Factory):
@@ -154,3 +155,8 @@ class RequestContainerFactory(EntityFactory):
         model = RequestContainer
 
     type = EntityType.REQUEST
+
+
+class StructureFactory(EntityFactory):
+    class Meta:
+        model = Structure

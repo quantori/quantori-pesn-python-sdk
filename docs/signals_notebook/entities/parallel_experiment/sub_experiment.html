@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import logging
+<pre><code class="python">import json
+import logging
 from functools import cached_property
 from typing import Generator, Literal, Optional
 
@@ -39,9 +40,11 @@ from signals_notebook.common_types import (
     Template,
 )
 from signals_notebook.entities import Entity
+from signals_notebook.entities.chemical_drawing import ChemicalDrawingPosition, ChemicalStructure, Structure
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.parallel_experiment.parallel_experiment import ParallelExperiment
 from signals_notebook.jinja_env import env
+from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -132,7 +135,69 @@ class SubExperiment(Container):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(data=data)</code></pre>
+        return template.render(data=data)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parallel_experiment: ParallelExperiment) -&gt; None:
+        from signals_notebook.item_mapper import ItemMapper
+
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
+        sub_experiment = cls.create(
+            parallel_experiment=parallel_experiment, description=metadata[&#39;description&#39;], force=True
+        )
+        existing_chemical_drawing = [i for i in sub_experiment.get_children()
+                                     if i.type == EntityType.CHEMICAL_DRAWING][0]
+
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_path = fs_handler.join_path(path, child_entity)
+            metadata = json.loads(fs_handler.read(fs_handler.join_path(child_path, &#39;metadata.json&#39;)))
+            child_entity_type = child_entity.split(&#39;:&#39;)[0]
+            entity_type = ItemMapper.get_item_class(child_entity_type)
+
+            if child_entity_type == EntityType.CHEMICAL_DRAWING:
+
+                if not metadata.get(&#39;reactants&#39;) or not metadata.get(&#39;products&#39;):
+                    continue
+
+                reactants = [
+                    Structure(
+                        id=reactant[&#39;id&#39;],
+                        type=ChemicalStructure.REACTANT,
+                        inchi=reactant[&#39;inchi&#39;],
+                        cdxml=reactant[&#39;cdxml&#39;],
+                    )
+                    for reactant in metadata[&#39;reactants&#39;]
+                ]
+
+                products = [
+                    Structure(
+                        id=product[&#39;id&#39;], type=ChemicalStructure.PRODUCT, inchi=product[&#39;inchi&#39;], cdxml=product[&#39;cdxml&#39;]
+                    )
+                    for product in metadata[&#39;products&#39;]
+                ]
+                reagents = [
+                    Structure(
+                        id=reagent[&#39;id&#39;], type=ChemicalStructure.REAGENT, inchi=reagent[&#39;inchi&#39;], cdxml=reagent[&#39;cdxml&#39;]
+                    )
+                    for reagent in metadata[&#39;reagents&#39;]
+                ]
+
+                for reactant in reactants:
+                    existing_chemical_drawing.add_structures(
+                        structure=reactant, positions=ChemicalDrawingPosition.REACTANTS
+                    )
+                for product in products:
+                    existing_chemical_drawing.add_structures(
+                        structure=product, positions=ChemicalDrawingPosition.PRODUCTS
+                    )
+                for reagent in reagents:
+                    existing_chemical_drawing.add_structures(
+                        structure=reagent, positions=ChemicalDrawingPosition.REAGENTS
+                    )
+
+            else:
+                entity_type.load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)</code></pre>
 </details>
 </section>
 <section>
@@ -255,7 +320,69 @@ class SubExperiment(Container):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(data=data)</code></pre>
+        return template.render(data=data)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parallel_experiment: ParallelExperiment) -&gt; None:
+        from signals_notebook.item_mapper import ItemMapper
+
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
+        sub_experiment = cls.create(
+            parallel_experiment=parallel_experiment, description=metadata[&#39;description&#39;], force=True
+        )
+        existing_chemical_drawing = [i for i in sub_experiment.get_children()
+                                     if i.type == EntityType.CHEMICAL_DRAWING][0]
+
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_path = fs_handler.join_path(path, child_entity)
+            metadata = json.loads(fs_handler.read(fs_handler.join_path(child_path, &#39;metadata.json&#39;)))
+            child_entity_type = child_entity.split(&#39;:&#39;)[0]
+            entity_type = ItemMapper.get_item_class(child_entity_type)
+
+            if child_entity_type == EntityType.CHEMICAL_DRAWING:
+
+                if not metadata.get(&#39;reactants&#39;) or not metadata.get(&#39;products&#39;):
+                    continue
+
+                reactants = [
+                    Structure(
+                        id=reactant[&#39;id&#39;],
+                        type=ChemicalStructure.REACTANT,
+                        inchi=reactant[&#39;inchi&#39;],
+                        cdxml=reactant[&#39;cdxml&#39;],
+                    )
+                    for reactant in metadata[&#39;reactants&#39;]
+                ]
+
+                products = [
+                    Structure(
+                        id=product[&#39;id&#39;], type=ChemicalStructure.PRODUCT, inchi=product[&#39;inchi&#39;], cdxml=product[&#39;cdxml&#39;]
+                    )
+                    for product in metadata[&#39;products&#39;]
+                ]
+                reagents = [
+                    Structure(
+                        id=reagent[&#39;id&#39;], type=ChemicalStructure.REAGENT, inchi=reagent[&#39;inchi&#39;], cdxml=reagent[&#39;cdxml&#39;]
+                    )
+                    for reagent in metadata[&#39;reagents&#39;]
+                ]
+
+                for reactant in reactants:
+                    existing_chemical_drawing.add_structures(
+                        structure=reactant, positions=ChemicalDrawingPosition.REACTANTS
+                    )
+                for product in products:
+                    existing_chemical_drawing.add_structures(
+                        structure=product, positions=ChemicalDrawingPosition.PRODUCTS
+                    )
+                for reagent in reagents:
+                    existing_chemical_drawing.add_structures(
+                        structure=reagent, positions=ChemicalDrawingPosition.REAGENTS
+                    )
+
+            else:
+                entity_type.load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -318,6 +445,78 @@ def create(
         force=force,
         request=request,
     )</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, parallel_experiment: <a title="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment" href="parallel_experiment.html#signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment">ParallelExperiment</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def load(cls, path: str, fs_handler: FSHandler, parallel_experiment: ParallelExperiment) -&gt; None:
+    from signals_notebook.item_mapper import ItemMapper
+
+    metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
+    sub_experiment = cls.create(
+        parallel_experiment=parallel_experiment, description=metadata[&#39;description&#39;], force=True
+    )
+    existing_chemical_drawing = [i for i in sub_experiment.get_children()
+                                 if i.type == EntityType.CHEMICAL_DRAWING][0]
+
+    child_entities_folders = fs_handler.list_subfolders(path)
+    for child_entity in child_entities_folders:
+        child_path = fs_handler.join_path(path, child_entity)
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(child_path, &#39;metadata.json&#39;)))
+        child_entity_type = child_entity.split(&#39;:&#39;)[0]
+        entity_type = ItemMapper.get_item_class(child_entity_type)
+
+        if child_entity_type == EntityType.CHEMICAL_DRAWING:
+
+            if not metadata.get(&#39;reactants&#39;) or not metadata.get(&#39;products&#39;):
+                continue
+
+            reactants = [
+                Structure(
+                    id=reactant[&#39;id&#39;],
+                    type=ChemicalStructure.REACTANT,
+                    inchi=reactant[&#39;inchi&#39;],
+                    cdxml=reactant[&#39;cdxml&#39;],
+                )
+                for reactant in metadata[&#39;reactants&#39;]
+            ]
+
+            products = [
+                Structure(
+                    id=product[&#39;id&#39;], type=ChemicalStructure.PRODUCT, inchi=product[&#39;inchi&#39;], cdxml=product[&#39;cdxml&#39;]
+                )
+                for product in metadata[&#39;products&#39;]
+            ]
+            reagents = [
+                Structure(
+                    id=reagent[&#39;id&#39;], type=ChemicalStructure.REAGENT, inchi=reagent[&#39;inchi&#39;], cdxml=reagent[&#39;cdxml&#39;]
+                )
+                for reagent in metadata[&#39;reagents&#39;]
+            ]
+
+            for reactant in reactants:
+                existing_chemical_drawing.add_structures(
+                    structure=reactant, positions=ChemicalDrawingPosition.REACTANTS
+                )
+            for product in products:
+                existing_chemical_drawing.add_structures(
+                    structure=product, positions=ChemicalDrawingPosition.PRODUCTS
+                )
+            for reagent in reagents:
+                existing_chemical_drawing.add_structures(
+                    structure=reagent, positions=ChemicalDrawingPosition.REAGENTS
+                )
+
+        else:
+            entity_type.load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)</code></pre>
 </details>
 </dd>
 </dl>
@@ -417,11 +616,12 @@ def create(
 </li>
 <li>
 <h4><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment">SubExperiment</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.Config" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.Config">Config</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.create" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.create">create</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_children" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_children">get_children</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_html" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.get_html">get_html</a></code></li>
+<li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.load" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.type" href="#signals_notebook.entities.parallel_experiment.sub_experiment.SubExperiment.type">type</a></code></li>
 </ul>
 </li>
