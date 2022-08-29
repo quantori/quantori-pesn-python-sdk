@@ -97,6 +97,11 @@ class ChemicalDrawing(ContentfulEntity):
         CSV = &#39;text/csv&#39;
         SMILES = &#39;chemical/x-daylight-smiles&#39;
 
+    class CreateChemDrawContentType(str, Enum):
+        CDX = &#39;chemical/x-cdx&#39;
+        CDXML = &#39;chemical/x-cdxml&#39;
+        MOL = &#39;chemical/x-mdl-molfile&#39;
+
     type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
     _template_name: ClassVar = &#39;chemical_drawing.html&#39;
 
@@ -182,7 +187,7 @@ class ChemicalDrawing(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = ContentType.SVG,
+        content_type: str = ContentType.CDXML,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -199,7 +204,7 @@ class ChemicalDrawing(ContentfulEntity):
             ChemicalDrawing
         &#34;&#34;&#34;
         if content_type:
-            cls.ContentType(content_type)
+            cls.CreateChemDrawContentType(content_type)
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -338,6 +343,11 @@ class ChemicalDrawing(ContentfulEntity):
         CSV = &#39;text/csv&#39;
         SMILES = &#39;chemical/x-daylight-smiles&#39;
 
+    class CreateChemDrawContentType(str, Enum):
+        CDX = &#39;chemical/x-cdx&#39;
+        CDXML = &#39;chemical/x-cdxml&#39;
+        MOL = &#39;chemical/x-mdl-molfile&#39;
+
     type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
     _template_name: ClassVar = &#39;chemical_drawing.html&#39;
 
@@ -423,7 +433,7 @@ class ChemicalDrawing(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = ContentType.SVG,
+        content_type: str = ContentType.CDXML,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -440,7 +450,7 @@ class ChemicalDrawing(ContentfulEntity):
             ChemicalDrawing
         &#34;&#34;&#34;
         if content_type:
-            cls.ContentType(content_type)
+            cls.CreateChemDrawContentType(content_type)
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -560,6 +570,10 @@ class ChemicalDrawing(ContentfulEntity):
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.CreateChemDrawContentType"><code class="name">var <span class="ident">CreateChemDrawContentType</span></code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+</dd>
 <dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.type"><code class="name">var <span class="ident">type</span> : Literal[<EntityType.CHEMICAL_DRAWING: 'chemicalDrawing'>]</code></dt>
 <dd>
 <div class="desc"></div>
@@ -568,7 +582,7 @@ class ChemicalDrawing(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = ContentType.SVG, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = ContentType.CDXML, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create ChemicalDrawing Entity</p>
@@ -597,7 +611,7 @@ def create(
     *,
     container: Container,
     name: str,
-    content_type: str = ContentType.SVG,
+    content_type: str = ContentType.CDXML,
     content: bytes = b&#39;&#39;,
     force: bool = True,
 ) -&gt; Entity:
@@ -614,7 +628,7 @@ def create(
         ChemicalDrawing
     &#34;&#34;&#34;
     if content_type:
-        cls.ContentType(content_type)
+        cls.CreateChemDrawContentType(content_type)
     log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
     return container.add_child(
         name=name,
@@ -1220,7 +1234,7 @@ If the parameter 'force' is false, this parameter is required.</dd>
 <ul>
 <li>
 <h4><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing">ChemicalDrawing</a></code></h4>
-<ul class="two-column">
+<ul class="">
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.Config" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.Config">Config</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.add_structures" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.add_structures">add_structures</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.create" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.create">create</a></code></li>
