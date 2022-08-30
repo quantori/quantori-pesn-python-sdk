@@ -33,6 +33,7 @@ from functools import cached_property
 from typing import cast, ClassVar, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
+
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File, Response, ResponseData
 from signals_notebook.entities import Entity
@@ -43,6 +44,8 @@ from signals_notebook.jinja_env import env
 from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
+
+EMPTY_CDXML_FILE_CONTENT = b&#39;&lt;CDXML /&gt;&#39;
 
 
 class ChemicalDrawingPosition(str, Enum):
@@ -77,7 +80,7 @@ class ChemicalDrawingResponse(Response[Structure]):
 
 
 class StructureAttribute(BaseModel):
-    dataType: ChemicalStructureFormat
+    dataType: ChemicalStructureFormat  # noqa
     data: str
 
 
@@ -97,7 +100,7 @@ class ChemicalDrawing(ContentfulEntity):
         CSV = &#39;text/csv&#39;
         SMILES = &#39;chemical/x-daylight-smiles&#39;
 
-    class CreateChemDrawContentType(str, Enum):
+    class CreationContentType(str, Enum):
         CDX = &#39;chemical/x-cdx&#39;
         CDXML = &#39;chemical/x-cdxml&#39;
         MOL = &#39;chemical/x-mdl-molfile&#39;
@@ -133,7 +136,7 @@ class ChemicalDrawing(ContentfulEntity):
             path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
         )
 
-        result = ChemicalDrawingResponse(**response.json())  # type: ignore
+        result = ChemicalDrawingResponse(**response.json())
 
         return [cast(ResponseData, item).body for item in result.data]
 
@@ -169,6 +172,7 @@ class ChemicalDrawing(ContentfulEntity):
             raise ValueError(&#39;Structure doesn&#34;t contain inchi and cdxml data&#39;)
 
         request_data = StructureRequestData(attributes=StructureAttribute(dataType=data_type, data=data))
+
         response = api.call(
             method=&#39;POST&#39;,
             path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
@@ -178,7 +182,7 @@ class ChemicalDrawing(ContentfulEntity):
             },
             json={&#39;data&#39;: request_data.dict()},
         )
-        result = ChemicalDrawingResponse(**response.json())  # type: ignore
+        result = ChemicalDrawingResponse(**response.json())
         return cast(ResponseData, result.data).body
 
     @classmethod
@@ -187,7 +191,7 @@ class ChemicalDrawing(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = ContentType.CDXML,
+        content_type: str = CreationContentType.CDXML,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -204,7 +208,7 @@ class ChemicalDrawing(ContentfulEntity):
             ChemicalDrawing
         &#34;&#34;&#34;
         if content_type:
-            cls.CreateChemDrawContentType(content_type)
+            cls.CreationContentType(content_type)
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -286,13 +290,13 @@ class ChemicalDrawing(ContentfulEntity):
         &#34;&#34;&#34;
         content = self.get_content()
 
-        if content.content != b&#39;&lt;CDXML /&gt;&#39;:
+        if content.content != EMPTY_CDXML_FILE_CONTENT:
             metadata = {
                 &#39;file_name&#39;: content.name,
                 &#39;content_type&#39;: content.content_type,
                 **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
             }
-            if content.content_type == self.ContentType.CDXML.value:
+            if content.content_type == self.ContentType.CDXML:
                 reactants = self.get_structures(positions=ChemicalDrawingPosition.REACTANTS)
                 products = self.get_structures(positions=ChemicalDrawingPosition.PRODUCTS)
                 reagents = self.get_structures(positions=ChemicalDrawingPosition.REAGENTS)
@@ -343,7 +347,7 @@ class ChemicalDrawing(ContentfulEntity):
         CSV = &#39;text/csv&#39;
         SMILES = &#39;chemical/x-daylight-smiles&#39;
 
-    class CreateChemDrawContentType(str, Enum):
+    class CreationContentType(str, Enum):
         CDX = &#39;chemical/x-cdx&#39;
         CDXML = &#39;chemical/x-cdxml&#39;
         MOL = &#39;chemical/x-mdl-molfile&#39;
@@ -379,7 +383,7 @@ class ChemicalDrawing(ContentfulEntity):
             path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
         )
 
-        result = ChemicalDrawingResponse(**response.json())  # type: ignore
+        result = ChemicalDrawingResponse(**response.json())
 
         return [cast(ResponseData, item).body for item in result.data]
 
@@ -415,6 +419,7 @@ class ChemicalDrawing(ContentfulEntity):
             raise ValueError(&#39;Structure doesn&#34;t contain inchi and cdxml data&#39;)
 
         request_data = StructureRequestData(attributes=StructureAttribute(dataType=data_type, data=data))
+
         response = api.call(
             method=&#39;POST&#39;,
             path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
@@ -424,7 +429,7 @@ class ChemicalDrawing(ContentfulEntity):
             },
             json={&#39;data&#39;: request_data.dict()},
         )
-        result = ChemicalDrawingResponse(**response.json())  # type: ignore
+        result = ChemicalDrawingResponse(**response.json())
         return cast(ResponseData, result.data).body
 
     @classmethod
@@ -433,7 +438,7 @@ class ChemicalDrawing(ContentfulEntity):
         *,
         container: Container,
         name: str,
-        content_type: str = ContentType.CDXML,
+        content_type: str = CreationContentType.CDXML,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -450,7 +455,7 @@ class ChemicalDrawing(ContentfulEntity):
             ChemicalDrawing
         &#34;&#34;&#34;
         if content_type:
-            cls.CreateChemDrawContentType(content_type)
+            cls.CreationContentType(content_type)
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -532,13 +537,13 @@ class ChemicalDrawing(ContentfulEntity):
         &#34;&#34;&#34;
         content = self.get_content()
 
-        if content.content != b&#39;&lt;CDXML /&gt;&#39;:
+        if content.content != EMPTY_CDXML_FILE_CONTENT:
             metadata = {
                 &#39;file_name&#39;: content.name,
                 &#39;content_type&#39;: content.content_type,
                 **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
             }
-            if content.content_type == self.ContentType.CDXML.value:
+            if content.content_type == self.ContentType.CDXML:
                 reactants = self.get_structures(positions=ChemicalDrawingPosition.REACTANTS)
                 products = self.get_structures(positions=ChemicalDrawingPosition.PRODUCTS)
                 reagents = self.get_structures(positions=ChemicalDrawingPosition.REAGENTS)
@@ -570,7 +575,7 @@ class ChemicalDrawing(ContentfulEntity):
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.CreateChemDrawContentType"><code class="name">var <span class="ident">CreateChemDrawContentType</span></code></dt>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.CreationContentType"><code class="name">var <span class="ident">CreationContentType</span></code></dt>
 <dd>
 <div class="desc"><p>An enumeration.</p></div>
 </dd>
@@ -582,7 +587,7 @@ class ChemicalDrawing(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = ContentType.CDXML, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = CreationContentType.CDXML, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create ChemicalDrawing Entity</p>
@@ -611,7 +616,7 @@ def create(
     *,
     container: Container,
     name: str,
-    content_type: str = ContentType.CDXML,
+    content_type: str = CreationContentType.CDXML,
     content: bytes = b&#39;&#39;,
     force: bool = True,
 ) -&gt; Entity:
@@ -628,7 +633,7 @@ def create(
         ChemicalDrawing
     &#34;&#34;&#34;
     if content_type:
-        cls.CreateChemDrawContentType(content_type)
+        cls.CreationContentType(content_type)
     log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
     return container.add_child(
         name=name,
@@ -783,6 +788,7 @@ If the parameter 'force' is false, this parameter is required.</dd>
         raise ValueError(&#39;Structure doesn&#34;t contain inchi and cdxml data&#39;)
 
     request_data = StructureRequestData(attributes=StructureAttribute(dataType=data_type, data=data))
+
     response = api.call(
         method=&#39;POST&#39;,
         path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
@@ -792,7 +798,7 @@ If the parameter 'force' is false, this parameter is required.</dd>
         },
         json={&#39;data&#39;: request_data.dict()},
     )
-    result = ChemicalDrawingResponse(**response.json())  # type: ignore
+    result = ChemicalDrawingResponse(**response.json())
     return cast(ResponseData, result.data).body</code></pre>
 </details>
 </dd>
@@ -825,13 +831,13 @@ If the parameter 'force' is false, this parameter is required.</dd>
     &#34;&#34;&#34;
     content = self.get_content()
 
-    if content.content != b&#39;&lt;CDXML /&gt;&#39;:
+    if content.content != EMPTY_CDXML_FILE_CONTENT:
         metadata = {
             &#39;file_name&#39;: content.name,
             &#39;content_type&#39;: content.content_type,
             **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
         }
-        if content.content_type == self.ContentType.CDXML.value:
+        if content.content_type == self.ContentType.CDXML:
             reactants = self.get_structures(positions=ChemicalDrawingPosition.REACTANTS)
             products = self.get_structures(positions=ChemicalDrawingPosition.PRODUCTS)
             reagents = self.get_structures(positions=ChemicalDrawingPosition.REAGENTS)
@@ -910,7 +916,7 @@ If the parameter 'force' is false, this parameter is required.</dd>
         path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
     )
 
-    result = ChemicalDrawingResponse(**response.json())  # type: ignore
+    result = ChemicalDrawingResponse(**response.json())
 
     return [cast(ResponseData, item).body for item in result.data]</code></pre>
 </details>
@@ -1169,7 +1175,7 @@ If the parameter 'force' is false, this parameter is required.</dd>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class StructureAttribute(BaseModel):
-    dataType: ChemicalStructureFormat
+    dataType: ChemicalStructureFormat  # noqa
     data: str</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -1234,8 +1240,9 @@ If the parameter 'force' is false, this parameter is required.</dd>
 <ul>
 <li>
 <h4><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing">ChemicalDrawing</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.Config" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.CreationContentType" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.CreationContentType">CreationContentType</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.add_structures" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.add_structures">add_structures</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.create" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.create">create</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump">dump</a></code></li>

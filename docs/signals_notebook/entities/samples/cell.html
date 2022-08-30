@@ -46,7 +46,7 @@ class SampleCellContent(GenericModel, Generic[CellValueType]):
     units: Optional[str]
     _changed: bool = PrivateAttr(default=False)
 
-    def set_value(self, new_value: CellValueType) -&gt; None:
+    def _set_value(self, new_value: CellValueType) -&gt; None:
         &#34;&#34;&#34;Set new value
 
         Args:
@@ -58,7 +58,7 @@ class SampleCellContent(GenericModel, Generic[CellValueType]):
         self.value = new_value
         self._changed = True
 
-    def set_values(self, new_values: List[CellValueType]) -&gt; None:
+    def _set_values(self, new_values: List[CellValueType]) -&gt; None:
         &#34;&#34;&#34;Set new values
 
         Args:
@@ -70,7 +70,7 @@ class SampleCellContent(GenericModel, Generic[CellValueType]):
         self.values = new_values
         self._changed = True
 
-    def set_name(self, new_name: str) -&gt; None:
+    def _set_name(self, new_name: str) -&gt; None:
         &#34;&#34;&#34;Set new name
 
         Args:
@@ -106,6 +106,13 @@ class SampleCell(BaseModel):
     id: Optional[str]
     name: Optional[str]
     content: SampleCellContent = Field(default=SampleCellContent())
+    read_only: Optional[bool] = False
+
+    def _is_cell_mutable(self):
+        if self.name == &#39;Amount&#39;:
+            raise TypeError(&#39;Property is immutable&#39;)
+        if self.read_only:
+            raise TypeError(&#39;Cell is read only&#39;)
 
     def set_content_value(self, new_value: CellValueType) -&gt; None:
         &#34;&#34;&#34;Set new content value
@@ -116,7 +123,8 @@ class SampleCell(BaseModel):
         Returns:
 
         &#34;&#34;&#34;
-        self.content.set_value(new_value)
+        self._is_cell_mutable()
+        self.content._set_value(new_value)
 
     def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
         &#34;&#34;&#34;Set new content values
@@ -127,7 +135,8 @@ class SampleCell(BaseModel):
         Returns:
 
         &#34;&#34;&#34;
-        self.content.set_values(new_values)
+        self._is_cell_mutable()
+        self.content._set_values(new_values)
 
     def set_content_name(self, new_name: str) -&gt; None:
         &#34;&#34;&#34;Set new content name
@@ -138,7 +147,8 @@ class SampleCell(BaseModel):
         Returns:
 
         &#34;&#34;&#34;
-        self.content.set_name(new_name)
+        self._is_cell_mutable()
+        self.content._set_name(new_name)
 
     @property
     def content_value(self) -&gt; Optional[CellValueType]:
@@ -183,7 +193,9 @@ class SampleCell(BaseModel):
         Returns:
             SampleCellBody
         &#34;&#34;&#34;
-        return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
+        return SampleCellBody(
+            id=str(self.id), attributes=Content(content=self.content.dict(include={&#39;value&#39;, &#39;values&#39;, &#39;name&#39;}))
+        )</code></pre>
 </details>
 </section>
 <section>
@@ -237,6 +249,13 @@ class SampleCell(BaseModel):
     id: Optional[str]
     name: Optional[str]
     content: SampleCellContent = Field(default=SampleCellContent())
+    read_only: Optional[bool] = False
+
+    def _is_cell_mutable(self):
+        if self.name == &#39;Amount&#39;:
+            raise TypeError(&#39;Property is immutable&#39;)
+        if self.read_only:
+            raise TypeError(&#39;Cell is read only&#39;)
 
     def set_content_value(self, new_value: CellValueType) -&gt; None:
         &#34;&#34;&#34;Set new content value
@@ -247,7 +266,8 @@ class SampleCell(BaseModel):
         Returns:
 
         &#34;&#34;&#34;
-        self.content.set_value(new_value)
+        self._is_cell_mutable()
+        self.content._set_value(new_value)
 
     def set_content_values(self, new_values: List[CellValueType]) -&gt; None:
         &#34;&#34;&#34;Set new content values
@@ -258,7 +278,8 @@ class SampleCell(BaseModel):
         Returns:
 
         &#34;&#34;&#34;
-        self.content.set_values(new_values)
+        self._is_cell_mutable()
+        self.content._set_values(new_values)
 
     def set_content_name(self, new_name: str) -&gt; None:
         &#34;&#34;&#34;Set new content name
@@ -269,7 +290,8 @@ class SampleCell(BaseModel):
         Returns:
 
         &#34;&#34;&#34;
-        self.content.set_name(new_name)
+        self._is_cell_mutable()
+        self.content._set_name(new_name)
 
     @property
     def content_value(self) -&gt; Optional[CellValueType]:
@@ -314,7 +336,9 @@ class SampleCell(BaseModel):
         Returns:
             SampleCellBody
         &#34;&#34;&#34;
-        return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
+        return SampleCellBody(
+            id=str(self.id), attributes=Content(content=self.content.dict(include={&#39;value&#39;, &#39;values&#39;, &#39;name&#39;}))
+        )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -332,6 +356,10 @@ class SampleCell(BaseModel):
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.entities.samples.cell.SampleCell.name"><code class="name">var <span class="ident">name</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.samples.cell.SampleCell.read_only"><code class="name">var <span class="ident">read_only</span> : Optional[bool]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -430,7 +458,9 @@ def representation_for_update(self) -&gt; SampleCellBody:
     Returns:
         SampleCellBody
     &#34;&#34;&#34;
-    return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))</code></pre>
+    return SampleCellBody(
+        id=str(self.id), attributes=Content(content=self.content.dict(include={&#39;value&#39;, &#39;values&#39;, &#39;name&#39;}))
+    )</code></pre>
 </details>
 </dd>
 </dl>
@@ -460,7 +490,8 @@ def representation_for_update(self) -&gt; SampleCellBody:
     Returns:
 
     &#34;&#34;&#34;
-    self.content.set_name(new_name)</code></pre>
+    self._is_cell_mutable()
+    self.content._set_name(new_name)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.samples.cell.SampleCell.set_content_value"><code class="name flex">
@@ -487,7 +518,8 @@ def representation_for_update(self) -&gt; SampleCellBody:
     Returns:
 
     &#34;&#34;&#34;
-    self.content.set_value(new_value)</code></pre>
+    self._is_cell_mutable()
+    self.content._set_value(new_value)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.samples.cell.SampleCell.set_content_values"><code class="name flex">
@@ -514,7 +546,8 @@ def representation_for_update(self) -&gt; SampleCellBody:
     Returns:
 
     &#34;&#34;&#34;
-    self.content.set_values(new_values)</code></pre>
+    self._is_cell_mutable()
+    self.content._set_values(new_values)</code></pre>
 </details>
 </dd>
 </dl>
@@ -576,7 +609,7 @@ def representation_for_update(self) -&gt; SampleCellBody:
     units: Optional[str]
     _changed: bool = PrivateAttr(default=False)
 
-    def set_value(self, new_value: CellValueType) -&gt; None:
+    def _set_value(self, new_value: CellValueType) -&gt; None:
         &#34;&#34;&#34;Set new value
 
         Args:
@@ -588,7 +621,7 @@ def representation_for_update(self) -&gt; SampleCellBody:
         self.value = new_value
         self._changed = True
 
-    def set_values(self, new_values: List[CellValueType]) -&gt; None:
+    def _set_values(self, new_values: List[CellValueType]) -&gt; None:
         &#34;&#34;&#34;Set new values
 
         Args:
@@ -600,7 +633,7 @@ def representation_for_update(self) -&gt; SampleCellBody:
         self.values = new_values
         self._changed = True
 
-    def set_name(self, new_name: str) -&gt; None:
+    def _set_name(self, new_name: str) -&gt; None:
         &#34;&#34;&#34;Set new name
 
         Args:
@@ -680,93 +713,6 @@ def is_changed(self) -&gt; bool:
 </details>
 </dd>
 </dl>
-<h3>Methods</h3>
-<dl>
-<dt id="signals_notebook.entities.samples.cell.SampleCellContent.set_name"><code class="name flex">
-<span>def <span class="ident">set_name</span></span>(<span>self, new_name: str) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Set new name</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>new_name</code></strong></dt>
-<dd>new name for name field</dd>
-</dl>
-<p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_name(self, new_name: str) -&gt; None:
-    &#34;&#34;&#34;Set new name
-
-    Args:
-        new_name: new name for name field
-
-    Returns:
-
-    &#34;&#34;&#34;
-    self.name = new_name
-    self._changed = True</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleCellContent.set_value"><code class="name flex">
-<span>def <span class="ident">set_value</span></span>(<span>self, new_value: ~CellValueType) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Set new value</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>new_value</code></strong></dt>
-<dd>new value for value field</dd>
-</dl>
-<p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_value(self, new_value: CellValueType) -&gt; None:
-    &#34;&#34;&#34;Set new value
-
-    Args:
-        new_value: new value for value field
-
-    Returns:
-
-    &#34;&#34;&#34;
-    self.value = new_value
-    self._changed = True</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.samples.cell.SampleCellContent.set_values"><code class="name flex">
-<span>def <span class="ident">set_values</span></span>(<span>self, new_values: List[~CellValueType]) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"><p>Set new values</p>
-<h2 id="args">Args</h2>
-<dl>
-<dt><strong><code>new_values</code></strong></dt>
-<dd>new list of values for values field</dd>
-</dl>
-<p>Returns:</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">def set_values(self, new_values: List[CellValueType]) -&gt; None:
-    &#34;&#34;&#34;Set new values
-
-    Args:
-        new_values: new list of values for values field
-
-    Returns:
-
-    &#34;&#34;&#34;
-    self.values = new_values
-    self._changed = True</code></pre>
-</details>
-</dd>
-</dl>
 </dd>
 </dl>
 </section>
@@ -800,6 +746,7 @@ def is_changed(self) -&gt; bool:
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCell.id" href="#signals_notebook.entities.samples.cell.SampleCell.id">id</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCell.is_changed" href="#signals_notebook.entities.samples.cell.SampleCell.is_changed">is_changed</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCell.name" href="#signals_notebook.entities.samples.cell.SampleCell.name">name</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.cell.SampleCell.read_only" href="#signals_notebook.entities.samples.cell.SampleCell.read_only">read_only</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCell.representation_for_update" href="#signals_notebook.entities.samples.cell.SampleCell.representation_for_update">representation_for_update</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCell.set_content_name" href="#signals_notebook.entities.samples.cell.SampleCell.set_content_name">set_content_name</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCell.set_content_value" href="#signals_notebook.entities.samples.cell.SampleCell.set_content_value">set_content_value</a></code></li>
@@ -821,9 +768,6 @@ def is_changed(self) -&gt; bool:
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.eid" href="#signals_notebook.entities.samples.cell.SampleCellContent.eid">eid</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.is_changed" href="#signals_notebook.entities.samples.cell.SampleCellContent.is_changed">is_changed</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.name" href="#signals_notebook.entities.samples.cell.SampleCellContent.name">name</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.set_name" href="#signals_notebook.entities.samples.cell.SampleCellContent.set_name">set_name</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.set_value" href="#signals_notebook.entities.samples.cell.SampleCellContent.set_value">set_value</a></code></li>
-<li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.set_values" href="#signals_notebook.entities.samples.cell.SampleCellContent.set_values">set_values</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.units" href="#signals_notebook.entities.samples.cell.SampleCellContent.units">units</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.value" href="#signals_notebook.entities.samples.cell.SampleCellContent.value">value</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.cell.SampleCellContent.values" href="#signals_notebook.entities.samples.cell.SampleCellContent.values">values</a></code></li>
