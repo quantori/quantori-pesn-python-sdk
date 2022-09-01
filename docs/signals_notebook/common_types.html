@@ -56,11 +56,6 @@ class ChemicalDrawingFormat(str, Enum):
     SMILES = &#39;smiles&#39;
 
 
-class SamplesContainerFormat(str, Enum):
-    CSV = &#39;csv&#39;
-    SDF = &#39;sdf&#39;
-
-
 class ObjectType(str, Enum):
     ENTITY = &#39;entity&#39;
     ADT_ROW = &#39;adtRow&#39;
@@ -79,6 +74,9 @@ class ObjectType(str, Enum):
     CHOICE = &#39;choice&#39;
     SUB_EXPERIMENT = &#39;subexpSummaryRow&#39;
     CONTAINER = &#39;container&#39;
+    REACTION_PRODUCT = &#39;reactionProduct&#39;
+    REACTION_REACTANT = &#39;reactionReactant&#39;
+    REACTION_REAGENT = &#39;reactionReagent&#39;
 
 
 class EntityType(str, Enum):
@@ -325,6 +323,7 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     body: EntityClass = Field(alias=&#39;attributes&#39;)
     relationships: Optional[dict[str, Any]] = Field(default=None)
+    meta: Optional[dict[str, Any]] = Field(default=None)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get(&#39;attributes&#39;, {})
@@ -1763,7 +1762,10 @@ def type(self) -&gt; MaterialType:
     ATTRIBUTE_OPTION = &#39;option&#39;
     CHOICE = &#39;choice&#39;
     SUB_EXPERIMENT = &#39;subexpSummaryRow&#39;
-    CONTAINER = &#39;container&#39;</code></pre>
+    CONTAINER = &#39;container&#39;
+    REACTION_PRODUCT = &#39;reactionProduct&#39;
+    REACTION_REACTANT = &#39;reactionReactant&#39;
+    REACTION_REAGENT = &#39;reactionReagent&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1824,6 +1826,18 @@ def type(self) -&gt; MaterialType:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.common_types.ObjectType.REACTION_PRODUCT"><code class="name">var <span class="ident">REACTION_PRODUCT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.REACTION_REACTANT"><code class="name">var <span class="ident">REACTION_REACTANT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.REACTION_REAGENT"><code class="name">var <span class="ident">REACTION_REAGENT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.ObjectType.ROLE"><code class="name">var <span class="ident">ROLE</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1879,6 +1893,7 @@ def type(self) -&gt; MaterialType:
 <ul class="hlist">
 <li><a title="signals_notebook.attributes.attribute.Response[Attribute]" href="attributes/attribute.html#signals_notebook.attributes.attribute.Response[Attribute]">Response[Attribute]</a></li>
 <li><a title="signals_notebook.attributes.attribute.Response[_AttributeOption]" href="attributes/attribute.html#signals_notebook.attributes.attribute.Response[_AttributeOption]">Response[_AttributeOption]</a></li>
+<li><a title="signals_notebook.entities.chemical_drawing.Response[Structure]" href="entities/chemical_drawing.html#signals_notebook.entities.chemical_drawing.Response[Structure]">Response[Structure]</a></li>
 <li><a title="signals_notebook.entities.entity.Response[Property]" href="entities/entity.html#signals_notebook.entities.entity.Response[Property]">Response[Property]</a></li>
 <li><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.Response[Row]" href="entities/parallel_experiment/sub_experiment_summary.html#signals_notebook.entities.parallel_experiment.sub_experiment_summary.Response[Row]">Response[Row]</a></li>
 <li><a title="signals_notebook.entities.plates.plate_container.Response[PlateRow]" href="entities/plates/plate_container.html#signals_notebook.entities.plates.plate_container.Response[PlateRow]">Response[PlateRow]</a></li>
@@ -1928,6 +1943,7 @@ def type(self) -&gt; MaterialType:
     links: Optional[Links] = None
     body: EntityClass = Field(alias=&#39;attributes&#39;)
     relationships: Optional[dict[str, Any]] = Field(default=None)
+    meta: Optional[dict[str, Any]] = Field(default=None)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get(&#39;attributes&#39;, {})
@@ -1961,6 +1977,7 @@ def type(self) -&gt; MaterialType:
 <li>pydantic.generics.ResponseData[Row]</li>
 <li>pydantic.generics.ResponseData[SampleCell]</li>
 <li>pydantic.generics.ResponseData[Sample]</li>
+<li>pydantic.generics.ResponseData[Structure]</li>
 <li>pydantic.generics.ResponseData[Table]</li>
 <li>pydantic.generics.ResponseData[TaskCell]</li>
 <li>pydantic.generics.ResponseData[Union[Library, Asset, Batch]]</li>
@@ -1982,42 +1999,15 @@ def type(self) -&gt; MaterialType:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.common_types.ResponseData.meta"><code class="name">var <span class="ident">meta</span> : Optional[dict]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.ResponseData.relationships"><code class="name">var <span class="ident">relationships</span> : Optional[dict]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.ResponseData.type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.common_types.ObjectType" href="#signals_notebook.common_types.ObjectType">ObjectType</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.common_types.SamplesContainerFormat"><code class="flex name class">
-<span>class <span class="ident">SamplesContainerFormat</span></span>
-<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>An enumeration.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class SamplesContainerFormat(str, Enum):
-    CSV = &#39;csv&#39;
-    SDF = &#39;sdf&#39;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.str</li>
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.common_types.SamplesContainerFormat.CSV"><code class="name">var <span class="ident">CSV</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.common_types.SamplesContainerFormat.SDF"><code class="name">var <span class="ident">SDF</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -2229,6 +2219,9 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.ObjectType.PLATE_ROW" href="#signals_notebook.common_types.ObjectType.PLATE_ROW">PLATE_ROW</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROFILE" href="#signals_notebook.common_types.ObjectType.PROFILE">PROFILE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROPERTY" href="#signals_notebook.common_types.ObjectType.PROPERTY">PROPERTY</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.REACTION_PRODUCT" href="#signals_notebook.common_types.ObjectType.REACTION_PRODUCT">REACTION_PRODUCT</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.REACTION_REACTANT" href="#signals_notebook.common_types.ObjectType.REACTION_REACTANT">REACTION_REACTANT</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.REACTION_REAGENT" href="#signals_notebook.common_types.ObjectType.REACTION_REAGENT">REACTION_REAGENT</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.ROLE" href="#signals_notebook.common_types.ObjectType.ROLE">ROLE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.STOICHIOMETRY" href="#signals_notebook.common_types.ObjectType.STOICHIOMETRY">STOICHIOMETRY</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.SUB_EXPERIMENT" href="#signals_notebook.common_types.ObjectType.SUB_EXPERIMENT">SUB_EXPERIMENT</a></code></li>
@@ -2244,19 +2237,13 @@ def type(self) -&gt; MaterialType:
 </li>
 <li>
 <h4><code><a title="signals_notebook.common_types.ResponseData" href="#signals_notebook.common_types.ResponseData">ResponseData</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="signals_notebook.common_types.ResponseData.body" href="#signals_notebook.common_types.ResponseData.body">body</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.eid" href="#signals_notebook.common_types.ResponseData.eid">eid</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.links" href="#signals_notebook.common_types.ResponseData.links">links</a></code></li>
+<li><code><a title="signals_notebook.common_types.ResponseData.meta" href="#signals_notebook.common_types.ResponseData.meta">meta</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.relationships" href="#signals_notebook.common_types.ResponseData.relationships">relationships</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.type" href="#signals_notebook.common_types.ResponseData.type">type</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="signals_notebook.common_types.SamplesContainerFormat" href="#signals_notebook.common_types.SamplesContainerFormat">SamplesContainerFormat</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.common_types.SamplesContainerFormat.CSV" href="#signals_notebook.common_types.SamplesContainerFormat.CSV">CSV</a></code></li>
-<li><code><a title="signals_notebook.common_types.SamplesContainerFormat.SDF" href="#signals_notebook.common_types.SamplesContainerFormat.SDF">SDF</a></code></li>
 </ul>
 </li>
 <li>

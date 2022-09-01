@@ -18,7 +18,7 @@ class SampleCellContent(GenericModel, Generic[CellValueType]):
     units: Optional[str]
     _changed: bool = PrivateAttr(default=False)
 
-    def set_value(self, new_value: CellValueType) -> None:
+    def _set_value(self, new_value: CellValueType) -> None:
         """Set new value
 
         Args:
@@ -30,7 +30,7 @@ class SampleCellContent(GenericModel, Generic[CellValueType]):
         self.value = new_value
         self._changed = True
 
-    def set_values(self, new_values: List[CellValueType]) -> None:
+    def _set_values(self, new_values: List[CellValueType]) -> None:
         """Set new values
 
         Args:
@@ -42,7 +42,7 @@ class SampleCellContent(GenericModel, Generic[CellValueType]):
         self.values = new_values
         self._changed = True
 
-    def set_name(self, new_name: str) -> None:
+    def _set_name(self, new_name: str) -> None:
         """Set new name
 
         Args:
@@ -75,9 +75,16 @@ class SampleCellBody(BaseModel):
 
 
 class SampleCell(BaseModel):
-    id: Optional[Union[UUID, str]]
+    id: Optional[str]
     name: Optional[str]
     content: SampleCellContent = Field(default=SampleCellContent())
+    read_only: Optional[bool] = False
+
+    def _is_cell_mutable(self):
+        if self.name == 'Amount':
+            raise TypeError('Property is immutable')
+        if self.read_only:
+            raise TypeError('Cell is read only')
 
     def set_content_value(self, new_value: CellValueType) -> None:
         """Set new content value
@@ -88,7 +95,8 @@ class SampleCell(BaseModel):
         Returns:
 
         """
-        self.content.set_value(new_value)
+        self._is_cell_mutable()
+        self.content._set_value(new_value)
 
     def set_content_values(self, new_values: List[CellValueType]) -> None:
         """Set new content values
@@ -99,7 +107,8 @@ class SampleCell(BaseModel):
         Returns:
 
         """
-        self.content.set_values(new_values)
+        self._is_cell_mutable()
+        self.content._set_values(new_values)
 
     def set_content_name(self, new_name: str) -> None:
         """Set new content name
@@ -110,7 +119,8 @@ class SampleCell(BaseModel):
         Returns:
 
         """
-        self.content.set_name(new_name)
+        self._is_cell_mutable()
+        self.content._set_name(new_name)
 
     @property
     def content_value(self) -> Optional[CellValueType]:
@@ -155,4 +165,6 @@ class SampleCell(BaseModel):
         Returns:
             SampleCellBody
         """
-        return SampleCellBody(id=str(self.id), attributes=Content(content=self.content))
+        return SampleCellBody(
+            id=str(self.id), attributes=Content(content=self.content.dict(include={'value', 'values', 'name'}))
+        )

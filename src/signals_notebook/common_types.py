@@ -28,11 +28,6 @@ class ChemicalDrawingFormat(str, Enum):
     SMILES = 'smiles'
 
 
-class SamplesContainerFormat(str, Enum):
-    CSV = 'csv'
-    SDF = 'sdf'
-
-
 class ObjectType(str, Enum):
     ENTITY = 'entity'
     ADT_ROW = 'adtRow'
@@ -51,6 +46,9 @@ class ObjectType(str, Enum):
     CHOICE = 'choice'
     SUB_EXPERIMENT = 'subexpSummaryRow'
     CONTAINER = 'container'
+    REACTION_PRODUCT = 'reactionProduct'
+    REACTION_REACTANT = 'reactionReactant'
+    REACTION_REAGENT = 'reactionReagent'
 
 
 class EntityType(str, Enum):
@@ -297,6 +295,7 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     body: EntityClass = Field(alias='attributes')
     relationships: Optional[dict[str, Any]] = Field(default=None)
+    meta: Optional[dict[str, Any]] = Field(default=None)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get('attributes', {})

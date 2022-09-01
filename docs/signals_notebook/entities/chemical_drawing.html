@@ -26,14 +26,16 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import logging
+<pre><code class="python">import json
+import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Union
+from typing import cast, ClassVar, Literal, Optional, Union
 
-from pydantic import Field
+from pydantic import BaseModel, Field
 
-from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File
+from signals_notebook.api import SignalsNotebookApi
+from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File, Response, ResponseData
 from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
@@ -42,6 +44,48 @@ from signals_notebook.jinja_env import env
 from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
+
+EMPTY_CDXML_FILE_CONTENT = b&#39;&lt;CDXML /&gt;&#39;
+
+
+class ChemicalDrawingPosition(str, Enum):
+    REACTANTS = &#39;reactants&#39;
+    REAGENTS = &#39;reagents&#39;
+    PRODUCTS = &#39;products&#39;
+
+
+class ChemicalStructure(str, Enum):
+    REACTANT = &#39;reactant&#39;
+    REAGENT = &#39;reagent&#39;
+    PRODUCT = &#39;product&#39;
+
+
+class ChemicalStructureFormat(str, Enum):
+    INCHI = &#39;inchi&#39;
+    CDXML = &#39;cdxml&#39;
+
+
+class Structure(BaseModel):
+    id: str
+    type: ChemicalStructure
+    inchi: Optional[str]
+    cdxml: Optional[str]
+
+    class Config:
+        validate_assignment = True
+
+
+class ChemicalDrawingResponse(Response[Structure]):
+    pass
+
+
+class StructureAttribute(BaseModel):
+    dataType: ChemicalStructureFormat  # noqa
+    data: str
+
+
+class StructureRequestData(BaseModel):
+    attributes: StructureAttribute
 
 
 class ChemicalDrawing(ContentfulEntity):
@@ -54,6 +98,12 @@ class ChemicalDrawing(ContentfulEntity):
         SW = &#39;chemical/x-swissprot&#39;
         SVG = &#39;image/svg+xml&#39;
         CSV = &#39;text/csv&#39;
+        SMILES = &#39;chemical/x-daylight-smiles&#39;
+
+    class CreationContentType(str, Enum):
+        CDX = &#39;chemical/x-cdx&#39;
+        CDXML = &#39;chemical/x-cdxml&#39;
+        MOL = &#39;chemical/x-mdl-molfile&#39;
 
     type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
     _template_name: ClassVar = &#39;chemical_drawing.html&#39;
@@ -66,12 +116,82 @@ class ChemicalDrawing(ContentfulEntity):
         return EntityType.CHEMICAL_DRAWING
 
     @classmethod
+    def _get_chemical_drawing_endpoint(cls) -&gt; str:
+        return &#39;chemicaldrawings&#39;
+
+    def get_structures(self, positions: ChemicalDrawingPosition) -&gt; list[Structure]:
+        &#34;&#34;&#34;Get reactants, reagents and products of ChemicalDrawing
+
+        Args:
+            positions:  one of the ChemicalDrawing positions
+
+        Returns:
+            list of Structure objects
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Reloading structures in ChemicalDrawing: %s...&#39;, self.eid)
+
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
+        )
+
+        result = ChemicalDrawingResponse(**response.json())
+
+        return [cast(ResponseData, item).body for item in result.data]
+
+    def add_structures(
+        self,
+        structure: Structure,
+        positions: ChemicalDrawingPosition,
+        digest: str = None,
+        force: bool = True,
+    ) -&gt; Structure:
+        &#34;&#34;&#34;Add reagent, reactant or product to ChemicalDrawing
+
+        Args:
+            structure: Structure object
+            positions: one of the ChemicalDrawing positions
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+                If the parameter &#39;force&#39; is true, this parameter is optional.
+                If the parameter &#39;force&#39; is false, this parameter is required.
+            force: Force to create without doing digest check
+
+        Returns:
+            Added Structure
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+
+        if structure.inchi:
+            data_type = ChemicalStructureFormat.INCHI
+            data = structure.inchi
+        elif structure.cdxml:
+            data_type = ChemicalStructureFormat.CDXML
+            data = structure.cdxml
+        else:
+            raise ValueError(&#39;Structure doesn&#34;t contain inchi and cdxml data&#39;)
+
+        request_data = StructureRequestData(attributes=StructureAttribute(dataType=data_type, data=data))
+
+        response = api.call(
+            method=&#39;POST&#39;,
+            path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
+            params={
+                &#39;digest&#39;: digest,
+                &#39;force&#39;: json.dumps(force),
+            },
+            json={&#39;data&#39;: request_data.dict()},
+        )
+        result = ChemicalDrawingResponse(**response.json())
+        return cast(ResponseData, result.data).body
+
+    @classmethod
     def create(
         cls,
         *,
         container: Container,
         name: str,
-        content_type: str = ContentType.SVG,
+        content_type: str = CreationContentType.CDXML,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -88,7 +208,7 @@ class ChemicalDrawing(ContentfulEntity):
             ChemicalDrawing
         &#34;&#34;&#34;
         if content_type:
-            cls.ContentType(content_type)
+            cls.CreationContentType(content_type)
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -156,7 +276,43 @@ class ChemicalDrawing(ContentfulEntity):
             for template in templates:
                 template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
         except TypeError:
-            pass</code></pre>
+            pass
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump ChemicalDrawing
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
+        content = self.get_content()
+
+        if content.content != EMPTY_CDXML_FILE_CONTENT:
+            metadata = {
+                &#39;file_name&#39;: content.name,
+                &#39;content_type&#39;: content.content_type,
+                **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+            }
+            if content.content_type == self.ContentType.CDXML:
+                reactants = self.get_structures(positions=ChemicalDrawingPosition.REACTANTS)
+                products = self.get_structures(positions=ChemicalDrawingPosition.PRODUCTS)
+                reagents = self.get_structures(positions=ChemicalDrawingPosition.REAGENTS)
+                metadata = {
+                    **metadata,
+                    **{
+                        &#39;reactants&#39;: [{&#39;id&#39;: i.id, &#39;inchi&#39;: i.inchi, &#39;cdxml&#39;: i.cdxml} for i in reactants],
+                        &#39;products&#39;: [{&#39;id&#39;: i.id, &#39;inchi&#39;: i.inchi, &#39;cdxml&#39;: i.cdxml} for i in products],
+                        &#39;reagents&#39;: [{&#39;id&#39;: i.id, &#39;inchi&#39;: i.inchi, &#39;cdxml&#39;: i.cdxml} for i in reagents],
+                    },
+                }
+
+            fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+            file_name = content.name
+            data = content.content
+            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)</code></pre>
 </details>
 </section>
 <section>
@@ -189,6 +345,12 @@ class ChemicalDrawing(ContentfulEntity):
         SW = &#39;chemical/x-swissprot&#39;
         SVG = &#39;image/svg+xml&#39;
         CSV = &#39;text/csv&#39;
+        SMILES = &#39;chemical/x-daylight-smiles&#39;
+
+    class CreationContentType(str, Enum):
+        CDX = &#39;chemical/x-cdx&#39;
+        CDXML = &#39;chemical/x-cdxml&#39;
+        MOL = &#39;chemical/x-mdl-molfile&#39;
 
     type: Literal[EntityType.CHEMICAL_DRAWING] = Field(allow_mutation=False)
     _template_name: ClassVar = &#39;chemical_drawing.html&#39;
@@ -201,12 +363,82 @@ class ChemicalDrawing(ContentfulEntity):
         return EntityType.CHEMICAL_DRAWING
 
     @classmethod
+    def _get_chemical_drawing_endpoint(cls) -&gt; str:
+        return &#39;chemicaldrawings&#39;
+
+    def get_structures(self, positions: ChemicalDrawingPosition) -&gt; list[Structure]:
+        &#34;&#34;&#34;Get reactants, reagents and products of ChemicalDrawing
+
+        Args:
+            positions:  one of the ChemicalDrawing positions
+
+        Returns:
+            list of Structure objects
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+        log.debug(&#39;Reloading structures in ChemicalDrawing: %s...&#39;, self.eid)
+
+        response = api.call(
+            method=&#39;GET&#39;,
+            path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
+        )
+
+        result = ChemicalDrawingResponse(**response.json())
+
+        return [cast(ResponseData, item).body for item in result.data]
+
+    def add_structures(
+        self,
+        structure: Structure,
+        positions: ChemicalDrawingPosition,
+        digest: str = None,
+        force: bool = True,
+    ) -&gt; Structure:
+        &#34;&#34;&#34;Add reagent, reactant or product to ChemicalDrawing
+
+        Args:
+            structure: Structure object
+            positions: one of the ChemicalDrawing positions
+            digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+                If the parameter &#39;force&#39; is true, this parameter is optional.
+                If the parameter &#39;force&#39; is false, this parameter is required.
+            force: Force to create without doing digest check
+
+        Returns:
+            Added Structure
+        &#34;&#34;&#34;
+        api = SignalsNotebookApi.get_default_api()
+
+        if structure.inchi:
+            data_type = ChemicalStructureFormat.INCHI
+            data = structure.inchi
+        elif structure.cdxml:
+            data_type = ChemicalStructureFormat.CDXML
+            data = structure.cdxml
+        else:
+            raise ValueError(&#39;Structure doesn&#34;t contain inchi and cdxml data&#39;)
+
+        request_data = StructureRequestData(attributes=StructureAttribute(dataType=data_type, data=data))
+
+        response = api.call(
+            method=&#39;POST&#39;,
+            path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
+            params={
+                &#39;digest&#39;: digest,
+                &#39;force&#39;: json.dumps(force),
+            },
+            json={&#39;data&#39;: request_data.dict()},
+        )
+        result = ChemicalDrawingResponse(**response.json())
+        return cast(ResponseData, result.data).body
+
+    @classmethod
     def create(
         cls,
         *,
         container: Container,
         name: str,
-        content_type: str = ContentType.SVG,
+        content_type: str = CreationContentType.CDXML,
         content: bytes = b&#39;&#39;,
         force: bool = True,
     ) -&gt; Entity:
@@ -223,7 +455,7 @@ class ChemicalDrawing(ContentfulEntity):
             ChemicalDrawing
         &#34;&#34;&#34;
         if content_type:
-            cls.ContentType(content_type)
+            cls.CreationContentType(content_type)
         log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
         return container.add_child(
             name=name,
@@ -291,7 +523,43 @@ class ChemicalDrawing(ContentfulEntity):
             for template in templates:
                 template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
         except TypeError:
-            pass</code></pre>
+            pass
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump ChemicalDrawing
+
+        Args:
+            base_path: content path where create dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
+        content = self.get_content()
+
+        if content.content != EMPTY_CDXML_FILE_CONTENT:
+            metadata = {
+                &#39;file_name&#39;: content.name,
+                &#39;content_type&#39;: content.content_type,
+                **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+            }
+            if content.content_type == self.ContentType.CDXML:
+                reactants = self.get_structures(positions=ChemicalDrawingPosition.REACTANTS)
+                products = self.get_structures(positions=ChemicalDrawingPosition.PRODUCTS)
+                reagents = self.get_structures(positions=ChemicalDrawingPosition.REAGENTS)
+                metadata = {
+                    **metadata,
+                    **{
+                        &#39;reactants&#39;: [{&#39;id&#39;: i.id, &#39;inchi&#39;: i.inchi, &#39;cdxml&#39;: i.cdxml} for i in reactants],
+                        &#39;products&#39;: [{&#39;id&#39;: i.id, &#39;inchi&#39;: i.inchi, &#39;cdxml&#39;: i.cdxml} for i in products],
+                        &#39;reagents&#39;: [{&#39;id&#39;: i.id, &#39;inchi&#39;: i.inchi, &#39;cdxml&#39;: i.cdxml} for i in reagents],
+                    },
+                }
+
+            fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+            file_name = content.name
+            data = content.content
+            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -307,6 +575,10 @@ class ChemicalDrawing(ContentfulEntity):
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.CreationContentType"><code class="name">var <span class="ident">CreationContentType</span></code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+</dd>
 <dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.type"><code class="name">var <span class="ident">type</span> : Literal[<EntityType.CHEMICAL_DRAWING: 'chemicalDrawing'>]</code></dt>
 <dd>
 <div class="desc"></div>
@@ -315,7 +587,7 @@ class ChemicalDrawing(ContentfulEntity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = ContentType.SVG, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, container: <a title="signals_notebook.entities.container.Container" href="container.html#signals_notebook.entities.container.Container">Container</a>, name: str, content_type: str = CreationContentType.CDXML, content: bytes = b'', force: bool = True) ‑> <a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create ChemicalDrawing Entity</p>
@@ -344,7 +616,7 @@ def create(
     *,
     container: Container,
     name: str,
-    content_type: str = ContentType.SVG,
+    content_type: str = CreationContentType.CDXML,
     content: bytes = b&#39;&#39;,
     force: bool = True,
 ) -&gt; Entity:
@@ -361,7 +633,7 @@ def create(
         ChemicalDrawing
     &#34;&#34;&#34;
     if content_type:
-        cls.ContentType(content_type)
+        cls.CreationContentType(content_type)
     log.debug(&#39;Create entity: %s with name: %s in Container: %s&#39;, cls.__name__, name, container.eid)
     return container.add_child(
         name=name,
@@ -460,6 +732,130 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 </dl>
 <h3>Methods</h3>
 <dl>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.add_structures"><code class="name flex">
+<span>def <span class="ident">add_structures</span></span>(<span>self, structure: <a title="signals_notebook.entities.chemical_drawing.Structure" href="#signals_notebook.entities.chemical_drawing.Structure">Structure</a>, positions: <a title="signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition">ChemicalDrawingPosition</a>, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.chemical_drawing.Structure" href="#signals_notebook.entities.chemical_drawing.Structure">Structure</a></span>
+</code></dt>
+<dd>
+<div class="desc"><p>Add reagent, reactant or product to ChemicalDrawing</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>structure</code></strong></dt>
+<dd>Structure object</dd>
+<dt><strong><code>positions</code></strong></dt>
+<dd>one of the ChemicalDrawing positions</dd>
+<dt><strong><code>digest</code></strong></dt>
+<dd>Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+If the parameter 'force' is true, this parameter is optional.
+If the parameter 'force' is false, this parameter is required.</dd>
+<dt><strong><code>force</code></strong></dt>
+<dd>Force to create without doing digest check</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>Added Structure</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add_structures(
+    self,
+    structure: Structure,
+    positions: ChemicalDrawingPosition,
+    digest: str = None,
+    force: bool = True,
+) -&gt; Structure:
+    &#34;&#34;&#34;Add reagent, reactant or product to ChemicalDrawing
+
+    Args:
+        structure: Structure object
+        positions: one of the ChemicalDrawing positions
+        digest: Indicate digest of entity. It is used to avoid conflict while concurrent editing.
+            If the parameter &#39;force&#39; is true, this parameter is optional.
+            If the parameter &#39;force&#39; is false, this parameter is required.
+        force: Force to create without doing digest check
+
+    Returns:
+        Added Structure
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+
+    if structure.inchi:
+        data_type = ChemicalStructureFormat.INCHI
+        data = structure.inchi
+    elif structure.cdxml:
+        data_type = ChemicalStructureFormat.CDXML
+        data = structure.cdxml
+    else:
+        raise ValueError(&#39;Structure doesn&#34;t contain inchi and cdxml data&#39;)
+
+    request_data = StructureRequestData(attributes=StructureAttribute(dataType=data_type, data=data))
+
+    response = api.call(
+        method=&#39;POST&#39;,
+        path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
+        params={
+            &#39;digest&#39;: digest,
+            &#39;force&#39;: json.dumps(force),
+        },
+        json={&#39;data&#39;: request_data.dict()},
+    )
+    result = ChemicalDrawingResponse(**response.json())
+    return cast(ResponseData, result.data).body</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump"><code class="name flex">
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dump ChemicalDrawing</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>base_path</code></strong></dt>
+<dd>content path where create dump</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    &#34;&#34;&#34;Dump ChemicalDrawing
+
+    Args:
+        base_path: content path where create dump
+        fs_handler: FSHandler
+
+    Returns:
+
+    &#34;&#34;&#34;
+    content = self.get_content()
+
+    if content.content != EMPTY_CDXML_FILE_CONTENT:
+        metadata = {
+            &#39;file_name&#39;: content.name,
+            &#39;content_type&#39;: content.content_type,
+            **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
+        }
+        if content.content_type == self.ContentType.CDXML:
+            reactants = self.get_structures(positions=ChemicalDrawingPosition.REACTANTS)
+            products = self.get_structures(positions=ChemicalDrawingPosition.PRODUCTS)
+            reagents = self.get_structures(positions=ChemicalDrawingPosition.REAGENTS)
+            metadata = {
+                **metadata,
+                **{
+                    &#39;reactants&#39;: [{&#39;id&#39;: i.id, &#39;inchi&#39;: i.inchi, &#39;cdxml&#39;: i.cdxml} for i in reactants],
+                    &#39;products&#39;: [{&#39;id&#39;: i.id, &#39;inchi&#39;: i.inchi, &#39;cdxml&#39;: i.cdxml} for i in products],
+                    &#39;reagents&#39;: [{&#39;id&#39;: i.id, &#39;inchi&#39;: i.inchi, &#39;cdxml&#39;: i.cdxml} for i in reagents],
+                },
+            }
+
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        file_name = content.name
+        data = content.content
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.get_content"><code class="name flex">
 <span>def <span class="ident">get_content</span></span>(<span>self, format: Optional[<a title="signals_notebook.common_types.ChemicalDrawingFormat" href="../common_types.html#signals_notebook.common_types.ChemicalDrawingFormat">ChemicalDrawingFormat</a>] = None) ‑> <a title="signals_notebook.common_types.File" href="../common_types.html#signals_notebook.common_types.File">File</a></span>
 </code></dt>
@@ -487,6 +883,44 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
     return super()._get_content(format=format)</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.get_structures"><code class="name flex">
+<span>def <span class="ident">get_structures</span></span>(<span>self, positions: <a title="signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition">ChemicalDrawingPosition</a>) ‑> list</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Get reactants, reagents and products of ChemicalDrawing</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>positions</code></strong></dt>
+<dd>one of the ChemicalDrawing positions</dd>
+</dl>
+<h2 id="returns">Returns</h2>
+<p>list of Structure objects</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get_structures(self, positions: ChemicalDrawingPosition) -&gt; list[Structure]:
+    &#34;&#34;&#34;Get reactants, reagents and products of ChemicalDrawing
+
+    Args:
+        positions:  one of the ChemicalDrawing positions
+
+    Returns:
+        list of Structure objects
+    &#34;&#34;&#34;
+    api = SignalsNotebookApi.get_default_api()
+    log.debug(&#39;Reloading structures in ChemicalDrawing: %s...&#39;, self.eid)
+
+    response = api.call(
+        method=&#39;GET&#39;,
+        path=(self._get_chemical_drawing_endpoint(), self.eid, &#39;reaction&#39;, positions),
+    )
+
+    result = ChemicalDrawingResponse(**response.json())
+
+    return [cast(ResponseData, item).body for item in result.data]</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Inherited members</h3>
 <ul class="hlist">
@@ -494,7 +928,6 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType">ContentType</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
-<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.dump" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_html" href="contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_list" href="entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_subclasses" href="entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
@@ -507,6 +940,287 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 </ul>
 </li>
 </ul>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition"><code class="flex name class">
+<span>class <span class="ident">ChemicalDrawingPosition</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ChemicalDrawingPosition(str, Enum):
+    REACTANTS = &#39;reactants&#39;
+    REAGENTS = &#39;reagents&#39;
+    PRODUCTS = &#39;products&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.str</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition.PRODUCTS"><code class="name">var <span class="ident">PRODUCTS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition.REACTANTS"><code class="name">var <span class="ident">REACTANTS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition.REAGENTS"><code class="name">var <span class="ident">REAGENTS</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse"><code class="flex name class">
+<span>class <span class="ident">ChemicalDrawingResponse</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ChemicalDrawingResponse(Response[Structure]):
+    pass</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.chemical_drawing.Response[Structure]" href="#signals_notebook.entities.chemical_drawing.Response[Structure]">Response[Structure]</a></li>
+<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse.data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.entities.chemical_drawing.Structure" href="#signals_notebook.entities.chemical_drawing.Structure">Structure</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.entities.chemical_drawing.Structure" href="#signals_notebook.entities.chemical_drawing.Structure">Structure</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse.links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalStructure"><code class="flex name class">
+<span>class <span class="ident">ChemicalStructure</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ChemicalStructure(str, Enum):
+    REACTANT = &#39;reactant&#39;
+    REAGENT = &#39;reagent&#39;
+    PRODUCT = &#39;product&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.str</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalStructure.PRODUCT"><code class="name">var <span class="ident">PRODUCT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalStructure.REACTANT"><code class="name">var <span class="ident">REACTANT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalStructure.REAGENT"><code class="name">var <span class="ident">REAGENT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalStructureFormat"><code class="flex name class">
+<span>class <span class="ident">ChemicalStructureFormat</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class ChemicalStructureFormat(str, Enum):
+    INCHI = &#39;inchi&#39;
+    CDXML = &#39;cdxml&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.str</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalStructureFormat.CDXML"><code class="name">var <span class="ident">CDXML</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.ChemicalStructureFormat.INCHI"><code class="name">var <span class="ident">INCHI</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.Response[Structure]"><code class="flex name class">
+<span>class <span class="ident">Response[Structure]</span></span>
+<span>(</span><span>**kwargs)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.common_types.Response" href="../common_types.html#signals_notebook.common_types.Response">Response</a></li>
+<li>pydantic.generics.GenericModel</li>
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+<li>typing.Generic</li>
+</ul>
+<h3>Subclasses</h3>
+<ul class="hlist">
+<li><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse">ChemicalDrawingResponse</a></li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.chemical_drawing.Response[Structure].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.Response[Structure].data"><code class="name">var <span class="ident">data</span> : Union[pydantic.generics.ResponseData[<a title="signals_notebook.entities.chemical_drawing.Structure" href="#signals_notebook.entities.chemical_drawing.Structure">Structure</a>], List[pydantic.generics.ResponseData[<a title="signals_notebook.entities.chemical_drawing.Structure" href="#signals_notebook.entities.chemical_drawing.Structure">Structure</a>]]]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.Response[Structure].links"><code class="name">var <span class="ident">links</span> : Optional[<a title="signals_notebook.common_types.Links" href="../common_types.html#signals_notebook.common_types.Links">Links</a>]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.Structure"><code class="flex name class">
+<span>class <span class="ident">Structure</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Structure(BaseModel):
+    id: str
+    type: ChemicalStructure
+    inchi: Optional[str]
+    cdxml: Optional[str]
+
+    class Config:
+        validate_assignment = True</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.chemical_drawing.Structure.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.Structure.cdxml"><code class="name">var <span class="ident">cdxml</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.Structure.id"><code class="name">var <span class="ident">id</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.Structure.inchi"><code class="name">var <span class="ident">inchi</span> : Optional[str]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.Structure.type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.entities.chemical_drawing.ChemicalStructure" href="#signals_notebook.entities.chemical_drawing.ChemicalStructure">ChemicalStructure</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.StructureAttribute"><code class="flex name class">
+<span>class <span class="ident">StructureAttribute</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StructureAttribute(BaseModel):
+    dataType: ChemicalStructureFormat  # noqa
+    data: str</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.chemical_drawing.StructureAttribute.data"><code class="name">var <span class="ident">data</span> : str</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.StructureAttribute.dataType"><code class="name">var <span class="ident">dataType</span> : <a title="signals_notebook.entities.chemical_drawing.ChemicalStructureFormat" href="#signals_notebook.entities.chemical_drawing.ChemicalStructureFormat">ChemicalStructureFormat</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+<dt id="signals_notebook.entities.chemical_drawing.StructureRequestData"><code class="flex name class">
+<span>class <span class="ident">StructureRequestData</span></span>
+<span>(</span><span>**data: Any)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Create a new model by parsing and validating input data from keyword arguments.</p>
+<p>Raises ValidationError if the input data cannot be parsed to form a valid model.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StructureRequestData(BaseModel):
+    attributes: StructureAttribute</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>pydantic.main.BaseModel</li>
+<li>pydantic.utils.Representation</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.chemical_drawing.StructureRequestData.attributes"><code class="name">var <span class="ident">attributes</span> : <a title="signals_notebook.entities.chemical_drawing.StructureAttribute" href="#signals_notebook.entities.chemical_drawing.StructureAttribute">StructureAttribute</a></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 </dd>
 </dl>
 </section>
@@ -528,11 +1242,76 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 <h4><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing">ChemicalDrawing</a></code></h4>
 <ul class="two-column">
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.Config" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.CreationContentType" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.CreationContentType">CreationContentType</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.add_structures" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.add_structures">add_structures</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.create" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.create">create</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump_templates" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.get_content" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.get_content">get_content</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.get_structures" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.get_structures">get_structures</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.stoichiometry" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.stoichiometry">stoichiometry</a></code></li>
 <li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawing.type" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawing.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition">ChemicalDrawingPosition</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition.PRODUCTS" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition.PRODUCTS">PRODUCTS</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition.REACTANTS" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition.REACTANTS">REACTANTS</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition.REAGENTS" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawingPosition.REAGENTS">REAGENTS</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse">ChemicalDrawingResponse</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse.data" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse.data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse.links" href="#signals_notebook.entities.chemical_drawing.ChemicalDrawingResponse.links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.chemical_drawing.ChemicalStructure" href="#signals_notebook.entities.chemical_drawing.ChemicalStructure">ChemicalStructure</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalStructure.PRODUCT" href="#signals_notebook.entities.chemical_drawing.ChemicalStructure.PRODUCT">PRODUCT</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalStructure.REACTANT" href="#signals_notebook.entities.chemical_drawing.ChemicalStructure.REACTANT">REACTANT</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalStructure.REAGENT" href="#signals_notebook.entities.chemical_drawing.ChemicalStructure.REAGENT">REAGENT</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.chemical_drawing.ChemicalStructureFormat" href="#signals_notebook.entities.chemical_drawing.ChemicalStructureFormat">ChemicalStructureFormat</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalStructureFormat.CDXML" href="#signals_notebook.entities.chemical_drawing.ChemicalStructureFormat.CDXML">CDXML</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.ChemicalStructureFormat.INCHI" href="#signals_notebook.entities.chemical_drawing.ChemicalStructureFormat.INCHI">INCHI</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.chemical_drawing.Response[Structure]" href="#signals_notebook.entities.chemical_drawing.Response[Structure]">Response[Structure]</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.chemical_drawing.Response[Structure].Config" href="#signals_notebook.entities.chemical_drawing.Response[Structure].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.Response[Structure].data" href="#signals_notebook.entities.chemical_drawing.Response[Structure].data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.Response[Structure].links" href="#signals_notebook.entities.chemical_drawing.Response[Structure].links">links</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.chemical_drawing.Structure" href="#signals_notebook.entities.chemical_drawing.Structure">Structure</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.chemical_drawing.Structure.Config" href="#signals_notebook.entities.chemical_drawing.Structure.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.Structure.cdxml" href="#signals_notebook.entities.chemical_drawing.Structure.cdxml">cdxml</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.Structure.id" href="#signals_notebook.entities.chemical_drawing.Structure.id">id</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.Structure.inchi" href="#signals_notebook.entities.chemical_drawing.Structure.inchi">inchi</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.Structure.type" href="#signals_notebook.entities.chemical_drawing.Structure.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.chemical_drawing.StructureAttribute" href="#signals_notebook.entities.chemical_drawing.StructureAttribute">StructureAttribute</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.chemical_drawing.StructureAttribute.data" href="#signals_notebook.entities.chemical_drawing.StructureAttribute.data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.chemical_drawing.StructureAttribute.dataType" href="#signals_notebook.entities.chemical_drawing.StructureAttribute.dataType">dataType</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.chemical_drawing.StructureRequestData" href="#signals_notebook.entities.chemical_drawing.StructureRequestData">StructureRequestData</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.chemical_drawing.StructureRequestData.attributes" href="#signals_notebook.entities.chemical_drawing.StructureRequestData.attributes">attributes</a></code></li>
 </ul>
 </li>
 </ul>

@@ -28,6 +28,7 @@
 </summary>
 <pre><code class="python">import csv
 import logging
+from enum import Enum
 from io import StringIO
 from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
 from uuid import UUID
@@ -35,12 +36,19 @@ from uuid import UUID
 from pydantic import Field, PrivateAttr
 
 from signals_notebook.api import SignalsNotebookApi
-from signals_notebook.common_types import EID, EntityType, File, Response, ResponseData, SamplesContainerFormat
+from signals_notebook.common_types import EID, EntityType, File, Response, ResponseData
 from signals_notebook.entities import Sample
+from signals_notebook.entities.container import Container
 from signals_notebook.entities.contentful_entity import ContentfulEntity
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
+
+
+class SamplesContainerFormat(str, Enum):
+    CSV = &#39;csv&#39;
+    SDF = &#39;sdf&#39;
 
 
 class SamplesContainerResponse(Response[Sample]):
@@ -150,7 +158,44 @@ class SamplesContainer(ContentfulEntity):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(name=self.name, table_head=table_head, rows=rows)</code></pre>
+        return template.render(name=self.name, table_head=table_head, rows=rows)
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump SampleContainer
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super().dump(base_path=base_path, fs_handler=fs_handler)
+
+        samples_path = fs_handler.join_path(base_path, self.eid)
+        for item in self:
+            item.dump(base_path=samples_path, fs_handler=fs_handler)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+        &#34;&#34;&#34;Load SampleContainer
+
+        Args:
+            path: content path where create templates dump
+            fs_handler: FSHandler
+            parent: Container where load SampleContainer entity and Samples
+
+        Returns:
+
+        &#34;&#34;&#34;
+        from signals_notebook.item_mapper import ItemMapper
+
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(&#39;:&#39;)[0]
+            ItemMapper.get_item_class(child_entity_type).load(
+                fs_handler.join_path(path, child_entity), fs_handler, parent
+            )</code></pre>
 </details>
 </section>
 <section>
@@ -311,7 +356,44 @@ class SamplesContainer(ContentfulEntity):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(name=self.name, table_head=table_head, rows=rows)</code></pre>
+        return template.render(name=self.name, table_head=table_head, rows=rows)
+
+    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+        &#34;&#34;&#34;Dump SampleContainer
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        &#34;&#34;&#34;
+        super().dump(base_path=base_path, fs_handler=fs_handler)
+
+        samples_path = fs_handler.join_path(base_path, self.eid)
+        for item in self:
+            item.dump(base_path=samples_path, fs_handler=fs_handler)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+        &#34;&#34;&#34;Load SampleContainer
+
+        Args:
+            path: content path where create templates dump
+            fs_handler: FSHandler
+            parent: Container where load SampleContainer entity and Samples
+
+        Returns:
+
+        &#34;&#34;&#34;
+        from signals_notebook.item_mapper import ItemMapper
+
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(&#39;:&#39;)[0]
+            ItemMapper.get_item_class(child_entity_type).load(
+                fs_handler.join_path(path, child_entity), fs_handler, parent
+            )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -328,10 +410,88 @@ class SamplesContainer(ContentfulEntity):
 <div class="desc"></div>
 </dd>
 </dl>
+<h3>Static methods</h3>
+<dl>
+<dt id="signals_notebook.entities.samples.samples_container.SamplesContainer.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, parent: <a title="signals_notebook.entities.container.Container" href="../container.html#signals_notebook.entities.container.Container">Container</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load SampleContainer</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>content path where create templates dump</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+<dt><strong><code>parent</code></strong></dt>
+<dd>Container where load SampleContainer entity and Samples</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
+    &#34;&#34;&#34;Load SampleContainer
+
+    Args:
+        path: content path where create templates dump
+        fs_handler: FSHandler
+        parent: Container where load SampleContainer entity and Samples
+
+    Returns:
+
+    &#34;&#34;&#34;
+    from signals_notebook.item_mapper import ItemMapper
+
+    child_entities_folders = fs_handler.list_subfolders(path)
+    for child_entity in child_entities_folders:
+        child_entity_type = child_entity.split(&#39;:&#39;)[0]
+        ItemMapper.get_item_class(child_entity_type).load(
+            fs_handler.join_path(path, child_entity), fs_handler, parent
+        )</code></pre>
+</details>
+</dd>
+</dl>
 <h3>Methods</h3>
 <dl>
+<dt id="signals_notebook.entities.samples.samples_container.SamplesContainer.dump"><code class="name flex">
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Dump SampleContainer</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>base_path</code></strong></dt>
+<dd>content path where create templates dump</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    &#34;&#34;&#34;Dump SampleContainer
+
+    Args:
+        base_path: content path where create templates dump
+        fs_handler: FSHandler
+
+    Returns:
+
+    &#34;&#34;&#34;
+    super().dump(base_path=base_path, fs_handler=fs_handler)
+
+    samples_path = fs_handler.join_path(base_path, self.eid)
+    for item in self:
+        item.dump(base_path=samples_path, fs_handler=fs_handler)</code></pre>
+</details>
+</dd>
 <dt id="signals_notebook.entities.samples.samples_container.SamplesContainer.get_content"><code class="name flex">
-<span>def <span class="ident">get_content</span></span>(<span>self, format: Optional[<a title="signals_notebook.common_types.SamplesContainerFormat" href="../../common_types.html#signals_notebook.common_types.SamplesContainerFormat">SamplesContainerFormat</a>] = None) ‑> <a title="signals_notebook.common_types.File" href="../../common_types.html#signals_notebook.common_types.File">File</a></span>
+<span>def <span class="ident">get_content</span></span>(<span>self, format: Optional[<a title="signals_notebook.entities.samples.samples_container.SamplesContainerFormat" href="#signals_notebook.entities.samples.samples_container.SamplesContainerFormat">SamplesContainerFormat</a>] = None) ‑> <a title="signals_notebook.common_types.File" href="../../common_types.html#signals_notebook.common_types.File">File</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get SamplesContainer content</p>
@@ -416,18 +576,47 @@ class SamplesContainer(ContentfulEntity):
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.ContentType">ContentType</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.delete" href="../entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
-<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.dump" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.dump_templates" href="../entity.html#signals_notebook.entities.entity.Entity.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_list" href="../entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_subclasses" href="../entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.get_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
-<li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.load" href="../contentful_entity.html#signals_notebook.entities.contentful_entity.ContentfulEntity.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.refresh" href="../entity.html#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.set_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.set_template_name">set_template_name</a></code></li>
 <li><code><a title="signals_notebook.entities.contentful_entity.ContentfulEntity.short_description" href="../entity.html#signals_notebook.entities.entity.Entity.short_description">short_description</a></code></li>
 </ul>
 </li>
 </ul>
+</dd>
+<dt id="signals_notebook.entities.samples.samples_container.SamplesContainerFormat"><code class="flex name class">
+<span>class <span class="ident">SamplesContainerFormat</span></span>
+<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>An enumeration.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SamplesContainerFormat(str, Enum):
+    CSV = &#39;csv&#39;
+    SDF = &#39;sdf&#39;</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>builtins.str</li>
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="signals_notebook.entities.samples.samples_container.SamplesContainerFormat.CSV"><code class="name">var <span class="ident">CSV</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.samples.samples_container.SamplesContainerFormat.SDF"><code class="name">var <span class="ident">SDF</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+</dl>
 </dd>
 <dt id="signals_notebook.entities.samples.samples_container.SamplesContainerResponse"><code class="flex name class">
 <span>class <span class="ident">SamplesContainerResponse</span></span>
@@ -490,11 +679,20 @@ class SamplesContainer(ContentfulEntity):
 </li>
 <li>
 <h4><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer" href="#signals_notebook.entities.samples.samples_container.SamplesContainer">SamplesContainer</a></code></h4>
-<ul class="">
+<ul class="two-column">
+<li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer.dump" href="#signals_notebook.entities.samples.samples_container.SamplesContainer.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer.get_content" href="#signals_notebook.entities.samples.samples_container.SamplesContainer.get_content">get_content</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer.get_html" href="#signals_notebook.entities.samples.samples_container.SamplesContainer.get_html">get_html</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer.load" href="#signals_notebook.entities.samples.samples_container.SamplesContainer.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer.save" href="#signals_notebook.entities.samples.samples_container.SamplesContainer.save">save</a></code></li>
 <li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainer.type" href="#signals_notebook.entities.samples.samples_container.SamplesContainer.type">type</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainerFormat" href="#signals_notebook.entities.samples.samples_container.SamplesContainerFormat">SamplesContainerFormat</a></code></h4>
+<ul class="">
+<li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainerFormat.CSV" href="#signals_notebook.entities.samples.samples_container.SamplesContainerFormat.CSV">CSV</a></code></li>
+<li><code><a title="signals_notebook.entities.samples.samples_container.SamplesContainerFormat.SDF" href="#signals_notebook.entities.samples.samples_container.SamplesContainerFormat.SDF">SDF</a></code></li>
 </ul>
 </li>
 <li>
