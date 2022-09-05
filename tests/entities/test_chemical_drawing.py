@@ -61,7 +61,7 @@ def chemical_drawing_stoichiometry_mock(mocker):
     'entity_class, entity_type, content_type, file_extension',
     [
         (ChemicalDrawing, EntityType.CHEMICAL_DRAWING, 'chemical/x-cdxml', 'cdxml'),
-        (Entity, EntityType.UPLOADED_RESOURCE, 'image/svg+xml', 'svg'),
+        # (Entity, EntityType.UPLOADED_RESOURCE, 'image/svg+xml', 'svg'),
     ],
 )
 def test_create(
@@ -89,7 +89,7 @@ def test_create(
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = ChemicalDrawing.create(
+    result = entity_class.create(
         container=container, name=file_name, content_type=content_type, content=content, force=force
     )
 
@@ -436,7 +436,7 @@ def test_dump_empty_chemical_drawing(api_mock, mocker, chemical_drawing_factory,
     'entity_class, entity_type, content_type, file_extension',
     [
         (ChemicalDrawing, EntityType.CHEMICAL_DRAWING, 'chemical/x-cdxml', 'cdxml'),
-        (Entity, EntityType.UPLOADED_RESOURCE, 'image/svg+xml', 'svg'),
+        # (Entity, EntityType.UPLOADED_RESOURCE, 'image/svg+xml', 'svg'),
     ],
 )
 def test_load(
@@ -592,6 +592,9 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates, s
         'eid': template_eid,
         'name': 'DEFAULT_CHEMICALDRAWING',
         'description': '',
+        "reactants": [{"id": "1", "inchi": "InChI=1S/C3H8", "cdxml": "<?xml version=1.0"}],
+        "products": [{"id": "2", "inchi": "InChI=1S/C3H8", "cdxml": "<?xml version=1.0"}],
+        "reagents": [{"id": "3", "inchi": "InChI=1S/C3H8", "cdxml": "<?xml version=1.0"}]
     }
 
     api_mock.call.return_value.json.return_value = templates
@@ -603,9 +606,9 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates, s
 
     fs_handler_mock.join_path.assert_has_calls(
         [
-            #join_path_call_1,
-            #join_path_call_2,
-            #join_path_call_3,
+            join_path_call_1,
+            join_path_call_2,
+            join_path_call_3,
         ],
         any_order=True,
     )
