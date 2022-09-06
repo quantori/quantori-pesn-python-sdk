@@ -248,10 +248,15 @@ class User(BaseUser):
                 }
             },
         )
-        log.debug(&#39;User: %s was created.&#39;, cls.__name__)
 
         result = UserResponse(**response.json())
-        return cast(ResponseData, result.data).body
+
+        user = cast(ResponseData, result.data).body
+        user.set_relationships(result.data.relationships)  # type: ignore
+
+        log.debug(&#39;User: %s was created.&#39;, cls.__name__)
+
+        return user
 
     def refresh(self) -&gt; None:
         &#34;&#34;&#34;Refresh user with new changes values
@@ -813,10 +818,15 @@ class UserResponse(Response[User]):
                 }
             },
         )
-        log.debug(&#39;User: %s was created.&#39;, cls.__name__)
 
         result = UserResponse(**response.json())
-        return cast(ResponseData, result.data).body
+
+        user = cast(ResponseData, result.data).body
+        user.set_relationships(result.data.relationships)  # type: ignore
+
+        log.debug(&#39;User: %s was created.&#39;, cls.__name__)
+
+        return user
 
     def refresh(self) -&gt; None:
         &#34;&#34;&#34;Refresh user with new changes values
@@ -1001,10 +1011,15 @@ def create(
             }
         },
     )
-    log.debug(&#39;User: %s was created.&#39;, cls.__name__)
 
     result = UserResponse(**response.json())
-    return cast(ResponseData, result.data).body</code></pre>
+
+    user = cast(ResponseData, result.data).body
+    user.set_relationships(result.data.relationships)  # type: ignore
+
+    log.debug(&#39;User: %s was created.&#39;, cls.__name__)
+
+    return user</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.users.user.User.get"><code class="name flex">
