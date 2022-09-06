@@ -14,6 +14,7 @@ log = logging.getLogger(__name__)
 class _Attributes(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
+    organization: Optional[str] = None
 
 
 class _RequestBody(BaseModel):
@@ -71,9 +72,11 @@ class Notebook(Container):
         )
 
     def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]]) -> None:
+        metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
+        metadata['organization'] = self['organization']
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
-            json.dumps({k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}),
+            json.dumps(metadata),
             alias + (self.name, '__Metadata') if alias else None,
         )
         for child in self.get_children(order=None):
