@@ -36,7 +36,7 @@ class Notebook(Container):
     def create(
         cls,
         *,
-        name: str,
+        name: Optional[str] = None,
         description: Optional[str] = None,
         digest: str = None,
         force: bool = True,
@@ -84,7 +84,17 @@ class Notebook(Container):
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
-        notebook = cls.create(name='restore:' + metadata['name'], description=metadata['description'], force=True)
+        try:
+            notebook = cls.create(name='restore:' + metadata['name'], description=metadata['description'], force=True)
+        except Exception as e:
+            log.error(str(e))
+            if 'According to template, name is auto generated, can not be specified' in str(e):
+                log.error('Retrying create')
+                notebook = cls.create(description=metadata['description'], force=True)
+                notebook.name = 'restore:' + metadata['name']
+                notebook.save()
+            else:
+                raise e
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
