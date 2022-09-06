@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 
 class _Attributes(BaseModel):
-    name: str
+    name: Optional[str] = None
     description: Optional[str] = None
 
 
