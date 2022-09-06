@@ -416,6 +416,17 @@ def test_create(api_mock, role_factory):
                 'lastLoginAt': '2021-11-29T04:00:02.295Z',
                 'createdAt': '2020-07-17T21:48:33.262Z',
             },
+            'relationships': {
+                'roles': {
+                    'data': [
+                        {
+                            'type': 'role',
+                            'id': str(role.id),
+                            'meta': {'links': {'self': f'https://example.com/api/rest/v1.0/roles/{role.id}'}},
+                        },
+                    ]
+                },
+            },
         },
     }
 
@@ -456,6 +467,7 @@ def test_create(api_mock, role_factory):
     assert result.first_name == response['data']['attributes']['firstName']
     assert result.last_name == response['data']['attributes']['lastName']
     assert result.organization == response['data']['attributes']['organization']
+    assert result._relationships == response['data']['relationships']
 
 
 def test_save(api_mock, user_factory):
