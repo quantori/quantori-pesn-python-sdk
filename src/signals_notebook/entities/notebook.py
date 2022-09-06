@@ -73,7 +73,7 @@ class Notebook(Container):
 
     def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]]) -> None:
         metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
-        print('dump', self.dict().items())
+        print('dump', self.dict().items(), self._properties)
         metadata['organization'] = self['organization']
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
