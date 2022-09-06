@@ -61,7 +61,6 @@ def chemical_drawing_stoichiometry_mock(mocker):
     'entity_class, entity_type, content_type, file_extension',
     [
         (ChemicalDrawing, EntityType.CHEMICAL_DRAWING, 'chemical/x-cdxml', 'cdxml'),
-        (Entity, EntityType.UPLOADED_RESOURCE, 'image/svg+xml', 'svg'),
     ],
 )
 def test_create(
@@ -436,7 +435,6 @@ def test_dump_empty_chemical_drawing(api_mock, mocker, chemical_drawing_factory,
     'entity_class, entity_type, content_type, file_extension',
     [
         (ChemicalDrawing, EntityType.CHEMICAL_DRAWING, 'chemical/x-cdxml', 'cdxml'),
-        (Entity, EntityType.UPLOADED_RESOURCE, 'image/svg+xml', 'svg'),
     ],
 )
 def test_load(
