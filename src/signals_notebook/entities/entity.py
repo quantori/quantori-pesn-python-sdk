@@ -163,7 +163,7 @@ class Entity(BaseModel):
         }
 
     def _reload_properties(self) -> None:
-        print('Reloading properties in Entity: %s...', self.eid)
+        log.debug('Reloading properties in Entity: %s...', self.eid)
         self._properties = []
         self._properties_by_id = {}
 
