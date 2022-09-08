@@ -76,7 +76,7 @@ class Notebook(Container):
         self._reload_properties()
         for property in self._properties:
             if property.name == 'Organization':
-                metadata['organization'] = self['2551'].value
+                metadata['organization'] = property.value
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
