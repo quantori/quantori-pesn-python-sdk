@@ -148,7 +148,7 @@ class SignalsNotebookApi:
                 params=params,
                 headers=headers,
             )
-        print(response.json())
+
         if not response.ok:
             log.error(
                 'Error has been occurred while getting response, status code: %s',
