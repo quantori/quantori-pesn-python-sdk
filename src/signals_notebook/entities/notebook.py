@@ -107,8 +107,6 @@ class Notebook(Container):
                     description=metadata['description'],
                     organization=metadata['organization'],
                     force=True)
-                notebook.name = 'restore:' + metadata['name']
-                notebook.save()
             else:
                 raise e
         child_entities_folders = fs_handler.list_subfolders(path)
