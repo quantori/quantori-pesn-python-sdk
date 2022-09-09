@@ -58,7 +58,7 @@ class Experiment(Container):
     def create(
         cls,
         *,
-        name: str,
+        name: Optional[str] = None,
         description: Optional[str] = None,
         template: Optional['Experiment'] = None,
         notebook: Optional[Notebook] = None,
@@ -156,9 +156,18 @@ class Experiment(Container):
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
-        experiment = cls.create(
-            notebook=notebook, name=metadata['name'], description=metadata['description'], force=True
-        )
+        try:
+            experiment = cls.create(
+                notebook=notebook, name=metadata['name'], description=metadata['description'], force=True
+            )
+        except Exception as e:
+            log.error(str(e))
+            if 'According to template, name is auto generated, can not be specified' in str(e):
+                log.error('Retrying create')
+                experiment = cls.create(
+                    notebook=notebook, description=metadata['description'], force=True)
+            else:
+                raise e
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
