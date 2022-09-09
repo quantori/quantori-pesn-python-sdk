@@ -41,6 +41,7 @@ class Notebook(Container):
         description: Optional[str] = None,
         digest: str = None,
         force: bool = True,
+        organization: Optional[str] = None
     ) -> 'Notebook':
         """Create Notebook in Signals Notebooks
 
@@ -49,7 +50,7 @@ class Notebook(Container):
             description: Notebook description
             digest: Indicate digest
             force: Force to create without doing digest check
-
+            organization: Organization
         Returns:
 
         """
@@ -60,6 +61,7 @@ class Notebook(Container):
                 attributes=_Attributes(
                     name=name,
                     description=description,
+                    organization=organization
                 ),
             )
         )
@@ -91,12 +93,20 @@ class Notebook(Container):
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
         try:
-            notebook = cls.create(name='restore:' + metadata['name'], description=metadata['description'], force=True)
+            notebook = cls.create(
+                name='restore:' + metadata['name'],
+                description=metadata['description'],
+                organization=metadata['organization'],
+                force=True
+            )
         except Exception as e:
             log.error(str(e))
             if 'According to template, name is auto generated, can not be specified' in str(e):
                 log.error('Retrying create')
-                notebook = cls.create(description=metadata['description'], force=True)
+                notebook = cls.create(
+                    description=metadata['description'],
+                    organization=metadata['organization'],
+                    force=True)
                 notebook.name = 'restore:' + metadata['name']
                 notebook.save()
             else:
