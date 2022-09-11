@@ -78,7 +78,7 @@ class Notebook(Container):
         self._reload_properties()
         for property in self._properties:
             if property.name == 'Organization':
-                metadata['organization'] = property.value
+                metadata['Organization'] = property.value
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
@@ -105,7 +105,7 @@ class Notebook(Container):
                 log.error('Retrying create')
                 notebook = cls.create(
                     description=metadata['description'],
-                    organization=metadata['organization'],
+                    organization=metadata['Organization'],
                     force=True)
             else:
                 raise e

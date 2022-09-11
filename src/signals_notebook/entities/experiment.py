@@ -2,7 +2,7 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Generator, Literal, Optional, Union
+from typing import ClassVar, Generator, Literal, Optional, Union, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -20,6 +20,10 @@ log = logging.getLogger(__name__)
 class _Attributes(BaseModel):
     name: str
     description: Optional[str] = None
+    organization: Optional[str] = None
+    department: Optional[str] = None
+    project: Optional[str] = None
+    modality: Optional[str] = None
 
 
 class _Relationships(BaseModel):
@@ -64,6 +68,7 @@ class Experiment(Container):
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
+        attributes: dict = None
     ) -> 'Experiment':
         """Create new Experiment in Signals Notebook
 
@@ -74,6 +79,7 @@ class Experiment(Container):
             notebook: notebook where create experiment
             digest: Indicate digest
             force: Force to create without doing digest check
+            attributes:
 
         Returns:
             Experiment
@@ -92,6 +98,7 @@ class Experiment(Container):
                 attributes=_Attributes(
                     name=name,
                     description=description,
+                    **attributes
                 ),
                 relationships=relationships,
             )
@@ -158,7 +165,14 @@ class Experiment(Container):
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
         try:
             experiment = cls.create(
-                notebook=notebook, name=metadata['name'], description=metadata['description'], force=True
+                notebook=notebook, name=metadata['name'], description=metadata['description'],
+                force=True,
+                attributes=dict(
+                    organization=metadata['Organization'],
+                    project=metadata['Project'],
+                    modality=metadata['Modality'],
+                    department=metadata['Department']
+                )
             )
         except Exception as e:
             log.error(str(e))
@@ -174,3 +188,23 @@ class Experiment(Container):
             ItemMapper.get_item_class(child_entity_type).load(
                 fs_handler.join_path(path, child_entity), fs_handler, experiment
             )
+
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
+        metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
+        for property in self._properties:
+            if property.name in ('Department', 'Project', 'Modality', 'Organization'):
+                metadata[property.name] = property.value
+
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps(metadata),
+            alias
+            + (
+                self.name,
+                '__Metadata',
+            )
+            if alias
+            else None,
+        )
+        for child in self.get_children():
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + (self.name,) if alias else None)
