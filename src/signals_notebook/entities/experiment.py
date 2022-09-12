@@ -197,6 +197,7 @@ class Experiment(Container):
 
     def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
         metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
+        self._reload_properties()
         for property in self._properties:
             if property.name in ('Department', 'Project', 'Modality', 'Organization'):
                 metadata[property.name] = property.value
