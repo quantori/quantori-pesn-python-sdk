@@ -179,7 +179,13 @@ class Experiment(Container):
             if 'According to template, name is auto generated, can not be specified' in str(e):
                 log.error('Retrying create')
                 experiment = cls.create(
-                    notebook=notebook, description=metadata['description'], force=True)
+                    notebook=notebook, description=metadata['description'], force=True,
+                attributes=dict(
+                    organization=metadata['Organization'],
+                    project=metadata['Project'],
+                    modality=metadata['Modality'],
+                    department=metadata['Department']
+                ))
             else:
                 raise e
         child_entities_folders = fs_handler.list_subfolders(path)
