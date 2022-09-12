@@ -96,7 +96,7 @@ class Notebook(Container):
             notebook = cls.create(
                 name='restore:' + metadata['name'],
                 description=metadata['description'],
-                organization=metadata['organization'],
+                organization=metadata['Organization'],
                 force=True
             )
         except Exception as e:
