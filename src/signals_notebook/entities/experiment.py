@@ -191,9 +191,12 @@ class Experiment(Container):
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
-            ItemMapper.get_item_class(child_entity_type).load(
-                fs_handler.join_path(path, child_entity), fs_handler, experiment
-            )
+            try:
+                ItemMapper.get_item_class(child_entity_type).load(
+                    fs_handler.join_path(path, child_entity), fs_handler, experiment
+                )
+            except NotImplementedError:
+                log.error('Failed to load entity %s. Not supported' % child_entity_type)
 
     def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
         metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
