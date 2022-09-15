@@ -217,4 +217,7 @@ class Experiment(Container):
             else None,
         )
         for child in self.get_children():
-            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + (self.name,) if alias else None)
+            try:
+                child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + (self.name,) if alias else None)
+            except Exception as e:
+                log.error(str(e))
