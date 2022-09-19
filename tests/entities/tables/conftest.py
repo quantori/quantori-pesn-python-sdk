@@ -42,8 +42,10 @@ def templates():
                     },
                     'source': {
                         'links': {
-                            'self': 'https://ex.com/api/rest/v1.0/entities/'
-                            'grid:58726e57-a998-46f5-8b9e-b4760210ce74/export'
+                            'self': (
+                                'https://ex.com/api/rest/v1.0/entities/'
+                                'grid:58726e57-a998-46f5-8b9e-b4760210ce74/export'
+                            )
                         }
                     },
                 },

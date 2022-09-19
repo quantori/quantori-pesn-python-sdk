@@ -590,9 +590,9 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates, s
         'eid': template_eid,
         'name': 'DEFAULT_CHEMICALDRAWING',
         'description': '',
-        "reactants": [{"id": "1", "inchi": "InChI=1S/C3H8", "cdxml": "<?xml version=1.0"}],
-        "products": [{"id": "2", "inchi": "InChI=1S/C3H8", "cdxml": "<?xml version=1.0"}],
-        "reagents": [{"id": "3", "inchi": "InChI=1S/C3H8", "cdxml": "<?xml version=1.0"}]
+        'reactants': [{'id': '1', 'inchi': 'InChI=1S/C3H8', 'cdxml': '<?xml version=1.0'}],
+        'products': [{'id': '2', 'inchi': 'InChI=1S/C3H8', 'cdxml': '<?xml version=1.0'}],
+        'reagents': [{'id': '3', 'inchi': 'InChI=1S/C3H8', 'cdxml': '<?xml version=1.0'}]
     }
 
     api_mock.call.return_value.json.return_value = templates
