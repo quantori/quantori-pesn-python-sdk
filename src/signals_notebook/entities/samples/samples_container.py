@@ -2,7 +2,7 @@ import csv
 import logging
 from enum import Enum
 from io import StringIO
-from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
+from typing import Any, cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
@@ -132,12 +132,13 @@ class SamplesContainer(ContentfulEntity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
         """Dump SampleContainer
 
         Args:
             base_path: content path where create templates dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -160,11 +161,15 @@ class SamplesContainer(ContentfulEntity):
         Returns:
 
         """
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
         from signals_notebook.item_mapper import ItemMapper
 
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
-            ItemMapper.get_item_class(child_entity_type).load(
+            ItemMapper.get_item_class(child_entity_type)._load(
                 fs_handler.join_path(path, child_entity), fs_handler, parent
             )

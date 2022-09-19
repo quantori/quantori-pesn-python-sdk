@@ -2,7 +2,7 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Generator, Literal, Optional, Union
+from typing import Any, ClassVar, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -142,7 +142,7 @@ class Experiment(Container):
         return super().get_children(order=order)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
         """Load Experiment entity
 
         Args:
@@ -153,15 +153,19 @@ class Experiment(Container):
         Returns:
 
         """
+        cls._load(path, fs_handler, notebook)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
         experiment = cls.create(
-            notebook=notebook, name=metadata['name'], description=metadata['description'], force=True
+            notebook=parent, name=metadata['name'], description=metadata['description'], force=True
         )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
-            ItemMapper.get_item_class(child_entity_type).load(
+            ItemMapper.get_item_class(child_entity_type)._load(
                 fs_handler.join_path(path, child_entity), fs_handler, experiment
             )

@@ -124,6 +124,6 @@ class RequestContainer(Container):
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
-            ItemMapper.get_item_class(child_entity_type).load(
+            ItemMapper.get_item_class(child_entity_type)._load(
                 fs_handler.join_path(path, child_entity), fs_handler, request_container
             )

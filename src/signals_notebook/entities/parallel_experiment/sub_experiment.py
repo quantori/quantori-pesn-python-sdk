@@ -1,7 +1,7 @@
 import json
 import logging
 from functools import cached_property
-from typing import Generator, Literal, Optional
+from typing import cast, Generator, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -139,7 +139,7 @@ class SubExperiment(Container):
             parallel_experiment=parallel_experiment, description=metadata['description'], force=True
         )
         existing_chemical_drawing = [
-            i for i in sub_experiment.get_children() if i.type == EntityType.CHEMICAL_DRAWING
+            cast(ChemicalDrawing, i) for i in sub_experiment.get_children() if i.type == EntityType.CHEMICAL_DRAWING
         ][0]
 
         child_entities_folders = fs_handler.list_subfolders(path)
@@ -173,4 +173,4 @@ class SubExperiment(Container):
                 )
 
             else:
-                entity_type.load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)
+                entity_type._load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)

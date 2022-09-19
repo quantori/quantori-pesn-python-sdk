@@ -1,7 +1,7 @@
 import json
 import logging
 from functools import cached_property
-from typing import ClassVar, Literal, Optional, Tuple
+from typing import Any, ClassVar, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -136,7 +136,7 @@ class AdminDefinedObject(Container):
         return template.render(data=data)
 
     def dump(
-        self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None
+        self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None
     ) -> None:  # type: ignore[override]
         """Dump AdminDefinedObject entity
 
@@ -155,13 +155,7 @@ class AdminDefinedObject(Container):
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
-            alias
-            + (
-                self.name,
-                '__Metadata',
-            )
-            if alias
-            else None,
+            base_alias=alias + [self.name, '__Metadata'] if alias else None,
         )
         for child in self.get_children():
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
@@ -178,11 +172,15 @@ class AdminDefinedObject(Container):
         Returns:
 
         """
+        cls._load(path, fs_handler, notebook)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
         experiment = cls.create(
-            notebook=notebook,
+            notebook=parent,
             name=metadata['name'],
             ado_type_name=metadata.get('ado_name', CUSTOM_SYSTEM_OBJECT),
             description=metadata['description'],
@@ -191,6 +189,6 @@ class AdminDefinedObject(Container):
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
-            ItemMapper.get_item_class(child_entity_type).load(
+            ItemMapper.get_item_class(child_entity_type)._load(
                 fs_handler.join_path(path, child_entity), fs_handler, experiment
             )

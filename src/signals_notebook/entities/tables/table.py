@@ -2,7 +2,7 @@ import cgi
 import json
 import logging
 from enum import Enum
-from typing import Any, cast, Dict, List, Literal, Optional, Tuple, Union
+from typing import Any, cast, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 import pandas as pd
@@ -412,7 +412,7 @@ class Table(Entity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
         """Dump Table entity
 
         Args:
@@ -437,31 +437,19 @@ class Table(Entity):
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata, default=str),
-            alias
-            + (
-                self.name,
-                '__Metadata',
-            )
-            if alias
-            else None,
+            base_alias=alias + [self.name, '__Metadata'] if alias else None,
         )
         file_name = content.name
         data = content.content
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, file_name),
             data,
-            alias
-            + (
-                self.name,
-                file_name,
-            )
-            if alias
-            else None,
+            base_alias=alias + [self.name, file_name] if alias else None,
         )
         log.debug('Table: %s was dumped successfully', self.eid, self.name)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
         """Load Table entity
 
         Args:
@@ -472,6 +460,10 @@ class Table(Entity):
         Returns:
 
         """
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
         log.debug('Loading table from dump...')
         metadata_path = fs_handler.join_path(path, 'metadata.json')
         metadata = json.loads(fs_handler.read(metadata_path))

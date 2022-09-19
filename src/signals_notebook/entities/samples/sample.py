@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import cast, Dict, List, Literal, Optional, Tuple, TYPE_CHECKING, Union
+from typing import Any, cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -104,7 +104,7 @@ class Sample(Entity):
 
         for item in cells:
             sample_cell = cast(SampleCell, item.body)
-            sample_cell.read_only = item.meta.get('definition').get('readOnly', False)
+            sample_cell.read_only = getattr(item, 'meta', {}).get('definition', {}).get('readOnly', False)
             assert sample_cell.id
 
             self._cells.append(sample_cell)
@@ -154,7 +154,7 @@ class Sample(Entity):
     def create(
         cls,
         *,
-        cells: Optional[List[SampleCell]] = None,
+        cells: Optional[List[SampleCellBody]] = None,
         template: Optional['Sample'] = None,
         ancestors: Optional[List[Union[Container, 'SamplesContainer']]] = None,
         digest: str = None,
@@ -197,9 +197,7 @@ class Sample(Entity):
             request=request,
         )
 
-    def dump(
-        self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None
-    ) -> None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
         """Dump Sample entity
 
         Args:
@@ -219,19 +217,13 @@ class Sample(Entity):
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
-            alias
-            + (
-                self.name,
-                '__Metadata',
-            )
-            if alias
-            else None,
+            base_alias=alias + [self.name, '__Metadata'] if alias else None,
         )
         data = [item.dict() for item in self]
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, f'{self.name}.json'),
             json.dumps({'data': data}, default=str).encode('utf-8'),
-            alias + (self.name, f'{self.name}.json') if alias else None,
+            base_alias=alias + [self.name, f'{self.name}.json'] if alias else None,
         )
 
     @classmethod
@@ -246,6 +238,10 @@ class Sample(Entity):
         Returns:
 
         """
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
         from signals_notebook.entities import EntityStore
 
         log.debug('Loading sample from dump...')
@@ -263,7 +259,7 @@ class Sample(Entity):
             if not item['read_only'] and item['name'] != 'Amount':
                 try:
                     int(item['id'])
-                    cells.append(SampleCell(**item).dict(include={'id', 'name', 'content'}, exclude_none=True))
+                    cells.append(SampleCellBody(**item))
                 except ValueError:
                     pass
 
@@ -305,7 +301,7 @@ class Sample(Entity):
                 template.dump(
                     fs_handler.join_path(base_path, 'templates', entity_type),
                     fs_handler,
-                    ('Templates', entity_type.value),
+                    ['Templates', entity_type.value],
                 )
 
         except TypeError:

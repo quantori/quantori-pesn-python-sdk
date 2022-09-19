@@ -3,7 +3,7 @@ import cgi
 import json
 import logging
 from enum import Enum
-from typing import Optional, Tuple
+from typing import Any, List, Optional
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, File
@@ -76,7 +76,7 @@ class ContentfulEntity(Entity, abc.ABC):
 
         return template.render(data=data)
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
         """Dump ContentfulEntity entity
 
         Args:
@@ -96,30 +96,18 @@ class ContentfulEntity(Entity, abc.ABC):
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
-            alias
-            + (
-                self.name,
-                '__Metadata',
-            )
-            if alias
-            else None,
+            base_alias=alias + [self.name, '__Metadata'] if alias else None,
         )
         file_name = content.name
         data = content.content
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, file_name),
             data,
-            alias
-            + (
-                self.name,
-                file_name,
-            )
-            if alias
-            else None,
+            base_alias=alias + [self.name, file_name] if alias else None,
         )
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:
         """Load ContentfulEntity entity
 
         Args:
@@ -130,6 +118,10 @@ class ContentfulEntity(Entity, abc.ABC):
         Returns:
 
         """
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
         metadata_path = fs_handler.join_path(path, 'metadata.json')
         metadata = json.loads(fs_handler.read(metadata_path))
         content_path = fs_handler.join_path(path, metadata['file_name'])

@@ -302,12 +302,12 @@ class Entity(BaseModel):
 
         return template.render(data=data)
 
-    def dump(self, *args, **kwargs) -> None:
-        log.error('Dumping Entity %s: not implemented!' % str(self))
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
+        log.error('Dumping is not implemented')
 
     @classmethod
-    def load(cls, *args, **kwargs) -> None:
-        log.error('Loading Entity: not implemented!')
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
+        log.error('Loading is not implemented')
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
@@ -332,7 +332,7 @@ class Entity(BaseModel):
                 fs_handler.write(
                     fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
                     json.dumps({k: v for k, v in template.dict().items() if k in ('name', 'description', 'eid')}),
-                    ('Templates', entity_type, template.name),
+                    base_alias=['Templates', entity_type, template.name],
                 )
 
         except TypeError:
