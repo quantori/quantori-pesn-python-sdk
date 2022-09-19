@@ -135,7 +135,9 @@ class AdminDefinedObject(Container):
 
         return template.render(data=data)
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:  # type: ignore[override]
+    def dump(
+        self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None
+    ) -> None:  # type: ignore[override]
         """Dump AdminDefinedObject entity
 
         Args:

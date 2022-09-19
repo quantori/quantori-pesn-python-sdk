@@ -3,7 +3,7 @@ import json
 import logging
 import mimetypes
 import os
-from typing import cast, Generator, Optional, Union, Tuple
+from typing import cast, Generator, Optional, Tuple, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData

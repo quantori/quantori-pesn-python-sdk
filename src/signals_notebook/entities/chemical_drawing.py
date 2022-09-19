@@ -2,7 +2,7 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import cast, ClassVar, Literal, Optional, Union, Tuple
+from typing import cast, ClassVar, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field
 
@@ -296,4 +296,4 @@ class ChemicalDrawing(ContentfulEntity):
             fs_handler.write(fs_handler.join_path(
                 base_path, self.eid, file_name), data,
                 alias + (self.name, file_name) if alias else None
-             )
+            )

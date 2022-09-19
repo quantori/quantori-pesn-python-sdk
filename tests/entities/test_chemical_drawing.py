@@ -4,8 +4,8 @@ import arrow
 import pytest
 
 from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File, ObjectType
-from signals_notebook.entities import ChemicalDrawing, Entity
-from signals_notebook.entities.chemical_drawing import ChemicalStructure, ChemicalDrawingPosition, Structure
+from signals_notebook.entities import ChemicalDrawing
+from signals_notebook.entities.chemical_drawing import ChemicalDrawingPosition, ChemicalStructure, Structure
 
 
 @pytest.fixture()
@@ -305,7 +305,6 @@ def test_dump_not_empty_chemical_drawing(api_mock, mocker, chemical_drawing_fact
     content = b'<?xml version="1.0" encoding="UTF-8" ?>'
     content_type = 'chemical/x-cdxml'
 
-
     structure_reactant = structure_factory(
         id=1, type=ChemicalStructure.REACTANT, inchi='InChI=1S/C3H8', cdxml='<?xml version=1.0'
     )
@@ -428,7 +427,6 @@ def test_dump_empty_chemical_drawing(api_mock, mocker, chemical_drawing_factory,
 
     fs_handler_mock.join_path.assert_not_called()
     fs_handler_mock.write.assert_not_called()
-
 
 
 @pytest.mark.parametrize(

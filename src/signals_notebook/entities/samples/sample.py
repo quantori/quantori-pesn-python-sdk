@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union, Tuple
+from typing import cast, Dict, List, Literal, Optional, Tuple, TYPE_CHECKING, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -197,7 +197,9 @@ class Sample(Entity):
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:  # type: ignore[override]
+    def dump(
+        self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None
+    ) -> None:  # type: ignore[override]
         """Dump Sample entity
 
         Args:

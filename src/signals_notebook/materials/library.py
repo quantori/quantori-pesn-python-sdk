@@ -6,7 +6,7 @@ import time
 import zipfile
 from datetime import datetime
 from enum import Enum
-from typing import Any, cast, List, Literal, Optional, Union, Tuple
+from typing import Any, cast, List, Literal, Optional, Tuple, Union
 
 import requests
 from pydantic import BaseModel, Field, PrivateAttr

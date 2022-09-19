@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import cast, Dict, List, Literal, Union, Optional, Tuple
+from typing import cast, Dict, List, Literal, Optional, Tuple, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
@@ -116,7 +116,9 @@ class Task(Entity):
         self._reload_cells()
         log.debug('Task: %s was saved successfully', self.eid)
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:  # type: ignore[override]
+    def dump(
+        self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None
+    ) -> None:  # type: ignore[override]
         """Dump Task entity
 
         Args:
