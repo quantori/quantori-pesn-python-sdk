@@ -2,7 +2,7 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import cast, ClassVar, Literal, Optional, Union
+from typing import cast, ClassVar, Literal, Optional, Union, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -246,16 +246,21 @@ class ChemicalDrawing(ContentfulEntity):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, 'templates', entity_type),
+                    fs_handler,
+                    ('Templates', entity_type.value),
+                )
         except TypeError:
             pass
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
         """Dump ChemicalDrawing
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -281,7 +286,14 @@ class ChemicalDrawing(ContentfulEntity):
                     },
                 }
 
-            fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata))
+            fs_handler.write(
+                fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+                json.dumps(metadata),
+                alias + (self.name, '__Metadata') if alias else None
+            )
             file_name = content.name
             data = content.content
-            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+            fs_handler.write(fs_handler.join_path(
+                base_path, self.eid, file_name), data,
+                alias + (self.name, file_name) if alias else None
+             )

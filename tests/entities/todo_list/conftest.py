@@ -59,9 +59,7 @@ def task_properties():
                     'name': 'Analyst',
                     'content': {
                         'userInfo': {
-                            'links': {
-                                'self': 'https://example.com/api/rest/v1.0/users/119'
-                            },
+                            'links': {'self': 'https://example.com/api/rest/v1.0/users/119'},
                             'data': {'type': 'user', 'id': '119'},
                         },
                         'value': {

@@ -31,9 +31,8 @@ class StoichiometryDataResponse(Response[DataGrids]):
 
 
 class Stoichiometry(BaseModel, abc.ABC):
-    """Stoichiometry object of Signals Notebook
+    """Stoichiometry object of Signals Notebook"""
 
-    """
     eid: EID = Field(allow_mutation=False)
     reactants: Reactants = Field(default=Reactants(__root__=[]))
     products: Products = Field(default=Products(__root__=[]))

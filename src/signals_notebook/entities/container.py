@@ -3,7 +3,7 @@ import json
 import logging
 import mimetypes
 import os
-from typing import cast, Generator, Optional, Union
+from typing import cast, Generator, Optional, Union, Tuple
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
@@ -92,13 +92,21 @@ class Container(Entity, abc.ABC):
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
+        metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
-            json.dumps({k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}),
+            json.dumps(metadata),
+            alias
+            + (
+                self.name,
+                '__Metadata',
+            )
+            if alias
+            else None,
         )
         for child in self.get_children():
-            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + (self.name,) if alias else None)
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
@@ -120,6 +128,14 @@ class Container(Entity, abc.ABC):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, 'templates', entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, 'templates', entity_type),
+                    fs_handler,
+                    (
+                        'Templates',
+                        entity_type.value,
+                    ),
+                )
+
         except TypeError:
             pass

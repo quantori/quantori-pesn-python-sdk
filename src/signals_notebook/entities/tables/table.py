@@ -2,7 +2,7 @@ import cgi
 import json
 import logging
 from enum import Enum
-from typing import Any, cast, Dict, List, Literal, Union
+from typing import Any, cast, Dict, List, Literal, Union, Tuple, Optional
 from uuid import UUID
 
 import pandas as pd
@@ -412,12 +412,13 @@ class Table(Entity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
         """Dump Table entity
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -433,10 +434,30 @@ class Table(Entity):
             'columns': [item.title for item in column_definitions],
             **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps(metadata, default=str),
+            alias
+            + (
+                self.name,
+                '__Metadata',
+            )
+            if alias
+            else None,
+        )
         file_name = content.name
         data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, file_name),
+            data,
+            alias
+            + (
+                self.name,
+                file_name,
+            )
+            if alias
+            else None,
+        )
         log.debug('Table: %s was dumped successfully', self.eid, self.name)
 
     @classmethod
@@ -515,6 +536,7 @@ class Table(Entity):
                 fs_handler.write(
                     fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
                     json.dumps(metadata),
+                    ('Templates', entity_type.value, template.name),
                 )
         except TypeError:
             pass

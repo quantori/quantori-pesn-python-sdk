@@ -1,7 +1,7 @@
 import json
 import logging
 from functools import cached_property
-from typing import ClassVar, Literal, Optional
+from typing import ClassVar, Literal, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -135,12 +135,13 @@ class AdminDefinedObject(Container):
 
         return template.render(data=data)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -> None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:  # type: ignore[override]
         """Dump AdminDefinedObject entity
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -152,6 +153,13 @@ class AdminDefinedObject(Container):
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
+            alias
+            + (
+                self.name,
+                '__Metadata',
+            )
+            if alias
+            else None,
         )
         for child in self.get_children():
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)

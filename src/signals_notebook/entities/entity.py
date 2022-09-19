@@ -332,6 +332,8 @@ class Entity(BaseModel):
                 fs_handler.write(
                     fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
                     json.dumps({k: v for k, v in template.dict().items() if k in ('name', 'description', 'eid')}),
+                    ('Templates', entity_type, template.name),
                 )
+
         except TypeError:
             pass

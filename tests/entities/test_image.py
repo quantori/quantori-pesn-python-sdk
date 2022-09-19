@@ -136,8 +136,8 @@ def test_dump(image_factory, mocker, api_mock):
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
-            mocker.call(fs_handler_mock.join_path(), content),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), None),
+            mocker.call(fs_handler_mock.join_path(), content, None),
         ],
         any_order=True,
     )
@@ -174,11 +174,7 @@ def test_load(api_mock, experiment_factory, eid_factory, mocker, content_type, f
     }
     fs_handler_mock = mocker.MagicMock()
     base_path = './'
-    metadata = {
-        'file_name': file_name,
-        'name': file_name,
-        'content_type': content_type
-    }
+    metadata = {'file_name': file_name, 'name': file_name, 'content_type': content_type}
     api_mock.call.return_value.json.return_value = response
     fs_handler_mock.read.side_effect = [json.dumps(metadata), content]
     fs_handler_mock.join_path.side_effect = [base_path + 'metadata.json', base_path + file_name]

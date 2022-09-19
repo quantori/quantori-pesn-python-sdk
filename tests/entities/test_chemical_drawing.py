@@ -88,7 +88,7 @@ def test_create(
     }
     api_mock.call.return_value.json.return_value = response
 
-    result = ChemicalDrawing.create(
+    result = entity_class.create(
         container=container, name=file_name, content_type=content_type, content=content, force=force
     )
 
@@ -402,8 +402,8 @@ def test_dump_not_empty_chemical_drawing(api_mock, mocker, chemical_drawing_fact
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata)),
-            mocker.call(fs_handler_mock.join_path(), content),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), None),
+            mocker.call(fs_handler_mock.join_path(), content, None),
         ],
         any_order=True,
     )
@@ -590,8 +590,12 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates, s
         'eid': template_eid,
         'name': 'DEFAULT_CHEMICALDRAWING',
         'description': '',
+        'reactants': [{'id': '1', 'inchi': 'InChI=1S/C3H8', 'cdxml': '<?xml version=1.0'}],
+        'products': [{'id': '2', 'inchi': 'InChI=1S/C3H8', 'cdxml': '<?xml version=1.0'}],
+        'reagents': [{'id': '3', 'inchi': 'InChI=1S/C3H8', 'cdxml': '<?xml version=1.0'}]
     }
 
+    api_mock.call.return_value.json.return_value = templates
     chemical_drawing.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
 
     join_path_call_1 = mocker.call(base_path, 'templates', chemical_drawing.type)
@@ -603,6 +607,21 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates, s
             join_path_call_1,
             join_path_call_2,
             join_path_call_3,
+        ],
+        any_order=True,
+    )
+    fs_handler_mock.write.assert_has_calls(
+        [
+            mocker.call(
+                fs_handler_mock.join_path(),
+                json.dumps(metadata),
+                ('Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', '__Metadata'),
+            ),
+            mocker.call(
+                fs_handler_mock.join_path(),
+                content,
+                ('Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', 'chemDraw.cdxml'),
+            ),
         ],
         any_order=True,
     )

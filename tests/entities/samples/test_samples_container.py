@@ -346,9 +346,9 @@ def test_dump(
     data = [item.dict() for item in sample]
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(sample_container_metadata)),
-            mocker.call(fs_handler_mock.join_path(), content_response.content),
-            mocker.call(fs_handler_mock.join_path(), json.dumps(sample_metadata)),
-            mocker.call(fs_handler_mock.join_path(), json.dumps({'data': data}, default=str).encode('utf-8')),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(sample_container_metadata), None),
+            mocker.call(fs_handler_mock.join_path(), content_response.content, None),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(sample_metadata), None),
+            mocker.call(fs_handler_mock.join_path(), json.dumps({'data': data}, default=str).encode('utf-8'), None),
         ],
     )

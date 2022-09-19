@@ -232,9 +232,7 @@ def test_get_members(api_mock, group_factory, get_response_object, mocker, user_
                 method='GET',
                 path=('groups', group.id, 'members'),
             ),
-            mocker.call(
-                method='GET', path=('users', user.id)
-            ),
+            mocker.call(method='GET', path=('users', user.id)),
         ]
     )
     assert isinstance(group_members[0], User)
@@ -333,9 +331,7 @@ def test_add_user(api_mock, user_factory, group_factory, get_response_object, mo
                 method='GET',
                 path=('groups', group.id, 'members'),
             ),
-            mocker.call(
-                method='GET', path=('users', user.id)
-            ),
+            mocker.call(method='GET', path=('users', user.id)),
         ]
     )
     assert isinstance(group_members[0], User)

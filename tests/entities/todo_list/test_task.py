@@ -69,9 +69,7 @@ def test_save(api_mock, task_factory, task_properties, mocker):
     )
 
 
-@pytest.mark.parametrize(
-    'index', [1, '3']
-)
+@pytest.mark.parametrize('index', [1, '3'])
 def test_getitem(api_mock, task_factory, task_properties, index):
     task = task_factory()
 
