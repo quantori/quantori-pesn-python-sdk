@@ -3,7 +3,7 @@ name: Pull request
 on:
   pull_request:
     types:
-      - opened
+      - edited
 
 jobs:
   build:
