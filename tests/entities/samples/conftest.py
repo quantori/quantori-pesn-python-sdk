@@ -14,6 +14,11 @@ def sample_properties():
                     'name': 'ID',
                     'content': {'value': 'Sample-1756'},
                 },
+                'meta': {
+                    'definition': {
+                        'readOnly': True,
+                    }
+                },
             },
             {
                 'type': 'property',
@@ -23,16 +28,28 @@ def sample_properties():
                     'name': 'Template',
                     'content': {'value': 'Sample'},
                 },
+                'meta': {
+                    'definition': {
+                    }
+                },
             },
             {
                 'type': 'property',
                 'id': 'digests.self',
                 'attributes': {'id': 'digests.self'},
+                'meta': {
+                    'definition': {
+                    }
+                },
             },
             {
                 'type': 'property',
                 'id': 'digests.external',
                 'attributes': {'id': 'digests.external'},
+                'meta': {
+                    'definition': {
+                    }
+                },
             },
             {
                 'type': 'property',
@@ -42,16 +59,62 @@ def sample_properties():
                     'name': 'Created Date',
                     'content': {'value': '2022-06-02T07:27:10.072365283Z'},
                 },
+                'meta': {
+                    'definition': {
+                        'readOnly': True,
+                    }
+                },
             },
             {
                 'type': 'property',
                 'id': '2',
                 'attributes': {'id': '2', 'name': 'Description', 'content': {'value': 'simple'}},
+                'meta': {
+                    'definition': {
+                        'readOnly': False,
+                    }
+                },
             },
             {
                 'type': 'property',
                 'id': '3',
                 'attributes': {'id': '3', 'name': 'Comments', 'content': {'value': '555'}},
+                'meta': {
+                    'definition': {
+                        'readOnly': True,
+                    }
+                },
+            },
+        ],
+    }
+
+
+@pytest.fixture()
+def templates():
+    return {
+        'links': {
+            'self': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=sample&includeOptions=template&page[offset]=0&page[limit]=20',
+            'first': 'https://ex.com/api/rest/v1.0/'
+            'entities?includeTypes=sample&includeOptions=template&page[offset]=0&page[limit]=20',
+        },
+        'data': [
+            {
+                'type': 'entity',
+                'id': 'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
+                'links': {'self': 'https://ex.com/api/rest/v1.0/entities/sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122'},
+                'attributes': {
+                    'id': 'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
+                    'eid': 'sample:fcaa5e11-ace8-4d2c-a212-293dad3c2122',
+                    'name': 'Sample',
+                    'description': '',
+                    'createdAt': '2021-10-22T13:36:03.908Z',
+                    'editedAt': '2021-11-11T10:46:49.703Z',
+                    'type': 'sample',
+                    'digest': '68360779',
+                    'fields': {'Description': {'value': ''}, 'Name': {'value': 'Sample'}},
+                    'flags': {'canEdit': True},
+                },
             },
         ],
     }

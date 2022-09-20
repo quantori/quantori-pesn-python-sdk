@@ -220,10 +220,15 @@ class User(BaseUser):
                 }
             },
         )
-        log.debug('User: %s was created.', cls.__name__)
 
         result = UserResponse(**response.json())
-        return cast(ResponseData, result.data).body
+
+        user = cast(ResponseData, result.data).body
+        user.set_relationships(result.data.relationships)  # type: ignore
+
+        log.debug('User: %s was created.', cls.__name__)
+
+        return user
 
     def refresh(self) -> None:
         """Refresh user with new changes values

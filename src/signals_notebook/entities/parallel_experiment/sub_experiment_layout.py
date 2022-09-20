@@ -18,4 +18,4 @@ class SubExperimentLayout(ContentfulEntity):
         return EntityType.SUB_EXPERIMENT_LAYOUT
 
     def get_content(self) -> File:
-        return super()._get_content()
+        return super()._get_content(format='csv')

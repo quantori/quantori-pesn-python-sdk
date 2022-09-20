@@ -18,6 +18,7 @@ from signals_notebook.common_types import (
     ResponseData,
 )
 from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 ChildClass = TypeVar('ChildClass', bound='Entity')
 CellValueType = TypeVar('CellValueType')
@@ -219,7 +220,7 @@ class Entity(BaseModel):
                 'digest': digest,
                 'force': json.dumps(force),
             },
-            json=request.dict(exclude_none=True),
+            json=request.dict(exclude_none=True, by_alias=True),
         )
         log.debug('Entity: %s was created.', cls.__name__)
 
@@ -300,3 +301,39 @@ class Entity(BaseModel):
         log.info('Html template for %s:%s has been rendered.', self.__class__.__name__, self.eid)
 
         return template.render(data=data)
+
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
+        log.error('Dumping is not implemented')
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
+        log.error('Loading is not implemented')
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump Entity templates
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+        from signals_notebook.entities import EntityStore
+
+        entity_type = cls._get_entity_type()
+
+        templates = EntityStore.get_list(
+            include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
+        )
+        try:
+            for template in templates:
+                fs_handler.write(
+                    fs_handler.join_path(base_path, 'templates', entity_type, f'metadata_{template.name}.json'),
+                    json.dumps({k: v for k, v in template.dict().items() if k in ('name', 'description', 'eid')}),
+                    base_alias=['Templates', entity_type, template.name],
+                )
+
+        except TypeError:
+            pass

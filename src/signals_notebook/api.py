@@ -1,4 +1,5 @@
 import logging
+from enum import Enum
 from typing import Any, Dict, IO, Iterable, Mapping, Optional, Sequence, Tuple, Union
 
 import requests
@@ -119,6 +120,10 @@ class SignalsNotebookApi:
             headers = {}
 
         headers = {**self.HTTP_DEFAULT_HEADERS, **headers}
+
+        for key, value in headers.items():
+            if isinstance(value, Enum):
+                headers[key] = value.value
 
         if json:
             response = self._session.request(

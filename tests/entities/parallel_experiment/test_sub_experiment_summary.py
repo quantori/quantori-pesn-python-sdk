@@ -51,7 +51,7 @@ def test_reload_properties(api_mock, reload_data_response, sub_experiment_summar
 
     api_mock.call.assert_called_once_with(
         method='GET',
-        path=(sub_experiment_summary._get_endpoint(), sub_experiment_summary.eid, 'rows'),
+        path=(sub_experiment_summary._get_subexpsum_endpoint(), sub_experiment_summary.eid, 'rows'),
     )
 
 
@@ -126,11 +126,11 @@ def test_save(
         [
             mocker.call(
                 method='GET',
-                path=(sub_experiment_summary._get_endpoint(), sub_experiment_summary.eid, 'rows'),
+                path=(sub_experiment_summary._get_subexpsum_endpoint(), sub_experiment_summary.eid, 'rows'),
             ),
             mocker.call(
                 method='PATCH',
-                path=(sub_experiment_summary._get_endpoint(), sub_experiment_summary.eid, 'bulkUpdate'),
+                path=(sub_experiment_summary._get_subexpsum_endpoint(), sub_experiment_summary.eid, 'bulkUpdate'),
                 params={
                     'force': 'true',
                 },
@@ -140,11 +140,16 @@ def test_save(
             ),
             mocker.call(
                 method='GET',
-                path=(sub_experiment_summary._get_endpoint(), sub_experiment_summary.eid, 'bulkUpdate', str(update_id)),
+                path=(
+                    sub_experiment_summary._get_subexpsum_endpoint(),
+                    sub_experiment_summary.eid,
+                    'bulkUpdate',
+                    str(update_id),
+                ),
             ),
             mocker.call(
                 method='GET',
-                path=(sub_experiment_summary._get_endpoint(), sub_experiment_summary.eid, 'rows'),
+                path=(sub_experiment_summary._get_subexpsum_endpoint(), sub_experiment_summary.eid, 'rows'),
             ),
         ],
         any_order=True,

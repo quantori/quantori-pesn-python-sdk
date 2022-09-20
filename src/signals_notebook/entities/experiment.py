@@ -1,7 +1,8 @@
+import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import ClassVar, Generator, Literal, Optional, Union
+from typing import Any, ClassVar, Generator, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -11,6 +12,7 @@ from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
 from signals_notebook.jinja_env import env
+from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -62,7 +64,7 @@ class Experiment(Container):
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -> 'Notebook':
+    ) -> 'Experiment':
         """Create new Experiment in Signals Notebook
 
         Args:
@@ -104,7 +106,7 @@ class Experiment(Container):
 
     @cached_property
     def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
-        """ Fetch stoichiometry data of experiment
+        """Fetch stoichiometry data of experiment
 
         Returns:
             Stoichiometry object or list of Stoichiometry objects
@@ -131,10 +133,39 @@ class Experiment(Container):
 
         return template.render(data=data)
 
-    def get_children(self, order: str = 'layout') -> Generator[Entity, None, None]:
+    def get_children(self, order: Optional[str] = 'layout') -> Generator[Entity, None, None]:
         """Get children of Experiment.
 
         Returns:
             list of Entities
         """
         return super().get_children(order=order)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
+        """Load Experiment entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            notebook: Container where load Experiment entity
+
+        Returns:
+
+        """
+        cls._load(path, fs_handler, notebook)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
+        from signals_notebook.item_mapper import ItemMapper
+
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
+        experiment = cls.create(
+            notebook=parent, name=metadata['name'], description=metadata['description'], force=True
+        )
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(':')[0]
+            ItemMapper.get_item_class(child_entity_type)._load(
+                fs_handler.join_path(path, child_entity), fs_handler, experiment
+            )

@@ -7,8 +7,7 @@ from snapshottest import Snapshot
 
 snapshots = Snapshot()
 
-snapshots['test_get_html 1'] = '''
-<div class="table-wrapper" style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
+snapshots['test_get_html 1'] = '''<div class="table-wrapper" style="margin: 10px 10px; padding: 6px 10px; border: solid 1px #f5f5f5;">
     <div class="table-scroll">
         <h2>name</h2>
         <table>
@@ -50,5 +49,4 @@ snapshots['test_get_html 1'] = '''
             </tbody>
         </table>
     </div>
-</div>
-'''
+</div>'''

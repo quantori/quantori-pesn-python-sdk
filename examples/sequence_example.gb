@@ -1,0 +1,21 @@
+LOCUS       Chimeric_DNA_tail_only   2000 bp   DNA     circular BCT 18-Jan-2021
+KEYWORDS    Chimeric_DNA_tail_only
+SOURCE      Synthetic organism
+  ORGANISM  Synthetic organism
+FEATURES             Location/Qualifiers
+     misc_feature    12..18
+                     /label="Misc Test feature 1"
+     misc_feature    20..30
+                     /label="Misc Test feature 2"
+     misc_feature    complement(386..504)
+                     /label="Reverse direction"
+                     /direction="LEFT"
+                     /gene="Chimera"
+                     /translation="MWTGKDYTDTCASHRADVATFIPEYRLEQHHQCSAMWSNRTYWMMNFGK"
+     primer_bind     25..78
+                     /label="primer 1"
+ORIGIN
+        1 CGTGGGTCTC TCGCGGTATC ATTGCAGCAC TGAAAAAAAA AACTGGGGCC AGATGGGTAA
+       61 GCCCTCCCCC CGGCGACGGC GGAGTCAGGC TGATGATGAT TTTTTTAAGA ACTCTGTAGC
+      121 ACCGCC
+//

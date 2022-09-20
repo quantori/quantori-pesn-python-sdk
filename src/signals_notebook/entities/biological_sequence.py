@@ -1,5 +1,5 @@
 import logging
-import mimetypes
+from enum import Enum
 from typing import ClassVar, Literal
 
 from pydantic import Field
@@ -14,6 +14,14 @@ log = logging.getLogger(__name__)
 
 
 class BiologicalSequence(ContentfulEntity):
+    class ContentType(str, Enum):
+        FASTA = 'biosequence/fasta'
+        GB = 'biosequence/genbank'
+        GBK = 'biosequence/genpept'
+        SW = 'chemical/x-swissprot'
+        DNA = 'application/vnd.snapgene.dna'
+        PROT = 'application/vnd.snapgene.protein'
+
     type: Literal[EntityType.BIO_SEQUENCE] = Field(allow_mutation=False)
     _template_name: ClassVar = 'bio_sequence.html'
 
@@ -28,7 +36,7 @@ class BiologicalSequence(ContentfulEntity):
         container: Container,
         name: str,
         content: bytes = b'',
-        file_extension: str = '',
+        content_type: str = ContentType.GB,
         force: bool = True,
     ) -> Entity:
         """Create BiologicalSequence Entity
@@ -36,17 +44,15 @@ class BiologicalSequence(ContentfulEntity):
         Args:
             container: Container where create new BiologicalSequence
             name: file name
+            content_type: content type of BiologicalSequence entity
             content: BiologicalSequence content
-            file_extension: BiologicalSequence extension
             force: Force to post attachment
 
         Returns:
             BiologicalSequence
         """
+        cls.ContentType(content_type)
         log.debug('Create entity: %s with name: %s in Container: %s', cls.__name__, name, container.eid)
-
-        file_extension = file_extension.replace('.', '')
-        content_type = mimetypes.types_map.get(f'.{file_extension}', 'biosequence/genbank')
         return container.add_child(
             name=name,
             content=content,
@@ -55,6 +61,11 @@ class BiologicalSequence(ContentfulEntity):
         )
 
     def get_content(self) -> File:
+        """Get BiologicalSequence content
+
+        Returns:
+            File
+        """
         return super()._get_content()
 
     def get_html(self) -> str:

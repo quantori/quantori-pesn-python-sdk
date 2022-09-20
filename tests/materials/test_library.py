@@ -518,6 +518,17 @@ def get_response(mocker):
     return _f
 
 
+@pytest.fixture()
+def get_failed_response(mocker):
+    def _f(response):
+        mock = mocker.Mock()
+        mock.status_code = 400
+        mock.json.return_value = response
+        return mock
+
+    return _f
+
+
 def test_get_content(library_factory, api_mock, mocker, get_response):
     library = library_factory()
     content = b'Content'
@@ -629,6 +640,45 @@ def test_get_content_timeout(library_factory, api_mock, get_response):
         library.get_content(timeout=1)
 
     assert str(e.value) == 'Time is over to get file'
+
+
+def test_get_content_empty_library(library_factory, api_mock, get_response):
+    library = library_factory()
+
+    response1 = {
+        'data': {
+            'type': 'bulkExportReport',
+            'id': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9',
+            'attributes': {'fileId': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9', 'reportId': '62b58331d8bb040577c1850d'},
+        }
+    }
+
+    response2 = {
+        'data': {
+            'type': 'materialBulkExportReport',
+            'id': '62b58331d8bb040577c1850d',
+            'attributes': {
+                'id': '62b58331d8bb040577c1850d',
+                'libraryName': library.name,
+                'createdAt': '2022-06-24T09:26:09.723014517Z',
+                'startedAt': '2022-06-24T09:26:09.724814132Z',
+                'completedAt': '2022-06-24T09:26:10.786280759Z',
+                'modifiedAtSecsSinceEpoch': 0,
+                'status': 'FAILED',
+                'fileId': '6beeaaa6-c6bb-4226-919d-f3ea8a9a2af9',
+                'count': 5,
+                'total': 5,
+                'error': {'description': 'Nothing to export.'},
+            },
+        }
+    }
+
+    api_mock.call.side_effect = [get_response(response1), get_response(response2)]
+
+    with pytest.raises(FileNotFoundError) as e:
+        library.get_content()
+
+    assert str(e.value) == 'Library is empty'
 
 
 @pytest.mark.parametrize(
@@ -854,7 +904,9 @@ def test_bulk_import_zip_format(library_factory, file_factory, api_mock, mocker,
         'USE_MATCHES',
     ],
 )
-def test_bulk_import_zip_format_timeout(library_factory, file_factory, api_mock, mocker, get_response, rule):
+def test_bulk_import_zip_format_timeout(
+    library_factory, file_factory, api_mock, mocker, get_response, rule, get_failed_response
+):
     content = b'content'
     content_type = 'application/octet-stream'
 
@@ -923,9 +975,9 @@ def test_bulk_import_zip_format_timeout(library_factory, file_factory, api_mock,
 
     job_id = response1['data']['id']
 
-    api_mock.call.side_effect = [get_response(response1), get_response(response2), failure_response]
+    api_mock.call.side_effect = [get_response(response1), get_failed_response(response2), failure_response]
 
-    result = library.bulk_import(materials=file, rule=rule, import_type=import_type, timeout=1)
+    result = library.bulk_import(materials=file, rule=rule, import_type=import_type, timeout=0.001)
 
     api_mock.call.assert_has_calls(
         [

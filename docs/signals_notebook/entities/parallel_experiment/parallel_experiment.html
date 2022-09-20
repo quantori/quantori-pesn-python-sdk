@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import logging
+<pre><code class="python">import json
+import logging
 from enum import Enum
 from functools import cached_property
 from typing import ClassVar, Generator, Literal, Optional
@@ -43,6 +44,7 @@ from signals_notebook.entities import Entity
 from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.jinja_env import env
+from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -159,7 +161,32 @@ class ParallelExperiment(Container):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(data=data)</code></pre>
+        return template.render(data=data)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+        from signals_notebook.item_mapper import ItemMapper
+
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
+        experiment = cls.create(
+            notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+        )
+        experiment_children = [
+            child for child in experiment.get_children() if child.type != EntityType.SUB_EXPERIMENT_SUMMARY
+        ]
+
+        for child_entity in experiment_children:
+            child_entity.delete()
+
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(&#39;:&#39;)[0]
+            try:
+                ItemMapper.get_item_class(child_entity_type).load(
+                    fs_handler.join_path(path, child_entity), fs_handler, experiment
+                )
+            except NotImplementedError:
+                log.info(&#39;Entity %s is not implemented.&#39;, child_entity)</code></pre>
 </details>
 </section>
 <section>
@@ -333,7 +360,32 @@ class ParallelExperiment(Container):
         template = env.get_template(self._template_name)
         log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
 
-        return template.render(data=data)</code></pre>
+        return template.render(data=data)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+        from signals_notebook.item_mapper import ItemMapper
+
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
+        experiment = cls.create(
+            notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+        )
+        experiment_children = [
+            child for child in experiment.get_children() if child.type != EntityType.SUB_EXPERIMENT_SUMMARY
+        ]
+
+        for child_entity in experiment_children:
+            child_entity.delete()
+
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(&#39;:&#39;)[0]
+            try:
+                ItemMapper.get_item_class(child_entity_type).load(
+                    fs_handler.join_path(path, child_entity), fs_handler, experiment
+                )
+            except NotImplementedError:
+                log.info(&#39;Entity %s is not implemented.&#39;, child_entity)</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -437,6 +489,41 @@ def create(
     )</code></pre>
 </details>
 </dd>
+<dt id="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, notebook: <a title="signals_notebook.entities.notebook.Notebook" href="../notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+    from signals_notebook.item_mapper import ItemMapper
+
+    metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
+    experiment = cls.create(
+        notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+    )
+    experiment_children = [
+        child for child in experiment.get_children() if child.type != EntityType.SUB_EXPERIMENT_SUMMARY
+    ]
+
+    for child_entity in experiment_children:
+        child_entity.delete()
+
+    child_entities_folders = fs_handler.list_subfolders(path)
+    for child_entity in child_entities_folders:
+        child_entity_type = child_entity.split(&#39;:&#39;)[0]
+        try:
+            ItemMapper.get_item_class(child_entity_type).load(
+                fs_handler.join_path(path, child_entity), fs_handler, experiment
+            )
+        except NotImplementedError:
+            log.info(&#39;Entity %s is not implemented.&#39;, child_entity)</code></pre>
+</details>
+</dd>
 </dl>
 <h3>Methods</h3>
 <dl>
@@ -498,6 +585,7 @@ def create(
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.container.Container.add_child" href="../container.html#signals_notebook.entities.container.Container.add_child">add_child</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.delete" href="../entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.dump_templates" href="../container.html#signals_notebook.entities.container.Container.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_list" href="../entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_subclasses" href="../entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_template_name" href="../entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
@@ -546,6 +634,7 @@ def create(
 <li><code><a title="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.create" href="#signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.create">create</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.get_children" href="#signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.get_children">get_children</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.get_html" href="#signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.get_html">get_html</a></code></li>
+<li><code><a title="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.load" href="#signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.state" href="#signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.state">state</a></code></li>
 <li><code><a title="signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.type" href="#signals_notebook.entities.parallel_experiment.parallel_experiment.ParallelExperiment.type">type</a></code></li>
 </ul>

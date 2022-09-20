@@ -12,6 +12,7 @@ class PatchedModel(BaseModel):
     https://github.com/samuelcolvin/pydantic/issues/1577
     Adds ability to use properties with setters
     """
+
     @no_type_check
     def __setattr__(self, name, value):
         try:

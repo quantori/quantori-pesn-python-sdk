@@ -7,6 +7,7 @@ from typing import cast, Generator, List, Union
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EID, EntityType, Response, ResponseData
 from signals_notebook.entities import Entity
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -157,3 +158,21 @@ class EntityStore:
             },
         )
         log.debug('Entity: %s was deleted from EntityStore successfully', eid)
+
+    @classmethod
+    def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
+        """Dump all templates from system
+
+        Args:
+            base_path: content path where create templates dump
+            fs_handler: FSHandler
+
+        Returns:
+
+        """
+
+        for item in Entity.get_subclasses():
+            try:
+                item.dump_templates(base_path, fs_handler)
+            except Exception as e:
+                log.error('Failed to dump templates for %s with error %s' % (str(item), str(e)))

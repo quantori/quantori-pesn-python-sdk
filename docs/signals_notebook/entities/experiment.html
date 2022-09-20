@@ -26,7 +26,8 @@
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">import logging
+<pre><code class="python">import json
+import logging
 from enum import Enum
 from functools import cached_property
 from typing import ClassVar, Generator, Literal, Optional, Union
@@ -39,6 +40,7 @@ from signals_notebook.entities.container import Container
 from signals_notebook.entities.notebook import Notebook
 from signals_notebook.entities.stoichiometry.stoichiometry import Stoichiometry
 from signals_notebook.jinja_env import env
+from signals_notebook.utils.fs_handler import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -90,7 +92,7 @@ class Experiment(Container):
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -&gt; &#39;Notebook&#39;:
+    ) -&gt; &#39;Experiment&#39;:
         &#34;&#34;&#34;Create new Experiment in Signals Notebook
 
         Args:
@@ -159,13 +161,38 @@ class Experiment(Container):
 
         return template.render(data=data)
 
-    def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order: Optional[str] = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of Experiment.
 
         Returns:
             list of Entities
         &#34;&#34;&#34;
-        return super().get_children(order=order)</code></pre>
+        return super().get_children(order=order)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:  # type: ignore[override]
+        &#34;&#34;&#34;Load Experiment entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            notebook: Container where load Experiment entity
+
+        Returns:
+
+        &#34;&#34;&#34;
+        from signals_notebook.item_mapper import ItemMapper
+
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
+        experiment = cls.create(
+            notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+        )
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(&#39;:&#39;)[0]
+            ItemMapper.get_item_class(child_entity_type).load(
+                fs_handler.join_path(path, child_entity), fs_handler, experiment
+            )</code></pre>
 </details>
 </section>
 <section>
@@ -243,7 +270,7 @@ class Experiment(Container):
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -&gt; &#39;Notebook&#39;:
+    ) -&gt; &#39;Experiment&#39;:
         &#34;&#34;&#34;Create new Experiment in Signals Notebook
 
         Args:
@@ -312,13 +339,38 @@ class Experiment(Container):
 
         return template.render(data=data)
 
-    def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+    def get_children(self, order: Optional[str] = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
         &#34;&#34;&#34;Get children of Experiment.
 
         Returns:
             list of Entities
         &#34;&#34;&#34;
-        return super().get_children(order=order)</code></pre>
+        return super().get_children(order=order)
+
+    @classmethod
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:  # type: ignore[override]
+        &#34;&#34;&#34;Load Experiment entity
+
+        Args:
+            path: content path
+            fs_handler: FSHandler
+            notebook: Container where load Experiment entity
+
+        Returns:
+
+        &#34;&#34;&#34;
+        from signals_notebook.item_mapper import ItemMapper
+
+        metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
+        experiment = cls.create(
+            notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+        )
+        child_entities_folders = fs_handler.list_subfolders(path)
+        for child_entity in child_entities_folders:
+            child_entity_type = child_entity.split(&#39;:&#39;)[0]
+            ItemMapper.get_item_class(child_entity_type).load(
+                fs_handler.join_path(path, child_entity), fs_handler, experiment
+            )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -346,7 +398,7 @@ class Experiment(Container):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.experiment.Experiment.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, name: str, description: Optional[str] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.experiment.Experiment" href="#signals_notebook.entities.experiment.Experiment">Experiment</a>')] = None, notebook: Optional[<a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, name: str, description: Optional[str] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.experiment.Experiment" href="#signals_notebook.entities.experiment.Experiment">Experiment</a>')] = None, notebook: Optional[<a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.experiment.Experiment" href="#signals_notebook.entities.experiment.Experiment">Experiment</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create new Experiment in Signals Notebook</p>
@@ -381,7 +433,7 @@ def create(
     notebook: Optional[Notebook] = None,
     digest: str = None,
     force: bool = True,
-) -&gt; &#39;Notebook&#39;:
+) -&gt; &#39;Experiment&#39;:
     &#34;&#34;&#34;Create new Experiment in Signals Notebook
 
     Args:
@@ -420,6 +472,51 @@ def create(
         force=force,
         request=request,
     )</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.entities.experiment.Experiment.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, notebook: <a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>) ‑> None</span>
+</code></dt>
+<dd>
+<div class="desc"><p>Load Experiment entity</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>path</code></strong></dt>
+<dd>content path</dd>
+<dt><strong><code>fs_handler</code></strong></dt>
+<dd>FSHandler</dd>
+<dt><strong><code>notebook</code></strong></dt>
+<dd>Container where load Experiment entity</dd>
+</dl>
+<p>Returns:</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@classmethod
+def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:  # type: ignore[override]
+    &#34;&#34;&#34;Load Experiment entity
+
+    Args:
+        path: content path
+        fs_handler: FSHandler
+        notebook: Container where load Experiment entity
+
+    Returns:
+
+    &#34;&#34;&#34;
+    from signals_notebook.item_mapper import ItemMapper
+
+    metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
+    experiment = cls.create(
+        notebook=notebook, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+    )
+    child_entities_folders = fs_handler.list_subfolders(path)
+    for child_entity in child_entities_folders:
+        child_entity_type = child_entity.split(&#39;:&#39;)[0]
+        ItemMapper.get_item_class(child_entity_type).load(
+            fs_handler.join_path(path, child_entity), fs_handler, experiment
+        )</code></pre>
 </details>
 </dd>
 </dl>
@@ -470,7 +567,7 @@ def create(
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.entities.experiment.Experiment.get_children"><code class="name flex">
-<span>def <span class="ident">get_children</span></span>(<span>self, order: str = 'layout') ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
+<span>def <span class="ident">get_children</span></span>(<span>self, order: Optional[str] = 'layout') ‑> Generator[<a title="signals_notebook.entities.entity.Entity" href="entity.html#signals_notebook.entities.entity.Entity">Entity</a>, None, None]</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Get children of Experiment.</p>
@@ -480,7 +577,7 @@ def create(
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def get_children(self, order: str = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
+<pre><code class="python">def get_children(self, order: Optional[str] = &#39;layout&#39;) -&gt; Generator[Entity, None, None]:
     &#34;&#34;&#34;Get children of Experiment.
 
     Returns:
@@ -527,6 +624,7 @@ def create(
 <ul class="hlist">
 <li><code><a title="signals_notebook.entities.container.Container.add_child" href="container.html#signals_notebook.entities.container.Container.add_child">add_child</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.delete" href="entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
+<li><code><a title="signals_notebook.entities.container.Container.dump_templates" href="container.html#signals_notebook.entities.container.Container.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_list" href="entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_subclasses" href="entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_template_name" href="entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
@@ -599,6 +697,7 @@ def create(
 <li><code><a title="signals_notebook.entities.experiment.Experiment.create" href="#signals_notebook.entities.experiment.Experiment.create">create</a></code></li>
 <li><code><a title="signals_notebook.entities.experiment.Experiment.get_children" href="#signals_notebook.entities.experiment.Experiment.get_children">get_children</a></code></li>
 <li><code><a title="signals_notebook.entities.experiment.Experiment.get_html" href="#signals_notebook.entities.experiment.Experiment.get_html">get_html</a></code></li>
+<li><code><a title="signals_notebook.entities.experiment.Experiment.load" href="#signals_notebook.entities.experiment.Experiment.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.experiment.Experiment.state" href="#signals_notebook.entities.experiment.Experiment.state">state</a></code></li>
 <li><code><a title="signals_notebook.entities.experiment.Experiment.stoichiometry" href="#signals_notebook.entities.experiment.Experiment.stoichiometry">stoichiometry</a></code></li>
 <li><code><a title="signals_notebook.entities.experiment.Experiment.type" href="#signals_notebook.entities.experiment.Experiment.type">type</a></code></li>

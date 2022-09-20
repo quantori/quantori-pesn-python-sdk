@@ -1,6 +1,9 @@
 import cgi
+import io
+import json
 import logging
 import time
+import zipfile
 from datetime import datetime
 from enum import Enum
 from typing import Any, cast, List, Literal, Optional, Union
@@ -14,8 +17,10 @@ from signals_notebook.materials.asset import Asset
 from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.field import AssetConfig, BatchConfig
+from signals_notebook.utils.fs_handler import FSHandler
 
 MAX_MATERIAL_FILE_SIZE = 52428800
+EXPORT_ERROR_LIBRARY_EMPTY = 'Nothing to export.'
 
 log = logging.getLogger(__name__)
 
@@ -361,7 +366,7 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def _is_file_ready(self, report_id: str) -> bool:
+    def _is_file_ready(self, report_id: str) -> dict[str, Any]:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
 
@@ -369,7 +374,16 @@ class Library(BaseMaterialEntity):
             method='GET',
             path=(self._get_endpoint(), 'bulkExport', 'reports', report_id),
         )
-        return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
+        response_attributes = response.json().get('data').get('attributes')
+        status = response_attributes.get('status')
+        error = response_attributes.get('error', None)
+
+        result = {
+            'success': response.status_code == 200 and status == 'COMPLETED',
+            'error': error.get('description') if error else None,
+        }
+
+        return result
 
     def _download_file(self, file_id: str) -> requests.Response:
         api = SignalsNotebookApi.get_default_api()
@@ -406,7 +420,10 @@ class Library(BaseMaterialEntity):
         response = None
 
         while time.time() - initial_time < timeout:
-            if self._is_file_ready(report_id):
+            result = self._is_file_ready(report_id)
+            if result['error'] == EXPORT_ERROR_LIBRARY_EMPTY:
+                raise FileNotFoundError('Library is empty')
+            if result['success'] and not result['error']:
                 response = self._download_file(file_id)
                 break
             else:
@@ -422,13 +439,11 @@ class Library(BaseMaterialEntity):
             name=params['filename'], content=response.content, content_type=response.headers.get('content-type')
         )
 
-    def _is_import_job_completed(self, job_id: str) -> bool:
+    def _get_import_job_completed_response(self, job_id: str) -> requests.Response:
         api = SignalsNotebookApi.get_default_api()
         log.debug('Check job status for: %s| %s', self.__class__.__name__, self.eid)
 
-        response = api.call(method='GET', path=(self._get_endpoint(), 'bulkImport', 'jobs', job_id))
-
-        return response.status_code == 200 and response.json()['data']['attributes']['status'] == 'COMPLETED'
+        return api.call(method='GET', path=(self._get_endpoint(), 'bulkImport', 'jobs', job_id))
 
     def _import_materials(
         self,
@@ -507,15 +522,21 @@ class Library(BaseMaterialEntity):
         initial_time = time.time()
 
         response = False
+        import_job_status = 'FAILED'
 
         while time.time() - initial_time < timeout:
-            if not self._is_import_job_completed(job_id):
+            completed_import_response = self._get_import_job_completed_response(job_id)
+            import_job_status = completed_import_response.json()['data']['attributes']['status']
+            import_response_code = completed_import_response.status_code
+
+            if import_response_code != 200 and import_job_status != 'COMPLETED':
                 time.sleep(period)
             else:
                 response = True
+                log.debug('Library import is completed')
                 break
 
-        if not response:
+        if not response and import_job_status == 'FAILED':
             log.debug('Time is over to import file')
 
             failure_report_reponse = api.call(
@@ -533,3 +554,53 @@ class Library(BaseMaterialEntity):
                 content=failure_report_reponse.content,
                 content_type=failure_report_reponse.headers.get('content-type'),
             )
+
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None):
+        metadata = {
+            **{k: v for k, v in self.dict().items() if k in ('library_name', 'asset_type_id', 'eid', 'name')},
+        }
+        try:
+            content = self.get_content(timeout=60)
+            metadata['file_name'] = content.name
+            file_name = content.name
+            data = content.content
+            fs_handler.write(
+                fs_handler.join_path(base_path, self.eid, file_name),
+                data,
+                base_alias=alias + [metadata['name'], file_name] if alias else None,
+            )
+        except FileNotFoundError:
+            metadata['error'] = 'Library is empty'
+        except TimeoutError:
+            metadata['error'] = 'Time is over to dump library'
+
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps(metadata),
+            base_alias=alias + [metadata['name'], '__Metadata'] if alias else None,
+        )
+
+    @staticmethod
+    def _generate_zip(my_file):
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED, False) as zip_file:
+            zip_file.writestr(f'summary.{my_file.content_type}', my_file.content)
+
+        return zip_buffer
+
+    def load(self, path: str, fs_handler: FSHandler):
+        metadata_path = fs_handler.join_path(path, 'metadata.json')
+        metadata = json.loads(fs_handler.read(metadata_path))
+
+        content_path = fs_handler.join_path(path, metadata['file_name'])
+        content_type = metadata['file_name'].split('.')[-1]
+        content = fs_handler.read(content_path)
+
+        materials = File(content=content, name='test', content_type=content_type)
+
+        zip_buffer = self._generate_zip(materials)
+
+        self.bulk_import(
+            File(name='test', content=zip_buffer.getvalue(), content_type='zip'), import_type='zip', timeout=120
+        )

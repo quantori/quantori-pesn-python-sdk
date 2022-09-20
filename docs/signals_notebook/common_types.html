@@ -31,10 +31,12 @@ import mimetypes
 import os
 import re
 from base64 import b64encode
+from datetime import datetime
 from enum import Enum
 from typing import Any, Generic, List, Optional, TypeVar, Union
 from uuid import UUID
 
+from dateutil.parser import parse
 from pydantic import BaseModel, Field, HttpUrl, validator
 from pydantic.generics import GenericModel
 
@@ -54,11 +56,6 @@ class ChemicalDrawingFormat(str, Enum):
     SMILES = &#39;smiles&#39;
 
 
-class SamplesContainerFormat(str, Enum):
-    CSV = &#39;csv&#39;
-    SDF = &#39;sdf&#39;
-
-
 class ObjectType(str, Enum):
     ENTITY = &#39;entity&#39;
     ADT_ROW = &#39;adtRow&#39;
@@ -76,6 +73,10 @@ class ObjectType(str, Enum):
     ATTRIBUTE_OPTION = &#39;option&#39;
     CHOICE = &#39;choice&#39;
     SUB_EXPERIMENT = &#39;subexpSummaryRow&#39;
+    CONTAINER = &#39;container&#39;
+    REACTION_PRODUCT = &#39;reactionProduct&#39;
+    REACTION_REACTANT = &#39;reactionReactant&#39;
+    REACTION_REAGENT = &#39;reactionReagent&#39;
 
 
 class EntityType(str, Enum):
@@ -102,6 +103,9 @@ class EntityType(str, Enum):
     SUB_EXPERIMENT = &#39;parasubexp&#39;
     SUB_EXPERIMENT_SUMMARY = &#39;paragrid&#39;
     SUB_EXPERIMENT_LAYOUT = &#39;paraLayout&#39;
+    ADO = &#39;ado&#39;
+    REQUEST = &#39;request&#39;
+    TASK_CONTAINER = &#39;taskContainer&#39;
 
 
 class MaterialType(str, Enum):
@@ -111,9 +115,8 @@ class MaterialType(str, Enum):
 
 
 class EID(str):
-    &#34;&#34;&#34;Entity ID
+    &#34;&#34;&#34;Entity ID&#34;&#34;&#34;
 
-    &#34;&#34;&#34;
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -131,14 +134,13 @@ class EID(str):
             v: Entity ID
 
         Returns:
-
         &#34;&#34;&#34;
         if not isinstance(v, str):
             log.error(&#39;%s is not instance of str&#39;, v)
             raise EIDError(value=v)
 
         try:
-            _type, _id = v.split(&#39;:&#39;)
+            _type, _id, *_ = v.split(&#39;:&#39;)
             UUID(_id)
         except ValueError:
             log.exception(&#39;Cannot get id and type from value&#39;)
@@ -153,7 +155,7 @@ class EID(str):
         Returns:
             One of the entity types
         &#34;&#34;&#34;
-        _type, _ = self.split(&#39;:&#39;)
+        _type, _id, *_ = self.split(&#39;:&#39;)
         try:
             return EntityType(_type)
         except ValueError:
@@ -167,14 +169,12 @@ class EID(str):
         Returns:
             UUID
         &#34;&#34;&#34;
-        _, _id = self.split(&#39;:&#39;)
+        _type, _id, *_ = self.split(&#39;:&#39;)
         return UUID(_id)
 
 
 class MID(str):
-    &#34;&#34;&#34;Material ID
-
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Material ID&#34;&#34;&#34;
 
     _id_pattern = re.compile(&#39;[0-9a-f]+&#39;, flags=re.IGNORECASE)
 
@@ -236,9 +236,8 @@ class MID(str):
 
 
 class AttrID(str):
-    &#34;&#34;&#34;Attribute ID
+    &#34;&#34;&#34;Attribute ID&#34;&#34;&#34;
 
-    &#34;&#34;&#34;
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -324,6 +323,7 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     body: EntityClass = Field(alias=&#39;attributes&#39;)
     relationships: Optional[dict[str, Any]] = Field(default=None)
+    meta: Optional[dict[str, Any]] = Field(default=None)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get(&#39;attributes&#39;, {})
@@ -431,7 +431,20 @@ class File(BaseModel):
             _path = os.path.join(path, self.name)
 
         with open(_path, &#39;wb&#39;) as f:
-            f.write(self.content)</code></pre>
+            f.write(self.content)
+
+
+class DateTime(datetime):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls._validate_date
+
+    @staticmethod
+    def _validate_date(value: Union[str, datetime]) -&gt; datetime:
+        if isinstance(value, datetime):
+            return value
+
+        return parse(value)</code></pre>
 </details>
 </section>
 <section>
@@ -485,9 +498,8 @@ class File(BaseModel):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class AttrID(str):
-    &#34;&#34;&#34;Attribute ID
+    &#34;&#34;&#34;Attribute ID&#34;&#34;&#34;
 
-    &#34;&#34;&#34;
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -775,6 +787,8 @@ def type(self) -&gt; ObjectType:
 <li>pydantic.generics.DataObject[_RequestBody]</li>
 <li>pydantic.generics.DataObject[_RequestBody]</li>
 <li>pydantic.generics.DataObject[_RequestBody]</li>
+<li>pydantic.generics.DataObject[_RequestBody]</li>
+<li>pydantic.generics.DataObject[_RequestBody]</li>
 <li>pydantic.generics.DataObject[_SampleRequestBody]</li>
 <li>pydantic.generics.DataObject[_SubExperimentRequestBody]</li>
 <li><a title="signals_notebook.common_types.DataObject[EntityShortDescription]" href="#signals_notebook.common_types.DataObject[EntityShortDescription]">DataObject[EntityShortDescription]</a></li>
@@ -819,6 +833,36 @@ def type(self) -&gt; ObjectType:
 </dd>
 </dl>
 </dd>
+<dt id="signals_notebook.common_types.DateTime"><code class="flex name class">
+<span>class <span class="ident">DateTime</span></span>
+<span>(</span><span>...)</span>
+</code></dt>
+<dd>
+<div class="desc"><p>datetime(year, month, day[, hour[, minute[, second[, microsecond[,tzinfo]]]]])</p>
+<p>The year, month and day arguments are required. tzinfo may be None, or an
+instance of a tzinfo subclass. The remaining arguments may be ints.</p></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class DateTime(datetime):
+    @classmethod
+    def __get_validators__(cls):
+        yield cls._validate_date
+
+    @staticmethod
+    def _validate_date(value: Union[str, datetime]) -&gt; datetime:
+        if isinstance(value, datetime):
+            return value
+
+        return parse(value)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>datetime.datetime</li>
+<li>datetime.date</li>
+</ul>
+</dd>
 <dt id="signals_notebook.common_types.EID"><code class="flex name class">
 <span>class <span class="ident">EID</span></span>
 <span>(</span><span>content: Any, validate: bool = True)</span>
@@ -830,9 +874,8 @@ def type(self) -&gt; ObjectType:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class EID(str):
-    &#34;&#34;&#34;Entity ID
+    &#34;&#34;&#34;Entity ID&#34;&#34;&#34;
 
-    &#34;&#34;&#34;
     def __new__(cls, content: Any, validate: bool = True):
         if validate:
             cls.validate(content)
@@ -850,14 +893,13 @@ def type(self) -&gt; ObjectType:
             v: Entity ID
 
         Returns:
-
         &#34;&#34;&#34;
         if not isinstance(v, str):
             log.error(&#39;%s is not instance of str&#39;, v)
             raise EIDError(value=v)
 
         try:
-            _type, _id = v.split(&#39;:&#39;)
+            _type, _id, *_ = v.split(&#39;:&#39;)
             UUID(_id)
         except ValueError:
             log.exception(&#39;Cannot get id and type from value&#39;)
@@ -872,7 +914,7 @@ def type(self) -&gt; ObjectType:
         Returns:
             One of the entity types
         &#34;&#34;&#34;
-        _type, _ = self.split(&#39;:&#39;)
+        _type, _id, *_ = self.split(&#39;:&#39;)
         try:
             return EntityType(_type)
         except ValueError:
@@ -886,7 +928,7 @@ def type(self) -&gt; ObjectType:
         Returns:
             UUID
         &#34;&#34;&#34;
-        _, _id = self.split(&#39;:&#39;)
+        _type, _id, *_ = self.split(&#39;:&#39;)
         return UUID(_id)</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -918,14 +960,13 @@ def validate(cls, v: Any):
         v: Entity ID
 
     Returns:
-
     &#34;&#34;&#34;
     if not isinstance(v, str):
         log.error(&#39;%s is not instance of str&#39;, v)
         raise EIDError(value=v)
 
     try:
-        _type, _id = v.split(&#39;:&#39;)
+        _type, _id, *_ = v.split(&#39;:&#39;)
         UUID(_id)
     except ValueError:
         log.exception(&#39;Cannot get id and type from value&#39;)
@@ -953,7 +994,7 @@ def id(self) -&gt; UUID:
     Returns:
         UUID
     &#34;&#34;&#34;
-    _, _id = self.split(&#39;:&#39;)
+    _type, _id, *_ = self.split(&#39;:&#39;)
     return UUID(_id)</code></pre>
 </details>
 </dd>
@@ -973,7 +1014,7 @@ def type(self) -&gt; Union[EntityType, str]:
     Returns:
         One of the entity types
     &#34;&#34;&#34;
-    _type, _ = self.split(&#39;:&#39;)
+    _type, _id, *_ = self.split(&#39;:&#39;)
     try:
         return EntityType(_type)
     except ValueError:
@@ -1007,10 +1048,12 @@ def type(self) -&gt; Union[EntityType, str]:
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
+<li><a title="signals_notebook.entities.admin_defined_object.EntityCreationRequestPayload[_RequestBody]" href="entities/admin_defined_object.html#signals_notebook.entities.admin_defined_object.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
 <li><a title="signals_notebook.entities.experiment.EntityCreationRequestPayload[_RequestBody]" href="entities/experiment.html#signals_notebook.entities.experiment.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
 <li><a title="signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody]" href="entities/notebook.html#signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
 <li><a title="signals_notebook.entities.parallel_experiment.parallel_experiment.EntityCreationRequestPayload[_RequestBody]" href="entities/parallel_experiment/parallel_experiment.html#signals_notebook.entities.parallel_experiment.parallel_experiment.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
 <li><a title="signals_notebook.entities.parallel_experiment.sub_experiment.EntityCreationRequestPayload[_SubExperimentRequestBody]" href="entities/parallel_experiment/sub_experiment.html#signals_notebook.entities.parallel_experiment.sub_experiment.EntityCreationRequestPayload[_SubExperimentRequestBody]">EntityCreationRequestPayload[_SubExperimentRequestBody]</a></li>
+<li><a title="signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody]" href="entities/request.html#signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></li>
 <li><a title="signals_notebook.entities.samples.sample.EntityCreationRequestPayload[_SampleRequestBody]" href="entities/samples/sample.html#signals_notebook.entities.samples.sample.EntityCreationRequestPayload[_SampleRequestBody]">EntityCreationRequestPayload[_SampleRequestBody]</a></li>
 </ul>
 <h3>Class variables</h3>
@@ -1086,7 +1129,10 @@ def type(self) -&gt; Union[EntityType, str]:
     PARALLEL_EXPERIMENT = &#39;paraexp&#39;
     SUB_EXPERIMENT = &#39;parasubexp&#39;
     SUB_EXPERIMENT_SUMMARY = &#39;paragrid&#39;
-    SUB_EXPERIMENT_LAYOUT = &#39;paraLayout&#39;</code></pre>
+    SUB_EXPERIMENT_LAYOUT = &#39;paraLayout&#39;
+    ADO = &#39;ado&#39;
+    REQUEST = &#39;request&#39;
+    TASK_CONTAINER = &#39;taskContainer&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1095,6 +1141,10 @@ def type(self) -&gt; Union[EntityType, str]:
 </ul>
 <h3>Class variables</h3>
 <dl>
+<dt id="signals_notebook.common_types.EntityType.ADO"><code class="name">var <span class="ident">ADO</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.EntityType.ASSET"><code class="name">var <span class="ident">ASSET</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1143,6 +1193,10 @@ def type(self) -&gt; Union[EntityType, str]:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.common_types.EntityType.REQUEST"><code class="name">var <span class="ident">REQUEST</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.EntityType.SAMPLE"><code class="name">var <span class="ident">SAMPLE</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1168,6 +1222,10 @@ def type(self) -&gt; Union[EntityType, str]:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.EntityType.TASK"><code class="name">var <span class="ident">TASK</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.EntityType.TASK_CONTAINER"><code class="name">var <span class="ident">TASK_CONTAINER</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1487,9 +1545,7 @@ def escape_spaces(cls, v: Optional[str]) -&gt; Optional[str]:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class MID(str):
-    &#34;&#34;&#34;Material ID
-
-    &#34;&#34;&#34;
+    &#34;&#34;&#34;Material ID&#34;&#34;&#34;
 
     _id_pattern = re.compile(&#39;[0-9a-f]+&#39;, flags=re.IGNORECASE)
 
@@ -1705,7 +1761,11 @@ def type(self) -&gt; MaterialType:
     PLATE_ROW = &#39;plateRow&#39;
     ATTRIBUTE_OPTION = &#39;option&#39;
     CHOICE = &#39;choice&#39;
-    SUB_EXPERIMENT = &#39;subexpSummaryRow&#39;</code></pre>
+    SUB_EXPERIMENT = &#39;subexpSummaryRow&#39;
+    CONTAINER = &#39;container&#39;
+    REACTION_PRODUCT = &#39;reactionProduct&#39;
+    REACTION_REACTANT = &#39;reactionReactant&#39;
+    REACTION_REAGENT = &#39;reactionReagent&#39;</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1738,6 +1798,10 @@ def type(self) -&gt; MaterialType:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.common_types.ObjectType.CONTAINER"><code class="name">var <span class="ident">CONTAINER</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.ObjectType.ENTITY"><code class="name">var <span class="ident">ENTITY</span></code></dt>
 <dd>
 <div class="desc"></div>
@@ -1759,6 +1823,18 @@ def type(self) -&gt; MaterialType:
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.ObjectType.PROPERTY"><code class="name">var <span class="ident">PROPERTY</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.REACTION_PRODUCT"><code class="name">var <span class="ident">REACTION_PRODUCT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.REACTION_REACTANT"><code class="name">var <span class="ident">REACTION_REACTANT</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.common_types.ObjectType.REACTION_REAGENT"><code class="name">var <span class="ident">REACTION_REAGENT</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -1817,6 +1893,7 @@ def type(self) -&gt; MaterialType:
 <ul class="hlist">
 <li><a title="signals_notebook.attributes.attribute.Response[Attribute]" href="attributes/attribute.html#signals_notebook.attributes.attribute.Response[Attribute]">Response[Attribute]</a></li>
 <li><a title="signals_notebook.attributes.attribute.Response[_AttributeOption]" href="attributes/attribute.html#signals_notebook.attributes.attribute.Response[_AttributeOption]">Response[_AttributeOption]</a></li>
+<li><a title="signals_notebook.entities.chemical_drawing.Response[Structure]" href="entities/chemical_drawing.html#signals_notebook.entities.chemical_drawing.Response[Structure]">Response[Structure]</a></li>
 <li><a title="signals_notebook.entities.entity.Response[Property]" href="entities/entity.html#signals_notebook.entities.entity.Response[Property]">Response[Property]</a></li>
 <li><a title="signals_notebook.entities.parallel_experiment.sub_experiment_summary.Response[Row]" href="entities/parallel_experiment/sub_experiment_summary.html#signals_notebook.entities.parallel_experiment.sub_experiment_summary.Response[Row]">Response[Row]</a></li>
 <li><a title="signals_notebook.entities.plates.plate_container.Response[PlateRow]" href="entities/plates/plate_container.html#signals_notebook.entities.plates.plate_container.Response[PlateRow]">Response[PlateRow]</a></li>
@@ -1826,6 +1903,7 @@ def type(self) -&gt; MaterialType:
 <li><a title="signals_notebook.entities.stoichiometry.stoichiometry.Response[DataGrids]" href="entities/stoichiometry/stoichiometry.html#signals_notebook.entities.stoichiometry.stoichiometry.Response[DataGrids]">Response[DataGrids]</a></li>
 <li><a title="signals_notebook.entities.tables.table.Response[ColumnDefinitions]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[ColumnDefinitions]">Response[ColumnDefinitions]</a></li>
 <li><a title="signals_notebook.entities.tables.table.Response[Row]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[Row]">Response[Row]</a></li>
+<li><a title="signals_notebook.entities.tables.table.Response[Table]" href="entities/tables/table.html#signals_notebook.entities.tables.table.Response[Table]">Response[Table]</a></li>
 <li><a title="signals_notebook.entities.todo_list.task.Response[TaskCell]" href="entities/todo_list/task.html#signals_notebook.entities.todo_list.task.Response[TaskCell]">Response[TaskCell]</a></li>
 <li><a title="signals_notebook.materials.asset.Response[Batch]" href="materials/asset.html#signals_notebook.materials.asset.Response[Batch]">Response[Batch]</a></li>
 <li><a title="signals_notebook.materials.library.Response[Asset]" href="materials/library.html#signals_notebook.materials.library.Response[Asset]">Response[Asset]</a></li>
@@ -1865,6 +1943,7 @@ def type(self) -&gt; MaterialType:
     links: Optional[Links] = None
     body: EntityClass = Field(alias=&#39;attributes&#39;)
     relationships: Optional[dict[str, Any]] = Field(default=None)
+    meta: Optional[dict[str, Any]] = Field(default=None)
 
     def __init__(self, _context: dict[str, Any] = None, **kwargs):
         attributes = kwargs.get(&#39;attributes&#39;, {})
@@ -1898,6 +1977,8 @@ def type(self) -&gt; MaterialType:
 <li>pydantic.generics.ResponseData[Row]</li>
 <li>pydantic.generics.ResponseData[SampleCell]</li>
 <li>pydantic.generics.ResponseData[Sample]</li>
+<li>pydantic.generics.ResponseData[Structure]</li>
+<li>pydantic.generics.ResponseData[Table]</li>
 <li>pydantic.generics.ResponseData[TaskCell]</li>
 <li>pydantic.generics.ResponseData[Union[Library, Asset, Batch]]</li>
 <li>pydantic.generics.ResponseData[User]</li>
@@ -1918,42 +1999,15 @@ def type(self) -&gt; MaterialType:
 <dd>
 <div class="desc"></div>
 </dd>
+<dt id="signals_notebook.common_types.ResponseData.meta"><code class="name">var <span class="ident">meta</span> : Optional[dict]</code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
 <dt id="signals_notebook.common_types.ResponseData.relationships"><code class="name">var <span class="ident">relationships</span> : Optional[dict]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 <dt id="signals_notebook.common_types.ResponseData.type"><code class="name">var <span class="ident">type</span> : <a title="signals_notebook.common_types.ObjectType" href="#signals_notebook.common_types.ObjectType">ObjectType</a></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-</dl>
-</dd>
-<dt id="signals_notebook.common_types.SamplesContainerFormat"><code class="flex name class">
-<span>class <span class="ident">SamplesContainerFormat</span></span>
-<span>(</span><span>value, names=None, *, module=None, qualname=None, type=None, start=1)</span>
-</code></dt>
-<dd>
-<div class="desc"><p>An enumeration.</p></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">class SamplesContainerFormat(str, Enum):
-    CSV = &#39;csv&#39;
-    SDF = &#39;sdf&#39;</code></pre>
-</details>
-<h3>Ancestors</h3>
-<ul class="hlist">
-<li>builtins.str</li>
-<li>enum.Enum</li>
-</ul>
-<h3>Class variables</h3>
-<dl>
-<dt id="signals_notebook.common_types.SamplesContainerFormat.CSV"><code class="name">var <span class="ident">CSV</span></code></dt>
-<dd>
-<div class="desc"></div>
-</dd>
-<dt id="signals_notebook.common_types.SamplesContainerFormat.SDF"><code class="name">var <span class="ident">SDF</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
@@ -2057,6 +2111,9 @@ def type(self) -&gt; MaterialType:
 </ul>
 </li>
 <li>
+<h4><code><a title="signals_notebook.common_types.DateTime" href="#signals_notebook.common_types.DateTime">DateTime</a></code></h4>
+</li>
+<li>
 <h4><code><a title="signals_notebook.common_types.EID" href="#signals_notebook.common_types.EID">EID</a></code></h4>
 <ul class="">
 <li><code><a title="signals_notebook.common_types.EID.id" href="#signals_notebook.common_types.EID.id">id</a></code></li>
@@ -2080,6 +2137,7 @@ def type(self) -&gt; MaterialType:
 <li>
 <h4><code><a title="signals_notebook.common_types.EntityType" href="#signals_notebook.common_types.EntityType">EntityType</a></code></h4>
 <ul class="">
+<li><code><a title="signals_notebook.common_types.EntityType.ADO" href="#signals_notebook.common_types.EntityType.ADO">ADO</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.ASSET" href="#signals_notebook.common_types.EntityType.ASSET">ASSET</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.BIO_SEQUENCE" href="#signals_notebook.common_types.EntityType.BIO_SEQUENCE">BIO_SEQUENCE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.CHEMICAL_DRAWING" href="#signals_notebook.common_types.EntityType.CHEMICAL_DRAWING">CHEMICAL_DRAWING</a></code></li>
@@ -2092,6 +2150,7 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.EntityType.PARALLEL_EXPERIMENT" href="#signals_notebook.common_types.EntityType.PARALLEL_EXPERIMENT">PARALLEL_EXPERIMENT</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.PLATE_CONTAINER" href="#signals_notebook.common_types.EntityType.PLATE_CONTAINER">PLATE_CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.POWER_POINT" href="#signals_notebook.common_types.EntityType.POWER_POINT">POWER_POINT</a></code></li>
+<li><code><a title="signals_notebook.common_types.EntityType.REQUEST" href="#signals_notebook.common_types.EntityType.REQUEST">REQUEST</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLE" href="#signals_notebook.common_types.EntityType.SAMPLE">SAMPLE</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SAMPLES_CONTAINER" href="#signals_notebook.common_types.EntityType.SAMPLES_CONTAINER">SAMPLES_CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SPOTFIRE" href="#signals_notebook.common_types.EntityType.SPOTFIRE">SPOTFIRE</a></code></li>
@@ -2099,6 +2158,7 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.EntityType.SUB_EXPERIMENT_LAYOUT" href="#signals_notebook.common_types.EntityType.SUB_EXPERIMENT_LAYOUT">SUB_EXPERIMENT_LAYOUT</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.SUB_EXPERIMENT_SUMMARY" href="#signals_notebook.common_types.EntityType.SUB_EXPERIMENT_SUMMARY">SUB_EXPERIMENT_SUMMARY</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.TASK" href="#signals_notebook.common_types.EntityType.TASK">TASK</a></code></li>
+<li><code><a title="signals_notebook.common_types.EntityType.TASK_CONTAINER" href="#signals_notebook.common_types.EntityType.TASK_CONTAINER">TASK_CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.TEXT" href="#signals_notebook.common_types.EntityType.TEXT">TEXT</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.TODO_LIST" href="#signals_notebook.common_types.EntityType.TODO_LIST">TODO_LIST</a></code></li>
 <li><code><a title="signals_notebook.common_types.EntityType.UPLOADED_RESOURCE" href="#signals_notebook.common_types.EntityType.UPLOADED_RESOURCE">UPLOADED_RESOURCE</a></code></li>
@@ -2152,12 +2212,16 @@ def type(self) -&gt; MaterialType:
 <li><code><a title="signals_notebook.common_types.ObjectType.ATTRIBUTE_OPTION" href="#signals_notebook.common_types.ObjectType.ATTRIBUTE_OPTION">ATTRIBUTE_OPTION</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.CHOICE" href="#signals_notebook.common_types.ObjectType.CHOICE">CHOICE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.COLUMN_DEFINITIONS" href="#signals_notebook.common_types.ObjectType.COLUMN_DEFINITIONS">COLUMN_DEFINITIONS</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.CONTAINER" href="#signals_notebook.common_types.ObjectType.CONTAINER">CONTAINER</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.ENTITY" href="#signals_notebook.common_types.ObjectType.ENTITY">ENTITY</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.GROUP" href="#signals_notebook.common_types.ObjectType.GROUP">GROUP</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.MATERIAL" href="#signals_notebook.common_types.ObjectType.MATERIAL">MATERIAL</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PLATE_ROW" href="#signals_notebook.common_types.ObjectType.PLATE_ROW">PLATE_ROW</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROFILE" href="#signals_notebook.common_types.ObjectType.PROFILE">PROFILE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.PROPERTY" href="#signals_notebook.common_types.ObjectType.PROPERTY">PROPERTY</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.REACTION_PRODUCT" href="#signals_notebook.common_types.ObjectType.REACTION_PRODUCT">REACTION_PRODUCT</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.REACTION_REACTANT" href="#signals_notebook.common_types.ObjectType.REACTION_REACTANT">REACTION_REACTANT</a></code></li>
+<li><code><a title="signals_notebook.common_types.ObjectType.REACTION_REAGENT" href="#signals_notebook.common_types.ObjectType.REACTION_REAGENT">REACTION_REAGENT</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.ROLE" href="#signals_notebook.common_types.ObjectType.ROLE">ROLE</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.STOICHIOMETRY" href="#signals_notebook.common_types.ObjectType.STOICHIOMETRY">STOICHIOMETRY</a></code></li>
 <li><code><a title="signals_notebook.common_types.ObjectType.SUB_EXPERIMENT" href="#signals_notebook.common_types.ObjectType.SUB_EXPERIMENT">SUB_EXPERIMENT</a></code></li>
@@ -2173,19 +2237,13 @@ def type(self) -&gt; MaterialType:
 </li>
 <li>
 <h4><code><a title="signals_notebook.common_types.ResponseData" href="#signals_notebook.common_types.ResponseData">ResponseData</a></code></h4>
-<ul class="">
+<ul class="two-column">
 <li><code><a title="signals_notebook.common_types.ResponseData.body" href="#signals_notebook.common_types.ResponseData.body">body</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.eid" href="#signals_notebook.common_types.ResponseData.eid">eid</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.links" href="#signals_notebook.common_types.ResponseData.links">links</a></code></li>
+<li><code><a title="signals_notebook.common_types.ResponseData.meta" href="#signals_notebook.common_types.ResponseData.meta">meta</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.relationships" href="#signals_notebook.common_types.ResponseData.relationships">relationships</a></code></li>
 <li><code><a title="signals_notebook.common_types.ResponseData.type" href="#signals_notebook.common_types.ResponseData.type">type</a></code></li>
-</ul>
-</li>
-<li>
-<h4><code><a title="signals_notebook.common_types.SamplesContainerFormat" href="#signals_notebook.common_types.SamplesContainerFormat">SamplesContainerFormat</a></code></h4>
-<ul class="">
-<li><code><a title="signals_notebook.common_types.SamplesContainerFormat.CSV" href="#signals_notebook.common_types.SamplesContainerFormat.CSV">CSV</a></code></li>
-<li><code><a title="signals_notebook.common_types.SamplesContainerFormat.SDF" href="#signals_notebook.common_types.SamplesContainerFormat.SDF">SDF</a></code></li>
 </ul>
 </li>
 <li>

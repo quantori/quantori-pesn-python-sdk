@@ -2,11 +2,11 @@ name: Pull request
 
 on:
   pull_request:
-    branches: [ main ]
+    types:
+      - opened
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3

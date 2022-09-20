@@ -27,8 +27,11 @@
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">import cgi
+import io
+import json
 import logging
 import time
+import zipfile
 from datetime import datetime
 from enum import Enum
 from typing import Any, cast, List, Literal, Optional, Union
@@ -42,8 +45,10 @@ from signals_notebook.materials.asset import Asset
 from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.field import AssetConfig, BatchConfig
+from signals_notebook.utils.fs_handler import FSHandler
 
 MAX_MATERIAL_FILE_SIZE = 52428800
+EXPORT_ERROR_LIBRARY_EMPTY = &#39;Nothing to export.&#39;
 
 log = logging.getLogger(__name__)
 
@@ -389,7 +394,7 @@ class Library(BaseMaterialEntity):
 
         return cast(ResponseData, result.data).body
 
-    def _is_file_ready(self, report_id: str) -&gt; bool:
+    def _is_file_ready(self, report_id: str) -&gt; dict[str, Any]:
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Check job status for: %s| %s&#39;, self.__class__.__name__, self.eid)
 
@@ -397,7 +402,16 @@ class Library(BaseMaterialEntity):
             method=&#39;GET&#39;,
             path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;reports&#39;, report_id),
         )
-        return response.status_code == 200 and response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
+        response_attributes = response.json().get(&#39;data&#39;).get(&#39;attributes&#39;)
+        status = response_attributes.get(&#39;status&#39;)
+        error = response_attributes.get(&#39;error&#39;, None)
+
+        result = {
+            &#39;success&#39;: response.status_code == 200 and status == &#39;COMPLETED&#39;,
+            &#39;error&#39;: error.get(&#39;description&#39;) if error else None,
+        }
+
+        return result
 
     def _download_file(self, file_id: str) -&gt; requests.Response:
         api = SignalsNotebookApi.get_default_api()
@@ -434,7 +448,10 @@ class Library(BaseMaterialEntity):
         response = None
 
         while time.time() - initial_time &lt; timeout:
-            if self._is_file_ready(report_id):
+            result = self._is_file_ready(report_id)
+            if result[&#39;error&#39;] == EXPORT_ERROR_LIBRARY_EMPTY:
+                raise FileNotFoundError(&#39;Library is empty&#39;)
+            if result[&#39;success&#39;] and not result[&#39;error&#39;]:
                 response = self._download_file(file_id)
                 break
             else:
@@ -450,13 +467,11 @@ class Library(BaseMaterialEntity):
             name=params[&#39;filename&#39;], content=response.content, content_type=response.headers.get(&#39;content-type&#39;)
         )
 
-    def _is_import_job_completed(self, job_id: str) -&gt; bool:
+    def _get_import_job_completed_response(self, job_id: str) -&gt; requests.Response:
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Check job status for: %s| %s&#39;, self.__class__.__name__, self.eid)
 
-        response = api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), &#39;bulkImport&#39;, &#39;jobs&#39;, job_id))
-
-        return response.status_code == 200 and response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
+        return api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), &#39;bulkImport&#39;, &#39;jobs&#39;, job_id))
 
     def _import_materials(
         self,
@@ -535,15 +550,21 @@ class Library(BaseMaterialEntity):
         initial_time = time.time()
 
         response = False
+        import_job_status = &#39;FAILED&#39;
 
         while time.time() - initial_time &lt; timeout:
-            if not self._is_import_job_completed(job_id):
+            completed_import_response = self._get_import_job_completed_response(job_id)
+            import_job_status = completed_import_response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;]
+            import_response_code = completed_import_response.status_code
+
+            if import_response_code != 200 and import_job_status != &#39;COMPLETED&#39;:
                 time.sleep(period)
             else:
                 response = True
+                log.debug(&#39;Library import is completed&#39;)
                 break
 
-        if not response:
+        if not response and import_job_status == &#39;FAILED&#39;:
             log.debug(&#39;Time is over to import file&#39;)
 
             failure_report_reponse = api.call(
@@ -560,7 +581,49 @@ class Library(BaseMaterialEntity):
                 name=params[&#39;filename&#39;],
                 content=failure_report_reponse.content,
                 content_type=failure_report_reponse.headers.get(&#39;content-type&#39;),
-            )</code></pre>
+            )
+
+    def dump(self, base_path: str, fs_handler: FSHandler):
+        metadata = {
+            **{k: v for k, v in self.dict().items() if k in (&#39;library_name&#39;, &#39;asset_type_id&#39;, &#39;eid&#39;, &#39;name&#39;)},
+        }
+        try:
+            content = self.get_content(timeout=60)
+            metadata[&#39;file_name&#39;] = content.name
+            file_name = content.name
+            data = content.content
+            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        except FileNotFoundError:
+            metadata[&#39;error&#39;] = &#39;Library is empty&#39;
+        except TimeoutError:
+            metadata[&#39;error&#39;] = &#39;Time is over to dump library&#39;
+
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+
+    @staticmethod
+    def _generate_zip(my_file):
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, &#39;w&#39;, zipfile.ZIP_DEFLATED, False) as zip_file:
+            zip_file.writestr(f&#39;summary.{my_file.content_type}&#39;, my_file.content)
+
+        return zip_buffer
+
+    def load(self, path: str, fs_handler: FSHandler):
+        metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+        metadata = json.loads(fs_handler.read(metadata_path))
+
+        content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+        content_type = metadata[&#39;file_name&#39;].split(&#39;.&#39;)[-1]
+        content = fs_handler.read(content_path)
+
+        materials = File(content=content, name=&#39;test&#39;, content_type=content_type)
+
+        zip_buffer = self._generate_zip(materials)
+
+        self.bulk_import(
+            File(name=&#39;test&#39;, content=zip_buffer.getvalue(), content_type=&#39;zip&#39;), import_type=&#39;zip&#39;, timeout=120
+        )</code></pre>
 </details>
 </section>
 <section>
@@ -1173,7 +1236,7 @@ Adds ability to use properties with setters</p>
 
         return cast(ResponseData, result.data).body
 
-    def _is_file_ready(self, report_id: str) -&gt; bool:
+    def _is_file_ready(self, report_id: str) -&gt; dict[str, Any]:
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Check job status for: %s| %s&#39;, self.__class__.__name__, self.eid)
 
@@ -1181,7 +1244,16 @@ Adds ability to use properties with setters</p>
             method=&#39;GET&#39;,
             path=(self._get_endpoint(), &#39;bulkExport&#39;, &#39;reports&#39;, report_id),
         )
-        return response.status_code == 200 and response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
+        response_attributes = response.json().get(&#39;data&#39;).get(&#39;attributes&#39;)
+        status = response_attributes.get(&#39;status&#39;)
+        error = response_attributes.get(&#39;error&#39;, None)
+
+        result = {
+            &#39;success&#39;: response.status_code == 200 and status == &#39;COMPLETED&#39;,
+            &#39;error&#39;: error.get(&#39;description&#39;) if error else None,
+        }
+
+        return result
 
     def _download_file(self, file_id: str) -&gt; requests.Response:
         api = SignalsNotebookApi.get_default_api()
@@ -1218,7 +1290,10 @@ Adds ability to use properties with setters</p>
         response = None
 
         while time.time() - initial_time &lt; timeout:
-            if self._is_file_ready(report_id):
+            result = self._is_file_ready(report_id)
+            if result[&#39;error&#39;] == EXPORT_ERROR_LIBRARY_EMPTY:
+                raise FileNotFoundError(&#39;Library is empty&#39;)
+            if result[&#39;success&#39;] and not result[&#39;error&#39;]:
                 response = self._download_file(file_id)
                 break
             else:
@@ -1234,13 +1309,11 @@ Adds ability to use properties with setters</p>
             name=params[&#39;filename&#39;], content=response.content, content_type=response.headers.get(&#39;content-type&#39;)
         )
 
-    def _is_import_job_completed(self, job_id: str) -&gt; bool:
+    def _get_import_job_completed_response(self, job_id: str) -&gt; requests.Response:
         api = SignalsNotebookApi.get_default_api()
         log.debug(&#39;Check job status for: %s| %s&#39;, self.__class__.__name__, self.eid)
 
-        response = api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), &#39;bulkImport&#39;, &#39;jobs&#39;, job_id))
-
-        return response.status_code == 200 and response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;] == &#39;COMPLETED&#39;
+        return api.call(method=&#39;GET&#39;, path=(self._get_endpoint(), &#39;bulkImport&#39;, &#39;jobs&#39;, job_id))
 
     def _import_materials(
         self,
@@ -1319,15 +1392,21 @@ Adds ability to use properties with setters</p>
         initial_time = time.time()
 
         response = False
+        import_job_status = &#39;FAILED&#39;
 
         while time.time() - initial_time &lt; timeout:
-            if not self._is_import_job_completed(job_id):
+            completed_import_response = self._get_import_job_completed_response(job_id)
+            import_job_status = completed_import_response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;]
+            import_response_code = completed_import_response.status_code
+
+            if import_response_code != 200 and import_job_status != &#39;COMPLETED&#39;:
                 time.sleep(period)
             else:
                 response = True
+                log.debug(&#39;Library import is completed&#39;)
                 break
 
-        if not response:
+        if not response and import_job_status == &#39;FAILED&#39;:
             log.debug(&#39;Time is over to import file&#39;)
 
             failure_report_reponse = api.call(
@@ -1344,7 +1423,49 @@ Adds ability to use properties with setters</p>
                 name=params[&#39;filename&#39;],
                 content=failure_report_reponse.content,
                 content_type=failure_report_reponse.headers.get(&#39;content-type&#39;),
-            )</code></pre>
+            )
+
+    def dump(self, base_path: str, fs_handler: FSHandler):
+        metadata = {
+            **{k: v for k, v in self.dict().items() if k in (&#39;library_name&#39;, &#39;asset_type_id&#39;, &#39;eid&#39;, &#39;name&#39;)},
+        }
+        try:
+            content = self.get_content(timeout=60)
+            metadata[&#39;file_name&#39;] = content.name
+            file_name = content.name
+            data = content.content
+            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        except FileNotFoundError:
+            metadata[&#39;error&#39;] = &#39;Library is empty&#39;
+        except TimeoutError:
+            metadata[&#39;error&#39;] = &#39;Time is over to dump library&#39;
+
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+
+    @staticmethod
+    def _generate_zip(my_file):
+        zip_buffer = io.BytesIO()
+
+        with zipfile.ZipFile(zip_buffer, &#39;w&#39;, zipfile.ZIP_DEFLATED, False) as zip_file:
+            zip_file.writestr(f&#39;summary.{my_file.content_type}&#39;, my_file.content)
+
+        return zip_buffer
+
+    def load(self, path: str, fs_handler: FSHandler):
+        metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+        metadata = json.loads(fs_handler.read(metadata_path))
+
+        content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+        content_type = metadata[&#39;file_name&#39;].split(&#39;.&#39;)[-1]
+        content = fs_handler.read(content_path)
+
+        materials = File(content=content, name=&#39;test&#39;, content_type=content_type)
+
+        zip_buffer = self._generate_zip(materials)
+
+        self.bulk_import(
+            File(name=&#39;test&#39;, content=zip_buffer.getvalue(), content_type=&#39;zip&#39;), import_type=&#39;zip&#39;, timeout=120
+        )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -1539,15 +1660,21 @@ Max materials size: 50MB.</p>
     initial_time = time.time()
 
     response = False
+    import_job_status = &#39;FAILED&#39;
 
     while time.time() - initial_time &lt; timeout:
-        if not self._is_import_job_completed(job_id):
+        completed_import_response = self._get_import_job_completed_response(job_id)
+        import_job_status = completed_import_response.json()[&#39;data&#39;][&#39;attributes&#39;][&#39;status&#39;]
+        import_response_code = completed_import_response.status_code
+
+        if import_response_code != 200 and import_job_status != &#39;COMPLETED&#39;:
             time.sleep(period)
         else:
             response = True
+            log.debug(&#39;Library import is completed&#39;)
             break
 
-    if not response:
+    if not response and import_job_status == &#39;FAILED&#39;:
         log.debug(&#39;Time is over to import file&#39;)
 
         failure_report_reponse = api.call(
@@ -1654,6 +1781,33 @@ Max materials size: 50MB.</p>
     result = BatchResponse(_context={&#39;_library&#39;: self}, **response.json())
 
     return cast(ResponseData, result.data).body</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.materials.library.Library.dump"><code class="name flex">
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler):
+    metadata = {
+        **{k: v for k, v in self.dict().items() if k in (&#39;library_name&#39;, &#39;asset_type_id&#39;, &#39;eid&#39;, &#39;name&#39;)},
+    }
+    try:
+        content = self.get_content(timeout=60)
+        metadata[&#39;file_name&#39;] = content.name
+        file_name = content.name
+        data = content.content
+        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+    except FileNotFoundError:
+        metadata[&#39;error&#39;] = &#39;Library is empty&#39;
+    except TimeoutError:
+        metadata[&#39;error&#39;] = &#39;Time is over to dump library&#39;
+
+    fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.materials.library.Library.get_asset"><code class="name flex">
@@ -1815,7 +1969,10 @@ Compounds/Reagents (SNB) will be exported to SD file, others will be exported to
     response = None
 
     while time.time() - initial_time &lt; timeout:
-        if self._is_file_ready(report_id):
+        result = self._is_file_ready(report_id)
+        if result[&#39;error&#39;] == EXPORT_ERROR_LIBRARY_EMPTY:
+            raise FileNotFoundError(&#39;Library is empty&#39;)
+        if result[&#39;success&#39;] and not result[&#39;error&#39;]:
             response = self._download_file(file_id)
             break
         else:
@@ -1829,6 +1986,32 @@ Compounds/Reagents (SNB) will be exported to SD file, others will be exported to
 
     return File(
         name=params[&#39;filename&#39;], content=response.content, content_type=response.headers.get(&#39;content-type&#39;)
+    )</code></pre>
+</details>
+</dd>
+<dt id="signals_notebook.materials.library.Library.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>self, path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>)</span>
+</code></dt>
+<dd>
+<div class="desc"></div>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def load(self, path: str, fs_handler: FSHandler):
+    metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
+    metadata = json.loads(fs_handler.read(metadata_path))
+
+    content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
+    content_type = metadata[&#39;file_name&#39;].split(&#39;.&#39;)[-1]
+    content = fs_handler.read(content_path)
+
+    materials = File(content=content, name=&#39;test&#39;, content_type=content_type)
+
+    zip_buffer = self._generate_zip(materials)
+
+    self.bulk_import(
+        File(name=&#39;test&#39;, content=zip_buffer.getvalue(), content_type=&#39;zip&#39;), import_type=&#39;zip&#39;, timeout=120
     )</code></pre>
 </details>
 </dd>
@@ -2068,11 +2251,13 @@ Compounds/Reagents (SNB) will be exported to SD file, others will be exported to
 <li><code><a title="signals_notebook.materials.library.Library.bulk_import" href="#signals_notebook.materials.library.Library.bulk_import">bulk_import</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.create_asset_with_batches" href="#signals_notebook.materials.library.Library.create_asset_with_batches">create_asset_with_batches</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.create_batch" href="#signals_notebook.materials.library.Library.create_batch">create_batch</a></code></li>
+<li><code><a title="signals_notebook.materials.library.Library.dump" href="#signals_notebook.materials.library.Library.dump">dump</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_asset" href="#signals_notebook.materials.library.Library.get_asset">get_asset</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_asset_batches" href="#signals_notebook.materials.library.Library.get_asset_batches">get_asset_batches</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_batch" href="#signals_notebook.materials.library.Library.get_batch">get_batch</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_content" href="#signals_notebook.materials.library.Library.get_content">get_content</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.get_list" href="#signals_notebook.materials.library.Library.get_list">get_list</a></code></li>
+<li><code><a title="signals_notebook.materials.library.Library.load" href="#signals_notebook.materials.library.Library.load">load</a></code></li>
 <li><code><a title="signals_notebook.materials.library.Library.type" href="#signals_notebook.materials.library.Library.type">type</a></code></li>
 </ul>
 </li>

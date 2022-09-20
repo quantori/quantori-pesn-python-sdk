@@ -16,7 +16,6 @@ class MaterialResponse(Response[Union[Library, Asset, Batch]]):
 
 
 class MaterialStore:
-
     @classmethod
     def _get_endpoint(cls) -> str:
         return 'materials'

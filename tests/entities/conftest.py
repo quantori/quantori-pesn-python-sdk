@@ -2,6 +2,8 @@ import pytest
 from pytest_factoryboy import register
 
 from tests.entities.factories import (
+    AdminDefinedObjectFactory,
+    AdoTypeFactory,
     BiologicalSequenceFactory,
     ChemicalDrawingFactory,
     EIDFactory,
@@ -12,7 +14,9 @@ from tests.entities.factories import (
     MaterialTableFactory,
     NotebookFactory,
     PowerPointFactory,
+    RequestContainerFactory,
     SpotfireFactory,
+    StructureFactory,
     TextFactory,
     UploadedResourceFactory,
     WordFactory,
@@ -33,8 +37,7 @@ from tests.entities.samples.factories import (
 )
 from tests.entities.stoichiometry.factories import StoichiometryFactory
 from tests.entities.tables.factories import TableFactory
-from tests.entities.todo_list.factories import TaskCellFactory, TaskFactory, TodoListFactory
-
+from tests.entities.todo_list.factories import TaskCellFactory, TaskContainerFactory, TaskFactory, TodoListFactory
 
 register(EIDFactory)
 register(NotebookFactory)
@@ -65,8 +68,23 @@ register(SubExperimentSummaryFactory)
 register(SubExperimentSummaryRowFactory)
 register(SubExperimentSummaryCellFactory)
 register(SubExperimentLayoutFactory)
+register(AdminDefinedObjectFactory)
+register(AdoTypeFactory)
+register(RequestContainerFactory)
+register(TaskContainerFactory)
+register(StructureFactory)
 
 
 @pytest.fixture()
 def entity_store_mock(mocker):
     return mocker.patch('signals_notebook.entities.EntityStore')
+
+
+@pytest.fixture()
+def get_response_object(mocker):
+    def _f(response):
+        mock = mocker.Mock()
+        mock.json.return_value = response
+        return mock
+
+    return _f
