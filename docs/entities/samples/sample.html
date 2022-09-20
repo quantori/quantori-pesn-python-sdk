@@ -28,7 +28,7 @@
 </summary>
 <pre><code class="python">import json
 import logging
-from typing import cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union
+from typing import Any, cast, Dict, List, Literal, Optional, TYPE_CHECKING, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -132,7 +132,7 @@ class Sample(Entity):
 
         for item in cells:
             sample_cell = cast(SampleCell, item.body)
-            sample_cell.read_only = item.meta.get(&#39;definition&#39;).get(&#39;readOnly&#39;, False)
+            sample_cell.read_only = getattr(item, &#39;meta&#39;, {}).get(&#39;definition&#39;, {}).get(&#39;readOnly&#39;, False)
             assert sample_cell.id
 
             self._cells.append(sample_cell)
@@ -182,7 +182,7 @@ class Sample(Entity):
     def create(
         cls,
         *,
-        cells: Optional[List[SampleCell]] = None,
+        cells: Optional[List[SampleCellBody]] = None,
         template: Optional[&#39;Sample&#39;] = None,
         ancestors: Optional[List[Union[Container, &#39;SamplesContainer&#39;]]] = None,
         digest: str = None,
@@ -225,12 +225,13 @@ class Sample(Entity):
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
         &#34;&#34;&#34;Dump Sample entity
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -241,11 +242,16 @@ class Sample(Entity):
             &#39;columns&#39;: self.get_column_definitions_list(),
             **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata),
+            base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
+        )
         data = [item.dict() for item in self]
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, f&#39;{self.name}.json&#39;),
             json.dumps({&#39;data&#39;: data}, default=str).encode(&#39;utf-8&#39;),
+            base_alias=alias + [self.name, f&#39;{self.name}.json&#39;] if alias else None,
         )
 
     @classmethod
@@ -260,6 +266,10 @@ class Sample(Entity):
         Returns:
 
         &#34;&#34;&#34;
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
         from signals_notebook.entities import EntityStore
 
         log.debug(&#39;Loading sample from dump...&#39;)
@@ -277,7 +287,7 @@ class Sample(Entity):
             if not item[&#39;read_only&#39;] and item[&#39;name&#39;] != &#39;Amount&#39;:
                 try:
                     int(item[&#39;id&#39;])
-                    cells.append(SampleCell(**item).dict(include={&#39;id&#39;, &#39;name&#39;, &#39;content&#39;}, exclude_none=True))
+                    cells.append(SampleCellBody(**item))
                 except ValueError:
                     pass
 
@@ -316,7 +326,12 @@ class Sample(Entity):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, &#39;templates&#39;, entity_type),
+                    fs_handler,
+                    [&#39;Templates&#39;, entity_type.value],
+                )
+
         except TypeError:
             pass</code></pre>
 </details>
@@ -460,7 +475,7 @@ class Sample(Entity):
 
         for item in cells:
             sample_cell = cast(SampleCell, item.body)
-            sample_cell.read_only = item.meta.get(&#39;definition&#39;).get(&#39;readOnly&#39;, False)
+            sample_cell.read_only = getattr(item, &#39;meta&#39;, {}).get(&#39;definition&#39;, {}).get(&#39;readOnly&#39;, False)
             assert sample_cell.id
 
             self._cells.append(sample_cell)
@@ -510,7 +525,7 @@ class Sample(Entity):
     def create(
         cls,
         *,
-        cells: Optional[List[SampleCell]] = None,
+        cells: Optional[List[SampleCellBody]] = None,
         template: Optional[&#39;Sample&#39;] = None,
         ancestors: Optional[List[Union[Container, &#39;SamplesContainer&#39;]]] = None,
         digest: str = None,
@@ -553,12 +568,13 @@ class Sample(Entity):
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
         &#34;&#34;&#34;Dump Sample entity
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -569,11 +585,16 @@ class Sample(Entity):
             &#39;columns&#39;: self.get_column_definitions_list(),
             **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata),
+            base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
+        )
         data = [item.dict() for item in self]
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, f&#39;{self.name}.json&#39;),
             json.dumps({&#39;data&#39;: data}, default=str).encode(&#39;utf-8&#39;),
+            base_alias=alias + [self.name, f&#39;{self.name}.json&#39;] if alias else None,
         )
 
     @classmethod
@@ -588,6 +609,10 @@ class Sample(Entity):
         Returns:
 
         &#34;&#34;&#34;
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
         from signals_notebook.entities import EntityStore
 
         log.debug(&#39;Loading sample from dump...&#39;)
@@ -605,7 +630,7 @@ class Sample(Entity):
             if not item[&#39;read_only&#39;] and item[&#39;name&#39;] != &#39;Amount&#39;:
                 try:
                     int(item[&#39;id&#39;])
-                    cells.append(SampleCell(**item).dict(include={&#39;id&#39;, &#39;name&#39;, &#39;content&#39;}, exclude_none=True))
+                    cells.append(SampleCellBody(**item))
                 except ValueError:
                     pass
 
@@ -644,7 +669,12 @@ class Sample(Entity):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, &#39;templates&#39;, entity_type),
+                    fs_handler,
+                    [&#39;Templates&#39;, entity_type.value],
+                )
+
         except TypeError:
             pass</code></pre>
 </details>
@@ -664,7 +694,7 @@ class Sample(Entity):
 <h3>Static methods</h3>
 <dl>
 <dt id="signals_notebook.entities.samples.sample.Sample.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, cells: Optional[List[<a title="signals_notebook.entities.samples.cell.SampleCell" href="cell.html#signals_notebook.entities.samples.cell.SampleCell">SampleCell</a>]] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a>')] = None, ancestors: Optional[List[Union[<a title="signals_notebook.entities.container.Container" href="../container.html#signals_notebook.entities.container.Container">Container</a>, ForwardRef('SamplesContainer')]]] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a></span>
+<span>def <span class="ident">create</span></span>(<span>*, cells: Optional[List[<a title="signals_notebook.entities.samples.sample.SampleCellBody" href="#signals_notebook.entities.samples.sample.SampleCellBody">SampleCellBody</a>]] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a>')] = None, ancestors: Optional[List[Union[<a title="signals_notebook.entities.container.Container" href="../container.html#signals_notebook.entities.container.Container">Container</a>, ForwardRef('SamplesContainer')]]] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.samples.sample.Sample" href="#signals_notebook.entities.samples.sample.Sample">Sample</a></span>
 </code></dt>
 <dd>
 <div class="desc"><p>Create Sample Entity</p>
@@ -693,7 +723,7 @@ If the parameter 'force' is false, this parameter is required.</dd>
 def create(
     cls,
     *,
-    cells: Optional[List[SampleCell]] = None,
+    cells: Optional[List[SampleCellBody]] = None,
     template: Optional[&#39;Sample&#39;] = None,
     ancestors: Optional[List[Union[Container, &#39;SamplesContainer&#39;]]] = None,
     digest: str = None,
@@ -774,7 +804,12 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
     )
     try:
         for template in templates:
-            template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+            template.dump(
+                fs_handler.join_path(base_path, &#39;templates&#39;, entity_type),
+                fs_handler,
+                [&#39;Templates&#39;, entity_type.value],
+            )
+
     except TypeError:
         pass</code></pre>
 </details>
@@ -810,48 +845,14 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
     Returns:
 
     &#34;&#34;&#34;
-    from signals_notebook.entities import EntityStore
-
-    log.debug(&#39;Loading sample from dump...&#39;)
-
-    entity_type = cls._get_entity_type()
-    metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
-    metadata = json.loads(fs_handler.read(metadata_path))
-
-    sample_filename = metadata[&#39;filename&#39;]
-    sample_data_path = fs_handler.join_path(path, sample_filename)
-    sample_content = json.loads(fs_handler.read(sample_data_path))[&#39;data&#39;]
-
-    cells = []
-    for item in sample_content:
-        if not item[&#39;read_only&#39;] and item[&#39;name&#39;] != &#39;Amount&#39;:
-            try:
-                int(item[&#39;id&#39;])
-                cells.append(SampleCell(**item).dict(include={&#39;id&#39;, &#39;name&#39;, &#39;content&#39;}, exclude_none=True))
-            except ValueError:
-                pass
-
-    column_definitions = metadata.get(&#39;columns&#39;)
-    templates = EntityStore.get_list(
-        include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
-    )
-    for item in templates:
-        template = cast(&#39;Sample&#39;, item)
-        template_column_definitions = template.get_column_definitions_list()
-        if set(template_column_definitions) == set(column_definitions):
-            cls.create(
-                ancestors=[parent],
-                template=template,
-                cells=cells,
-            )
-            break</code></pre>
+    cls._load(path, fs_handler, parent)</code></pre>
 </details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.entities.samples.sample.Sample.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, alias: Optional[List[str]] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dump Sample entity</p>
@@ -861,18 +862,21 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
 <dd>content path where create dump</dd>
 <dt><strong><code>fs_handler</code></strong></dt>
 <dd>FSHandler</dd>
+<dt><strong><code>alias</code></strong></dt>
+<dd>Backup alias</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
     &#34;&#34;&#34;Dump Sample entity
 
     Args:
         base_path: content path where create dump
         fs_handler: FSHandler
+        alias: Backup alias
 
     Returns:
 
@@ -883,11 +887,16 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
         &#39;columns&#39;: self.get_column_definitions_list(),
         **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
     }
-    fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+    fs_handler.write(
+        fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+        json.dumps(metadata),
+        base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
+    )
     data = [item.dict() for item in self]
     fs_handler.write(
         fs_handler.join_path(base_path, self.eid, f&#39;{self.name}.json&#39;),
         json.dumps({&#39;data&#39;: data}, default=str).encode(&#39;utf-8&#39;),
+        base_alias=alias + [self.name, f&#39;{self.name}.json&#39;] if alias else None,
     )</code></pre>
 </details>
 </dd>

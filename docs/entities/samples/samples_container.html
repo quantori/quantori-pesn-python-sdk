@@ -30,7 +30,7 @@
 import logging
 from enum import Enum
 from io import StringIO
-from typing import cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
+from typing import Any, cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
@@ -160,12 +160,13 @@ class SamplesContainer(ContentfulEntity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
         &#34;&#34;&#34;Dump SampleContainer
 
         Args:
             base_path: content path where create templates dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -188,12 +189,16 @@ class SamplesContainer(ContentfulEntity):
         Returns:
 
         &#34;&#34;&#34;
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
         from signals_notebook.item_mapper import ItemMapper
 
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(&#39;:&#39;)[0]
-            ItemMapper.get_item_class(child_entity_type).load(
+            ItemMapper.get_item_class(child_entity_type)._load(
                 fs_handler.join_path(path, child_entity), fs_handler, parent
             )</code></pre>
 </details>
@@ -358,12 +363,13 @@ class SamplesContainer(ContentfulEntity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
         &#34;&#34;&#34;Dump SampleContainer
 
         Args:
             base_path: content path where create templates dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -386,12 +392,16 @@ class SamplesContainer(ContentfulEntity):
         Returns:
 
         &#34;&#34;&#34;
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
         from signals_notebook.item_mapper import ItemMapper
 
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(&#39;:&#39;)[0]
-            ItemMapper.get_item_class(child_entity_type).load(
+            ItemMapper.get_item_class(child_entity_type)._load(
                 fs_handler.join_path(path, child_entity), fs_handler, parent
             )</code></pre>
 </details>
@@ -443,21 +453,14 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
     Returns:
 
     &#34;&#34;&#34;
-    from signals_notebook.item_mapper import ItemMapper
-
-    child_entities_folders = fs_handler.list_subfolders(path)
-    for child_entity in child_entities_folders:
-        child_entity_type = child_entity.split(&#39;:&#39;)[0]
-        ItemMapper.get_item_class(child_entity_type).load(
-            fs_handler.join_path(path, child_entity), fs_handler, parent
-        )</code></pre>
+    cls._load(path, fs_handler, parent)</code></pre>
 </details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.entities.samples.samples_container.SamplesContainer.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, alias: Optional[List[str]] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dump SampleContainer</p>
@@ -467,18 +470,21 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
 <dd>content path where create templates dump</dd>
 <dt><strong><code>fs_handler</code></strong></dt>
 <dd>FSHandler</dd>
+<dt><strong><code>alias</code></strong></dt>
+<dd>Backup alias</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
     &#34;&#34;&#34;Dump SampleContainer
 
     Args:
         base_path: content path where create templates dump
         fs_handler: FSHandler
+        alias: Backup alias
 
     Returns:
 

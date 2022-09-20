@@ -31,7 +31,7 @@ import cgi
 import json
 import logging
 from enum import Enum
-from typing import Optional
+from typing import Any, List, Optional
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, File
@@ -104,12 +104,13 @@ class ContentfulEntity(Entity, abc.ABC):
 
         return template.render(data=data)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
         &#34;&#34;&#34;Dump ContentfulEntity entity
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -120,13 +121,21 @@ class ContentfulEntity(Entity, abc.ABC):
             &#39;content_type&#39;: content.content_type,
             **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata),
+            base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
+        )
         file_name = content.name
         data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, file_name),
+            data,
+            base_alias=alias + [self.name, file_name] if alias else None,
+        )
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
         &#34;&#34;&#34;Load ContentfulEntity entity
 
         Args:
@@ -137,6 +146,10 @@ class ContentfulEntity(Entity, abc.ABC):
         Returns:
 
         &#34;&#34;&#34;
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
         metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
         metadata = json.loads(fs_handler.read(metadata_path))
         content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
@@ -229,12 +242,13 @@ class ContentfulEntity(Entity, abc.ABC):
 
         return template.render(data=data)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
         &#34;&#34;&#34;Dump ContentfulEntity entity
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -245,13 +259,21 @@ class ContentfulEntity(Entity, abc.ABC):
             &#39;content_type&#39;: content.content_type,
             **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata),
+            base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
+        )
         file_name = content.name
         data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, file_name),
+            data,
+            base_alias=alias + [self.name, file_name] if alias else None,
+        )
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
         &#34;&#34;&#34;Load ContentfulEntity entity
 
         Args:
@@ -262,6 +284,10 @@ class ContentfulEntity(Entity, abc.ABC):
         Returns:
 
         &#34;&#34;&#34;
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
         metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
         metadata = json.loads(fs_handler.read(metadata_path))
         content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
@@ -376,7 +402,7 @@ def create(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
+def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
     &#34;&#34;&#34;Load ContentfulEntity entity
 
     Args:
@@ -387,22 +413,14 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  
     Returns:
 
     &#34;&#34;&#34;
-    metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
-    metadata = json.loads(fs_handler.read(metadata_path))
-    content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
-    content_type = metadata.get(&#39;content_type&#39;)
-    content = fs_handler.read(content_path)
-    if content_type:
-        cls.create(container=parent, name=metadata[&#39;name&#39;], content=content, content_type=content_type, force=True)
-    else:
-        cls.create(container=parent, name=metadata[&#39;name&#39;], content=content, force=True)</code></pre>
+    cls._load(path, fs_handler, parent)</code></pre>
 </details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
 <dt id="signals_notebook.entities.contentful_entity.ContentfulEntity.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, alias: Optional[List[str]] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dump ContentfulEntity entity</p>
@@ -412,18 +430,21 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  
 <dd>content path where create dump</dd>
 <dt><strong><code>fs_handler</code></strong></dt>
 <dd>FSHandler</dd>
+<dt><strong><code>alias</code></strong></dt>
+<dd>Backup alias</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
     &#34;&#34;&#34;Dump ContentfulEntity entity
 
     Args:
         base_path: content path where create dump
         fs_handler: FSHandler
+        alias: Backup alias
 
     Returns:
 
@@ -434,10 +455,18 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  
         &#39;content_type&#39;: content.content_type,
         **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
     }
-    fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+    fs_handler.write(
+        fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+        json.dumps(metadata),
+        base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
+    )
     file_name = content.name
     data = content.content
-    fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)</code></pre>
+    fs_handler.write(
+        fs_handler.join_path(base_path, self.eid, file_name),
+        data,
+        base_alias=alias + [self.name, file_name] if alias else None,
+    )</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.contentful_entity.ContentfulEntity.get_content"><code class="name flex">

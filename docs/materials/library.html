@@ -583,7 +583,7 @@ class Library(BaseMaterialEntity):
                 content_type=failure_report_reponse.headers.get(&#39;content-type&#39;),
             )
 
-    def dump(self, base_path: str, fs_handler: FSHandler):
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None):
         metadata = {
             **{k: v for k, v in self.dict().items() if k in (&#39;library_name&#39;, &#39;asset_type_id&#39;, &#39;eid&#39;, &#39;name&#39;)},
         }
@@ -592,13 +592,21 @@ class Library(BaseMaterialEntity):
             metadata[&#39;file_name&#39;] = content.name
             file_name = content.name
             data = content.content
-            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+            fs_handler.write(
+                fs_handler.join_path(base_path, self.eid, file_name),
+                data,
+                base_alias=alias + [metadata[&#39;name&#39;], file_name] if alias else None,
+            )
         except FileNotFoundError:
             metadata[&#39;error&#39;] = &#39;Library is empty&#39;
         except TimeoutError:
             metadata[&#39;error&#39;] = &#39;Time is over to dump library&#39;
 
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata),
+            base_alias=alias + [metadata[&#39;name&#39;], &#39;__Metadata&#39;] if alias else None,
+        )
 
     @staticmethod
     def _generate_zip(my_file):
@@ -1425,7 +1433,7 @@ Adds ability to use properties with setters</p>
                 content_type=failure_report_reponse.headers.get(&#39;content-type&#39;),
             )
 
-    def dump(self, base_path: str, fs_handler: FSHandler):
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None):
         metadata = {
             **{k: v for k, v in self.dict().items() if k in (&#39;library_name&#39;, &#39;asset_type_id&#39;, &#39;eid&#39;, &#39;name&#39;)},
         }
@@ -1434,13 +1442,21 @@ Adds ability to use properties with setters</p>
             metadata[&#39;file_name&#39;] = content.name
             file_name = content.name
             data = content.content
-            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+            fs_handler.write(
+                fs_handler.join_path(base_path, self.eid, file_name),
+                data,
+                base_alias=alias + [metadata[&#39;name&#39;], file_name] if alias else None,
+            )
         except FileNotFoundError:
             metadata[&#39;error&#39;] = &#39;Library is empty&#39;
         except TimeoutError:
             metadata[&#39;error&#39;] = &#39;Time is over to dump library&#39;
 
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata),
+            base_alias=alias + [metadata[&#39;name&#39;], &#39;__Metadata&#39;] if alias else None,
+        )
 
     @staticmethod
     def _generate_zip(my_file):
@@ -1784,7 +1800,7 @@ Max materials size: 50MB.</p>
 </details>
 </dd>
 <dt id="signals_notebook.materials.library.Library.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>)</span>
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, alias: Optional[List[str]] = None)</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -1792,7 +1808,7 @@ Max materials size: 50MB.</p>
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler):
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None):
     metadata = {
         **{k: v for k, v in self.dict().items() if k in (&#39;library_name&#39;, &#39;asset_type_id&#39;, &#39;eid&#39;, &#39;name&#39;)},
     }
@@ -1801,13 +1817,21 @@ Max materials size: 50MB.</p>
         metadata[&#39;file_name&#39;] = content.name
         file_name = content.name
         data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, file_name),
+            data,
+            base_alias=alias + [metadata[&#39;name&#39;], file_name] if alias else None,
+        )
     except FileNotFoundError:
         metadata[&#39;error&#39;] = &#39;Library is empty&#39;
     except TimeoutError:
         metadata[&#39;error&#39;] = &#39;Time is over to dump library&#39;
 
-    fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))</code></pre>
+    fs_handler.write(
+        fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+        json.dumps(metadata),
+        base_alias=alias + [metadata[&#39;name&#39;], &#39;__Metadata&#39;] if alias else None,
+    )</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.materials.library.Library.get_asset"><code class="name flex">

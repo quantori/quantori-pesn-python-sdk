@@ -200,7 +200,10 @@ class EntityStore:
         &#34;&#34;&#34;
 
         for item in Entity.get_subclasses():
-            item.dump_templates(base_path, fs_handler)</code></pre>
+            try:
+                item.dump_templates(base_path, fs_handler)
+            except Exception as e:
+                log.error(&#39;Failed to dump templates for %s with error %s&#39; % (str(item), str(e)))</code></pre>
 </details>
 </section>
 <section>
@@ -381,7 +384,10 @@ class EntityStore:
         &#34;&#34;&#34;
 
         for item in Entity.get_subclasses():
-            item.dump_templates(base_path, fs_handler)</code></pre>
+            try:
+                item.dump_templates(base_path, fs_handler)
+            except Exception as e:
+                log.error(&#39;Failed to dump templates for %s with error %s&#39; % (str(item), str(e)))</code></pre>
 </details>
 <h3>Class variables</h3>
 <dl>
@@ -471,7 +477,10 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
     &#34;&#34;&#34;
 
     for item in Entity.get_subclasses():
-        item.dump_templates(base_path, fs_handler)</code></pre>
+        try:
+            item.dump_templates(base_path, fs_handler)
+        except Exception as e:
+            log.error(&#39;Failed to dump templates for %s with error %s&#39; % (str(item), str(e)))</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.entity_store.EntityStore.get"><code class="name flex">
