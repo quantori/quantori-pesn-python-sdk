@@ -330,12 +330,12 @@ class Entity(BaseModel):
 
         return template.render(data=data)
 
-    def dump(self, *args, **kwargs) -&gt; None:
-        log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
+        log.error(&#39;Dumping is not implemented&#39;)
 
     @classmethod
-    def load(cls, *args, **kwargs) -&gt; None:
-        log.error(&#39;Loading Entity: not implemented!&#39;)
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
+        log.error(&#39;Loading is not implemented&#39;)
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
@@ -360,7 +360,9 @@ class Entity(BaseModel):
                 fs_handler.write(
                     fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
                     json.dumps({k: v for k, v in template.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+                    base_alias=[&#39;Templates&#39;, entity_type, template.name],
                 )
+
         except TypeError:
             pass</code></pre>
 </details>
@@ -616,12 +618,12 @@ class Entity(BaseModel):
 
         return template.render(data=data)
 
-    def dump(self, *args, **kwargs) -&gt; None:
-        log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
+        log.error(&#39;Dumping is not implemented&#39;)
 
     @classmethod
-    def load(cls, *args, **kwargs) -&gt; None:
-        log.error(&#39;Loading Entity: not implemented!&#39;)
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
+        log.error(&#39;Loading is not implemented&#39;)
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
@@ -646,7 +648,9 @@ class Entity(BaseModel):
                 fs_handler.write(
                     fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
                     json.dumps({k: v for k, v in template.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+                    base_alias=[&#39;Templates&#39;, entity_type, template.name],
                 )
+
         except TypeError:
             pass</code></pre>
 </details>
@@ -740,7 +744,9 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
             fs_handler.write(
                 fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
                 json.dumps({k: v for k, v in template.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+                base_alias=[&#39;Templates&#39;, entity_type, template.name],
             )
+
     except TypeError:
         pass</code></pre>
 </details>
@@ -811,20 +817,6 @@ def get_template_name(cls) -&gt; str:
         Template name
     &#34;&#34;&#34;
     return cls._template_name</code></pre>
-</details>
-</dd>
-<dt id="signals_notebook.entities.entity.Entity.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>*args, **kwargs) ‑> None</span>
-</code></dt>
-<dd>
-<div class="desc"></div>
-<details class="source">
-<summary>
-<span>Expand source code</span>
-</summary>
-<pre><code class="python">@classmethod
-def load(cls, *args, **kwargs) -&gt; None:
-    log.error(&#39;Loading Entity: not implemented!&#39;)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.entity.Entity.set_template_name"><code class="name flex">
@@ -905,7 +897,7 @@ def short_description(self) -&gt; EntityShortDescription:
 </details>
 </dd>
 <dt id="signals_notebook.entities.entity.Entity.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, *args, **kwargs) ‑> None</span>
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, alias: Optional[List[str]] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -913,8 +905,8 @@ def short_description(self) -&gt; EntityShortDescription:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, *args, **kwargs) -&gt; None:
-    log.error(&#39;Dumping Entity %s: not implemented!&#39; % str(self))</code></pre>
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
+    log.error(&#39;Dumping is not implemented&#39;)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.entity.Entity.get_html"><code class="name flex">
@@ -1268,7 +1260,6 @@ def representation_for_update(self) -&gt; dict[str, dict]:
 <li><code><a title="signals_notebook.entities.entity.Entity.get_list" href="#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_subclasses" href="#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.get_template_name" href="#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
-<li><code><a title="signals_notebook.entities.entity.Entity.load" href="#signals_notebook.entities.entity.Entity.load">load</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.name" href="#signals_notebook.entities.entity.Entity.name">name</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.refresh" href="#signals_notebook.entities.entity.Entity.refresh">refresh</a></code></li>
 <li><code><a title="signals_notebook.entities.entity.Entity.save" href="#signals_notebook.entities.entity.Entity.save">save</a></code></li>

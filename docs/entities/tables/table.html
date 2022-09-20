@@ -30,7 +30,7 @@
 import json
 import logging
 from enum import Enum
-from typing import Any, cast, Dict, List, Literal, Union
+from typing import Any, cast, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 import pandas as pd
@@ -440,12 +440,13 @@ class Table(Entity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
         &#34;&#34;&#34;Dump Table entity
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -461,14 +462,22 @@ class Table(Entity):
             &#39;columns&#39;: [item.title for item in column_definitions],
             **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata, default=str))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata, default=str),
+            base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
+        )
         file_name = content.name
         data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, file_name),
+            data,
+            base_alias=alias + [self.name, file_name] if alias else None,
+        )
         log.debug(&#39;Table: %s was dumped successfully&#39;, self.eid, self.name)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
         &#34;&#34;&#34;Load Table entity
 
         Args:
@@ -479,6 +488,10 @@ class Table(Entity):
         Returns:
 
         &#34;&#34;&#34;
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
         log.debug(&#39;Loading table from dump...&#39;)
         metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
         metadata = json.loads(fs_handler.read(metadata_path))
@@ -543,6 +556,7 @@ class Table(Entity):
                 fs_handler.write(
                     fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
                     json.dumps(metadata),
+                    (&#39;Templates&#39;, entity_type.value, template.name),
                 )
         except TypeError:
             pass
@@ -1154,12 +1168,13 @@ class TableResponse(Response[Table]):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
         &#34;&#34;&#34;Dump Table entity
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -1175,14 +1190,22 @@ class TableResponse(Response[Table]):
             &#39;columns&#39;: [item.title for item in column_definitions],
             **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata, default=str))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata, default=str),
+            base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
+        )
         file_name = content.name
         data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, file_name),
+            data,
+            base_alias=alias + [self.name, file_name] if alias else None,
+        )
         log.debug(&#39;Table: %s was dumped successfully&#39;, self.eid, self.name)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
         &#34;&#34;&#34;Load Table entity
 
         Args:
@@ -1193,6 +1216,10 @@ class TableResponse(Response[Table]):
         Returns:
 
         &#34;&#34;&#34;
+        cls._load(path, fs_handler, parent)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
         log.debug(&#39;Loading table from dump...&#39;)
         metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
         metadata = json.loads(fs_handler.read(metadata_path))
@@ -1257,6 +1284,7 @@ class TableResponse(Response[Table]):
                 fs_handler.write(
                     fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
                     json.dumps(metadata),
+                    (&#39;Templates&#39;, entity_type.value, template.name),
                 )
         except TypeError:
             pass</code></pre>
@@ -1422,6 +1450,7 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
             fs_handler.write(
                 fs_handler.join_path(base_path, &#39;templates&#39;, entity_type, f&#39;metadata_{template.name}.json&#39;),
                 json.dumps(metadata),
+                (&#39;Templates&#39;, entity_type.value, template.name),
             )
     except TypeError:
         pass</code></pre>
@@ -1447,7 +1476,7 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  # type: ignore[override]
+def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:
     &#34;&#34;&#34;Load Table entity
 
     Args:
@@ -1458,36 +1487,7 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  
     Returns:
 
     &#34;&#34;&#34;
-    log.debug(&#39;Loading table from dump...&#39;)
-    metadata_path = fs_handler.join_path(path, &#39;metadata.json&#39;)
-    metadata = json.loads(fs_handler.read(metadata_path))
-    content_path = fs_handler.join_path(path, metadata[&#39;file_name&#39;])
-    content_bytes = fs_handler.read(content_path)
-    content = json.loads(content_bytes)
-    rows = content[&#39;data&#39;]
-    column_definitions = metadata.get(&#39;columns&#39;)
-    templates = EntityStore.get_list(
-        include_types=[EntityType.GRID], include_options=[EntityStore.IncludeOptions.TEMPLATE]
-    )
-
-    file_creation = True
-    for item in templates:
-        template = cast(&#39;Table&#39;, item)
-        template_column_definitions = template.get_column_definitions_list()
-        template_columns = [item.title for item in template_column_definitions]
-        if set(template_columns) == set(column_definitions):
-            file_creation = False
-            cls.create(
-                container=parent,
-                name=metadata[&#39;name&#39;],
-                template=template.eid,
-                content=rows,
-            )
-            break
-
-    if file_creation:
-        cls.create(container=parent, name=metadata[&#39;name&#39;], content=rows, force=True)
-    log.debug(&#39;Table was loaded to Container: %s&#39;, parent.eid)</code></pre>
+    cls._load(path, fs_handler, parent)</code></pre>
 </details>
 </dd>
 </dl>
@@ -1664,7 +1664,7 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  
 </details>
 </dd>
 <dt id="signals_notebook.entities.tables.table.Table.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, alias: Optional[List[str]] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dump Table entity</p>
@@ -1674,18 +1674,21 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  
 <dd>content path where create dump</dd>
 <dt><strong><code>fs_handler</code></strong></dt>
 <dd>FSHandler</dd>
+<dt><strong><code>alias</code></strong></dt>
+<dd>Backup alias</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
     &#34;&#34;&#34;Dump Table entity
 
     Args:
         base_path: content path where create dump
         fs_handler: FSHandler
+        alias: Backup alias
 
     Returns:
 
@@ -1701,10 +1704,18 @@ def load(cls, path: str, fs_handler: FSHandler, parent: Container) -&gt; None:  
         &#39;columns&#39;: [item.title for item in column_definitions],
         **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
     }
-    fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata, default=str))
+    fs_handler.write(
+        fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+        json.dumps(metadata, default=str),
+        base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
+    )
     file_name = content.name
     data = content.content
-    fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)
+    fs_handler.write(
+        fs_handler.join_path(base_path, self.eid, file_name),
+        data,
+        base_alias=alias + [self.name, file_name] if alias else None,
+    )
     log.debug(&#39;Table: %s was dumped successfully&#39;, self.eid, self.name)</code></pre>
 </details>
 </dd>

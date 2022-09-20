@@ -31,7 +31,7 @@ import json
 import logging
 import mimetypes
 import os
-from typing import cast, Generator, Optional, Union
+from typing import cast, Generator, List, Optional, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
@@ -120,13 +120,15 @@ class Container(Entity, abc.ABC):
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
+        metadata = {k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
-            json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+            json.dumps(metadata),
+            base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
         )
         for child in self.get_children():
-            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + [self.name] if alias else None)
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
@@ -148,7 +150,12 @@ class Container(Entity, abc.ABC):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, &#39;templates&#39;, entity_type),
+                    fs_handler,
+                    [&#39;Templates&#39;, entity_type.value],
+                )
+
         except TypeError:
             pass</code></pre>
 </details>
@@ -252,13 +259,15 @@ class Container(Entity, abc.ABC):
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
+        metadata = {k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
-            json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+            json.dumps(metadata),
+            base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
         )
         for child in self.get_children():
-            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + [self.name] if alias else None)
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
@@ -280,7 +289,12 @@ class Container(Entity, abc.ABC):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, &#39;templates&#39;, entity_type),
+                    fs_handler,
+                    [&#39;Templates&#39;, entity_type.value],
+                )
+
         except TypeError:
             pass</code></pre>
 </details>
@@ -370,7 +384,12 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
     )
     try:
         for template in templates:
-            template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+            template.dump(
+                fs_handler.join_path(base_path, &#39;templates&#39;, entity_type),
+                fs_handler,
+                [&#39;Templates&#39;, entity_type.value],
+            )
+
     except TypeError:
         pass</code></pre>
 </details>
@@ -447,7 +466,7 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 </details>
 </dd>
 <dt id="signals_notebook.entities.container.Container.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, alias: Optional[List[str]] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -455,13 +474,15 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
+    metadata = {k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}
     fs_handler.write(
         fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
-        json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
+        json.dumps(metadata),
+        base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None,
     )
     for child in self.get_children():
-        child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)</code></pre>
+        child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + [self.name] if alias else None)</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.container.Container.get_children"><code class="name flex">

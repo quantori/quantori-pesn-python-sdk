@@ -59,9 +59,8 @@ class StoichiometryDataResponse(Response[DataGrids]):
 
 
 class Stoichiometry(BaseModel, abc.ABC):
-    &#34;&#34;&#34;Stoichiometry object of Signals Notebook
+    &#34;&#34;&#34;Stoichiometry object of Signals Notebook&#34;&#34;&#34;
 
-    &#34;&#34;&#34;
     eid: EID = Field(allow_mutation=False)
     reactants: Reactants = Field(default=Reactants(__root__=[]))
     products: Products = Field(default=Products(__root__=[]))
@@ -343,9 +342,8 @@ class Stoichiometry(BaseModel, abc.ABC):
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">class Stoichiometry(BaseModel, abc.ABC):
-    &#34;&#34;&#34;Stoichiometry object of Signals Notebook
+    &#34;&#34;&#34;Stoichiometry object of Signals Notebook&#34;&#34;&#34;
 
-    &#34;&#34;&#34;
     eid: EID = Field(allow_mutation=False)
     reactants: Reactants = Field(default=Reactants(__root__=[]))
     products: Products = Field(default=Products(__root__=[]))
