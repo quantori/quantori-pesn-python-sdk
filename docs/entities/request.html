@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
 <meta name="generator" content="pdoc 0.10.0" />
-<title>signals_notebook.entities.notebook API documentation</title>
+<title>signals_notebook.entities.request API documentation</title>
 <meta name="description" content="" />
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/sanitize.min.css" integrity="sha256-PK9q560IAAa6WVRRh76LtCaI8pjTJ2z11v0miyNNjrs=" crossorigin>
 <link rel="preload stylesheet" as="style" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/11.0.1/typography.min.css" integrity="sha256-7l/o7C8jubJiy74VsKTidCy1yBkRtiUGbVkYBylBqUg=" crossorigin>
@@ -19,7 +19,7 @@
 <main>
 <article id="content">
 <header>
-<h1 class="title">Module <code>signals_notebook.entities.notebook</code></h1>
+<h1 class="title">Module <code>signals_notebook.entities.request</code></h1>
 </header>
 <section id="section-intro">
 <details class="source">
@@ -28,13 +28,16 @@
 </summary>
 <pre><code class="python">import json
 import logging
-from typing import Literal, Optional
+from functools import cached_property
+from typing import Any, ClassVar, Literal, Optional
 
 from pydantic import BaseModel, Field
 
-from signals_notebook.common_types import EntityCreationRequestPayload, EntityType
+from signals_notebook.common_types import Ancestors, EntityCreationRequestPayload, EntityType, Template
+from signals_notebook.entities import Notebook
 from signals_notebook.entities.container import Container
-from signals_notebook.utils.fs_handler import FSHandler
+from signals_notebook.jinja_env import env
+from signals_notebook.utils import FSHandler
 
 log = logging.getLogger(__name__)
 
@@ -44,21 +47,31 @@ class _Attributes(BaseModel):
     description: Optional[str] = None
 
 
+class _Relationships(BaseModel):
+    template: Optional[Template] = None
+    ancestors: Optional[Ancestors] = None
+
+
 class _RequestBody(BaseModel):
     type: EntityType
     attributes: _Attributes
+    relationships: Optional[_Relationships] = None
 
 
 class _RequestPayload(EntityCreationRequestPayload[_RequestBody]):
     pass
 
 
-class Notebook(Container):
-    type: Literal[EntityType.NOTEBOOK] = Field(allow_mutation=False)
+class RequestContainer(Container):
+    type: Literal[EntityType.REQUEST] = Field(allow_mutation=False)
+    _template_name: ClassVar = &#39;request.html&#39;
+
+    class Config:
+        keep_untouched = (cached_property,)
 
     @classmethod
     def _get_entity_type(cls) -&gt; EntityType:
-        return EntityType.NOTEBOOK
+        return EntityType.REQUEST
 
     @classmethod
     def create(
@@ -66,20 +79,31 @@ class Notebook(Container):
         *,
         name: str,
         description: Optional[str] = None,
+        template: Optional[&#39;RequestContainer&#39;] = None,
+        notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -&gt; &#39;Notebook&#39;:
-        &#34;&#34;&#34;Create Notebook in Signals Notebooks
+    ) -&gt; &#39;RequestContainer&#39;:
+        &#34;&#34;&#34;Create new Request in Signals Notebook
 
         Args:
-            name: Notebook name
-            description: Notebook description
+            name: name of request
+            description: description of request
+            template: request template
+            notebook: notebook where create request
             digest: Indicate digest
             force: Force to create without doing digest check
 
         Returns:
-
+            Request
         &#34;&#34;&#34;
+
+        relationships = None
+        if template or notebook:
+            relationships = _Relationships(
+                ancestors=Ancestors(data=[notebook.short_description]) if notebook else None,
+                template=Template(data=template.short_description) if template else None,
+            )
 
         request = _RequestPayload(
             data=_RequestBody(
@@ -88,35 +112,52 @@ class Notebook(Container):
                     name=name,
                     description=description,
                 ),
+                relationships=relationships,
             )
         )
 
-        log.debug(&#39;Creating Notebook for: %s&#39;, cls.__name__)
+        log.debug(&#39;Creating Request Container for: %s&#39;, cls.__name__)
         return super()._create(
             digest=digest,
             force=force,
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
-        fs_handler.write(
-            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
-            json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
-        )
-        for child in self.get_children():
-            child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)
+    def get_html(self) -&gt; str:
+        &#34;&#34;&#34;Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        &#34;&#34;&#34;
+        data = {
+            &#39;title&#39;: self.name,
+            &#39;description&#39;: self.description,
+            &#39;edited_at&#39;: self.edited_at,
+            &#39;children&#39;: self.get_children(),
+        }
+
+        template = env.get_template(self._template_name)
+        log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
+        return template.render(data=data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+        cls._load(path, fs_handler, notebook)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
-        notebook = cls.create(name=&#39;restore:&#39; + metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True)
+        request_container = cls.create(
+            notebook=parent, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+        )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(&#39;:&#39;)[0]
-            ItemMapper.get_item_class(child_entity_type).load(
-                fs_handler.join_path(path, child_entity), fs_handler, notebook
+            ItemMapper.get_item_class(child_entity_type)._load(
+                fs_handler.join_path(path, child_entity), fs_handler, request_container
             )</code></pre>
 </details>
 </section>
@@ -129,7 +170,7 @@ class Notebook(Container):
 <section>
 <h2 class="section-title" id="header-classes">Classes</h2>
 <dl>
-<dt id="signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody]"><code class="flex name class">
+<dt id="signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody]"><code class="flex name class">
 <span>class <span class="ident">EntityCreationRequestPayload[_RequestBody]</span></span>
 <span>(</span><span>**data: Any)</span>
 </code></dt>
@@ -148,22 +189,22 @@ class Notebook(Container):
 </ul>
 <h3>Subclasses</h3>
 <ul class="hlist">
-<li>signals_notebook.entities.notebook._RequestPayload</li>
+<li>signals_notebook.entities.request._RequestPayload</li>
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody].Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dt id="signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody].Config"><code class="name">var <span class="ident">Config</span></code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
-<dt id="signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody].data"><code class="name">var <span class="ident">data</span> : signals_notebook.entities.notebook._RequestBody</code></dt>
+<dt id="signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody].data"><code class="name">var <span class="ident">data</span> : signals_notebook.entities.request._RequestBody</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 </dd>
-<dt id="signals_notebook.entities.notebook.Notebook"><code class="flex name class">
-<span>class <span class="ident">Notebook</span></span>
+<dt id="signals_notebook.entities.request.RequestContainer"><code class="flex name class">
+<span>class <span class="ident">RequestContainer</span></span>
 <span>(</span><span>**data: Any)</span>
 </code></dt>
 <dd>
@@ -173,12 +214,16 @@ class Notebook(Container):
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">class Notebook(Container):
-    type: Literal[EntityType.NOTEBOOK] = Field(allow_mutation=False)
+<pre><code class="python">class RequestContainer(Container):
+    type: Literal[EntityType.REQUEST] = Field(allow_mutation=False)
+    _template_name: ClassVar = &#39;request.html&#39;
+
+    class Config:
+        keep_untouched = (cached_property,)
 
     @classmethod
     def _get_entity_type(cls) -&gt; EntityType:
-        return EntityType.NOTEBOOK
+        return EntityType.REQUEST
 
     @classmethod
     def create(
@@ -186,20 +231,31 @@ class Notebook(Container):
         *,
         name: str,
         description: Optional[str] = None,
+        template: Optional[&#39;RequestContainer&#39;] = None,
+        notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-    ) -&gt; &#39;Notebook&#39;:
-        &#34;&#34;&#34;Create Notebook in Signals Notebooks
+    ) -&gt; &#39;RequestContainer&#39;:
+        &#34;&#34;&#34;Create new Request in Signals Notebook
 
         Args:
-            name: Notebook name
-            description: Notebook description
+            name: name of request
+            description: description of request
+            template: request template
+            notebook: notebook where create request
             digest: Indicate digest
             force: Force to create without doing digest check
 
         Returns:
-
+            Request
         &#34;&#34;&#34;
+
+        relationships = None
+        if template or notebook:
+            relationships = _Relationships(
+                ancestors=Ancestors(data=[notebook.short_description]) if notebook else None,
+                template=Template(data=template.short_description) if template else None,
+            )
 
         request = _RequestPayload(
             data=_RequestBody(
@@ -208,35 +264,52 @@ class Notebook(Container):
                     name=name,
                     description=description,
                 ),
+                relationships=relationships,
             )
         )
 
-        log.debug(&#39;Creating Notebook for: %s&#39;, cls.__name__)
+        log.debug(&#39;Creating Request Container for: %s&#39;, cls.__name__)
         return super()._create(
             digest=digest,
             force=force,
             request=request,
         )
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
-        fs_handler.write(
-            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
-            json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
-        )
-        for child in self.get_children():
-            child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)
+    def get_html(self) -&gt; str:
+        &#34;&#34;&#34;Get in HTML format
+
+        Returns:
+            Rendered template as a string
+        &#34;&#34;&#34;
+        data = {
+            &#39;title&#39;: self.name,
+            &#39;description&#39;: self.description,
+            &#39;edited_at&#39;: self.edited_at,
+            &#39;children&#39;: self.get_children(),
+        }
+
+        template = env.get_template(self._template_name)
+        log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
+        return template.render(data=data)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+        cls._load(path, fs_handler, notebook)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -&gt; None:
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
-        notebook = cls.create(name=&#39;restore:&#39; + metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True)
+        request_container = cls.create(
+            notebook=parent, name=metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True
+        )
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(&#39;:&#39;)[0]
-            ItemMapper.get_item_class(child_entity_type).load(
-                fs_handler.join_path(path, child_entity), fs_handler, notebook
+            ItemMapper.get_item_class(child_entity_type)._load(
+                fs_handler.join_path(path, child_entity), fs_handler, request_container
             )</code></pre>
 </details>
 <h3>Ancestors</h3>
@@ -249,30 +322,39 @@ class Notebook(Container):
 </ul>
 <h3>Class variables</h3>
 <dl>
-<dt id="signals_notebook.entities.notebook.Notebook.type"><code class="name">var <span class="ident">type</span> : Literal[<EntityType.NOTEBOOK: 'journal'>]</code></dt>
+<dt id="signals_notebook.entities.request.RequestContainer.Config"><code class="name">var <span class="ident">Config</span></code></dt>
+<dd>
+<div class="desc"></div>
+</dd>
+<dt id="signals_notebook.entities.request.RequestContainer.type"><code class="name">var <span class="ident">type</span> : Literal[<EntityType.REQUEST: 'request'>]</code></dt>
 <dd>
 <div class="desc"></div>
 </dd>
 </dl>
 <h3>Static methods</h3>
 <dl>
-<dt id="signals_notebook.entities.notebook.Notebook.create"><code class="name flex">
-<span>def <span class="ident">create</span></span>(<span>*, name: str, description: Optional[str] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.notebook.Notebook" href="#signals_notebook.entities.notebook.Notebook">Notebook</a></span>
+<dt id="signals_notebook.entities.request.RequestContainer.create"><code class="name flex">
+<span>def <span class="ident">create</span></span>(<span>*, name: str, description: Optional[str] = None, template: Optional[ForwardRef('<a title="signals_notebook.entities.request.RequestContainer" href="#signals_notebook.entities.request.RequestContainer">RequestContainer</a>')] = None, notebook: Optional[<a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>] = None, digest: str = None, force: bool = True) ‑> <a title="signals_notebook.entities.request.RequestContainer" href="#signals_notebook.entities.request.RequestContainer">RequestContainer</a></span>
 </code></dt>
 <dd>
-<div class="desc"><p>Create Notebook in Signals Notebooks</p>
+<div class="desc"><p>Create new Request in Signals Notebook</p>
 <h2 id="args">Args</h2>
 <dl>
 <dt><strong><code>name</code></strong></dt>
-<dd>Notebook name</dd>
+<dd>name of request</dd>
 <dt><strong><code>description</code></strong></dt>
-<dd>Notebook description</dd>
+<dd>description of request</dd>
+<dt><strong><code>template</code></strong></dt>
+<dd>request template</dd>
+<dt><strong><code>notebook</code></strong></dt>
+<dd>notebook where create request</dd>
 <dt><strong><code>digest</code></strong></dt>
 <dd>Indicate digest</dd>
 <dt><strong><code>force</code></strong></dt>
 <dd>Force to create without doing digest check</dd>
 </dl>
-<p>Returns:</p></div>
+<h2 id="returns">Returns</h2>
+<p>Request</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
@@ -283,20 +365,31 @@ def create(
     *,
     name: str,
     description: Optional[str] = None,
+    template: Optional[&#39;RequestContainer&#39;] = None,
+    notebook: Optional[Notebook] = None,
     digest: str = None,
     force: bool = True,
-) -&gt; &#39;Notebook&#39;:
-    &#34;&#34;&#34;Create Notebook in Signals Notebooks
+) -&gt; &#39;RequestContainer&#39;:
+    &#34;&#34;&#34;Create new Request in Signals Notebook
 
     Args:
-        name: Notebook name
-        description: Notebook description
+        name: name of request
+        description: description of request
+        template: request template
+        notebook: notebook where create request
         digest: Indicate digest
         force: Force to create without doing digest check
 
     Returns:
-
+        Request
     &#34;&#34;&#34;
+
+    relationships = None
+    if template or notebook:
+        relationships = _Relationships(
+            ancestors=Ancestors(data=[notebook.short_description]) if notebook else None,
+            template=Template(data=template.short_description) if template else None,
+        )
 
     request = _RequestPayload(
         data=_RequestBody(
@@ -305,10 +398,11 @@ def create(
                 name=name,
                 description=description,
             ),
+            relationships=relationships,
         )
     )
 
-    log.debug(&#39;Creating Notebook for: %s&#39;, cls.__name__)
+    log.debug(&#39;Creating Request Container for: %s&#39;, cls.__name__)
     return super()._create(
         digest=digest,
         force=force,
@@ -316,8 +410,8 @@ def create(
     )</code></pre>
 </details>
 </dd>
-<dt id="signals_notebook.entities.notebook.Notebook.load"><code class="name flex">
-<span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+<dt id="signals_notebook.entities.request.RequestContainer.load"><code class="name flex">
+<span>def <span class="ident">load</span></span>(<span>path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, notebook: <a title="signals_notebook.entities.notebook.Notebook" href="notebook.html#signals_notebook.entities.notebook.Notebook">Notebook</a>) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"></div>
@@ -326,38 +420,41 @@ def create(
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">@classmethod
-def load(cls, path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
-    from signals_notebook.item_mapper import ItemMapper
-
-    metadata = json.loads(fs_handler.read(fs_handler.join_path(path, &#39;metadata.json&#39;)))
-    notebook = cls.create(name=&#39;restore:&#39; + metadata[&#39;name&#39;], description=metadata[&#39;description&#39;], force=True)
-    child_entities_folders = fs_handler.list_subfolders(path)
-    for child_entity in child_entities_folders:
-        child_entity_type = child_entity.split(&#39;:&#39;)[0]
-        ItemMapper.get_item_class(child_entity_type).load(
-            fs_handler.join_path(path, child_entity), fs_handler, notebook
-        )</code></pre>
+def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -&gt; None:
+    cls._load(path, fs_handler, notebook)</code></pre>
 </details>
 </dd>
 </dl>
 <h3>Methods</h3>
 <dl>
-<dt id="signals_notebook.entities.notebook.Notebook.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+<dt id="signals_notebook.entities.request.RequestContainer.get_html"><code class="name flex">
+<span>def <span class="ident">get_html</span></span>(<span>self) ‑> str</span>
 </code></dt>
 <dd>
-<div class="desc"></div>
+<div class="desc"><p>Get in HTML format</p>
+<h2 id="returns">Returns</h2>
+<p>Rendered template as a string</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[override]
-    fs_handler.write(
-        fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
-        json.dumps({k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)}),
-    )
-    for child in self.get_children():
-        child.dump(base_path + &#39;/&#39; + self.eid, fs_handler)</code></pre>
+<pre><code class="python">def get_html(self) -&gt; str:
+    &#34;&#34;&#34;Get in HTML format
+
+    Returns:
+        Rendered template as a string
+    &#34;&#34;&#34;
+    data = {
+        &#39;title&#39;: self.name,
+        &#39;description&#39;: self.description,
+        &#39;edited_at&#39;: self.edited_at,
+        &#39;children&#39;: self.get_children(),
+    }
+
+    template = env.get_template(self._template_name)
+    log.info(&#39;Html template for %s:%s has been rendered.&#39;, self.__class__.__name__, self.eid)
+
+    return template.render(data=data)</code></pre>
 </details>
 </dd>
 </dl>
@@ -369,7 +466,6 @@ def load(cls, path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[over
 <li><code><a title="signals_notebook.entities.container.Container.delete" href="entity.html#signals_notebook.entities.entity.Entity.delete">delete</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.dump_templates" href="container.html#signals_notebook.entities.container.Container.dump_templates">dump_templates</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_children" href="container.html#signals_notebook.entities.container.Container.get_children">get_children</a></code></li>
-<li><code><a title="signals_notebook.entities.container.Container.get_html" href="entity.html#signals_notebook.entities.entity.Entity.get_html">get_html</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_list" href="entity.html#signals_notebook.entities.entity.Entity.get_list">get_list</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_subclasses" href="entity.html#signals_notebook.entities.entity.Entity.get_subclasses">get_subclasses</a></code></li>
 <li><code><a title="signals_notebook.entities.container.Container.get_template_name" href="entity.html#signals_notebook.entities.entity.Entity.get_template_name">get_template_name</a></code></li>
@@ -398,19 +494,20 @@ def load(cls, path: str, fs_handler: FSHandler) -&gt; None:  # type: ignore[over
 <li><h3><a href="#header-classes">Classes</a></h3>
 <ul>
 <li>
-<h4><code><a title="signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody]" href="#signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></code></h4>
+<h4><code><a title="signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody]" href="#signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody]">EntityCreationRequestPayload[_RequestBody]</a></code></h4>
 <ul class="">
-<li><code><a title="signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody].Config" href="#signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody].Config">Config</a></code></li>
-<li><code><a title="signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody].data" href="#signals_notebook.entities.notebook.EntityCreationRequestPayload[_RequestBody].data">data</a></code></li>
+<li><code><a title="signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody].Config" href="#signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody].Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody].data" href="#signals_notebook.entities.request.EntityCreationRequestPayload[_RequestBody].data">data</a></code></li>
 </ul>
 </li>
 <li>
-<h4><code><a title="signals_notebook.entities.notebook.Notebook" href="#signals_notebook.entities.notebook.Notebook">Notebook</a></code></h4>
+<h4><code><a title="signals_notebook.entities.request.RequestContainer" href="#signals_notebook.entities.request.RequestContainer">RequestContainer</a></code></h4>
 <ul class="">
-<li><code><a title="signals_notebook.entities.notebook.Notebook.create" href="#signals_notebook.entities.notebook.Notebook.create">create</a></code></li>
-<li><code><a title="signals_notebook.entities.notebook.Notebook.dump" href="#signals_notebook.entities.notebook.Notebook.dump">dump</a></code></li>
-<li><code><a title="signals_notebook.entities.notebook.Notebook.load" href="#signals_notebook.entities.notebook.Notebook.load">load</a></code></li>
-<li><code><a title="signals_notebook.entities.notebook.Notebook.type" href="#signals_notebook.entities.notebook.Notebook.type">type</a></code></li>
+<li><code><a title="signals_notebook.entities.request.RequestContainer.Config" href="#signals_notebook.entities.request.RequestContainer.Config">Config</a></code></li>
+<li><code><a title="signals_notebook.entities.request.RequestContainer.create" href="#signals_notebook.entities.request.RequestContainer.create">create</a></code></li>
+<li><code><a title="signals_notebook.entities.request.RequestContainer.get_html" href="#signals_notebook.entities.request.RequestContainer.get_html">get_html</a></code></li>
+<li><code><a title="signals_notebook.entities.request.RequestContainer.load" href="#signals_notebook.entities.request.RequestContainer.load">load</a></code></li>
+<li><code><a title="signals_notebook.entities.request.RequestContainer.type" href="#signals_notebook.entities.request.RequestContainer.type">type</a></code></li>
 </ul>
 </li>
 </ul>

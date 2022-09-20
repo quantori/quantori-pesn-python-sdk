@@ -30,7 +30,7 @@
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import cast, ClassVar, Literal, Optional, Union
+from typing import Any, cast, ClassVar, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -274,16 +274,21 @@ class ChemicalDrawing(ContentfulEntity):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, &#39;templates&#39;, entity_type),
+                    fs_handler,
+                    [&#39;Templates&#39;, entity_type.value],
+                )
         except TypeError:
             pass
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
         &#34;&#34;&#34;Dump ChemicalDrawing
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -291,7 +296,7 @@ class ChemicalDrawing(ContentfulEntity):
         content = self.get_content()
 
         if content.content != EMPTY_CDXML_FILE_CONTENT:
-            metadata = {
+            metadata: Dict[str, Any] = {
                 &#39;file_name&#39;: content.name,
                 &#39;content_type&#39;: content.content_type,
                 **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
@@ -309,10 +314,17 @@ class ChemicalDrawing(ContentfulEntity):
                     },
                 }
 
-            fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+            fs_handler.write(
+                fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+                json.dumps(metadata),
+                base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None
+            )
             file_name = content.name
             data = content.content
-            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)</code></pre>
+            fs_handler.write(fs_handler.join_path(
+                base_path, self.eid, file_name), data,
+                base_alias=alias + [self.name, file_name] if alias else None
+            )</code></pre>
 </details>
 </section>
 <section>
@@ -521,16 +533,21 @@ class ChemicalDrawing(ContentfulEntity):
         )
         try:
             for template in templates:
-                template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+                template.dump(
+                    fs_handler.join_path(base_path, &#39;templates&#39;, entity_type),
+                    fs_handler,
+                    [&#39;Templates&#39;, entity_type.value],
+                )
         except TypeError:
             pass
 
-    def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
         &#34;&#34;&#34;Dump ChemicalDrawing
 
         Args:
             base_path: content path where create dump
             fs_handler: FSHandler
+            alias: Backup alias
 
         Returns:
 
@@ -538,7 +555,7 @@ class ChemicalDrawing(ContentfulEntity):
         content = self.get_content()
 
         if content.content != EMPTY_CDXML_FILE_CONTENT:
-            metadata = {
+            metadata: Dict[str, Any] = {
                 &#39;file_name&#39;: content.name,
                 &#39;content_type&#39;: content.content_type,
                 **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
@@ -556,10 +573,17 @@ class ChemicalDrawing(ContentfulEntity):
                     },
                 }
 
-            fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+            fs_handler.write(
+                fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+                json.dumps(metadata),
+                base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None
+            )
             file_name = content.name
             data = content.content
-            fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)</code></pre>
+            fs_handler.write(fs_handler.join_path(
+                base_path, self.eid, file_name), data,
+                base_alias=alias + [self.name, file_name] if alias else None
+            )</code></pre>
 </details>
 <h3>Ancestors</h3>
 <ul class="hlist">
@@ -680,7 +704,11 @@ def dump_templates(cls, base_path: str, fs_handler: FSHandler) -&gt; None:
     )
     try:
         for template in templates:
-            template.dump(fs_handler.join_path(base_path, &#39;templates&#39;, entity_type), fs_handler)
+            template.dump(
+                fs_handler.join_path(base_path, &#39;templates&#39;, entity_type),
+                fs_handler,
+                [&#39;Templates&#39;, entity_type.value],
+            )
     except TypeError:
         pass</code></pre>
 </details>
@@ -803,7 +831,7 @@ If the parameter 'force' is false, this parameter is required.</dd>
 </details>
 </dd>
 <dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.dump"><code class="name flex">
-<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>) ‑> None</span>
+<span>def <span class="ident">dump</span></span>(<span>self, base_path: str, fs_handler: <a title="signals_notebook.utils.fs_handler.FSHandler" href="../utils/fs_handler.html#signals_notebook.utils.fs_handler.FSHandler">FSHandler</a>, alias: Optional[List[str]] = None) ‑> None</span>
 </code></dt>
 <dd>
 <div class="desc"><p>Dump ChemicalDrawing</p>
@@ -813,18 +841,21 @@ If the parameter 'force' is false, this parameter is required.</dd>
 <dd>content path where create dump</dd>
 <dt><strong><code>fs_handler</code></strong></dt>
 <dd>FSHandler</dd>
+<dt><strong><code>alias</code></strong></dt>
+<dd>Backup alias</dd>
 </dl>
 <p>Returns:</p></div>
 <details class="source">
 <summary>
 <span>Expand source code</span>
 </summary>
-<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler) -&gt; None:
+<pre><code class="python">def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -&gt; None:
     &#34;&#34;&#34;Dump ChemicalDrawing
 
     Args:
         base_path: content path where create dump
         fs_handler: FSHandler
+        alias: Backup alias
 
     Returns:
 
@@ -832,7 +863,7 @@ If the parameter 'force' is false, this parameter is required.</dd>
     content = self.get_content()
 
     if content.content != EMPTY_CDXML_FILE_CONTENT:
-        metadata = {
+        metadata: Dict[str, Any] = {
             &#39;file_name&#39;: content.name,
             &#39;content_type&#39;: content.content_type,
             **{k: v for k, v in self.dict().items() if k in (&#39;name&#39;, &#39;description&#39;, &#39;eid&#39;)},
@@ -850,10 +881,17 @@ If the parameter 'force' is false, this parameter is required.</dd>
                 },
             }
 
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;), json.dumps(metadata))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, &#39;metadata.json&#39;),
+            json.dumps(metadata),
+            base_alias=alias + [self.name, &#39;__Metadata&#39;] if alias else None
+        )
         file_name = content.name
         data = content.content
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, file_name), data)</code></pre>
+        fs_handler.write(fs_handler.join_path(
+            base_path, self.eid, file_name), data,
+            base_alias=alias + [self.name, file_name] if alias else None
+        )</code></pre>
 </details>
 </dd>
 <dt id="signals_notebook.entities.chemical_drawing.ChemicalDrawing.get_content"><code class="name flex">
