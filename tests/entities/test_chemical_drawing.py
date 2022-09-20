@@ -401,8 +401,8 @@ def test_dump_not_empty_chemical_drawing(api_mock, mocker, chemical_drawing_fact
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), None),
-            mocker.call(fs_handler_mock.join_path(), content, None),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), base_alias=None),
+            mocker.call(fs_handler_mock.join_path(), content, base_alias=None),
         ],
         any_order=True,
     )
@@ -613,12 +613,12 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates, s
             mocker.call(
                 fs_handler_mock.join_path(),
                 json.dumps(metadata),
-                ('Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', '__Metadata'),
+                base_alias=['Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', '__Metadata'],
             ),
             mocker.call(
                 fs_handler_mock.join_path(),
                 content,
-                ('Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', 'chemDraw.cdxml'),
+                base_alias=['Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', 'chemDraw.cdxml'],
             ),
         ],
         any_order=True,

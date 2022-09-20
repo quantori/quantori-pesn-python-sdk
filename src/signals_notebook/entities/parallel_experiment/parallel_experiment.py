@@ -140,8 +140,7 @@ class ParallelExperiment(Container):
         cls._load(path, fs_handler, notebook)
 
     @classmethod
-    def _load(cls, path: str, fs_handler: FSHandler, parent: Any):
-        pass
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))

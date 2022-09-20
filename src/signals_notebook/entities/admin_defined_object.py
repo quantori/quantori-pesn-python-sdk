@@ -161,7 +161,7 @@ class AdminDefinedObject(Container):
             child.dump(fs_handler.join_path(base_path, self.eid), fs_handler)
 
     @classmethod
-    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:  # type: ignore[override]
+    def load(cls, path: str, fs_handler: FSHandler, notebook: Notebook) -> None:
         """Load AdminDefinedObject entity
 
         Args:

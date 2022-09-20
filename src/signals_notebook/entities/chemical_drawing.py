@@ -289,11 +289,11 @@ class ChemicalDrawing(ContentfulEntity):
             fs_handler.write(
                 fs_handler.join_path(base_path, self.eid, 'metadata.json'),
                 json.dumps(metadata),
-                alias + [self.name, '__Metadata'] if alias else None
+                base_alias=alias + [self.name, '__Metadata'] if alias else None
             )
             file_name = content.name
             data = content.content
             fs_handler.write(fs_handler.join_path(
                 base_path, self.eid, file_name), data,
-                alias + [self.name, file_name] if alias else None
+                base_alias=alias + [self.name, file_name] if alias else None
             )
