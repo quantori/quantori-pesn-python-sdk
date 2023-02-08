@@ -68,7 +68,7 @@ class Experiment(Container):
         notebook: Optional[Notebook] = None,
         digest: str = None,
         force: bool = True,
-        attributes: dict = None
+        attributes: dict = None,
     ) -> 'Experiment':
         """Create new Experiment in Signals Notebook
 
@@ -206,9 +206,9 @@ class Experiment(Container):
     def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
         metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
         self._reload_properties()
-        for property in self._properties:
-            if property.name in ('Department', 'Project', 'Modality', 'Organization'):
-                metadata[property.name] = property.value
+        for prop in self._properties:
+            if prop.name in ('Department', 'Project', 'Modality', 'Organization'):
+                metadata[prop.name] = prop.value
 
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),

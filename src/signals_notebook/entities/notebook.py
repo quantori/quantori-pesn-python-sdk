@@ -41,7 +41,7 @@ class Notebook(Container):
         description: Optional[str] = None,
         digest: str = None,
         force: bool = True,
-        organization: Optional[str] = None
+        organization: Optional[str] = None,
     ) -> 'Notebook':
         """Create Notebook in Signals Notebooks
 
@@ -72,9 +72,9 @@ class Notebook(Container):
     def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]]) -> None:
         metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
         self._reload_properties()
-        for property in self._properties:
-            if property.name == 'Organization':
-                metadata['Organization'] = property.value
+        for prop in self._properties:
+            if prop.name == 'Organization':
+                metadata['Organization'] = prop.value
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
