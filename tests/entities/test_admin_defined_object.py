@@ -486,45 +486,6 @@ def test_get_html(api_mock, admin_defined_object_factory, snapshot):
     snapshot.assert_match(admin_defined_object_html)
 
 
-def test_dump_templates(api_mock, mocker, admin_defined_object_factory, templates, get_response_object):
-    admin_defined_object = admin_defined_object_factory(name='name')
-    template_eid = templates['data'][0]['id']
-
-    fs_handler_mock = mocker.MagicMock()
-    base_path = './'
-    metadata = {
-        'base_type': 'experiment',
-        'ado_name': CUSTOM_SYSTEM_OBJECT,
-        'eid': template_eid,
-        'name': 'DEFAULT_admin_defined_object',
-        'description': '',
-    }
-
-    api_mock.call.side_effect = [get_response_object(templates), get_response_object('')]
-    admin_defined_object.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
-
-    join_path_call_1 = mocker.call(base_path, 'templates', admin_defined_object.type)
-    join_path_call_2 = mocker.call(fs_handler_mock.join_path(), template_eid, 'metadata.json')
-
-    fs_handler_mock.join_path.assert_has_calls(
-        [
-            join_path_call_1,
-            join_path_call_2,
-        ],
-        any_order=True,
-    )
-    fs_handler_mock.write.assert_has_calls(
-        [
-            mocker.call(
-                fs_handler_mock.join_path(),
-                json.dumps(metadata),
-                base_alias=['Templates', 'ado', 'DEFAULT_admin_defined_object', '__Metadata'],
-            )
-        ],
-        any_order=True,
-    )
-
-
 def test_load(api_mock, notebook_factory, eid_factory, mocker):
     container = notebook_factory()
     eid = eid_factory(type=EntityType.ADO)

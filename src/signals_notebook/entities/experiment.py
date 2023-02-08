@@ -95,7 +95,7 @@ class Experiment(Container):
         request = _RequestPayload(
             data=_RequestBody(
                 type=cls._get_entity_type(),
-                attributes=_Attributes(name=name, description=description, **attributes),
+                attributes=_Attributes(name=name, description=description, **(attributes or {})),
                 relationships=relationships,
             )
         )

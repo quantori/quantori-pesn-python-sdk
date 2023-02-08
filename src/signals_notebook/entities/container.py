@@ -120,13 +120,10 @@ class Container(Entity, abc.ABC):
         templates = EntityStore.get_list(
             include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
         )
-        try:
-            for template in templates:
-                template.dump(
-                    fs_handler.join_path(base_path, 'templates', entity_type),
-                    fs_handler,
-                    ['Templates', entity_type.value],
-                )
 
-        except TypeError:
-            pass
+        for template in templates:
+            template.dump(
+                fs_handler.join_path(base_path, 'templates', entity_type),
+                fs_handler,
+                ['Templates', entity_type.value],
+            )
