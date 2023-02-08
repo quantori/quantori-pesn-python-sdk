@@ -3,7 +3,7 @@ name: Pull request
 on:
   pull_request:
     types:
-      - opened
+      - edited
 
 jobs:
   build:
@@ -27,6 +27,10 @@ jobs:
       - name: Update documentation
         run: |
           pdoc -f --html -o docs src/signals_notebook
+
+      - name: Move generated files
+        run:  |
+          mv docs/signals_notebook/* docs
 
       - name: Commit changes
         uses: EndBug/add-and-commit@v9

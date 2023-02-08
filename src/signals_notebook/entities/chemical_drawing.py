@@ -2,7 +2,7 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import cast, ClassVar, Literal, Optional, Union, Tuple
+from typing import Any, cast, ClassVar, Dict, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -249,12 +249,12 @@ class ChemicalDrawing(ContentfulEntity):
                 template.dump(
                     fs_handler.join_path(base_path, 'templates', entity_type),
                     fs_handler,
-                    ('Templates', entity_type.value),
+                    ['Templates', entity_type.value],
                 )
         except TypeError:
             pass
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
         """Dump ChemicalDrawing
 
         Args:
@@ -268,7 +268,7 @@ class ChemicalDrawing(ContentfulEntity):
         content = self.get_content()
 
         if content.content != EMPTY_CDXML_FILE_CONTENT:
-            metadata = {
+            metadata: Dict[str, Any] = {
                 'file_name': content.name,
                 'content_type': content.content_type,
                 **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
@@ -289,11 +289,11 @@ class ChemicalDrawing(ContentfulEntity):
             fs_handler.write(
                 fs_handler.join_path(base_path, self.eid, 'metadata.json'),
                 json.dumps(metadata),
-                alias + (self.name, '__Metadata') if alias else None
+                base_alias=alias + [self.name, '__Metadata'] if alias else None
             )
             file_name = content.name
             data = content.content
             fs_handler.write(fs_handler.join_path(
                 base_path, self.eid, file_name), data,
-                alias + (self.name, file_name) if alias else None
-             )
+                base_alias=alias + [self.name, file_name] if alias else None
+            )

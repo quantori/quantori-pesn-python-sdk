@@ -138,8 +138,8 @@ def test_dump(biological_sequence_factory, mocker, api_mock, bio_seq_content):
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), None),
-            mocker.call(fs_handler_mock.join_path(), bio_seq_content, None),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), base_alias=None),
+            mocker.call(fs_handler_mock.join_path(), bio_seq_content, base_alias=None),
         ],
         any_order=True,
     )

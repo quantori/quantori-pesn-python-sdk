@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import cast, Dict, List, Literal, Union, Optional, Tuple
+from typing import cast, Dict, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
@@ -116,7 +116,9 @@ class Task(Entity):
         self._reload_cells()
         log.debug('Task: %s was saved successfully', self.eid)
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:  # type: ignore[override]
+    def dump(
+        self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None
+    ) -> None:  # type: ignore[override]
         """Dump Task entity
 
         Args:
@@ -136,10 +138,15 @@ class Task(Entity):
             'filename': f'{self.name}.json',
             **{k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')},
         }
-        fs_handler.write(fs_handler.join_path(base_path, self.eid, 'metadata.json'), json.dumps(metadata, default=str))
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, 'metadata.json'),
+            json.dumps(metadata, default=str),
+            base_alias=alias,
+        )
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, f'{self.name}.json'),
             json.dumps({'data': properties}, default=str),
+            base_alias=alias,
         )
         log.debug('Task: %s was dumped successfully', self.eid, self.name)
 

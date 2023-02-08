@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Literal, Optional, Tuple
+from typing import Any, List, Literal, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -89,6 +89,10 @@ class Notebook(Container):
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler) -> None:
+        cls._load(path, fs_handler, None)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
@@ -112,6 +116,6 @@ class Notebook(Container):
         child_entities_folders = fs_handler.list_subfolders(path)
         for child_entity in child_entities_folders:
             child_entity_type = child_entity.split(':')[0]
-            ItemMapper.get_item_class(child_entity_type).load(
+            ItemMapper.get_item_class(child_entity_type)._load(
                 fs_handler.join_path(path, child_entity), fs_handler, notebook
             )

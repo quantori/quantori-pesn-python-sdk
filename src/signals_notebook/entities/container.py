@@ -3,7 +3,7 @@ import json
 import logging
 import mimetypes
 import os
-from typing import cast, Generator, Optional, Union, Tuple
+from typing import cast, Generator, List, Optional, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EntityType, Response, ResponseData
@@ -92,21 +92,15 @@ class Container(Entity, abc.ABC):
             result = Response[Union[entity_classes]](**response.json())  # type: ignore
             yield from [cast(ResponseData, item).body for item in result.data]
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
         metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
-            alias
-            + (
-                self.name,
-                '__Metadata',
-            )
-            if alias
-            else None,
+            base_alias=alias + [self.name, '__Metadata'] if alias else None,
         )
         for child in self.get_children():
-            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + (self.name,) if alias else None)
+            child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + [self.name] if alias else None)
 
     @classmethod
     def dump_templates(cls, base_path: str, fs_handler: FSHandler) -> None:
@@ -131,10 +125,7 @@ class Container(Entity, abc.ABC):
                 template.dump(
                     fs_handler.join_path(base_path, 'templates', entity_type),
                     fs_handler,
-                    (
-                        'Templates',
-                        entity_type.value,
-                    ),
+                    ['Templates', entity_type.value],
                 )
 
         except TypeError:

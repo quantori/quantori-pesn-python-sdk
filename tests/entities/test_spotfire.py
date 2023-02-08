@@ -131,8 +131,8 @@ def test_dump(spotfire_factory, mocker, api_mock):
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), None),
-            mocker.call(fs_handler_mock.join_path(), content, None),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), base_alias=None),
+            mocker.call(fs_handler_mock.join_path(), content, base_alias=None),
         ],
         any_order=True,
     )

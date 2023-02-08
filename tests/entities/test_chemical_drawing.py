@@ -4,8 +4,8 @@ import arrow
 import pytest
 
 from signals_notebook.common_types import ChemicalDrawingFormat, EntityType, File, ObjectType
-from signals_notebook.entities import ChemicalDrawing, Entity
-from signals_notebook.entities.chemical_drawing import ChemicalStructure, ChemicalDrawingPosition, Structure
+from signals_notebook.entities import ChemicalDrawing
+from signals_notebook.entities.chemical_drawing import ChemicalDrawingPosition, ChemicalStructure, Structure
 
 
 @pytest.fixture()
@@ -61,7 +61,6 @@ def chemical_drawing_stoichiometry_mock(mocker):
     'entity_class, entity_type, content_type, file_extension',
     [
         (ChemicalDrawing, EntityType.CHEMICAL_DRAWING, 'chemical/x-cdxml', 'cdxml'),
-        # (Entity, EntityType.UPLOADED_RESOURCE, 'image/svg+xml', 'svg'),
     ],
 )
 def test_create(
@@ -306,7 +305,6 @@ def test_dump_not_empty_chemical_drawing(api_mock, mocker, chemical_drawing_fact
     content = b'<?xml version="1.0" encoding="UTF-8" ?>'
     content_type = 'chemical/x-cdxml'
 
-
     structure_reactant = structure_factory(
         id=1, type=ChemicalStructure.REACTANT, inchi='InChI=1S/C3H8', cdxml='<?xml version=1.0'
     )
@@ -403,8 +401,8 @@ def test_dump_not_empty_chemical_drawing(api_mock, mocker, chemical_drawing_fact
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), None),
-            mocker.call(fs_handler_mock.join_path(), content, None),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), base_alias=None),
+            mocker.call(fs_handler_mock.join_path(), content, base_alias=None),
         ],
         any_order=True,
     )
@@ -431,12 +429,10 @@ def test_dump_empty_chemical_drawing(api_mock, mocker, chemical_drawing_factory,
     fs_handler_mock.write.assert_not_called()
 
 
-
 @pytest.mark.parametrize(
     'entity_class, entity_type, content_type, file_extension',
     [
         (ChemicalDrawing, EntityType.CHEMICAL_DRAWING, 'chemical/x-cdxml', 'cdxml'),
-        # (Entity, EntityType.UPLOADED_RESOURCE, 'image/svg+xml', 'svg'),
     ],
 )
 def test_load(
@@ -592,9 +588,9 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates, s
         'eid': template_eid,
         'name': 'DEFAULT_CHEMICALDRAWING',
         'description': '',
-        "reactants": [{"id": "1", "inchi": "InChI=1S/C3H8", "cdxml": "<?xml version=1.0"}],
-        "products": [{"id": "2", "inchi": "InChI=1S/C3H8", "cdxml": "<?xml version=1.0"}],
-        "reagents": [{"id": "3", "inchi": "InChI=1S/C3H8", "cdxml": "<?xml version=1.0"}]
+        'reactants': [{'id': '1', 'inchi': 'InChI=1S/C3H8', 'cdxml': '<?xml version=1.0'}],
+        'products': [{'id': '2', 'inchi': 'InChI=1S/C3H8', 'cdxml': '<?xml version=1.0'}],
+        'reagents': [{'id': '3', 'inchi': 'InChI=1S/C3H8', 'cdxml': '<?xml version=1.0'}]
     }
 
     api_mock.call.return_value.json.return_value = templates
@@ -617,12 +613,12 @@ def test_dump_templates(api_mock, mocker, chemical_drawing_factory, templates, s
             mocker.call(
                 fs_handler_mock.join_path(),
                 json.dumps(metadata),
-                ('Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', '__Metadata'),
+                base_alias=['Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', '__Metadata'],
             ),
             mocker.call(
                 fs_handler_mock.join_path(),
                 content,
-                ('Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', 'chemDraw.cdxml'),
+                base_alias=['Templates', 'chemicalDrawing', 'DEFAULT_CHEMICALDRAWING', 'chemDraw.cdxml'],
             ),
         ],
         any_order=True,

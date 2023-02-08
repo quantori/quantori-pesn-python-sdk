@@ -509,7 +509,7 @@ def test_dump_templates(api_mock, mocker, admin_defined_object_factory, template
     fs_handler_mock.join_path.assert_has_calls(
         [
             join_path_call_1,
-            # join_path_call_2,
+            join_path_call_2,
         ],
         any_order=True,
     )
@@ -518,7 +518,7 @@ def test_dump_templates(api_mock, mocker, admin_defined_object_factory, template
             mocker.call(
                 fs_handler_mock.join_path(),
                 json.dumps(metadata),
-                ('Templates', 'ado', 'DEFAULT_admin_defined_object', '__Metadata'),
+                base_alias=['Templates', 'ado', 'DEFAULT_admin_defined_object', '__Metadata'],
             )
         ],
         any_order=True,

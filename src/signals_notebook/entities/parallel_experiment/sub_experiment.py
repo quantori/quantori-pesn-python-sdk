@@ -1,7 +1,7 @@
 import json
 import logging
 from functools import cached_property
-from typing import Generator, Literal, Optional
+from typing import Any, cast, Generator, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -132,14 +132,18 @@ class SubExperiment(Container):
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, parallel_experiment: ParallelExperiment) -> None:
+        cls._load(path, fs_handler, parallel_experiment)
+
+    @classmethod
+    def _load(cls, path: str, fs_handler: FSHandler, parent: Any) -> None:
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
         sub_experiment = cls.create(
-            parallel_experiment=parallel_experiment, description=metadata['description'], force=True
+            parallel_experiment=parent, description=metadata['description'], force=True
         )
         existing_chemical_drawing = [
-            i for i in sub_experiment.get_children() if i.type == EntityType.CHEMICAL_DRAWING
+            cast(ChemicalDrawing, i) for i in sub_experiment.get_children() if i.type == EntityType.CHEMICAL_DRAWING
         ][0]
 
         child_entities_folders = fs_handler.list_subfolders(path)
@@ -173,4 +177,4 @@ class SubExperiment(Container):
                 )
 
             else:
-                entity_type.load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)
+                entity_type._load(fs_handler.join_path(path, child_entity), fs_handler, sub_experiment)

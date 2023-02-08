@@ -809,8 +809,8 @@ def test_dump(table_factory, mocker, api_mock, reload_data_response, column_defi
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata, default=str), None),
-            mocker.call(fs_handler_mock.join_path(), content, None),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata, default=str), base_alias=None),
+            mocker.call(fs_handler_mock.join_path(), content, base_alias=None),
         ],
         any_order=True,
     )

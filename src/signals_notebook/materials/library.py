@@ -6,7 +6,7 @@ import time
 import zipfile
 from datetime import datetime
 from enum import Enum
-from typing import Any, cast, List, Literal, Optional, Union, Tuple
+from typing import Any, cast, List, Literal, Optional, Union
 
 import requests
 from pydantic import BaseModel, Field, PrivateAttr
@@ -555,7 +555,7 @@ class Library(BaseMaterialEntity):
                 content_type=failure_report_reponse.headers.get('content-type'),
             )
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None):
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None):
         metadata = {
             **{k: v for k, v in self.dict().items() if k in ('library_name', 'asset_type_id', 'eid', 'name')},
         }
@@ -567,7 +567,7 @@ class Library(BaseMaterialEntity):
             fs_handler.write(
                 fs_handler.join_path(base_path, self.eid, file_name),
                 data,
-                alias + (metadata['name'], file_name) if alias else None,
+                base_alias=alias + [metadata['name'], file_name] if alias else None,
             )
         except FileNotFoundError:
             metadata['error'] = 'Library is empty'
@@ -577,13 +577,7 @@ class Library(BaseMaterialEntity):
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
-            alias
-            + (
-                metadata['name'],
-                '__Metadata',
-            )
-            if alias
-            else None,
+            base_alias=alias + [metadata['name'], '__Metadata'] if alias else None,
         )
 
     @staticmethod

@@ -167,7 +167,7 @@ def test_dump_templates(api_mock, mocker, notebook_factory, templates, get_respo
             mocker.call(
                 fs_handler_mock.join_path(),
                 json.dumps(metadata),
-                ('Templates', 'journal', 'DEFAULT_NOTEBOOK', '__Metadata'),
+                base_alias=['Templates', 'journal', 'DEFAULT_NOTEBOOK', '__Metadata'],
             ),
         ],
         any_order=True,

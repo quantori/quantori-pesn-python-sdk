@@ -1,8 +1,8 @@
-from typing import List, Protocol, Union
+from typing import Iterable, List, Optional, Protocol, Union
 
 
 class FSHandler(Protocol):
-    def write(self, path: str, data: Union[bytes, str]):
+    def write(self, path: str, data: Union[bytes, str], base_alias: Optional[Iterable[str]] = None):
         """Write file content into given path."""
 
     def read(self, path: str) -> bytes:

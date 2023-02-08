@@ -492,7 +492,7 @@ def test_dump_templates(api_mock, mocker, request_container_factory, templates, 
             mocker.call(
                 fs_handler_mock.join_path(),
                 json.dumps(metadata),
-                ('Templates', 'request', 'DEFAULT_REQUEST', '__Metadata'),
+                base_alias=['Templates', 'request', 'DEFAULT_REQUEST', '__Metadata'],
             ),
         ],
         any_order=True,
@@ -554,8 +554,8 @@ def test_dump(api_mock, request_container_factory, eid_factory, mocker):
     )
     fs_handler_mock.write.assert_has_calls(
         [
-            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), None),
-            mocker.call(fs_handler_mock.join_path(), content, None),
+            mocker.call(fs_handler_mock.join_path(), json.dumps(metadata), base_alias=None),
+            mocker.call(fs_handler_mock.join_path(), content, base_alias=None),
         ],
         any_order=True,
     )
