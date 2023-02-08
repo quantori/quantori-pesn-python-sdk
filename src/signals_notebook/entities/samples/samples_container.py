@@ -2,7 +2,7 @@ import csv
 import logging
 from enum import Enum
 from io import StringIO
-from typing import Any, cast, ClassVar, Dict, Generator, List, Literal, Optional, Tuple, Union
+from typing import Any, cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
@@ -132,7 +132,7 @@ class SamplesContainer(ContentfulEntity):
 
         return template.render(name=self.name, table_head=table_head, rows=rows)
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
         """Dump SampleContainer
 
         Args:
@@ -143,11 +143,11 @@ class SamplesContainer(ContentfulEntity):
         Returns:
 
         """
-        super().dump(base_path=base_path, fs_handler=fs_handler, alias=alias + (self.name,) if alias else None)
+        super().dump(base_path=base_path, fs_handler=fs_handler, alias=alias + [self.name] if alias else None)
 
         samples_path = fs_handler.join_path(base_path, self.eid)
         for item in self:
-            item.dump(base_path=samples_path, fs_handler=fs_handler, alias=alias + (self.name,) if alias else None)
+            item.dump(base_path=samples_path, fs_handler=fs_handler, alias=alias + [self.name] if alias else None)
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:

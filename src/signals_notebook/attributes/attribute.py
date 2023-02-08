@@ -117,7 +117,7 @@ class Attribute(BaseModel):
         cls,
         name: str,
         description: str,
-        options: list[str] = None,
+        options: Optional[list[str]] = None,
     ) -> 'Attribute':
         """Create new Attribute
 

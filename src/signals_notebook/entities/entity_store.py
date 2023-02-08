@@ -2,7 +2,7 @@ import json
 import logging
 from datetime import datetime
 from enum import Enum
-from typing import cast, Generator, List, Union
+from typing import cast, Generator, List, Optional, Union
 
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import EID, EntityType, Response, ResponseData
@@ -59,11 +59,11 @@ class EntityStore:
     @classmethod
     def get_list(
         cls,
-        include_types: List[EntityType] = None,
-        exclude_types: List[EntityType] = None,
-        include_options: List[IncludeOptions] = None,
-        modified_after: datetime = None,
-        modified_before: datetime = None,
+        include_types: Optional[List[EntityType]] = None,
+        exclude_types: Optional[List[EntityType]] = None,
+        include_options: Optional[List[IncludeOptions]] = None,
+        modified_after: Optional[datetime] = None,
+        modified_before: Optional[datetime] = None,
     ) -> Generator[Entity, None, None]:
         """Get all entities
 
@@ -133,7 +133,7 @@ class EntityStore:
                 setattr(entity, field.name, new_value)
 
     @classmethod
-    def delete(cls, eid: EID, digest: str = None, force: bool = True) -> None:
+    def delete(cls, eid: EID, digest: Optional[str] = None, force: bool = True) -> None:
         """Delete Entity by ID
 
         Args:

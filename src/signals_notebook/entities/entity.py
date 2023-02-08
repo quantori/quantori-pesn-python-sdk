@@ -10,7 +10,6 @@ from pydantic.generics import GenericModel
 from signals_notebook.api import SignalsNotebookApi
 from signals_notebook.common_types import (
     EID,
-    EntityClass,
     EntityCreationRequestPayload,
     EntityShortDescription,
     EntityType,
@@ -209,7 +208,9 @@ class Entity(BaseModel):
         log.debug('Entity: %s was deleted from EntityStore', self.eid)
 
     @classmethod
-    def _create(cls, *, digest: str = None, force: bool = True, request: EntityCreationRequestPayload) -> EntityClass:
+    def _create(
+        cls, *, digest: Optional[str] = None, force: bool = True, request: EntityCreationRequestPayload,
+    ) -> 'Entity':
         api = SignalsNotebookApi.get_default_api()
         log.debug('Create Entity: %s...', cls.__name__)
 

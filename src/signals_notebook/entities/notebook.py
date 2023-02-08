@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, Literal, Optional, Tuple
+from typing import Any, cast, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -39,7 +39,7 @@ class Notebook(Container):
         *,
         name: Optional[str] = None,
         description: Optional[str] = None,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
         organization: Optional[str] = None,
     ) -> 'Notebook':
@@ -63,13 +63,9 @@ class Notebook(Container):
         )
 
         log.debug('Creating Notebook for: %s', cls.__name__)
-        return super()._create(
-            digest=digest,
-            force=force,
-            request=request,
-        )
+        return cast('Notebook', super()._create(digest=digest, force=force, request=request))
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]]) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
         metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
         self._reload_properties()
         for prop in self._properties:
@@ -78,10 +74,10 @@ class Notebook(Container):
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
-            alias + (self.name, '__Metadata') if alias else None,
+            alias + [self.name, '__Metadata'] if alias else None,
         )
         for child in self.get_children(order=None):
-            child.dump(base_path + '/' + self.eid, fs_handler, alias + (self.name,) if alias else None)
+            child.dump(base_path + '/' + self.eid, fs_handler, alias + [self.name] if alias else None)
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler) -> None:

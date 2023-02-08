@@ -92,10 +92,10 @@ class SignalsNotebookApi:
         self,
         method: str,
         path: Union[str, Sequence[str]],
-        params: Dict[str, Any] = None,
+        params: Optional[Dict[str, Any]] = None,
         data: _Data = None,
-        json: Union[list, Dict[str, Any]] = None,
-        headers: Dict[str, str] = None,
+        json: Optional[Union[list, Dict[str, Any]]] = None,
+        headers: Optional[Dict[str, str]] = None,
     ) -> requests.Response:
         """Makes an API call
 

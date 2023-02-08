@@ -116,7 +116,7 @@ class ChemicalDrawing(ContentfulEntity):
         self,
         structure: Structure,
         positions: ChemicalDrawingPosition,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
     ) -> Structure:
         """Add reagent, reactant or product to ChemicalDrawing

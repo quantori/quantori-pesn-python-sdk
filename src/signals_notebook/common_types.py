@@ -297,7 +297,7 @@ class ResponseData(GenericModel, Generic[EntityClass]):
     relationships: Optional[dict[str, Any]] = Field(default=None)
     meta: Optional[dict[str, Any]] = Field(default=None)
 
-    def __init__(self, _context: dict[str, Any] = None, **kwargs):
+    def __init__(self, _context: Optional[dict[str, Any]] = None, **kwargs):
         attributes = kwargs.get('attributes', {})
 
         if _context:
@@ -310,7 +310,7 @@ class Response(GenericModel, Generic[EntityClass]):
     links: Optional[Links] = None
     data: Union[ResponseData[EntityClass], List[ResponseData[EntityClass]]]
 
-    def __init__(self, _context: dict[str, Any] = None, **kwargs):
+    def __init__(self, _context: Optional[dict[str, Any]] = None, **kwargs):
         data = kwargs.get('data', {})
 
         if _context:

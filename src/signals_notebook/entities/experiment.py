@@ -2,7 +2,7 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import Any, ClassVar, Generator, Literal, Optional, Tuple, Union
+from typing import Any, cast, ClassVar, Dict, Generator, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -66,9 +66,9 @@ class Experiment(Container):
         description: Optional[str] = None,
         template: Optional['Experiment'] = None,
         notebook: Optional[Notebook] = None,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
-        attributes: dict = None,
+        attributes: Optional[Dict[str, Any]] = None,
     ) -> 'Experiment':
         """Create new Experiment in Signals Notebook
 
@@ -101,11 +101,7 @@ class Experiment(Container):
         )
 
         log.debug('Creating Notebook for: %s', cls.__name__)
-        return super()._create(
-            digest=digest,
-            force=force,
-            request=request,
-        )
+        return cast('Experiment', super()._create(digest=digest, force=force, request=request))
 
     @cached_property
     def stoichiometry(self) -> Union[Stoichiometry, list[Stoichiometry]]:
@@ -203,7 +199,7 @@ class Experiment(Container):
             except NotImplementedError:
                 log.error('Failed to load entity %s. Not supported' % child_entity_type)
 
-    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[Tuple[str]] = None) -> None:
+    def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
         metadata = {k: v for k, v in self.dict().items() if k in ('name', 'description', 'eid')}
         self._reload_properties()
         for prop in self._properties:
@@ -213,18 +209,12 @@ class Experiment(Container):
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
             json.dumps(metadata),
-            alias
-            + (
-                self.name,
-                '__Metadata',
-            )
-            if alias
-            else None,
+            alias + [self.name, '__Metadata'] if alias else None,
         )
         for child in self.get_children():
             try:
                 child.dump(
-                    fs_handler.join_path(base_path, self.eid), fs_handler, alias + (self.name,) if alias else None
+                    fs_handler.join_path(base_path, self.eid), fs_handler, alias + [self.name] if alias else None
                 )
             except Exception as e:
                 log.error(str(e))

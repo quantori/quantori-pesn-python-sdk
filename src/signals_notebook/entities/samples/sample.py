@@ -157,7 +157,7 @@ class Sample(Entity):
         cells: Optional[List[SampleCellBody]] = None,
         template: Optional['Sample'] = None,
         ancestors: Optional[List[Union[Container, 'SamplesContainer']]] = None,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
     ) -> 'Sample':
         """Create Sample Entity
@@ -191,11 +191,7 @@ class Sample(Entity):
             )
         )
 
-        return super()._create(
-            digest=digest,
-            force=force,
-            request=request,
-        )
+        return cast('Sample', super()._create(digest=digest, force=force, request=request))
 
     def dump(self, base_path: str, fs_handler: FSHandler, alias: Optional[List[str]] = None) -> None:
         """Dump Sample entity
@@ -296,13 +292,10 @@ class Sample(Entity):
         templates = EntityStore.get_list(
             include_types=[entity_type], include_options=[EntityStore.IncludeOptions.TEMPLATE]
         )
-        try:
-            for template in templates:
-                template.dump(
-                    fs_handler.join_path(base_path, 'templates', entity_type),
-                    fs_handler,
-                    ['Templates', entity_type.value],
-                )
 
-        except TypeError:
-            pass
+        for template in templates:
+            template.dump(
+                fs_handler.join_path(base_path, 'templates', entity_type),
+                fs_handler,
+                ['Templates', entity_type.value],
+            )

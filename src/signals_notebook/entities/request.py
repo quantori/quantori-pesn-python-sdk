@@ -1,7 +1,7 @@
 import json
 import logging
 from functools import cached_property
-from typing import Any, ClassVar, Literal, Optional
+from typing import Any, cast, ClassVar, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -53,7 +53,7 @@ class RequestContainer(Container):
         description: Optional[str] = None,
         template: Optional['RequestContainer'] = None,
         notebook: Optional[Notebook] = None,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
     ) -> 'RequestContainer':
         """Create new Request in Signals Notebook
@@ -89,11 +89,7 @@ class RequestContainer(Container):
         )
 
         log.debug('Creating Request Container for: %s', cls.__name__)
-        return super()._create(
-            digest=digest,
-            force=force,
-            request=request,
-        )
+        return cast('RequestContainer', super()._create(digest=digest, force=force, request=request))
 
     def get_html(self) -> str:
         """Get in HTML format

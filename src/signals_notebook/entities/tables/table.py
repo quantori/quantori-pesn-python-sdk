@@ -162,7 +162,7 @@ class Table(Entity):
 
         return self._rows.__iter__()
 
-    def delete_row_by_id(self, row_id: Union[str, UUID], digest: str = None, force: bool = True) -> None:
+    def delete_row_by_id(self, row_id: Union[str, UUID], digest: Optional[str] = None, force: bool = True) -> None:
         """
 
         Args:
@@ -324,9 +324,9 @@ class Table(Entity):
         *,
         container: Container,
         name: str,
-        content: List[Dict[str, CellContentDict]] = None,
-        template: str = None,
-        digest: str = None,
+        content: Optional[List[Dict[str, CellContentDict]]] = None,
+        template: Optional[str] = None,
+        digest: Optional[str] = None,
         force: bool = True,
     ) -> Entity:
         """Create Table Entity
