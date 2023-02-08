@@ -2,7 +2,7 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import Any, ClassVar, Generator, Literal, Optional, Union, Tuple
+from typing import Any, ClassVar, Generator, Literal, Optional, Tuple, Union
 
 from pydantic import BaseModel, Field
 
@@ -95,11 +95,7 @@ class Experiment(Container):
         request = _RequestPayload(
             data=_RequestBody(
                 type=cls._get_entity_type(),
-                attributes=_Attributes(
-                    name=name,
-                    description=description,
-                    **attributes
-                ),
+                attributes=_Attributes(name=name, description=description, **attributes),
                 relationships=relationships,
             )
         )
@@ -169,27 +165,32 @@ class Experiment(Container):
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
         try:
             experiment = cls.create(
-                notebook=parent, name=metadata['name'], description=metadata['description'],
+                notebook=parent,
+                name=metadata['name'],
+                description=metadata['description'],
                 force=True,
                 attributes=dict(
                     organization=metadata['Organization'],
                     project=metadata['Project'],
                     modality=metadata['Modality'],
-                    department=metadata['Department']
-                )
+                    department=metadata['Department'],
+                ),
             )
         except Exception as e:
             log.error(str(e))
             if 'According to template, name is auto generated, can not be specified' in str(e):
                 log.error('Retrying create')
                 experiment = cls.create(
-                    notebook=parent, description=metadata['description'], force=True,
-                attributes=dict(
-                    organization=metadata['Organization'],
-                    project=metadata['Project'],
-                    modality=metadata['Modality'],
-                    department=metadata['Department']
-                ))
+                    notebook=parent,
+                    description=metadata['description'],
+                    force=True,
+                    attributes=dict(
+                        organization=metadata['Organization'],
+                        project=metadata['Project'],
+                        modality=metadata['Modality'],
+                        department=metadata['Department'],
+                    ),
+                )
             else:
                 raise e
         child_entities_folders = fs_handler.list_subfolders(path)
@@ -222,6 +223,8 @@ class Experiment(Container):
         )
         for child in self.get_children():
             try:
-                child.dump(fs_handler.join_path(base_path, self.eid), fs_handler, alias + (self.name,) if alias else None)
+                child.dump(
+                    fs_handler.join_path(base_path, self.eid), fs_handler, alias + (self.name,) if alias else None
+                )
             except Exception as e:
                 log.error(str(e))

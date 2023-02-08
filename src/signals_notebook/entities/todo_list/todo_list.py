@@ -1,7 +1,7 @@
 import json
 import logging
 from json import JSONDecodeError
-from typing import cast, ClassVar, Dict, List, Literal, Union, Optional, Tuple
+from typing import cast, ClassVar, Dict, List, Literal, Optional, Tuple, Union
 from uuid import UUID
 
 from pydantic import Field, PrivateAttr
@@ -119,8 +119,7 @@ class TodoList(ContentfulEntity):
         Returns:
 
         """
-        super().dump(base_path=base_path, fs_handler=fs_handler, alias=alias + (self.name, ) if alias else None
-)
+        super().dump(base_path=base_path, fs_handler=fs_handler, alias=alias + (self.name,) if alias else None)
         for item in self:
             tasks_path = fs_handler.join_path(base_path, self.eid)
-            item.dump(base_path=tasks_path, fs_handler=fs_handler, alias=alias + (self.name, ) if alias else None)
+            item.dump(base_path=tasks_path, fs_handler=fs_handler, alias=alias + (self.name,) if alias else None)

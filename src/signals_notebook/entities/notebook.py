@@ -1,6 +1,6 @@
 import json
 import logging
-from typing import Any, List, Literal, Optional, Tuple
+from typing import Any, Literal, Optional, Tuple
 
 from pydantic import BaseModel, Field
 
@@ -58,11 +58,7 @@ class Notebook(Container):
         request = _RequestPayload(
             data=_RequestBody(
                 type=cls._get_entity_type(),
-                attributes=_Attributes(
-                    name=name,
-                    description=description,
-                    organization=organization
-                ),
+                attributes=_Attributes(name=name, description=description, organization=organization),
             )
         )
 
@@ -101,16 +97,15 @@ class Notebook(Container):
                 name='restore:' + metadata['name'],
                 description=metadata['description'],
                 organization=metadata['Organization'],
-                force=True
+                force=True,
             )
         except Exception as e:
             log.error(str(e))
             if 'According to template, name is auto generated, can not be specified' in str(e):
                 log.error('Retrying create')
                 notebook = cls.create(
-                    description=metadata['description'],
-                    organization=metadata['Organization'],
-                    force=True)
+                    description=metadata['description'], organization=metadata['Organization'], force=True
+                )
             else:
                 raise e
         child_entities_folders = fs_handler.list_subfolders(path)
