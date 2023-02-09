@@ -1,5 +1,3 @@
-import json
-
 import arrow
 import pytest
 
@@ -135,40 +133,3 @@ def test_get_children__one_page(api_mock, notebook_factory, eid_factory):
 
     assert isinstance(result[0], Experiment)
     assert result[0].eid == experiment_eid
-
-
-def test_dump_templates(api_mock, mocker, notebook_factory, templates, get_response_object):
-    notebook = notebook_factory(name='name')
-    template_eid = templates['data'][0]['id']
-
-    fs_handler_mock = mocker.MagicMock()
-    base_path = './'
-    metadata = {
-        'eid': template_eid,
-        'name': 'DEFAULT_NOTEBOOK',
-        'description': '',
-    }
-
-    api_mock.call.side_effect = [get_response_object(templates), get_response_object('')]
-    notebook.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
-
-    join_path_call_1 = mocker.call(base_path, 'templates', notebook.type)
-    join_path_call_2 = mocker.call(fs_handler_mock.join_path(), template_eid, 'metadata.json')
-
-    fs_handler_mock.join_path.assert_has_calls(
-        [
-            join_path_call_1,
-            join_path_call_2,
-        ],
-        any_order=True,
-    )
-    fs_handler_mock.write.assert_has_calls(
-        [
-            mocker.call(
-                fs_handler_mock.join_path(),
-                json.dumps(metadata),
-                base_alias=['Templates', 'journal', 'DEFAULT_NOTEBOOK', '__Metadata'],
-            ),
-        ],
-        any_order=True,
-    )

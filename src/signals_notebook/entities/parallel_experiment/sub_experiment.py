@@ -71,7 +71,7 @@ class SubExperiment(Container):
         parallel_experiment: ParallelExperiment,
         description: Optional[str] = None,
         template: Optional['SubExperiment'] = None,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
     ) -> 'SubExperiment':
 
@@ -90,11 +90,7 @@ class SubExperiment(Container):
             )
         )
 
-        return super()._create(
-            digest=digest,
-            force=force,
-            request=request,
-        )
+        return cast('SubExperiment', super()._create(digest=digest, force=force, request=request))
 
     def get_html(self) -> str:
         """Get in HTML format
@@ -139,9 +135,7 @@ class SubExperiment(Container):
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
-        sub_experiment = cls.create(
-            parallel_experiment=parent, description=metadata['description'], force=True
-        )
+        sub_experiment = cls.create(parallel_experiment=parent, description=metadata['description'], force=True)
         existing_chemical_drawing = [
             cast(ChemicalDrawing, i) for i in sub_experiment.get_children() if i.type == EntityType.CHEMICAL_DRAWING
         ][0]

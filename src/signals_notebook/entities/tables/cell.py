@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Annotated, Any, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
+from typing import Annotated, Any, cast, Generic, List, Literal, Optional, TypedDict, TypeVar, Union
 from uuid import UUID
 
 from pydantic import BaseModel, Field, PrivateAttr
@@ -311,6 +311,7 @@ class UnitCell(Cell[float]):
 
 class MultiSelectCell(Cell[str]):
     type: Literal[ColumnDataType.MULTI_SELECT] = Field(allow_mutation=False)
+    content: CellContent[str]
 
     def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -> None:
         """Set new value to MultiSelectCell
@@ -334,6 +335,7 @@ class MultiSelectCell(Cell[str]):
 
 class AttributeListCell(Cell[str]):
     type: Literal[ColumnDataType.ATTRIBUTE_LIST] = Field(allow_mutation=False)
+    content: CellContent[str]
 
     def set_value(self, new_value: Union[str, List[str]], display: Optional[str] = None) -> None:
         """Set new value to AttributeListCell
@@ -348,7 +350,7 @@ class AttributeListCell(Cell[str]):
 
         if isinstance(new_value, List):
             value = ', '.join(new_value)
-            self.content.values = new_value
+            self.content.values = cast(List[str], new_value)
         else:
             value = new_value
             self.content.values = [new_value]

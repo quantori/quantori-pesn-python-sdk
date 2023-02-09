@@ -12,7 +12,7 @@ log = logging.getLogger(__name__)
 
 class PlateRow(BaseModel):
     id: Optional[UUID] = Field(allow_mutation=False, default=None)
-    type: Literal[ObjectType.PLATE_ROW] = Field(allow_mutation=False, default=ObjectType.ADT_ROW)
+    type: Literal[ObjectType.PLATE_ROW] = Field(allow_mutation=False, default=ObjectType.PLATE_ROW)
     cells: List[PlateCell]
     _cells_dict: Dict[Union[UUID, str], PlateCell] = PrivateAttr(default={})
 

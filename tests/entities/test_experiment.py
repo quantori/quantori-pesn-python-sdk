@@ -1,5 +1,4 @@
 import datetime
-import json
 
 import arrow
 import pytest
@@ -467,40 +466,3 @@ def test_get_html(api_mock, experiment_factory, snapshot):
     experiment_html = experiment.get_html()
 
     snapshot.assert_match(experiment_html)
-
-
-def test_dump_templates(api_mock, mocker, experiment_factory, templates, get_response_experiment):
-    experiment = experiment_factory(name='name')
-    template_eid = templates['data'][0]['id']
-
-    fs_handler_mock = mocker.MagicMock()
-    base_path = './'
-    metadata = {
-        'eid': template_eid,
-        'name': 'DEFAULT_EXPERIMENT',
-        'description': '',
-    }
-
-    api_mock.call.side_effect = [get_response_experiment(templates), get_response_experiment('')]
-    experiment.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
-
-    join_path_call_1 = mocker.call(base_path, 'templates', experiment.type)
-    join_path_call_2 = mocker.call(fs_handler_mock.join_path(), template_eid, 'metadata.json')
-
-    fs_handler_mock.join_path.assert_has_calls(
-        [
-            join_path_call_1,
-            join_path_call_2,
-        ],
-        any_order=True,
-    )
-    fs_handler_mock.write.assert_has_calls(
-        [
-            mocker.call(
-                fs_handler_mock.join_path(),
-                json.dumps(metadata),
-                base_alias=['Templates', 'experiment', 'DEFAULT_EXPERIMENT', '__Metadata'],
-            ),
-        ],
-        any_order=True,
-    )

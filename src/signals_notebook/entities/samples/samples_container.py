@@ -143,11 +143,11 @@ class SamplesContainer(ContentfulEntity):
         Returns:
 
         """
-        super().dump(base_path=base_path, fs_handler=fs_handler)
+        super().dump(base_path=base_path, fs_handler=fs_handler, alias=alias + [self.name] if alias else None)
 
         samples_path = fs_handler.join_path(base_path, self.eid)
         for item in self:
-            item.dump(base_path=samples_path, fs_handler=fs_handler)
+            item.dump(base_path=samples_path, fs_handler=fs_handler, alias=alias + [self.name] if alias else None)
 
     @classmethod
     def load(cls, path: str, fs_handler: FSHandler, parent: Container) -> None:

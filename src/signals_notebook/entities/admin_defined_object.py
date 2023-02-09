@@ -1,7 +1,7 @@
 import json
 import logging
 from functools import cached_property
-from typing import Any, ClassVar, List, Literal, Optional
+from typing import Any, cast, ClassVar, List, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -56,7 +56,7 @@ class AdoType(BaseModel):
 
 class AdminDefinedObject(Container):
     type: Literal[EntityType.ADO] = Field(allow_mutation=False)
-    ado: AdoType = Field(default=CUSTOM_SYSTEM_OBJECT)
+    ado: AdoType
     _template_name: ClassVar = 'ado.html'
 
     class Config:
@@ -111,11 +111,7 @@ class AdminDefinedObject(Container):
         )
 
         log.debug('Creating AdminDefinedObject for: %s', cls.__name__)
-        return super()._create(
-            digest=digest,
-            force=force,
-            request=request,
-        )
+        return cast('AdminDefinedObject', super()._create(digest=digest, force=force, request=request))
 
     def get_html(self) -> str:
         """Get in HTML format

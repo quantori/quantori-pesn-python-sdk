@@ -176,7 +176,7 @@ class Material(BaseMaterialEntity):
             },
         )
 
-    def delete(self, digest: str = None, force: bool = True) -> None:
+    def delete(self, digest: Optional[str] = None, force: bool = True) -> None:
         """Delete Material by ID
 
         Args:

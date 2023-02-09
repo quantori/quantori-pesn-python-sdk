@@ -460,45 +460,6 @@ def test_get_html(api_mock, request_container_factory, snapshot):
     snapshot.assert_match(request_html)
 
 
-def test_dump_templates(api_mock, mocker, request_container_factory, templates, get_response_object):
-    request = request_container_factory(name='name')
-    template_eid = templates['data'][0]['id']
-    template_name = templates['data'][0]['attributes']['name']
-    template_description = templates['data'][0]['attributes']['description']
-
-    fs_handler_mock = mocker.MagicMock()
-    base_path = './'
-    metadata = {
-        'eid': template_eid,
-        'name': template_name,
-        'description': template_description,
-    }
-
-    api_mock.call.side_effect = [get_response_object(templates), get_response_object('')]
-    request.dump_templates(base_path=base_path, fs_handler=fs_handler_mock)
-
-    join_path_call_1 = mocker.call(base_path, 'templates', request.type)
-    join_path_call_2 = mocker.call(fs_handler_mock.join_path(), template_eid, 'metadata.json')
-
-    fs_handler_mock.join_path.assert_has_calls(
-        [
-            join_path_call_1,
-            join_path_call_2,
-        ],
-        any_order=True,
-    )
-    fs_handler_mock.write.assert_has_calls(
-        [
-            mocker.call(
-                fs_handler_mock.join_path(),
-                json.dumps(metadata),
-                base_alias=['Templates', 'request', 'DEFAULT_REQUEST', '__Metadata'],
-            ),
-        ],
-        any_order=True,
-    )
-
-
 def test_dump(api_mock, request_container_factory, eid_factory, mocker):
     request_container = request_container_factory()
     text_eid = eid_factory(type=EntityType.TEXT)

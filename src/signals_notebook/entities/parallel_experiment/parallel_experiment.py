@@ -2,7 +2,7 @@ import json
 import logging
 from enum import Enum
 from functools import cached_property
-from typing import Any, ClassVar, Generator, Literal, Optional
+from typing import Any, cast, ClassVar, Generator, Literal, Optional
 
 from pydantic import BaseModel, Field
 
@@ -66,7 +66,7 @@ class ParallelExperiment(Container):
         description: Optional[str] = None,
         template: Optional['ParallelExperiment'] = None,
         notebook: Optional[Notebook] = None,
-        digest: str = None,
+        digest: Optional[str] = None,
         force: bool = True,
     ) -> 'ParallelExperiment':
         """Create new Parallel Experiment in Signals Notebook
@@ -102,11 +102,7 @@ class ParallelExperiment(Container):
         )
 
         log.debug('Creating Parallel Experiment for: %s', cls.__name__)
-        return super()._create(
-            digest=digest,
-            force=force,
-            request=request,
-        )
+        return cast('ParallelExperiment', super()._create(digest=digest, force=force, request=request))
 
     def get_children(self, order='') -> Generator[Entity, None, None]:
         """Get children of SubExperiment.
@@ -144,9 +140,7 @@ class ParallelExperiment(Container):
         from signals_notebook.item_mapper import ItemMapper
 
         metadata = json.loads(fs_handler.read(fs_handler.join_path(path, 'metadata.json')))
-        experiment = cls.create(
-            notebook=parent, name=metadata['name'], description=metadata['description'], force=True
-        )
+        experiment = cls.create(notebook=parent, name=metadata['name'], description=metadata['description'], force=True)
         experiment_children = [
             child for child in experiment.get_children() if child.type != EntityType.SUB_EXPERIMENT_SUMMARY
         ]
