@@ -33,3 +33,11 @@ class SignalsNotebookError(Exception):
 
 class EIDError(PydanticValueError):
     msg_template = 'incorrect EID value: "{value}"'
+
+
+class BulkExportJobAlreadyRunningError(Exception):
+    def __init__(self, message=None):
+        super().__init__(message)
+
+    def __str__(self) -> str:
+        return 'Only one Bulk Export job can be processed at a time'

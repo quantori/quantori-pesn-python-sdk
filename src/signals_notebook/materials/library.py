@@ -18,6 +18,7 @@ from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.field import AssetConfig, BatchConfig
 from signals_notebook.utils.fs_handler import FSHandler
+from src.signals_notebook.exceptions import SignalsNotebookError, BulkExportJobAlreadyRunningError
 
 MAX_MATERIAL_FILE_SIZE = 52428800
 EXPORT_ERROR_LIBRARY_EMPTY = 'Nothing to export.'
@@ -394,7 +395,7 @@ class Library(BaseMaterialEntity):
             path=(self._get_endpoint(), 'bulkExport', 'download', file_id),
         )
 
-    def get_content(self, timeout: int = 30, period: int = 5) -> File:
+    def get_content(self, timeout: int = 600, period: int = 5) -> File:
         """Get library content.
         Compounds/Reagents (SNB) will be exported to SD file, others will be exported to CSV file.
 
@@ -405,13 +406,21 @@ class Library(BaseMaterialEntity):
         Returns:
             File
         """
+        bulk_export_response = None
         api = SignalsNotebookApi.get_default_api()
         log.debug('Get content for: %s| %s', self.__class__.__name__, self.eid)
 
-        bulk_export_response = api.call(
-            method='POST',
-            path=(self._get_endpoint(), self.name, 'bulkExport'),
-        )
+        try:
+            bulk_export_response = api.call(
+                method='POST',
+                path=(self._get_endpoint(), self.name, 'bulkExport'),
+            )
+        except SignalsNotebookError as e:
+            error = e.parsed_response.errors[0]
+            if error.status == '409':
+                raise BulkExportJobAlreadyRunningError()
+        except Exception as e:
+            raise e
 
         file_id, report_id = bulk_export_response.json()['data']['attributes'].values()
 
@@ -560,7 +569,7 @@ class Library(BaseMaterialEntity):
             **{k: v for k, v in self.dict().items() if k in ('library_name', 'asset_type_id', 'eid', 'name')},
         }
         try:
-            content = self.get_content(timeout=60)
+            content = self.get_content(timeout=600)
             metadata['file_name'] = content.name
             file_name = content.name
             data = content.content
@@ -569,10 +578,14 @@ class Library(BaseMaterialEntity):
                 data,
                 base_alias=alias + [metadata['name'], file_name] if alias else None,
             )
-        except FileNotFoundError:
+        except BulkExportJobAlreadyRunningError as e:
+            raise e
+        except FileNotFoundError as e:
             metadata['error'] = 'Library is empty'
-        except TimeoutError:
+        except TimeoutError as e:
             metadata['error'] = 'Time is over to dump library'
+        except Exception as e:
+            raise e
 
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
