@@ -18,7 +18,7 @@ from signals_notebook.materials.base_entity import BaseMaterialEntity
 from signals_notebook.materials.batch import Batch
 from signals_notebook.materials.field import AssetConfig, BatchConfig
 from signals_notebook.utils.fs_handler import FSHandler
-from src.signals_notebook.exceptions import SignalsNotebookError, BulkExportJobAlreadyRunningError
+from signals_notebook.exceptions import SignalsNotebookError, BulkExportJobAlreadyRunningError
 
 MAX_MATERIAL_FILE_SIZE = 52428800
 EXPORT_ERROR_LIBRARY_EMPTY = 'Nothing to export.'
@@ -419,6 +419,8 @@ class Library(BaseMaterialEntity):
             error = e.parsed_response.errors[0]
             if error.status == '409':
                 raise BulkExportJobAlreadyRunningError()
+            else:
+                raise
         except Exception as e:
             raise e
 
@@ -568,24 +570,15 @@ class Library(BaseMaterialEntity):
         metadata = {
             **{k: v for k, v in self.dict().items() if k in ('library_name', 'asset_type_id', 'eid', 'name')},
         }
-        try:
-            content = self.get_content(timeout=600)
-            metadata['file_name'] = content.name
-            file_name = content.name
-            data = content.content
-            fs_handler.write(
-                fs_handler.join_path(base_path, self.eid, file_name),
-                data,
-                base_alias=alias + [metadata['name'], file_name] if alias else None,
-            )
-        except BulkExportJobAlreadyRunningError as e:
-            raise e
-        except FileNotFoundError as e:
-            metadata['error'] = 'Library is empty'
-        except TimeoutError as e:
-            metadata['error'] = 'Time is over to dump library'
-        except Exception as e:
-            raise e
+        content = self.get_content(timeout=600)
+        metadata['file_name'] = content.name
+        file_name = content.name
+        data = content.content
+        fs_handler.write(
+            fs_handler.join_path(base_path, self.eid, file_name),
+            data,
+            base_alias=alias + [metadata['name'], file_name] if alias else None,
+        )
 
         fs_handler.write(
             fs_handler.join_path(base_path, self.eid, 'metadata.json'),
