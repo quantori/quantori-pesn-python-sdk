@@ -1,4 +1,5 @@
 import json
+import os
 
 import arrow
 import pytest
@@ -9,7 +10,8 @@ from signals_notebook.entities import BiologicalSequence
 
 @pytest.fixture
 def bio_seq_content():
-    with open('tests/entities/test_files/bio_sequence_content.gb') as bio_seq_file:
+    path = os.path.join(os.path.dirname(__file__), 'test_files/bio_sequence_content.gb')
+    with open(path, 'r') as bio_seq_file:
         file = File(bio_seq_file)
         return file.content
 
